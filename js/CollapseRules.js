@@ -1,6 +1,6 @@
 // CollapseRules.js — Rail Link: Collapse run rules (GDD v3 §3–§7): the seeded track generator and
-// the run state. Pure logic without 3D: CollapseScene.js only draws what this file decides, so one
-// seed and one list of taps replay the same run on every device (fixed time step, own PRNG).
+// the run state. Pure logic without 3D and DOM: CollapseScene.js only draws what this file decides,
+// so one seed and one list of taps replay the same run on every device (fixed time step, own PRNG).
 //
 // Distance is counted in SEGMENTS: segment i spans [i, i + 1). Three lanes, 0..2 left to right as
 // the player sees the train on screen. A fork at BOUNDARY i links lane `from` to an adjacent lane
@@ -15,8 +15,14 @@ const CollapseRules = {
     LOOK: 3,               // segments a fork signal checks on its destination lane
     SWITCH_LEN: 0.8,       // segments the train needs to cross to the next lane after a fork
     TRAIN_LEN: 0.35,       // segments: the collapse behind catches the train at this gap
+    FORK_RANGE: 6,         // segments: how far ahead the next fork can be armed
+    DIFFICULTY_SEGS: 600,  // segments over which the generator goes from calm to dense
+    // The generator's dice: pickups and the share of each pattern (the rest of a roll is a detour).
     PICKUPS: ['ammo', 'boost', 'slow', 'shield', 'rescue'],
     PICKUP_WEIGHTS: [0.34, 0.2, 0.16, 0.15, 0.15],
+    DEMON_ROLL: 0.12,
+    GAP_ROLL: 0.52,
+    LAVA_ROLL: 0.66,       // + 0.1 × difficulty
 
     // All run numbers (Constants.js, GDD v3 §8) with defaults: Constants.js may be older than the code.
     cfg() {
@@ -37,9 +43,23 @@ const CollapseRules = {
             slowSec: typeof COLLAPSE_SLOW_SEC !== U ? COLLAPSE_SLOW_SEC : 3,
             startAmmo: typeof COLLAPSE_START_AMMO !== U ? COLLAPSE_START_AMMO : 8,
             ammoPickup: typeof COLLAPSE_AMMO_PICKUP !== U ? COLLAPSE_AMMO_PICKUP : 4,
+            shieldMax: typeof COLLAPSE_SHIELD_MAX !== U ? COLLAPSE_SHIELD_MAX : 2,
+            rescueMax: typeof COLLAPSE_RESCUE_MAX !== U ? COLLAPSE_RESCUE_MAX : 2,
+            shieldGap: typeof COLLAPSE_SHIELD_GAP !== U ? COLLAPSE_SHIELD_GAP : 6,
             demonSec: typeof COLLAPSE_DEMON_SEC !== U ? COLLAPSE_DEMON_SEC : 1.6,
             demonEvery: typeof COLLAPSE_DEMON_EVERY !== U ? COLLAPSE_DEMON_EVERY : 60,
+            gapMin: typeof COLLAPSE_GAP_MIN !== U ? COLLAPSE_GAP_MIN : 2,
+            gapMax: typeof COLLAPSE_GAP_MAX !== U ? COLLAPSE_GAP_MAX : 4,
+            reactSec: typeof COLLAPSE_REACT_SEC !== U ? COLLAPSE_REACT_SEC : 0.6,
+            continueGap: typeof COLLAPSE_CONTINUE_GAP !== U ? COLLAPSE_CONTINUE_GAP : 8,
+            continueGrace: typeof COLLAPSE_CONTINUE_GRACE_SEC !== U ? COLLAPSE_CONTINUE_GRACE_SEC : 1.5,
         };
+    },
+
+    // The fastest the train can go at segment `at`: its own speed there under an accelerator.
+    // The generator spaces forks by it (GDD v3 §3, invariant 3).
+    maxSpeedAt(c, at) {
+        return Math.min(c.speedMax, c.speed + c.speedGrowth * at) * Math.max(1, c.boostMult);
     },
 
     // mulberry32: a tiny PRNG that is the same on every JS engine (Math.random is not seedable).
@@ -66,7 +86,8 @@ function collapseSegment(kind) {
 
 // The endless track, generated pattern by pattern on demand. Every hazard on a lane has a fork
 // away from it at the boundary before it and a fork back at the boundary after it (GDD v3 §3,
-// invariant 1); the destination of the escape fork is safe for the whole hazard.
+// invariant 1); the destination of the escape fork is safe for the whole hazard. A pattern's first
+// fork stands at least reactSec of the fastest allowed travel after the previous fork (invariant 3).
 class CollapseTrack {
     constructor(seed) {
         this.seed = seed >>> 0;
@@ -75,7 +96,8 @@ class CollapseTrack {
         /** @type {ReturnType<typeof collapseSegment>[]} */
         this.segs = [];
         this.lastDemon = -1e9;
-        this._calm(5);      // the depot: a quiet start to read the screen
+        this.lastFork = -1e9;   // boundary of the last generated fork
+        this._calm(5);          // the depot: a quiet start to read the screen
     }
 
     seg(i) {
@@ -95,8 +117,13 @@ class CollapseTrack {
 
     _int(n) { return Math.floor(this.rand() * n); }
 
+    _push(s) {
+        if (s.forks.length) this.lastFork = this.segs.length;
+        this.segs.push(s);
+    }
+
     _calm(n) {
-        for (let i = 0; i < n; i++) this.segs.push(collapseSegment('calm'));
+        for (let i = 0; i < n; i++) this._push(collapseSegment('calm'));
     }
 
     _pickupKind() {
@@ -109,13 +136,17 @@ class CollapseTrack {
     }
 
     _pattern() {
+        const R = CollapseRules, c = this.cfg;
         const at = this.segs.length;
-        const d = Math.min(1, at / 600);                       // difficulty 0..1 over 600 segments
-        this._calm(Math.round(4 - 3 * d) + this._int(2));
+        const d = Math.min(1, at / R.DIFFICULTY_SEGS);          // difficulty 0..1
+        let calm = Math.round(4 - 3 * d) + this._int(2);
+        // The decision window: the pattern's fork (at boundary at + calm) is far enough from the last one.
+        while ((at + calm - this.lastFork) / R.maxSpeedAt(c, at + calm) < c.reactSec) calm++;
+        this._calm(calm);
         const roll = this.rand();
-        if (at - this.lastDemon >= this.cfg.demonEvery && roll < 0.12) this._demon();
-        else if (roll < 0.52) this._hazard('gap', 2 + this._int(1 + Math.round(2 * d)));
-        else if (roll < 0.66 + 0.1 * d) this._hazard('lava', 1);
+        if (at - this.lastDemon >= c.demonEvery && roll < R.DEMON_ROLL) this._demon();
+        else if (roll < R.GAP_ROLL) this._hazard('gap', c.gapMin + this._int(1 + Math.round((c.gapMax - c.gapMin) * d)));
+        else if (roll < R.LAVA_ROLL + 0.1 * d) this._hazard('lava', 1);
         else this._detour();
     }
 
@@ -124,7 +155,7 @@ class CollapseTrack {
         const lane = this._int(CollapseRules.LANES);
         const lead = collapseSegment(type + '-lead');
         for (const to of CollapseRules.neighbors(lane)) lead.forks.push({ from: lane, to });
-        this.segs.push(lead);
+        this._push(lead);
         for (let i = 0; i < len; i++) {
             const s = collapseSegment(type);
             s[type][lane] = true;
@@ -133,11 +164,11 @@ class CollapseTrack {
                 const side = CollapseRules.neighbors(lane);
                 s.pickup[side[this._int(side.length)]] = this._pickupKind();
             }
-            this.segs.push(s);
+            this._push(s);
         }
         const back = collapseSegment(type + '-back');
         for (const from of CollapseRules.neighbors(lane)) back.forks.push({ from, to: lane });
-        this.segs.push(back);
+        this._push(back);
     }
 
     // A side trip for a pickup on a calm stretch: fork out, pickup, fork back.
@@ -147,20 +178,20 @@ class CollapseTrack {
         const b = side[this._int(side.length)];
         const out = collapseSegment('detour');
         out.forks.push({ from: a, to: b });
-        this.segs.push(out);
+        this._push(out);
         const mid = collapseSegment('detour');
         mid.pickup[b] = this._pickupKind();
-        this.segs.push(mid);
+        this._push(mid);
         const back = collapseSegment('detour');
         back.forks.push({ from: b, to: a });
-        this.segs.push(back);
+        this._push(back);
     }
 
     _demon() {
         const s = collapseSegment('demon');
         s.demon = true;
         this.lastDemon = this.segs.length;
-        this.segs.push(s);
+        this._push(s);
     }
 }
 CollapseTrack.BEHIND = collapseSegment('behind');
@@ -212,8 +243,8 @@ class CollapseRun {
         return Math.min(c.frontMax, c.frontSpeed + c.frontGrowth * this.pos);
     }
 
-    // The next fork the train can take from its lane: { at, to: [lanes] } or null within `range`.
-    nextFork(range = 6) {
+    // The next fork the train can take from its lane: { at, to: [lanes], armed } or null within `range`.
+    nextFork(range = CollapseRules.FORK_RANGE) {
         const from = this.lane;
         for (let b = Math.floor(this.pos) + 1; b <= this.pos + range; b++) {
             if (this.armed && this.armed.at === b) return { at: b, to: [this.armed.to], armed: true };
@@ -227,13 +258,13 @@ class CollapseRun {
     forkSafe(at, to) { return this.track.laneSafe(to, at, CollapseRules.LOOK); }
 
     // Tap on a fork sign: the driver shoots the switch. 'ok' | 'no-ammo' | 'invalid'.
+    // The switch already set that way costs nothing; setting it the other way costs a new shot.
     shoot(at, to) {
         if (this.state !== 'run') return 'invalid';
+        const a = this.armed;
+        if (a && a.at === at && a.to === to) return 'ok';
         const next = this.nextFork();
-        if (!next || next.at !== at || !this.track.seg(at).forks.some(f => f.from === this.lane && f.to === to)) {
-            if (!(this.armed && this.armed.at === at && this.armed.to === to)) return 'invalid';
-        }
-        if (this.armed && this.armed.at === at && this.armed.to === to) return 'ok';
+        if (!next || next.at !== at || !this.track.seg(at).forks.some(f => f.from === this.lane && f.to === to)) return 'invalid';
         if (this.ammo <= 0) { this.events.push({ type: 'no-ammo' }); return 'no-ammo'; }
         this.ammo--;
         this.armed = { at, from: this.lane, to };
@@ -241,6 +272,7 @@ class CollapseRun {
         return 'ok';
     }
 
+    // Tap on a leaping demon: a shot drives it off.
     shootDemon() {
         if (this.state !== 'run' || !this.demon) return 'invalid';
         if (this.ammo <= 0) { this.events.push({ type: 'no-ammo' }); return 'no-ammo'; }
@@ -318,8 +350,8 @@ class CollapseRun {
         if (kind === 'ammo') this.ammo += c.ammoPickup;
         else if (kind === 'boost') { this.boost = c.boostSec; this.slow = 0; }
         else if (kind === 'slow') { this.slow = c.slowSec; this.boost = 0; }
-        else if (kind === 'shield') this.shield = Math.min(2, this.shield + 1);
-        else if (kind === 'rescue') this.rescue = Math.min(2, this.rescue + 1);
+        else if (kind === 'shield') this.shield = Math.min(c.shieldMax, this.shield + 1);
+        else if (kind === 'rescue') this.rescue = Math.min(c.rescueMax, this.rescue + 1);
         this.events.push({ type: 'pickup', kind, at: i });
     }
 
@@ -338,6 +370,7 @@ class CollapseRun {
         if (this.rescue > 0) {
             this.rescue--;
             this.prevLane = this.lane = this._safeLane(i);
+            this.armed = null;
             this.events.push({ type: 'rescued', at: i, lane: this.lane });
             return;
         }
@@ -348,7 +381,7 @@ class CollapseRun {
         if (this.invuln > 0) return;
         if (this.shield > 0) {
             this.shield--;
-            if (reason === 'caught') this.front = this.pos - 6;
+            if (reason === 'caught') this.front = this.pos - this.c.shieldGap;
             this.events.push({ type: 'shielded', reason });
             return;
         }
@@ -368,8 +401,8 @@ class CollapseRun {
         if (!this.canContinue) return false;
         this.continued = true;
         this.state = 'run';
-        this.invuln = 1.5;
-        this.front = Math.min(this.front, this.pos - 8);
+        this.invuln = this.c.continueGrace;
+        this.front = Math.min(this.front, this.pos - this.c.continueGap);
         this.demon = null;
         this.armed = null;
         this.prevLane = this.lane = this._safeLane(this._seg);

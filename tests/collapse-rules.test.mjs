@@ -153,3 +153,121 @@ test('ресурсы: патроны пополняются, ускорител�
   run._collect(3);
   assert.equal(run.ammo, ammo + run.c.ammoPickup, 'один ресурс берётся один раз');
 });
+
+test('провалы конечны: не длиннее COLLAPSE_GAP_MAX, за провалом полоса снова целая', () => {
+  const p = page();
+  const max = p.get('COLLAPSE_GAP_MAX');
+  for (const seed of [1, 2, 3]) {
+    const t = new (p.get('CollapseTrack'))(seed);
+    for (const l of LANES) {
+      let run = 0, longest = 0;
+      for (let i = 0; i < 2000; i++) {
+        run = t.seg(i).gap[l] ? run + 1 : 0;
+        longest = Math.max(longest, run);
+      }
+      assert.ok(longest > 0 && longest <= max, `зерно ${seed}, полоса ${l}: самый длинный провал ${longest}`);
+    }
+  }
+});
+
+test('окно реакции: обязательная развилка не ближе COLLAPSE_REACT_SEC пути на предельной скорости', () => {
+  const p = page();
+  const R = p.get('CollapseRules');
+  const c = R.cfg();
+  for (const seed of [1, 2, 3, 99]) {
+    const t = new (p.get('CollapseTrack'))(seed);
+    let last = -1e9, checked = 0;
+    for (let i = 0; i < 2000; i++) {
+      const s = t.seg(i);
+      if (!s.forks.length) continue;
+      if (s.kind.endsWith('-lead')) {
+        const sec = (i - last) / R.maxSpeedAt(c, i);
+        assert.ok(sec >= c.reactSec - 1e-9, `зерно ${seed}: развилка ${i} через ${sec.toFixed(2)} с после ${last}`);
+        checked++;
+      }
+      last = i;
+    }
+    assert.ok(checked > 50);
+  }
+});
+
+test('поезд без действий падает не позже 300 с игрового времени', () => {
+  const p = page();
+  for (const seed of [8, 13, 77]) {
+    const idle = new (p.get('CollapseRun'))(seed);
+    runFrames(idle, 60 * 300);
+    assert.equal(idle.state, 'over', `зерно ${seed}: едет ${idle.time.toFixed(0)} с`);
+    assert.ok(idle.time <= 300);
+  }
+});
+
+test('обвал позади сам догоняет медленный поезд, даже если бот уходит от всех опасностей', () => {
+  const p = page();
+  const CollapseRules = p.get('CollapseRules');
+  const run = new (p.get('CollapseRun'))(3);
+  run.ammo = 999;
+  for (let f = 0; f < 60 * 120 && run.state === 'run'; f++) {
+    run.slow = 1;                                   // the decelerator never wears off
+    escapeBot(run, CollapseRules);
+    if (run.demon) run.shootDemon();
+    run.update(1 / 60);
+  }
+  assert.equal(run.state, 'over');
+  assert.equal(run.reason, 'caught');
+});
+
+test('выстрел по демону стоит патрон; без патронов демон бьёт, щит прощает удар', () => {
+  const p = page();
+  const CollapseRun = p.get('CollapseRun');
+  const toDemon = run => runFrames(run, 60 * 600, r => !!r.demon);
+
+  const run = new CollapseRun(4);
+  run.ammo = 999; run.rescue = 99; run.shield = 0;
+  toDemon(run);
+  assert.ok(run.demon, 'демон прыгнул');
+  const ammo = run.ammo;
+  assert.equal(run.shootDemon(), 'ok');
+  assert.equal(run.ammo, ammo - 1);
+  assert.equal(run.demon, null);
+
+  const dry = new CollapseRun(4);
+  dry.rescue = 99;
+  toDemon(dry);
+  dry.ammo = 0;
+  assert.equal(dry.shootDemon(), 'no-ammo');
+  dry.invuln = 0; dry.shield = 1;
+  runFrames(dry, 60 * 3, r => !r.demon);
+  assert.equal(dry.state, 'run', 'щит принял удар демона');
+  assert.equal(dry.shield, 0);
+});
+
+test('щит прощает поток лавы и касание обвала; спасение ставит поезд на целую полосу', () => {
+  const p = page();
+  const CollapseRun = p.get('CollapseRun');
+  const lavaRun = new CollapseRun(1);
+  lavaRun.track.seg(3).lava[lavaRun.lane] = true;
+  lavaRun.shield = 1;
+  runFrames(lavaRun, 60 * 3, r => r.pos > 3.2);
+  assert.equal(lavaRun.state, 'run');
+  assert.equal(lavaRun.shield, 0);
+
+  const caught = new CollapseRun(1);
+  caught.shield = 1;
+  caught.front = caught.pos - 0.2;
+  caught.update(1 / 60);
+  assert.equal(caught.state, 'run');
+  assert.ok(caught.pos - caught.front >= caught.c.shieldGap - 0.1, 'обвал отброшен');
+
+  const fall = new CollapseRun(1);
+  fall.track.seg(3).gap[fall.lane] = true;
+  fall.rescue = 1;
+  runFrames(fall, 60 * 3, r => r.pos > 3.2);
+  assert.equal(fall.state, 'run');
+  assert.equal(fall.rescue, 0);
+  assert.equal(fall.track.seg(3).gap[fall.lane], false, 'на целой полосе');
+
+  const noRescue = new CollapseRun(1);
+  noRescue.track.seg(3).gap[noRescue.lane] = true;
+  runFrames(noRescue, 60 * 3, r => r.pos > 3.2);
+  assert.equal(noRescue.reason, 'gap');
+});
