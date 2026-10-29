@@ -2,7 +2,9 @@
 // and the run state — shots, lane changes, hazards, resources, the collapse behind, one continue.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { loadScripts } from './browser-scripts.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { loadScripts, ROOT } from './browser-scripts.mjs';
 
 const page = () => loadScripts(['js/Constants.js', 'js/CollapseRules.js']);
 const LANES = [0, 1, 2];
@@ -429,4 +431,23 @@ test('щит прощает поток лавы и касание обвала; 
   noRescue.track.seg(3).gap[noRescue.lane] = true;
   runFrames(noRescue, 60 * 3, r => r.pos > 3.2);
   assert.equal(noRescue.reason, 'gap');
+});
+
+test('все числа забега крутятся в редакторе: у каждой COLLAPSE_* строка в схеме, значение внутри ползунка', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'js/Constants.js'), 'utf8');
+  const names = [...src.matchAll(/^const (COLLAPSE_[A-Z0-9_]+) = /gm)].map(m => m[1]);
+  const p = loadScripts(['js/Constants.js', '_utils/editor/schema.js']);
+  const fields = p.get('KIT_SCHEMA').flatMap(g => g.fields);
+  const byName = new Map(fields.map(f => [f.name, f]));
+  assert.ok(names.length > 40, `констант забега ${names.length}`);
+  for (const name of names) {
+    const f = byName.get(name);
+    assert.ok(f, `${name}: нет строки в _utils/editor/schema.js`);
+    assert.ok(f.label && f.label.en && f.label.ru, `${name}: подпись en/ru`);
+    const v = p.get(name);
+    assert.ok(f.min <= v && v <= f.max && f.step > 0, `${name} = ${v} вне ползунка ${f.min}..${f.max}`);
+  }
+  for (const f of fields.filter(x => x.name.startsWith('COLLAPSE_'))) {
+    assert.ok(names.includes(f.name), `${f.name}: строка схемы без константы`);
+  }
 });
