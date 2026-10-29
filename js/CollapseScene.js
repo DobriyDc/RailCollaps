@@ -74,6 +74,7 @@ class CollapseScene {
         this.lavaLevel = typeof COLLAPSE_LAVA_LEVEL !== U ? COLLAPSE_LAVA_LEVEL : 1.5;
         cam.maxZ = toTrain + CollapseScene.SEG * CollapseScene.BEHIND + 2000;
         this.ahead = Math.max(CollapseScene.AHEAD, Math.ceil(camZ / CollapseScene.SEG) + 1);
+        this.slots = CollapseScene.BEHIND + this.ahead + 2;   // tunnel pieces: one per segment of the window
         this.renderHeight = typeof COLLAPSE_RENDER_HEIGHT !== U ? COLLAPSE_RENDER_HEIGHT : 640;
 
         this._tex = new Map();
@@ -158,31 +159,20 @@ class CollapseScene {
         return p;
     }
 
-    // --- Static tunnel (scrolls with a period of two segments) ----------------------------------
+    // --- The tunnel --------------------------------------------------------------------------------
+    // The lava is one static plane that scrolls with a period of two segments. Everything above it
+    // (walls, vault, arch ribs, torches, ballast shoulders) is cut into per-segment PIECES, one mesh
+    // per kind with a thin instance per segment of the window: behind CollapseRun.front each piece
+    // leans in and falls into the lava (GDD v3 §3, §6), so nothing behind the collapse stays whole.
 
     _buildTunnel() {
         const S = CollapseScene, scene = this.scene;
         const root = this.tunnel = new BABYLON.TransformNode('tunnel', scene);
         const zFar = -S.SEG * S.BEHIND - S.PERIOD, zNear = S.SEG * this.ahead + S.PERIOD;
         const len = zNear - zFar;
-        const path = [new BABYLON.Vector3(0, 0, zFar), new BABYLON.Vector3(0, 0, zNear)];
         const W = S.WALL_X, top = S.WALL_TOP, R = S.WALL_X;
-        const BRICK = S.TILE * 2;   // wall and vault bricks read at the camera's distance; still divides PERIOD
-
-        const wallShape = side => [new BABYLON.Vector3(side * W, -60, 0), new BABYLON.Vector3(side * W, top, 0)];
-        for (const side of [-1, 1]) {
-            const wall = BABYLON.MeshBuilder.ExtrudeShape('wall', { shape: wallShape(side), path, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
-            wall.material = this.surface('wall', CollapseArt.tex.wall, (top + 60) / BRICK, len / BRICK, this.brickLevel);
-            wall.parent = root;
-        }
-        const arc = [];
-        for (let k = 0; k <= 16; k++) {
-            const a = Math.PI * k / 16;
-            arc.push(new BABYLON.Vector3(-Math.cos(a) * R, top + Math.sin(a) * R * 0.75, 0));
-        }
-        const vault = BABYLON.MeshBuilder.ExtrudeShape('vault', { shape: arc, path, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
-        vault.material = this.surface('vault', CollapseArt.tex.vault, Math.PI * R / BRICK, len / BRICK, this.brickLevel);
-        vault.parent = root;
+        const BRICK = S.TILE * 2;   // wall and vault bricks read at the camera's distance; one tile per segment
+        const mid = (top - 60) / 2; // where a wall breaks into its lower and upper piece
 
         // Lava under the whole floor: seen through gaps, in the side channels and behind the collapse.
         const lava = BABYLON.MeshBuilder.CreateGround('lava', { width: W * 2, height: len }, scene);
@@ -192,10 +182,6 @@ class CollapseScene {
         // Ballast shoulders beside the outer lanes, then a lava channel up to the wall (the keyframe).
         const edge = S.LANE_W * 1.5, shoulder = 40, channel = W - edge - shoulder;
         for (const side of [-1, 1]) {
-            const sh = BABYLON.MeshBuilder.CreateGround('shoulder', { width: shoulder, height: len }, scene);
-            sh.position.set(side * (edge + shoulder / 2), -8, (zFar + zNear) / 2);
-            sh.material = this.surface('ballast', CollapseArt.tex.ballast, shoulder / S.TILE, len / S.TILE);
-            sh.parent = root;
             const ch = BABYLON.MeshBuilder.CreateGround('lava-channel', { width: channel, height: len }, scene);
             ch.position.set(side * (W - channel / 2), -30, (zFar + zNear) / 2);
             ch.material = this.surface('lava-channel', CollapseArt.lava[0], channel / (2 * S.TILE), len / (2 * S.TILE), this.lavaLevel);
@@ -203,32 +189,123 @@ class CollapseScene {
         }
         this.lavaMats = [this._mats.get('lava'), this._mats.get('lava-channel')];
 
-        // Arch ribs and torches every PERIOD.
-        const rib = [];
-        for (let k = 0; k <= 16; k++) {
-            const a = Math.PI * k / 16;
-            rib.push(new BABYLON.Vector3(-Math.cos(a) * (R - 40), top + Math.sin(a) * (R - 40) * 0.75, 0));
-        }
-        const ribShape = [new BABYLON.Vector3(-(W - 40), -60, 0), ...rib, new BABYLON.Vector3(W - 40, -60, 0)];
+        // Piece shapes in the segment's local space: z from 0 to SEG, x and y as in the tunnel.
+        const V = (x, y) => new BABYLON.Vector3(x, y, 0);
+        const path = [new BABYLON.Vector3(0, 0, 0), new BABYLON.Vector3(0, 0, S.SEG)];
+        const extrude = (name, shape, p = path) => BABYLON.MeshBuilder.ExtrudeShape(name, { shape, path: p, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
+        const arc = (r, from, to) => {
+            const pts = [];
+            for (let k = from; k <= to; k++) { const a = Math.PI * k / 16; pts.push(V(-Math.cos(a) * r, top + Math.sin(a) * r * 0.75)); }
+            return pts;
+        };
+        const wallLo = (mid + 60) / BRICK, wallHi = (top - mid) / BRICK, half = Math.PI * R / 2 / BRICK;
+        const ribPath = [new BABYLON.Vector3(0, 0, -40), new BABYLON.Vector3(0, 0, 40)];
         this.torchMat = this.spriteMat('torch', CollapseArt.torch[0]);
-        for (let z = zFar + S.PERIOD / 2; z < zNear; z += S.PERIOD) {
-            const ribMesh = BABYLON.MeshBuilder.ExtrudeShape('rib', {
-                shape: ribShape, path: [new BABYLON.Vector3(0, 0, z - 40), new BABYLON.Vector3(0, 0, z + 40)],
-                sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
-            ribMesh.material = this.surface('rib', CollapseArt.tex.rib, 12, 1, this.brickLevel);
-            ribMesh.parent = root;
-            for (const side of [-1, 1]) {
-                // The flame faces the camera: a sprite flat on the wall is seen edge-on from the track.
-                const t = this.sprite('torch', 'torch', CollapseArt.torch[0], 105, 210);
-                t.position.set(side * (W - 60), 250, z + S.PERIOD / 2);
-                t.parent = root;
-                const glow = BABYLON.MeshBuilder.CreatePlane('glow', { width: 400, height: 400 }, scene);
-                glow.material = this.spriteMat('glow', CollapseArt.tex.glow);
-                glow.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;
-                glow.position.set(side * (W - 4), 360, z + S.PERIOD / 2);
-                glow.parent = root;
-            }
+        /** @type {{ mesh: any, side: number, kind: string, pivot: number[], buf: Float32Array }[]} */
+        this.pieces = [];
+        const piece = (mesh, side, kind, pivot) => {
+            mesh.isPickable = false;
+            mesh.alwaysSelectAsActiveMesh = true;   // instances move every frame: no stale bounds to cull by
+            const buf = new Float32Array(16 * this.slots);
+            mesh.thinInstanceSetBuffer('matrix', buf, 16, false);
+            this.pieces.push({ mesh, side, kind, pivot, buf });
+        };
+        for (const side of [-1, 1]) {
+            const s = side < 0 ? 'L' : 'R';
+            const lo = extrude('wall-lo', [V(side * W, -60), V(side * W, mid)]);
+            lo.material = this.surface('wall-lo', CollapseArt.tex.wall, wallLo, 1, this.brickLevel);
+            piece(lo, side, 'wall-lo', [side * W, -60]);
+            const hi = extrude('wall-hi', [V(side * W, mid), V(side * W, top)]);
+            const hiMat = this.surface('wall-hi', CollapseArt.tex.wall, wallHi, 1, this.brickLevel);
+            hiMat.emissiveTexture.uOffset = wallLo;
+            hi.material = hiMat;
+            piece(hi, side, 'wall-hi', [side * W, mid]);
+            const vault = extrude('vault-' + s, side < 0 ? arc(R, 0, 8) : arc(R, 8, 16));
+            const vMat = this.surface('vault-' + s, CollapseArt.tex.vault, half, 1, this.brickLevel);
+            if (side > 0) vMat.emissiveTexture.uOffset = half;
+            vault.material = vMat;
+            piece(vault, side, 'vault', [side * W, top]);
+            const ribShape = side < 0 ? [V(-(W - 40), -60), ...arc(R - 40, 0, 8)] : [...arc(R - 40, 8, 16), V(W - 40, -60)];
+            const rib = extrude('rib-' + s, ribShape, ribPath);
+            rib.material = this.surface('rib', CollapseArt.tex.rib, 6, 1, this.brickLevel);
+            piece(rib, side, 'rib', [side * W, -60]);
+            const sh = BABYLON.MeshBuilder.CreateGround('shoulder', { width: shoulder, height: S.SEG }, scene);
+            sh.bakeTransformIntoVertices(BABYLON.Matrix.Translation(side * (edge + shoulder / 2), -8, S.SEG / 2));
+            sh.material = this.surface('ballast', CollapseArt.tex.ballast, shoulder / S.TILE, S.SEG / S.TILE);
+            piece(sh, side, 'floor', [side * edge, -8]);
+            // The flame faces the camera: a sprite flat on the wall is seen edge-on from the track.
+            const torch = this.sprite('torch', 'torch', CollapseArt.torch[0], 105, 210, false);
+            torch.bakeTransformIntoVertices(BABYLON.Matrix.Translation(side * (W - 60), 250, 0));
+            piece(torch, side, 'torch', [side * W, mid]);
+            const glow = BABYLON.MeshBuilder.CreatePlane('glow', { width: 400, height: 400 }, scene);
+            glow.bakeTransformIntoVertices(BABYLON.Matrix.RotationY(side > 0 ? -Math.PI / 2 : Math.PI / 2).multiply(BABYLON.Matrix.Translation(side * (W - 4), 360, 0)));
+            glow.material = this.spriteMat('glow', CollapseArt.tex.glow);
+            piece(glow, side, 'torch', [side * W, mid]);
         }
+
+        // Brick debris that rains from the vault into the lava along the collapse edge.
+        const debris = this.debris = BABYLON.MeshBuilder.CreateBox('debris', { size: 1 }, scene);
+        debris.material = this.surface('debris', CollapseArt.tex.wall, 0.5, 0.5, this.brickLevel);
+        debris.isPickable = false;
+        debris.alwaysSelectAsActiveMesh = true;
+        this.debrisBuf = new Float32Array(16 * S.DEBRIS);
+        debris.thinInstanceSetBuffer('matrix', this.debrisBuf, 16, false);
+        this._m = [0, 1, 2, 3].map(() => new BABYLON.Matrix());
+    }
+
+    // A stable pseudo-random 0..1 per segment and slot: pieces of one segment do not fall in lockstep.
+    static hash(i, k) {
+        const x = Math.sin(i * 127.1 + k * 311.7) * 43758.5453;
+        return x - Math.floor(x);
+    }
+
+    // A piece `f` segments past the moment it starts to go: [how far it has dropped, how far it leans 0..1].
+    static fall(f) {
+        if (f <= 0) return [0, 0];
+        return [f * f * 700 + f * 120, Math.min(1, f / 1.2)];
+    }
+
+    _syncTunnel(run, pos) {
+        const S = CollapseScene, m = this._m, first = Math.floor(pos) - S.BEHIND;
+        // Pieces start at staggered moments: the vault and the torches go at the front, the upper walls
+        // a little later, the lower walls last; the shoulders go with the floor.
+        const delay = { vault: 0, torch: 0.05, rib: 0.1, 'wall-hi': 0.15, 'wall-lo': 0.3, floor: 0 };
+        const lean = { vault: 0.75, torch: 0.45, rib: 0.55, 'wall-hi': 0.45, 'wall-lo': 0.25, floor: 0 };
+        for (const p of this.pieces) {
+            const buf = p.buf;
+            for (let k = 0; k < this.slots; k++) {
+                const i = first + k;
+                const skip = (p.kind === 'rib' && (i & 1) === 0) || (p.kind === 'torch' && (i & 1) === 1);
+                const f = run.front - i - delay[p.kind] - S.hash(i, p.side + 3) * 0.25;
+                const [drop, k2] = S.fall(f);
+                if (skip || drop > 1500) { buf.fill(0, k * 16, k * 16 + 16); continue; }
+                const a = p.side * lean[p.kind] * k2 * (0.7 + 0.6 * S.hash(i, p.side + 7));
+                BABYLON.Matrix.TranslationToRef(-p.pivot[0], -p.pivot[1], 0, m[0]);
+                BABYLON.Matrix.RotationZToRef(a, m[1]);
+                m[0].multiplyToRef(m[1], m[2]);
+                BABYLON.Matrix.TranslationToRef(p.pivot[0] - p.side * drop * 0.15, p.pivot[1] - drop, (i - pos) * S.SEG, m[1]);
+                m[2].multiplyToRef(m[1], m[3]);
+                m[3].copyToArray(buf, k * 16);
+            }
+            p.mesh.thinInstanceBufferUpdated('matrix');
+        }
+        // Debris: DEBRIS bricks over the segments around the front, each falls once from the vault.
+        const buf = this.debrisBuf, per = 8, base = Math.floor(run.front) + 1;
+        for (let j = 0; j < S.DEBRIS; j++) {
+            const i = base - Math.floor(j / per), h = k => S.hash(i, j % per * 5 + k);
+            const f = run.front - i - h(0) * 0.9;
+            const side = h(1) < 0.5 ? -1 : 1;
+            const y = 300 + h(2) * 600 - (f > 0 ? f * f * 1400 + f * 200 : 0);
+            if (f <= 0 || y < -260) { buf.fill(0, j * 16, j * 16 + 16); continue; }
+            const size = 40 + h(3) * 70;
+            BABYLON.Matrix.ScalingToRef(size, size * 0.6, size, m[0]);
+            BABYLON.Matrix.RotationYawPitchRollToRef(f * 4 * (h(4) - 0.5), f * 5 * h(1), f * 3, m[1]);
+            m[0].multiplyToRef(m[1], m[2]);
+            BABYLON.Matrix.TranslationToRef(side * (S.WALL_X - 80 - h(3) * 360), y, (i + h(4) - pos) * S.SEG, m[1]);
+            m[2].multiplyToRef(m[1], m[3]);
+            m[3].copyToArray(buf, j * 16);
+        }
+        this.debris.thinInstanceBufferUpdated('matrix');
     }
 
     _buildTrain() {
@@ -322,9 +399,10 @@ class CollapseScene {
         const S = CollapseScene;
         this.time += dt;
         const pos = run.pos;
-        // The tunnel goes away from the camera with the track; it wraps by whole periods, and every
-        // texture tile divides PERIOD, so the wrap is invisible.
+        // The lava goes away from the camera with the track; it wraps by whole periods, and every
+        // texture tile divides PERIOD, so the wrap is invisible. The pieces above it follow the segments.
         this.tunnel.position.z = -(((pos * S.SEG) % S.PERIOD + S.PERIOD) % S.PERIOD);
+        this._syncTunnel(run, pos);
 
         // Animated shared materials: lava surface, torches.
         const lf = Math.floor(this.time * 6) % 4;
@@ -475,4 +553,5 @@ CollapseScene.TILE = 140;         // world units per texture tile along the tunn
 CollapseScene.WALL_X = 640;       // half width of the tunnel
 CollapseScene.WALL_TOP = 430;     // where the walls meet the vault
 CollapseScene.BEHIND = 16;        // segments drawn behind the train (into the vanishing point)
+CollapseScene.DEBRIS = 40;        // falling bricks along the collapse edge
 CollapseScene.AHEAD = 6;          // at least this many segments drawn ahead of the train (up to the camera)
