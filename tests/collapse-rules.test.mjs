@@ -95,7 +95,7 @@ test('бот, уходящий от опасностей, проезжает 250
     run.ammo = 999;
     for (let f = 0; f < 60 * 300 && run.state === 'run' && run.pos < 250; f++) {
       escapeBot(run, CollapseRules);
-      if (run.demon) run.shootDemon();
+      if (run.leaping().length) run.shootDemon();
       run.update(1 / 60);
     }
     assert.equal(run.state, 'run', `зерно ${seed}: упал (${run.reason}) на ${run.pos.toFixed(1)}`);
@@ -209,36 +209,135 @@ test('обвал позади сам догоняет медленный пое�
   for (let f = 0; f < 60 * 120 && run.state === 'run'; f++) {
     run.slow = 1;                                   // the decelerator never wears off
     escapeBot(run, CollapseRules);
-    if (run.demon) run.shootDemon();
+    if (run.leaping().length) run.shootDemon();
     run.update(1 / 60);
   }
   assert.equal(run.state, 'over');
   assert.equal(run.reason, 'caught');
 });
 
+// Drive a run to its first leaping demon, invulnerable on the way (lava and gaps do not matter here).
+function toDemon(run) {
+  run.invuln = 1e9;
+  runFrames(run, 60 * 900, r => r.leaping().length > 0);
+  run.invuln = 0;
+}
+
 test('выстрел по демону стоит патрон; без патронов демон бьёт, щит прощает удар', () => {
   const p = page();
   const CollapseRun = p.get('CollapseRun');
-  const toDemon = run => runFrames(run, 60 * 600, r => !!r.demon);
 
   const run = new CollapseRun(4);
-  run.ammo = 999; run.rescue = 99; run.shield = 0;
+  run.ammo = 999;
   toDemon(run);
-  assert.ok(run.demon, 'демон прыгнул');
+  const d = run.leaping()[0];
+  assert.ok(d, 'демон прыгнул');
   const ammo = run.ammo;
-  assert.equal(run.shootDemon(), 'ok');
+  assert.equal(run.shootDemon(d.side), 'ok');
   assert.equal(run.ammo, ammo - 1);
-  assert.equal(run.demon, null);
+  assert.ok(!run.demons.includes(d), 'сбитый демон исчез');
 
   const dry = new CollapseRun(4);
-  dry.rescue = 99;
   toDemon(dry);
   dry.ammo = 0;
   assert.equal(dry.shootDemon(), 'no-ammo');
-  dry.invuln = 0; dry.shield = 1;
-  runFrames(dry, 60 * 3, r => !r.demon);
+  dry.shield = 1;
+  runFrames(dry, 60 * 3, r => r.demons.length === 0);
   assert.equal(dry.state, 'run', 'щит принял удар демона');
   assert.equal(dry.shield, 0);
+});
+
+// Every demon segment of a track up to `n` segments: { at, sides: [-1|1, …] }.
+function demonSegs(t, n) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const s = t.seg(i);
+    if (s.demon) out.push({ at: i, sides: s.demon.map(d => d.side) });
+  }
+  return out;
+}
+
+test('демоны выпрыгивают из стен: не в первые 600 м, сторона и число по зерну, одиночки — из обеих стен', () => {
+  const p = page();
+  const CollapseTrack = p.get('CollapseTrack');
+  const segMeters = p.get('COLLAPSE_SEG_METERS');
+  const dump = seed => { const t = new CollapseTrack(seed); return JSON.stringify(Array.from({ length: 3000 }, (_, i) => t.seg(i).demon)); };
+  assert.equal(dump(42), dump(42), 'одно зерно — те же демоны');
+  const singles = { '-1': 0, '1': 0 };
+  for (let seed = 1; seed <= 20; seed++) {
+    for (const d of demonSegs(new CollapseTrack(seed), 3000)) {
+      // The owner's rule (card 09): no demons in the first 600 m.
+      assert.ok(d.at * segMeters >= 600, `зерно ${seed}: демон на ${d.at * segMeters} м`);
+      assert.ok(d.sides.length === 1 || (d.sides.length === 2 && d.sides[0] === -d.sides[1]), `зерно ${seed}: пара не из обеих стен`);
+      if (d.sides.length === 1) singles[d.sides[0]]++;
+    }
+  }
+  const all = singles['-1'] + singles['1'];
+  assert.ok(all > 200, `одиночных демонов слишком мало (${all})`);
+  assert.ok(Math.min(singles['-1'], singles['1']) > all * 0.35, `стены неравны: слева ${singles['-1']}, справа ${singles['1']}`);
+});
+
+test('двойные демоны — не раньше COLLAPSE_DEMON_PAIR_FROM и чаще с дистанцией', () => {
+  const p = page();
+  const CollapseTrack = p.get('CollapseTrack');
+  const from = p.get('COLLAPSE_DEMON_PAIR_FROM'), full = p.get('COLLAPSE_DEMON_PAIR_FULL');
+  // Pair share in the first quarter of the ramp and past its end: [pairs, demons].
+  const near = [0, 0], far = [0, 0];
+  for (let seed = 1; seed <= 40; seed++) {
+    for (const d of demonSegs(new CollapseTrack(seed), full + 1000)) {
+      const pair = d.sides.length === 2;
+      if (pair) assert.ok(d.at >= from, `зерно ${seed}: пара на сегменте ${d.at} раньше ${from}`);
+      const band = d.at < from ? null : d.at < from + (full - from) / 4 ? near : d.at >= full ? far : null;
+      if (band) { band[0] += pair ? 1 : 0; band[1]++; }
+    }
+  }
+  const nearShare = near[0] / near[1], farShare = far[0] / far[1];
+  assert.ok(near[1] > 30 && far[1] > 300, `мало демонов для оценки: ${near[1]} / ${far[1]}`);
+  assert.ok(farShare > 0.3, `на дальней дистанции пар мало: ${farShare.toFixed(2)}`);
+  assert.ok(nearShare < farShare / 3, `пары не учащаются: ${nearShare.toFixed(2)} -> ${farShare.toFixed(2)}`);
+});
+
+test('пару демонов сбивают два выстрела в окно; два несбитых без щита — падение, щит прощает один', () => {
+  const p = page();
+  const CollapseRun = p.get('CollapseRun');
+  const R = p.get('CollapseRules');
+  // A pair placed by hand on the next segment: the rules release it as the generator would.
+  const pairRun = () => {
+    const run = new CollapseRun(9);
+    run.ammo = 99;
+    const at = Math.floor(run.pos) + 2;
+    run.track.seg(at).demon = [{ side: -1, lag: 0 }, { side: 1, lag: run.c.pairLag }];
+    runFrames(run, 600, r => r.demons.length > 0);
+    return run;
+  };
+
+  // The first tap 0.2 s into the leap (the right one is still in its wall), the second 0.4 s later:
+  // both demons fall, the run goes on.
+  const shot = pairRun();
+  const tap = 0.4;
+  runFrames(shot, 12);
+  assert.equal(shot.shootDemon(-1), 'ok');
+  assert.equal(shot.shootDemon(1), 'invalid', 'правый ещё в стене');
+  runFrames(shot, Math.round(tap * 60));
+  assert.equal(shot.shootDemon(1), 'ok');
+  assert.equal(shot.demons.length, 0);
+  runFrames(shot, 60 * 3);
+  assert.equal(shot.state, 'run');
+  // The window for the second shot ends demonSec + pairLag after the first leap: two taps fit.
+  assert.ok(shot.c.demonSec + shot.c.pairLag >= 2 * tap + R.STEP, 'окно пары вмещает два тапа');
+
+  const dry = pairRun();
+  dry.shield = 0;
+  runFrames(dry, 60 * 4);
+  assert.equal(dry.state, 'over');
+  assert.equal(dry.reason, 'demon');
+
+  const one = pairRun();
+  one.shield = 1;
+  runFrames(one, 60 * 4);
+  assert.equal(one.state, 'over', 'щит прощает только одного демона из пары');
+  assert.equal(one.reason, 'demon');
+  assert.ok(one.events.some(e => e.type === 'shielded' && e.reason === 'demon'));
 });
 
 test('щит прощает поток лавы и касание обвала; спасение ставит поезд на целую полосу', () => {

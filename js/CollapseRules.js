@@ -7,6 +7,8 @@
 // `to`; the player arms it with a shot (one cartridge) and the train changes lane when it passes i.
 // Hazards sit on one lane of one segment: `gap` (the track is gone) or `lava` (a stream from the
 // vault). A pickup stands in the middle of a segment and is taken by the train on its lane.
+// A demon segment releases one or two demons from the tunnel walls (side -1 left, +1 right); each
+// one needs its own shot before its leap ends.
 
 /** @satisfies {Record<string, any>} */
 const CollapseRules = {
@@ -20,7 +22,6 @@ const CollapseRules = {
     // The generator's dice: pickups and the share of each pattern (the rest of a roll is a detour).
     PICKUPS: ['ammo', 'boost', 'slow', 'shield', 'rescue'],
     PICKUP_WEIGHTS: [0.34, 0.2, 0.16, 0.15, 0.15],
-    DEMON_ROLL: 0.12,
     GAP_ROLL: 0.52,
     LAVA_ROLL: 0.66,       // + 0.1 × difficulty
 
@@ -47,7 +48,13 @@ const CollapseRules = {
             rescueMax: typeof COLLAPSE_RESCUE_MAX !== U ? COLLAPSE_RESCUE_MAX : 2,
             shieldGap: typeof COLLAPSE_SHIELD_GAP !== U ? COLLAPSE_SHIELD_GAP : 6,
             demonSec: typeof COLLAPSE_DEMON_SEC !== U ? COLLAPSE_DEMON_SEC : 1.6,
-            demonEvery: typeof COLLAPSE_DEMON_EVERY !== U ? COLLAPSE_DEMON_EVERY : 60,
+            demonEvery: typeof COLLAPSE_DEMON_EVERY !== U ? COLLAPSE_DEMON_EVERY : 30,
+            demonChance: typeof COLLAPSE_DEMON_CHANCE !== U ? COLLAPSE_DEMON_CHANCE : 0.2,
+            demonStart: typeof COLLAPSE_DEMON_START !== U ? COLLAPSE_DEMON_START : 60,
+            pairFrom: typeof COLLAPSE_DEMON_PAIR_FROM !== U ? COLLAPSE_DEMON_PAIR_FROM : 120,
+            pairFull: typeof COLLAPSE_DEMON_PAIR_FULL !== U ? COLLAPSE_DEMON_PAIR_FULL : 350,
+            pairMax: typeof COLLAPSE_DEMON_PAIR_MAX !== U ? COLLAPSE_DEMON_PAIR_MAX : 0.6,
+            pairLag: typeof COLLAPSE_DEMON_PAIR_LAG !== U ? COLLAPSE_DEMON_PAIR_LAG : 0.35,
             gapMin: typeof COLLAPSE_GAP_MIN !== U ? COLLAPSE_GAP_MIN : 2,
             gapMax: typeof COLLAPSE_GAP_MAX !== U ? COLLAPSE_GAP_MAX : 4,
             reactSec: typeof COLLAPSE_REACT_SEC !== U ? COLLAPSE_REACT_SEC : 0.6,
@@ -74,6 +81,13 @@ const CollapseRules = {
         };
     },
 
+    // The chance that a demon segment at segment `at` releases a pair: 0 before pairFrom, growing
+    // linearly to pairMax at pairFull.
+    pairChance(c, at) {
+        if (at < c.pairFrom) return 0;
+        return c.pairMax * Math.min(1, (at - c.pairFrom) / Math.max(1, c.pairFull - c.pairFrom));
+    },
+
     neighbors(lane) {
         return [lane - 1, lane + 1].filter(l => l >= 0 && l < CollapseRules.LANES);
     },
@@ -81,7 +95,9 @@ const CollapseRules = {
 
 // One track segment: per-lane hazards and pickups, forks at its start boundary.
 function collapseSegment(kind) {
-    return { kind, gap: [false, false, false], lava: [false, false, false], pickup: [null, null, null], forks: [], demon: false };
+    /** @type {{ side: number, lag: number }[] | null} */
+    const demon = null;
+    return { kind, gap: [false, false, false], lava: [false, false, false], pickup: [null, null, null], forks: [], demon };
 }
 
 // The endless track, generated pattern by pattern on demand. Every hazard on a lane has a fork
@@ -143,9 +159,10 @@ class CollapseTrack {
         // The decision window: the pattern's fork (at boundary at + calm) is far enough from the last one.
         while ((at + calm - this.lastFork) / R.maxSpeedAt(c, at + calm) < c.reactSec) calm++;
         this._calm(calm);
+        const demonOk = at >= c.demonStart && at - this.lastDemon >= c.demonEvery;
+        if (demonOk && this.rand() < c.demonChance) { this._demon(); return; }
         const roll = this.rand();
-        if (at - this.lastDemon >= c.demonEvery && roll < R.DEMON_ROLL) this._demon();
-        else if (roll < R.GAP_ROLL) this._hazard('gap', c.gapMin + this._int(1 + Math.round((c.gapMax - c.gapMin) * d)));
+        if (roll < R.GAP_ROLL) this._hazard('gap', c.gapMin + this._int(1 + Math.round((c.gapMax - c.gapMin) * d)));
         else if (roll < R.LAVA_ROLL + 0.1 * d) this._hazard('lava', 1);
         else this._detour();
     }
@@ -187,10 +204,14 @@ class CollapseTrack {
         this._push(back);
     }
 
+    // One demon from a random wall, or a pair from both walls: the second leaps pairLag s later.
     _demon() {
+        const c = this.cfg, at = this.segs.length;
         const s = collapseSegment('demon');
-        s.demon = true;
-        this.lastDemon = this.segs.length;
+        const side = this.rand() < 0.5 ? -1 : 1;
+        s.demon = [{ side, lag: 0 }];
+        if (this.rand() < CollapseRules.pairChance(c, at)) s.demon.push({ side: -side, lag: c.pairLag });
+        this.lastDemon = at;
         this._push(s);
     }
 }
@@ -214,8 +235,9 @@ class CollapseRun {
         this.slow = 0;                // s left
         /** @type {{ at: number, from: number, to: number } | null} */
         this.armed = null;
-        /** @type {{ at: number, t: number } | null} */
-        this.demon = null;
+        // Demons out of the walls: `wait` s before the leap starts, then `t` s to shoot it.
+        /** @type {{ at: number, side: number, wait: number, t: number }[]} */
+        this.demons = [];
         this.state = 'run';           // 'run' | 'over'
         this.reason = '';             // why the run ended: gap | lava | demon | caught
         this.continued = false;
@@ -272,13 +294,20 @@ class CollapseRun {
         return 'ok';
     }
 
-    // Tap on a leaping demon: a shot drives it off.
-    shootDemon() {
-        if (this.state !== 'run' || !this.demon) return 'invalid';
+    // Leaping demons (out of the wall, not yet hit): the ones a tap can shoot.
+    leaping() { return this.demons.filter(d => d.wait <= 0); }
+
+    // Tap on a leaping demon: one shot drives off one demon — the one on `side`, or the nearest to
+    // the cab when the side is not given.
+    shootDemon(side) {
+        if (this.state !== 'run') return 'invalid';
+        const ds = this.leaping().filter(d => side === undefined || d.side === side);
+        if (!ds.length) return 'invalid';
         if (this.ammo <= 0) { this.events.push({ type: 'no-ammo' }); return 'no-ammo'; }
+        const d = ds.reduce((a, b) => (b.t < a.t ? b : a));
         this.ammo--;
-        this.events.push({ type: 'demon-killed', at: this.demon.at });
-        this.demon = null;
+        this.demons.splice(this.demons.indexOf(d), 1);
+        this.events.push({ type: 'demon-killed', at: d.at, side: d.side });
         return 'ok';
     }
 
@@ -326,17 +355,23 @@ class CollapseRun {
         this.front = Math.max(this.front + this.frontSpeed() * h, this.pos - this.c.frontMaxGap);
         if (this.pos - this.front <= CollapseRules.TRAIN_LEN) this._hit('caught');
 
-        if (this.demon) {
-            this.demon.t -= h;
-            if (this.demon.t <= 0) { this.demon = null; this._hit('demon'); }
+        for (const d of [...this.demons]) {
+            if (this.state !== 'run') break;
+            if (d.wait > 0) {
+                d.wait -= h;
+                if (d.wait <= 0) this.events.push({ type: 'demon', at: d.at, side: d.side });
+                continue;
+            }
+            d.t -= h;
+            if (d.t <= 0) { this.demons.splice(this.demons.indexOf(d), 1); this._hit('demon'); }
         }
     }
 
     _enter(i) {
         const s = this.track.seg(i);
-        if (s.demon && !this.demon) {
-            this.demon = { at: i, t: this.c.demonSec };
-            this.events.push({ type: 'demon', at: i });
+        for (const d of s.demon || []) {
+            this.demons.push({ at: i, side: d.side, wait: d.lag, t: this.c.demonSec });
+            if (d.lag <= 0) this.events.push({ type: 'demon', at: i, side: d.side });
         }
         if (s.gap[this.lane]) this._fall(i);
         else if (s.lava[this.lane]) this._hit('lava');
@@ -403,7 +438,7 @@ class CollapseRun {
         this.state = 'run';
         this.invuln = this.c.continueGrace;
         this.front = Math.min(this.front, this.pos - this.c.continueGap);
-        this.demon = null;
+        this.demons = [];
         this.armed = null;
         this.prevLane = this.lane = this._safeLane(this._seg);
         this.events.push({ type: 'continued' });
