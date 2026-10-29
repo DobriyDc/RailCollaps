@@ -1,0 +1,1042 @@
+{
+  "schema_version": 1,
+  "pack": "hell_tunnel_slices_v1",
+  "alpha_min": 24,
+  "padding": 4,
+  "recommended_filter": "nearest",
+  "source_sha256": {
+    "art_src/hell_tunnel_01_train_v1.png": "83b01548553df74b55464dfe500b6ed75423b383ead374bb0f7b64332adcce2e",
+    "art_src/hell_tunnel_04_fx_v1.png": "56603ed3648dbec3c2e9e5c6ac4ec87676f2b30da85a4cf3692a73baa49d5e3e",
+    "art_src/hell_tunnel_05_ui_v1.png": "ac5cf188592d71ea4580d147cb096e009f4ee5e1c2a81700a0f985eb9318e7a1"
+  },
+  "coordinates": "Pixels, origin top-left; source_rect=[x,y,width,height]; pivot is in output canvas",
+  "animation_notes": "State variants; timing and seamless looping require integration review",
+  "sprites": [
+    {
+      "file": "assets/sprites/train/loco_front.png",
+      "source": "art_src/hell_tunnel_01_train_v1.png",
+      "source_rect": [
+        54,
+        7,
+        299,
+        579
+      ],
+      "size": [
+        307,
+        587
+      ],
+      "pivot": [
+        154,
+        579
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "train",
+      "frame_order": 0,
+      "sheet_order": 0,
+      "animation": false,
+      "purpose": "loco_front"
+    },
+    {
+      "file": "assets/sprites/train/loco_turn_left.png",
+      "source": "art_src/hell_tunnel_01_train_v1.png",
+      "source_rect": [
+        426,
+        10,
+        365,
+        574
+      ],
+      "size": [
+        373,
+        582
+      ],
+      "pivot": [
+        113,
+        574
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "train",
+      "frame_order": 1,
+      "sheet_order": 1,
+      "animation": false,
+      "purpose": "loco_turn_left"
+    },
+    {
+      "file": "assets/sprites/train/loco_turn_right.png",
+      "source": "art_src/hell_tunnel_01_train_v1.png",
+      "source_rect": [
+        933,
+        11,
+        312,
+        573
+      ],
+      "size": [
+        320,
+        581
+      ],
+      "pivot": [
+        209,
+        573
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "train",
+      "frame_order": 2,
+      "sheet_order": 2,
+      "animation": false,
+      "purpose": "loco_turn_right"
+    },
+    {
+      "file": "assets/sprites/train/loco_damaged.png",
+      "source": "art_src/hell_tunnel_01_train_v1.png",
+      "source_rect": [
+        15,
+        639,
+        344,
+        567
+      ],
+      "size": [
+        352,
+        575
+      ],
+      "pivot": [
+        193,
+        568
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "train",
+      "frame_order": 3,
+      "sheet_order": 3,
+      "animation": false,
+      "purpose": "loco_damaged"
+    },
+    {
+      "file": "assets/sprites/train/loco_fall_left.png",
+      "source": "art_src/hell_tunnel_01_train_v1.png",
+      "source_rect": [
+        420,
+        645,
+        400,
+        543
+      ],
+      "size": [
+        408,
+        551
+      ],
+      "pivot": [
+        179,
+        440
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "train",
+      "frame_order": 4,
+      "sheet_order": 4,
+      "animation": false,
+      "purpose": "loco_fall_left"
+    },
+    {
+      "file": "assets/sprites/train/loco_fall_right.png",
+      "source": "art_src/hell_tunnel_01_train_v1.png",
+      "source_rect": [
+        857,
+        645,
+        382,
+        543
+      ],
+      "size": [
+        390,
+        551
+      ],
+      "pivot": [
+        205,
+        439
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "train",
+      "frame_order": 5,
+      "sheet_order": 5,
+      "animation": false,
+      "purpose": "loco_fall_right"
+    },
+    {
+      "file": "assets/sprites/fx/torch_0.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        101,
+        78,
+        122,
+        250
+      ],
+      "size": [
+        159,
+        324
+      ],
+      "pivot": [
+        71,
+        320
+      ],
+      "content_offset": [
+        12,
+        70
+      ],
+      "group": "torch",
+      "frame_order": 0,
+      "sheet_order": 0,
+      "animation": true,
+      "purpose": "torch_0"
+    },
+    {
+      "file": "assets/sprites/fx/torch_1.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        410,
+        43,
+        123,
+        284
+      ],
+      "size": [
+        159,
+        324
+      ],
+      "pivot": [
+        71,
+        320
+      ],
+      "content_offset": [
+        9,
+        36
+      ],
+      "group": "torch",
+      "frame_order": 1,
+      "sheet_order": 1,
+      "animation": true,
+      "purpose": "torch_1"
+    },
+    {
+      "file": "assets/sprites/fx/torch_2.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        723,
+        14,
+        151,
+        316
+      ],
+      "size": [
+        159,
+        324
+      ],
+      "pivot": [
+        71,
+        320
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "torch",
+      "frame_order": 2,
+      "sheet_order": 2,
+      "animation": true,
+      "purpose": "torch_2"
+    },
+    {
+      "file": "assets/sprites/fx/torch_3.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        1043,
+        56,
+        144,
+        274
+      ],
+      "size": [
+        159,
+        324
+      ],
+      "pivot": [
+        71,
+        320
+      ],
+      "content_offset": [
+        9,
+        46
+      ],
+      "group": "torch",
+      "frame_order": 3,
+      "sheet_order": 3,
+      "animation": true,
+      "purpose": "torch_3"
+    },
+    {
+      "file": "assets/sprites/fx/smoke_0.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        55,
+        420,
+        215,
+        197
+      ],
+      "size": [
+        287,
+        276
+      ],
+      "pivot": [
+        143,
+        272
+      ],
+      "content_offset": [
+        36,
+        75
+      ],
+      "group": "smoke",
+      "frame_order": 0,
+      "sheet_order": 4,
+      "animation": true,
+      "purpose": "smoke_0"
+    },
+    {
+      "file": "assets/sprites/fx/smoke_1.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        343,
+        373,
+        258,
+        256
+      ],
+      "size": [
+        287,
+        276
+      ],
+      "pivot": [
+        143,
+        272
+      ],
+      "content_offset": [
+        14,
+        16
+      ],
+      "group": "smoke",
+      "frame_order": 1,
+      "sheet_order": 5,
+      "animation": true,
+      "purpose": "smoke_1"
+    },
+    {
+      "file": "assets/sprites/fx/smoke_2.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        653,
+        366,
+        279,
+        268
+      ],
+      "size": [
+        287,
+        276
+      ],
+      "pivot": [
+        143,
+        272
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "smoke",
+      "frame_order": 2,
+      "sheet_order": 6,
+      "animation": true,
+      "purpose": "smoke_2"
+    },
+    {
+      "file": "assets/sprites/fx/smoke_3.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        975,
+        366,
+        255,
+        265
+      ],
+      "size": [
+        287,
+        276
+      ],
+      "pivot": [
+        143,
+        272
+      ],
+      "content_offset": [
+        16,
+        7
+      ],
+      "group": "smoke",
+      "frame_order": 3,
+      "sheet_order": 7,
+      "animation": true,
+      "purpose": "smoke_3"
+    },
+    {
+      "file": "assets/sprites/fx/lava_0.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        42,
+        662,
+        246,
+        244
+      ],
+      "size": [
+        263,
+        253
+      ],
+      "pivot": [
+        131,
+        249
+      ],
+      "content_offset": [
+        8,
+        5
+      ],
+      "group": "lava",
+      "frame_order": 0,
+      "sheet_order": 8,
+      "animation": true,
+      "purpose": "lava_0"
+    },
+    {
+      "file": "assets/sprites/fx/lava_1.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        348,
+        662,
+        255,
+        245
+      ],
+      "size": [
+        263,
+        253
+      ],
+      "pivot": [
+        131,
+        249
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "lava",
+      "frame_order": 1,
+      "sheet_order": 9,
+      "animation": true,
+      "purpose": "lava_1"
+    },
+    {
+      "file": "assets/sprites/fx/lava_2.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        659,
+        662,
+        250,
+        245
+      ],
+      "size": [
+        263,
+        253
+      ],
+      "pivot": [
+        131,
+        249
+      ],
+      "content_offset": [
+        6,
+        4
+      ],
+      "group": "lava",
+      "frame_order": 2,
+      "sheet_order": 10,
+      "animation": true,
+      "purpose": "lava_2"
+    },
+    {
+      "file": "assets/sprites/fx/lava_3.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        968,
+        662,
+        249,
+        244
+      ],
+      "size": [
+        263,
+        253
+      ],
+      "pivot": [
+        131,
+        249
+      ],
+      "content_offset": [
+        7,
+        5
+      ],
+      "group": "lava",
+      "frame_order": 3,
+      "sheet_order": 11,
+      "animation": true,
+      "purpose": "lava_3"
+    },
+    {
+      "file": "assets/sprites/fx/lava_burst.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        29,
+        921,
+        264,
+        305
+      ],
+      "size": [
+        272,
+        313
+      ],
+      "pivot": [
+        136,
+        309
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "fx",
+      "frame_order": 12,
+      "sheet_order": 12,
+      "animation": false,
+      "purpose": "lava_burst"
+    },
+    {
+      "file": "assets/sprites/fx/rocks.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        346,
+        945,
+        265,
+        270
+      ],
+      "size": [
+        273,
+        278
+      ],
+      "pivot": [
+        136,
+        274
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "fx",
+      "frame_order": 13,
+      "sheet_order": 13,
+      "animation": false,
+      "purpose": "rocks"
+    },
+    {
+      "file": "assets/sprites/fx/flash.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        595,
+        959,
+        307,
+        235
+      ],
+      "size": [
+        315,
+        243
+      ],
+      "pivot": [
+        157,
+        239
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "fx",
+      "frame_order": 14,
+      "sheet_order": 14,
+      "animation": false,
+      "purpose": "flash"
+    },
+    {
+      "file": "assets/sprites/fx/splash.png",
+      "source": "art_src/hell_tunnel_04_fx_v1.png",
+      "source_rect": [
+        961,
+        960,
+        268,
+        257
+      ],
+      "size": [
+        276,
+        265
+      ],
+      "pivot": [
+        138,
+        261
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "fx",
+      "frame_order": 15,
+      "sheet_order": 15,
+      "animation": false,
+      "purpose": "splash"
+    },
+    {
+      "file": "assets/sprites/ui/pause.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        73,
+        96,
+        219,
+        216
+      ],
+      "size": [
+        227,
+        224
+      ],
+      "pivot": [
+        113,
+        112
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 0,
+      "sheet_order": 0,
+      "animation": false,
+      "purpose": "pause"
+    },
+    {
+      "file": "assets/sprites/ui/play.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        367,
+        95,
+        227,
+        217
+      ],
+      "size": [
+        235,
+        225
+      ],
+      "pivot": [
+        117,
+        112
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 1,
+      "sheet_order": 1,
+      "animation": false,
+      "purpose": "play"
+    },
+    {
+      "file": "assets/sprites/ui/star_full.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        648,
+        80,
+        246,
+        237
+      ],
+      "size": [
+        254,
+        245
+      ],
+      "pivot": [
+        127,
+        122
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 2,
+      "sheet_order": 2,
+      "animation": false,
+      "purpose": "star_full"
+    },
+    {
+      "file": "assets/sprites/ui/star_empty.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        949,
+        80,
+        248,
+        237
+      ],
+      "size": [
+        256,
+        245
+      ],
+      "pivot": [
+        128,
+        122
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 3,
+      "sheet_order": 3,
+      "animation": false,
+      "purpose": "star_empty"
+    },
+    {
+      "file": "assets/sprites/ui/hand_idle.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        106,
+        358,
+        170,
+        259
+      ],
+      "size": [
+        178,
+        267
+      ],
+      "pivot": [
+        89,
+        133
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 4,
+      "sheet_order": 4,
+      "animation": false,
+      "purpose": "hand_idle"
+    },
+    {
+      "file": "assets/sprites/ui/hand_tap.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        402,
+        343,
+        159,
+        275
+      ],
+      "size": [
+        167,
+        283
+      ],
+      "pivot": [
+        83,
+        141
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 5,
+      "sheet_order": 5,
+      "animation": false,
+      "purpose": "hand_tap"
+    },
+    {
+      "file": "assets/sprites/ui/hazard.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        643,
+        374,
+        259,
+        236
+      ],
+      "size": [
+        267,
+        244
+      ],
+      "pivot": [
+        133,
+        122
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 6,
+      "sheet_order": 6,
+      "animation": false,
+      "purpose": "hazard"
+    },
+    {
+      "file": "assets/sprites/ui/stop.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        951,
+        370,
+        246,
+        243
+      ],
+      "size": [
+        254,
+        251
+      ],
+      "pivot": [
+        127,
+        125
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 7,
+      "sheet_order": 7,
+      "animation": false,
+      "purpose": "stop"
+    },
+    {
+      "file": "assets/sprites/ui/sign_left.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        49,
+        662,
+        275,
+        234
+      ],
+      "size": [
+        283,
+        242
+      ],
+      "pivot": [
+        141,
+        121
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 8,
+      "sheet_order": 8,
+      "animation": false,
+      "purpose": "sign_left"
+    },
+    {
+      "file": "assets/sprites/ui/sign_right.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        349,
+        662,
+        273,
+        234
+      ],
+      "size": [
+        281,
+        242
+      ],
+      "pivot": [
+        140,
+        121
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 9,
+      "sheet_order": 9,
+      "animation": false,
+      "purpose": "sign_right"
+    },
+    {
+      "file": "assets/sprites/ui/sign_up.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        648,
+        662,
+        262,
+        234
+      ],
+      "size": [
+        270,
+        242
+      ],
+      "pivot": [
+        135,
+        121
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 10,
+      "sheet_order": 10,
+      "animation": false,
+      "purpose": "sign_up"
+    },
+    {
+      "file": "assets/sprites/ui/sign_cross.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        944,
+        662,
+        269,
+        234
+      ],
+      "size": [
+        277,
+        242
+      ],
+      "pivot": [
+        138,
+        121
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 11,
+      "sheet_order": 11,
+      "animation": false,
+      "purpose": "sign_cross"
+    },
+    {
+      "file": "assets/sprites/ui/panel_wide.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        42,
+        979,
+        426,
+        172
+      ],
+      "size": [
+        434,
+        180
+      ],
+      "pivot": [
+        217,
+        90
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 12,
+      "sheet_order": 12,
+      "animation": false,
+      "purpose": "panel_wide"
+    },
+    {
+      "file": "assets/sprites/ui/panel_small.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        501,
+        997,
+        237,
+        140
+      ],
+      "size": [
+        245,
+        148
+      ],
+      "pivot": [
+        122,
+        74
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 13,
+      "sheet_order": 13,
+      "animation": false,
+      "purpose": "panel_small"
+    },
+    {
+      "file": "assets/sprites/ui/timer.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        761,
+        929,
+        202,
+        244
+      ],
+      "size": [
+        210,
+        252
+      ],
+      "pivot": [
+        105,
+        126
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 14,
+      "sheet_order": 14,
+      "animation": false,
+      "purpose": "timer"
+    },
+    {
+      "file": "assets/sprites/ui/boost.png",
+      "source": "art_src/hell_tunnel_05_ui_v1.png",
+      "source_rect": [
+        1008,
+        972,
+        200,
+        185
+      ],
+      "size": [
+        208,
+        193
+      ],
+      "pivot": [
+        104,
+        96
+      ],
+      "content_offset": [
+        4,
+        4
+      ],
+      "group": "ui",
+      "frame_order": 15,
+      "sheet_order": 15,
+      "animation": false,
+      "purpose": "boost"
+    }
+  ]
+}
