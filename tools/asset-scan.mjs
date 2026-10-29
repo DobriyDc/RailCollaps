@@ -30,6 +30,8 @@ export const CODE_FILES = [
 export const BUILD_EXCLUDE = [
   'tools', 'build', 'dist', '.git', '.claude', 'claude', '_utils', 'tests', 'unity',
   'CLAUDE.md', 'run.bat', 'build.bat', 'check.bat', 'upload.bat', 'editor.bat', 'README.md', 'tsconfig.json', 'globals.d.ts',
+  // Rail Link: Collapse project sources: art generation sources, studio process, design docs.
+  'art_src', 'gamestudio', 'docs', 'GAME.md', 'AGENTS.md',
 ];
 
 const SCAN_EXT = new Set(['.js', '.html', '.css']);

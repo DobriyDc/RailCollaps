@@ -46,6 +46,7 @@ Objects (импорт FBX/GLB, гизмо, свойства объектов, а
 | своя геометрия (сетка из вершин, порт генератора, импорт glTF), материал с картой нормалей, новый источник света, свой шейдер, thin instances и процедурная расстановка; «сетка вывернута», «свет не с той стороны», пропал свет или меш | `claude/skills/render-conventions/SKILL.md` |
 | проверка правки глазами и числами: панель браузера, `Debug3D` (удержание вида, кадры без rAF, замер, линтер сцены, отладочные режимы), замер цены кадра, воспроизведение состояния пользователя | `claude/skills/verify/SKILL.md` |
 | перенос прототипа в Unity: `tools/export-unity.mjs`, пакет `unity/com.arcengine.runtime` (C#), отчёт `MIGRATION.md`, тег `arc-base` — до переноса не нужен | `claude/skills/unity-port/SKILL.md` |
+| ЛЮБОЕ про Telegram: SDK в `libs/`, обёртка `js/Telegram.js` (TG), запуск во весь экран, безопасные зоны, пауза при сворачивании, вибрация, CloudStorage, реклама за продолжение, BotFather, хостинг и туннель, отладка в Telegram, проверка initData на сервере | `claude/skills/telegram-miniapp/SKILL.md` |
 
 ## Запуск и сборка
 
