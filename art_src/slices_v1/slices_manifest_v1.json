@@ -1,0 +1,11 @@
+{
+  "pack": "hell_tunnel_slices_v1",
+  "runtime_manifest": "assets/sprites/manifest.json",
+  "sprite_counts": {
+    "train": 6,
+    "fx": 16,
+    "ui": 16
+  },
+  "contact_sheet": "art_src/slices_v1/contact_sheet.png",
+  "generator": "tools/art/slice_hell_tunnel.py"
+}
