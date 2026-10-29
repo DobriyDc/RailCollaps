@@ -67,8 +67,11 @@ class CollapseScene {
         const camZ = cam.position.z, toTrain = cam.position.length();
         scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
         scene.fogColor = dark;
-        scene.fogStart = toTrain + 440;
-        scene.fogEnd = toTrain + 5840;
+        scene.fogStart = toTrain + (typeof COLLAPSE_FOG_START !== U ? COLLAPSE_FOG_START : 1200);
+        scene.fogEnd = toTrain + (typeof COLLAPSE_FOG_END !== U ? COLLAPSE_FOG_END : 5600);
+        // Brightness of the unlit pixel art (texture level): brick a bit above its file, lava glows.
+        this.brickLevel = typeof COLLAPSE_BRICK_LEVEL !== U ? COLLAPSE_BRICK_LEVEL : 1.35;
+        this.lavaLevel = typeof COLLAPSE_LAVA_LEVEL !== U ? COLLAPSE_LAVA_LEVEL : 1.5;
         cam.maxZ = toTrain + CollapseScene.SEG * CollapseScene.BEHIND + 2000;
         this.ahead = Math.max(CollapseScene.AHEAD, Math.ceil(camZ / CollapseScene.SEG) + 1);
         this.renderHeight = typeof COLLAPSE_RENDER_HEIGHT !== U ? COLLAPSE_RENDER_HEIGHT : 640;
@@ -104,7 +107,7 @@ class CollapseScene {
     }
 
     // Unlit pixel material: color = texture, fog applies, toon plugin skips unlit materials.
-    surface(key, url, uScale = 1, vScale = 1) {
+    surface(key, url, uScale = 1, vScale = 1, level = 1) {
         let m = this._mats.get(key);
         if (m) return m;
         m = new BABYLON.StandardMaterial(key, this.scene);
@@ -113,6 +116,7 @@ class CollapseScene {
         const t = this.texture(url).clone();
         t.uScale = uScale;
         t.vScale = vScale;
+        t.level = level;
         m.emissiveTexture = t;
         m.diffuseColor = new BABYLON.Color3(0, 0, 0);
         m.specularColor = new BABYLON.Color3(0, 0, 0);
@@ -163,11 +167,12 @@ class CollapseScene {
         const len = zNear - zFar;
         const path = [new BABYLON.Vector3(0, 0, zFar), new BABYLON.Vector3(0, 0, zNear)];
         const W = S.WALL_X, top = S.WALL_TOP, R = S.WALL_X;
+        const BRICK = S.TILE * 2;   // wall and vault bricks read at the camera's distance; still divides PERIOD
 
         const wallShape = side => [new BABYLON.Vector3(side * W, -60, 0), new BABYLON.Vector3(side * W, top, 0)];
         for (const side of [-1, 1]) {
             const wall = BABYLON.MeshBuilder.ExtrudeShape('wall', { shape: wallShape(side), path, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
-            wall.material = this.surface('wall', CollapseArt.tex.wall, (top + 60) / S.TILE, len / S.TILE);
+            wall.material = this.surface('wall', CollapseArt.tex.wall, (top + 60) / BRICK, len / BRICK, this.brickLevel);
             wall.parent = root;
         }
         const arc = [];
@@ -176,22 +181,27 @@ class CollapseScene {
             arc.push(new BABYLON.Vector3(-Math.cos(a) * R, top + Math.sin(a) * R * 0.75, 0));
         }
         const vault = BABYLON.MeshBuilder.ExtrudeShape('vault', { shape: arc, path, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
-        vault.material = this.surface('vault', CollapseArt.tex.vault, Math.PI * R / S.TILE, len / S.TILE);
+        vault.material = this.surface('vault', CollapseArt.tex.vault, Math.PI * R / BRICK, len / BRICK, this.brickLevel);
         vault.parent = root;
 
         // Lava under the whole floor: seen through gaps, in the side channels and behind the collapse.
         const lava = BABYLON.MeshBuilder.CreateGround('lava', { width: W * 2, height: len }, scene);
         lava.position.set(0, -150, (zFar + zNear) / 2);
-        this.lavaMat = this.surface('lava', CollapseArt.lava[0], W * 2 / (2 * S.TILE), len / (2 * S.TILE));
-        lava.material = this.lavaMat;
+        lava.material = this.surface('lava', CollapseArt.lava[0], W * 2 / (2 * S.TILE), len / (2 * S.TILE), this.lavaLevel);
         lava.parent = root;
-        // Ballast shoulders between the outer lanes and the lava channels.
+        // Ballast shoulders beside the outer lanes, then a lava channel up to the wall (the keyframe).
+        const edge = S.LANE_W * 1.5, shoulder = 40, channel = W - edge - shoulder;
         for (const side of [-1, 1]) {
-            const sh = BABYLON.MeshBuilder.CreateGround('shoulder', { width: 70, height: len }, scene);
-            sh.position.set(side * (S.LANE_W * 1.5 + 35), -8, (zFar + zNear) / 2);
-            sh.material = this.surface('ballast', CollapseArt.tex.ballast, 70 / S.TILE, len / S.TILE);
+            const sh = BABYLON.MeshBuilder.CreateGround('shoulder', { width: shoulder, height: len }, scene);
+            sh.position.set(side * (edge + shoulder / 2), -8, (zFar + zNear) / 2);
+            sh.material = this.surface('ballast', CollapseArt.tex.ballast, shoulder / S.TILE, len / S.TILE);
             sh.parent = root;
+            const ch = BABYLON.MeshBuilder.CreateGround('lava-channel', { width: channel, height: len }, scene);
+            ch.position.set(side * (W - channel / 2), -30, (zFar + zNear) / 2);
+            ch.material = this.surface('lava-channel', CollapseArt.lava[0], channel / (2 * S.TILE), len / (2 * S.TILE), this.lavaLevel);
+            ch.parent = root;
         }
+        this.lavaMats = [this._mats.get('lava'), this._mats.get('lava-channel')];
 
         // Arch ribs and torches every PERIOD.
         const rib = [];
@@ -205,17 +215,17 @@ class CollapseScene {
             const ribMesh = BABYLON.MeshBuilder.ExtrudeShape('rib', {
                 shape: ribShape, path: [new BABYLON.Vector3(0, 0, z - 40), new BABYLON.Vector3(0, 0, z + 40)],
                 sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
-            ribMesh.material = this.surface('rib', CollapseArt.tex.rib, 12, 1);
+            ribMesh.material = this.surface('rib', CollapseArt.tex.rib, 12, 1, this.brickLevel);
             ribMesh.parent = root;
             for (const side of [-1, 1]) {
-                const t = this.sprite('torch', 'torch', CollapseArt.torch[0], 70, 140, false);
-                t.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;
-                t.position.set(side * (W - 50), 330, z + S.PERIOD / 2);
+                // The flame faces the camera: a sprite flat on the wall is seen edge-on from the track.
+                const t = this.sprite('torch', 'torch', CollapseArt.torch[0], 105, 210);
+                t.position.set(side * (W - 60), 250, z + S.PERIOD / 2);
                 t.parent = root;
-                const glow = BABYLON.MeshBuilder.CreatePlane('glow', { width: 260, height: 260 }, scene);
+                const glow = BABYLON.MeshBuilder.CreatePlane('glow', { width: 400, height: 400 }, scene);
                 glow.material = this.spriteMat('glow', CollapseArt.tex.glow);
                 glow.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;
-                glow.position.set(side * (W - 4), 380, z + S.PERIOD / 2);
+                glow.position.set(side * (W - 4), 360, z + S.PERIOD / 2);
                 glow.parent = root;
             }
         }
@@ -318,7 +328,7 @@ class CollapseScene {
 
         // Animated shared materials: lava surface, torches.
         const lf = Math.floor(this.time * 6) % 4;
-        this._setSpriteTexFrame(this.lavaMat, CollapseArt.lava[lf], true);
+        for (const m of this.lavaMats) this._setSpriteTexFrame(m, CollapseArt.lava[lf], true);
         this._setSpriteTex(this.torchMat, CollapseArt.torch[Math.floor(this.time * 8) % 4]);
 
         // Segment window: create what came into view, drop what left it.
@@ -417,7 +427,7 @@ class CollapseScene {
         const t = m.emissiveTexture;
         if (t && t.url === base.url) return;
         const c = base.clone();
-        if (tiled && t) { c.uScale = t.uScale; c.vScale = t.vScale; }
+        if (tiled && t) { c.uScale = t.uScale; c.vScale = t.vScale; c.level = t.level; }
         if (t) t.dispose();
         m.emissiveTexture = c;
     }

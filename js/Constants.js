@@ -107,6 +107,10 @@ const COLLAPSE_CAM_LOOK_Z = 920;        // world units: the camera looks at this
 const COLLAPSE_CAM_FOV_DEG = 40;        // vertical field of view of the tunnel camera (narrow: the side lanes stay in a 9:19.5 frame)
 const COLLAPSE_CAM_FOLLOW = 0.5;        // 0..1: share of the train's sideways offset the camera follows (0 — fixed on the center lane)
 const COLLAPSE_CAM_FOLLOW_RATE = 5;     // 1/s: how fast the camera eases toward that offset (larger — stiffer)
+const COLLAPSE_FOG_START = 1200;         // world units behind the train where the tunnel starts to fade into the dark
+const COLLAPSE_FOG_END = 5600;          // world units behind the train where it is gone (the vanishing point stays dark)
+const COLLAPSE_BRICK_LEVEL = 1.25;      // brightness of the walls, vault and arch ribs over their pixel art (1 — as drawn)
+const COLLAPSE_LAVA_LEVEL = 1.3;        // brightness of the lava over its pixel art
 
 // --- CAMERA (CameraControl.js): target on the map, azimuth, pitch and zoom. Zoom is
 // screen px per world px at the look-at point; distance is derived from it. Flight
