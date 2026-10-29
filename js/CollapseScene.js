@@ -313,8 +313,22 @@ class CollapseScene {
         this.train.position.set(0, 0, 0);
         this.shieldFx = this.sprite('shield', 'shield', CollapseArt.shield[0], 460, 352);
         this.shieldFx.position.set(0, 10, 20);
-        this.demon = this.sprite('demon', 'demon', CollapseArt.demon[0], 360, 314);
-        this.demon.setEnabled(false);
+        this._buildDemons();
+    }
+
+    // One demon sprite per tunnel wall: a pair leaps from both walls at once. Each side has its
+    // own material, so the two play their frames apart.
+    _buildDemons() {
+        /** @type {Map<number, any>} */
+        this.demonViews = new Map();
+        /** @type {Map<number, number>} */
+        this._ashUntil = new Map();
+        for (const side of [-1, 1]) {
+            const d = this.sprite('demon', 'demon' + side, CollapseArt.demon[0], 360, 314);
+            d.setEnabled(false);
+            this.demonViews.set(side, d);
+            this._ashUntil.set(side, -1);
+        }
     }
 
     // --- Per-segment objects ----------------------------------------------------------------------
@@ -380,9 +394,9 @@ class CollapseScene {
     reset() {
         for (const v of this.segViews.values()) this._disposeSeg(v);
         this.segViews.clear();
-        this._shotUntil = this._shieldHitUntil = this._ashUntil = -1;
+        this._shotUntil = this._shieldHitUntil = -1;
         this._crashAt = null;
-        this.demon.setEnabled(false);
+        for (const side of [-1, 1]) { this.demonViews.get(side).setEnabled(false); this._ashUntil.set(side, -1); }
         this._camSnap = true;
     }
 
@@ -487,17 +501,38 @@ class CollapseScene {
         this.shieldFx.position.x = x;
         this._setSpriteTex(this.shieldFx.material, this._shieldHitUntil > this.time ? CollapseArt.shieldHit : CollapseArt.shield[Math.floor(this.time * 6) % 3]);
 
-        // The demon leaps from the dark toward the train.
-        if (run.demon) {
-            const k = 1 - run.demon.t / run.c.demonSec;
-            this.demon.setEnabled(true);
-            this.demon.position.set(x + (run.lane === 2 ? -1 : 1) * S.LANE_W * 0.7 * (1 - k), 40 + Math.sin(k * Math.PI) * 220, (1 - k) * S.SEG * 2.2 + 120);
-            this._setSpriteTex(this.demon.material, CollapseArt.demon[Math.min(3, Math.floor(k * 4))]);
-        } else if (this._ashUntil > this.time) {
-            this._setSpriteTex(this.demon.material, CollapseArt.demonAsh);
-        } else {
-            this.demon.setEnabled(false);
+        this._syncDemons(run, x);
+    }
+
+    // Demons leap out of their wall toward the cab: at the start the sprite is half inside the
+    // wall behind the nose (the stretch of wall the portrait frame shows), at the end of the leap (the
+    // hit) it is in front of the train on its side.
+    _syncDemons(run, trainX) {
+        const S = CollapseScene;
+        for (const [side, view] of this.demonViews) {
+            const d = run.leaping().find(m => m.side === side);
+            if (d) {
+                const k = 1 - Math.max(0, d.t) / run.c.demonSec;
+                const e = k * k * (3 - 2 * k);
+                const z0 = -S.SEG * 2.5, z1 = 120;
+                const x0 = this._inFrameX(side * (S.WALL_X - 40), z0), x1 = trainX + side * S.LANE_W * 0.45;
+                view.setEnabled(true);
+                view.position.set(x0 + (x1 - x0) * e, 150 - 110 * e + Math.sin(k * Math.PI) * 120, z0 + (z1 - z0) * e);
+                this._setSpriteTex(view.material, CollapseArt.demon[Math.min(3, Math.floor(k * 4))]);
+            } else if (this._ashUntil.get(side) > this.time) {
+                this._setSpriteTex(view.material, CollapseArt.demonAsh);
+            } else {
+                view.setEnabled(false);
+            }
         }
+    }
+
+    // x clamped into the frame at depth z (with a sprite's margin): the camera follows the train, and
+    // on a narrow phone the far wall leaves the frame — a demon from it enters at the frame edge.
+    _inFrameX(x, z) {
+        const cam = this.view.camera;
+        const half = (cam.position.z - z) * Math.tan(cam.fov / 2) * this.engine.getAspectRatio(cam) * 0.8;
+        return Math.max(this.camX - half, Math.min(this.camX + half, x));
     }
 
     _setSpriteTexFrame(m, url, tiled) {
@@ -518,13 +553,13 @@ class CollapseScene {
         } else if (e.type === 'shielded') {
             this._shieldHitUntil = this.time + 0.3;
         } else if (e.type === 'demon-killed') {
-            this._ashUntil = this.time + 0.4;
+            this._ashUntil.set(e.side, this.time + 0.4);
         } else if (e.type === 'crash') {
             this._crashAt = this.time;
         }
     }
 
-    // Tap targets in canvas CSS px: the next fork's signs and the demon.
+    // Tap targets in canvas CSS px: the next fork's signs and every leaping demon.
     tapTargets(run) {
         const out = [];
         const next = run.nextFork();
@@ -537,10 +572,11 @@ class CollapseScene {
                 if (!p.behind) out.push({ x: p.x, y: p.y, kind: 'fork', at: md.at, to: md.to });
             }
         }
-        if (run.demon && this.demon.isEnabled()) {
-            const d = this.demon.position;
-            const p = this.view.projectToScreen(d.x, d.z, d.y + 140);
-            if (!p.behind) out.push({ x: p.x, y: p.y, kind: 'demon' });
+        for (const d of run.leaping()) {
+            const view = this.demonViews.get(d.side);
+            if (!view || !view.isEnabled()) continue;
+            const p = this.view.projectToScreen(view.position.x, view.position.z, view.position.y + 140);
+            if (!p.behind) out.push({ x: p.x, y: p.y, kind: 'demon', side: d.side });
         }
         return out;
     }
