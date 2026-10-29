@@ -12,6 +12,8 @@ declare namespace BABYLON {
 interface Window {
     /** main.js: the game's location, camera and game logic — for the console and game code. */
     app?: { location: Location3D; camera: CameraController; game: Game | null };
+    /** libs/telegram-web-app.js: Telegram Mini Apps SDK; only js/Telegram.js may use it (skill telegram-miniapp). */
+    Telegram?: { WebApp?: any };
 }
 
 /** UI_LAYOUT record (UILayout.js, written by the editor's UI tab); fields by kind — UI.DEFAULTS. */
