@@ -11,14 +11,13 @@
 //   colors — '#rrggbb', '' — none; visible: 0 — hidden until the game calls show().
 //   Records go in drawing order: later — on top.
 const UI_LAYOUT = [
-    { id: 'dist', kind: 'text', anchor: 'top-left', x: 12, y: 10, text: "0 м", fontSize: 28, color: '#f7eed2', shadow: '#0b0809', alpha: 1, visible: 1 },
-    { id: 'best', kind: 'text', anchor: 'top-left', x: 12, y: 48, text: "Рекорд 0 м", fontSize: 14, color: '#b5b9b4', shadow: '#0b0809', alpha: 1, visible: 1 },
-    { id: 'chase', kind: 'bar', anchor: 'top-center', x: 12, y: 136, w: 160, h: 8, stretch: 'h', value: 1, color: '#ff5a4b', fill: '#2a2224', border: '', radius: 3, alpha: 0.9, visible: 1 },
-    { id: 'ammo', kind: 'text', anchor: 'top-left', x: 12, y: 82, text: "Патроны 8", fontSize: 14, color: '#ffd965', shadow: '#0b0809', alpha: 1, visible: 1 },
-    { id: 'rescue', kind: 'text', anchor: 'top-right', x: 12, y: 82, text: "Спасение 0", fontSize: 14, color: '#ff7f22', shadow: '#0b0809', alpha: 1, visible: 1 },
-    { id: 'shield', kind: 'text', anchor: 'top-left', x: 12, y: 108, text: "Щит 0", fontSize: 14, color: '#3ddeef', shadow: '#0b0809', alpha: 1, visible: 1 },
-    { id: 'effect', kind: 'text', anchor: 'top-right', x: 12, y: 108, text: "", fontSize: 13, color: '#ffd965', shadow: '#0b0809', alpha: 1, visible: 1 },
-    { id: 'pauseBtn', kind: 'button', anchor: 'top-right', x: 12, y: 12, w: 50, h: 50, text: "II", fontSize: 20, color: '#f7eed2', fill: '#2a2224', border: '#5b6569', radius: 6, alpha: 0.85, visible: 1 },
+    { id: 'dist', kind: 'text', anchor: 'top-left', x: 12, y: 8, text: "0 м", fontSize: 24, color: '#f7eed2', shadow: '#0b0809', alpha: 1, visible: 1 },
+    { id: 'best', kind: 'text', anchor: 'top-left', x: 12, y: 38, text: "Рекорд 0 м", fontSize: 13, color: '#b5b9b4', shadow: '#0b0809', alpha: 1, visible: 1 },
+    { id: 'ammo', kind: 'text', anchor: 'top-left', x: 12, y: 60, text: "Патроны 8", fontSize: 14, color: '#ffd965', shadow: '#0b0809', alpha: 1, visible: 1 },
+    { id: 'rescue', kind: 'text', anchor: 'top-center', x: 4, y: 60, text: "Спасение 0", fontSize: 14, color: '#ff7f22', shadow: '#0b0809', alpha: 1, visible: 1 },
+    { id: 'shield', kind: 'text', anchor: 'top-right', x: 12, y: 60, text: "Щит 0", fontSize: 14, color: '#3ddeef', shadow: '#0b0809', alpha: 1, visible: 1 },
+    { id: 'effect', kind: 'text', anchor: 'top-right', x: 12, y: 80, text: "", fontSize: 13, color: '#ffd965', shadow: '#0b0809', alpha: 1, visible: 1 },
+    { id: 'pauseBtn', kind: 'button', anchor: 'top-right', x: 12, y: 8, w: 50, h: 50, text: "II", fontSize: 20, color: '#f7eed2', fill: '#2a2224', border: '#5b6569', radius: 6, alpha: 0.85, visible: 1 },
     { id: 'hint', kind: 'text', anchor: 'bottom-center', x: 0, y: 22, text: "Тап по табличке — выстрел по стрелке", fontSize: 14, color: '#f7eed2', shadow: '#0b0809', alpha: 0.85, visible: 1 },
     { id: 'over', kind: 'panel', anchor: 'top-left', x: 0, y: 0, w: 240, h: 80, stretch: 'both', fill: '', border: '', radius: 0, alpha: 1, visible: 0 },
     { id: 'overDim', kind: 'panel', anchor: 'top-left', parent: 'over', x: 0, y: 0, w: 240, h: 80, stretch: 'both', fill: '#000000', border: '', radius: 0, alpha: 0.55, visible: 1 },
