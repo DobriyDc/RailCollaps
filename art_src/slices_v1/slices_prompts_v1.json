@@ -1,0 +1,8 @@
+{
+  "pack": "hell_tunnel_slices_v1",
+  "operation": "deterministic_pillow_slicing",
+  "image_generation_used": false,
+  "source_prompts": "art_src/hell_tunnel_prompts_v1.json",
+  "instruction": "Extract 6 train, 16 FX and 16 UI sprites in source row order using connected alpha silhouettes; set alpha below 24 to zero, retain detached particles, trim and pad by 4 pixels; align torch, smoke and lava groups to common canvases and pivots; anchor locomotives at the lower cowcatcher center; preserve source pixels without resampling or adding text.",
+  "generator": "tools/art/slice_hell_tunnel.py"
+}

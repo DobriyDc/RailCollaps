@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "generated_with": "built-in image_gen + Python 3.12 / Pillow",
+  "textures": [
+    {
+      "file": "assets/textures/tunnel/brick_wall.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "colors": 24,
+      "preview": "previews/brick_wall_3x3.png",
+      "purpose": "Боковые стены тоннеля"
+    },
+    {
+      "file": "assets/textures/tunnel/vault_brick.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "colors": 24,
+      "preview": "previews/vault_brick_3x3.png",
+      "purpose": "Развёртка кирпичного свода; длинная ось кирпича вдоль V"
+    },
+    {
+      "file": "assets/textures/tunnel/arch_rib.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "seamless_axes": [
+        "Y"
+      ],
+      "mode": "RGB",
+      "colors": 24,
+      "preview": "previews/arch_rib_3x3.png",
+      "purpose": "Каменное ребро арки / пилястра"
+    },
+    {
+      "file": "assets/textures/tunnel/floor_ballast.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "colors": 24,
+      "preview": "previews/floor_ballast_3x3.png",
+      "purpose": "Отсыпка между путями"
+    },
+    {
+      "file": "assets/textures/tunnel/track.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "seamless_axes": [
+        "Y"
+      ],
+      "mode": "RGB",
+      "colors": 28,
+      "preview": "previews/track_3x3.png",
+      "purpose": "Один прямой путь, вид сверху"
+    },
+    {
+      "file": "assets/textures/tunnel/lava_0.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "colors": 16,
+      "preview": "previews/lava_0_3x3.png",
+      "purpose": "Поверхность лавы",
+      "animation": "lava_flow",
+      "frame": 0,
+      "duration_ms": 180
+    },
+    {
+      "file": "assets/textures/tunnel/lava_1.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "colors": 16,
+      "preview": "previews/lava_1_3x3.png",
+      "purpose": "Поверхность лавы",
+      "animation": "lava_flow",
+      "frame": 1,
+      "duration_ms": 180
+    },
+    {
+      "file": "assets/textures/tunnel/lava_2.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "colors": 16,
+      "preview": "previews/lava_2_3x3.png",
+      "purpose": "Поверхность лавы",
+      "animation": "lava_flow",
+      "frame": 2,
+      "duration_ms": 180
+    },
+    {
+      "file": "assets/textures/tunnel/lava_3.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "colors": 16,
+      "preview": "previews/lava_3_3x3.png",
+      "purpose": "Поверхность лавы",
+      "animation": "lava_flow",
+      "frame": 3,
+      "duration_ms": 180
+    },
+    {
+      "file": "assets/textures/tunnel/torch_glow.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "colors": 23,
+      "preview": "previews/torch_glow_3x3.png",
+      "purpose": "Тёплая световая декаль"
+    }
+  ],
+  "sampling": "nearest; no smoothing; no bloom",
+  "uv_axes": {
+    "X": "U / ширина PNG",
+    "Y": "V / высота PNG, вдоль пути"
+  },
+  "lava_animation": {
+    "frames": [
+      "lava_0",
+      "lava_1",
+      "lava_2",
+      "lava_3"
+    ],
+    "fps": 5.555556,
+    "duration_ms": 720,
+    "loop": true,
+    "offset_per_frame_px": [
+      0,
+      32
+    ],
+    "wrap_3_to_0_verified": true
+  },
+  "torch_glow": {
+    "blend": "additive recommended; preserve alpha",
+    "wrap": "clamp",
+    "alpha_levels": [
+      0,
+      32,
+      64,
+      96,
+      128,
+      160,
+      192,
+      224
+    ]
+  },
+  "visual_qa": "Inspected every 3x3 preview; no wrap breaks observed on declared axes. Mortar joints and repeating motifs are intentional."
+}

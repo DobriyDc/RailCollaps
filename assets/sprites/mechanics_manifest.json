@@ -1,0 +1,534 @@
+[
+ {
+  "file": "assets/sprites/pickups/boost.png",
+  "source": "art_src/mechanics_v1/mechanics_01_pickups_v1.png",
+  "source_id": "track_accelerator",
+  "size": [
+   285,
+   504
+  ],
+  "pivot": [
+   143,
+   500
+  ],
+  "group": null
+ },
+ {
+  "file": "assets/sprites/pickups/slow.png",
+  "source": "art_src/mechanics_v1/mechanics_01_pickups_v1.png",
+  "source_id": "track_decelerator",
+  "size": [
+   338,
+   478
+  ],
+  "pivot": [
+   169,
+   474
+  ],
+  "group": null
+ },
+ {
+  "file": "assets/sprites/pickups/shield.png",
+  "source": "art_src/mechanics_v1/mechanics_01_pickups_v1.png",
+  "source_id": "track_shield",
+  "size": [
+   309,
+   465
+  ],
+  "pivot": [
+   154,
+   461
+  ],
+  "group": null
+ },
+ {
+  "file": "assets/sprites/pickups/ammo.png",
+  "source": "art_src/mechanics_v1/mechanics_01_pickups_v1.png",
+  "source_id": "track_ammunition",
+  "size": [
+   284,
+   426
+  ],
+  "pivot": [
+   142,
+   422
+  ],
+  "group": null
+ },
+ {
+  "file": "assets/sprites/pickups/rescue.png",
+  "source": "art_src/mechanics_v1/mechanics_01_pickups_v1.png",
+  "source_id": "track_fall_rescue",
+  "size": [
+   314,
+   522
+  ],
+  "pivot": [
+   157,
+   518
+  ],
+  "group": null
+ },
+ {
+  "file": "assets/sprites/hud/boost.png",
+  "source": "art_src/mechanics_v1/mechanics_01_pickups_v1.png",
+  "source_id": "hud_accelerator",
+  "size": [
+   201,
+   178
+  ],
+  "pivot": [
+   100,
+   89
+  ],
+  "group": null
+ },
+ {
+  "file": "assets/sprites/hud/slow.png",
+  "source": "art_src/mechanics_v1/mechanics_01_pickups_v1.png",
+  "source_id": "hud_decelerator",
+  "size": [
+   241,
+   215
+  ],
+  "pivot": [
+   121,
+   108
+  ],
+  "group": null
+ },
+ {
+  "file": "assets/sprites/hud/shield.png",
+  "source": "art_src/mechanics_v1/mechanics_01_pickups_v1.png",
+  "source_id": "hud_shield",
+  "size": [
+   199,
+   243
+  ],
+  "pivot": [
+   100,
+   121
+  ],
+  "group": null
+ },
+ {
+  "file": "assets/sprites/hud/ammo.png",
+  "source": "art_src/mechanics_v1/mechanics_01_pickups_v1.png",
+  "source_id": "hud_ammunition",
+  "size": [
+   215,
+   236
+  ],
+  "pivot": [
+   108,
+   118
+  ],
+  "group": null
+ },
+ {
+  "file": "assets/sprites/hud/rescue.png",
+  "source": "art_src/mechanics_v1/mechanics_01_pickups_v1.png",
+  "source_id": "hud_fall_rescue",
+  "size": [
+   207,
+   283
+  ],
+  "pivot": [
+   104,
+   142
+  ],
+  "group": null
+ },
+ {
+  "file": "assets/sprites/train/loco_run_0.png",
+  "source": "art_src/mechanics_v1/mechanics_02_loco_run_v1.png",
+  "source_id": "run_1",
+  "size": [
+   396,
+   570
+  ],
+  "pivot": [
+   198,
+   562
+  ],
+  "group": "loco_run"
+ },
+ {
+  "file": "assets/sprites/train/loco_run_1.png",
+  "source": "art_src/mechanics_v1/mechanics_02_loco_run_v1.png",
+  "source_id": "run_2",
+  "size": [
+   396,
+   570
+  ],
+  "pivot": [
+   198,
+   562
+  ],
+  "group": "loco_run"
+ },
+ {
+  "file": "assets/sprites/train/loco_run_2.png",
+  "source": "art_src/mechanics_v1/mechanics_02_loco_run_v1.png",
+  "source_id": "run_3",
+  "size": [
+   396,
+   570
+  ],
+  "pivot": [
+   198,
+   562
+  ],
+  "group": "loco_run"
+ },
+ {
+  "file": "assets/sprites/train/loco_run_3.png",
+  "source": "art_src/mechanics_v1/mechanics_02_loco_run_v1.png",
+  "source_id": "run_4",
+  "size": [
+   396,
+   570
+  ],
+  "pivot": [
+   198,
+   562
+  ],
+  "group": "loco_run"
+ },
+ {
+  "file": "assets/sprites/train/loco_shot_left.png",
+  "source": "art_src/mechanics_v1/mechanics_03_switch_shot_v1.png",
+  "source_id": "cab_shot_screen_left",
+  "size": [
+   396,
+   570
+  ],
+  "pivot": [
+   198,
+   562
+  ],
+  "group": "loco_run"
+ },
+ {
+  "file": "assets/sprites/train/loco_shot_right.png",
+  "source": "art_src/mechanics_v1/mechanics_03_switch_shot_v1.png",
+  "source_id": "cab_shot_screen_right",
+  "size": [
+   396,
+   570
+  ],
+  "pivot": [
+   198,
+   562
+  ],
+  "group": "loco_run"
+ },
+ {
+  "file": "assets/sprites/switch/waiting.png",
+  "source": "art_src/mechanics_v1/mechanics_03_switch_shot_v1.png",
+  "source_id": "switch_waiting",
+  "size": [
+   333,
+   439
+  ],
+  "pivot": [
+   166,
+   435
+  ],
+  "group": "switch"
+ },
+ {
+  "file": "assets/sprites/switch/hit.png",
+  "source": "art_src/mechanics_v1/mechanics_03_switch_shot_v1.png",
+  "source_id": "switch_bullet_impact",
+  "size": [
+   333,
+   439
+  ],
+  "pivot": [
+   166,
+   435
+  ],
+  "group": "switch"
+ },
+ {
+  "file": "assets/sprites/switch/set_left.png",
+  "source": "art_src/mechanics_v1/mechanics_03_switch_shot_v1.png",
+  "source_id": "switch_set_screen_left",
+  "size": [
+   333,
+   439
+  ],
+  "pivot": [
+   166,
+   435
+  ],
+  "group": "switch"
+ },
+ {
+  "file": "assets/sprites/switch/set_right.png",
+  "source": "art_src/mechanics_v1/mechanics_03_switch_shot_v1.png",
+  "source_id": "switch_set_screen_right",
+  "size": [
+   333,
+   439
+  ],
+  "pivot": [
+   166,
+   435
+  ],
+  "group": "switch"
+ },
+ {
+  "file": "assets/sprites/demon/jump_0.png",
+  "source": "art_src/mechanics_v1/mechanics_04_demon_v1.png",
+  "source_id": "jump_crouch",
+  "size": [
+   549,
+   479
+  ],
+  "pivot": [
+   275,
+   474
+  ],
+  "group": "demon"
+ },
+ {
+  "file": "assets/sprites/demon/jump_1.png",
+  "source": "art_src/mechanics_v1/mechanics_04_demon_v1.png",
+  "source_id": "jump_launch",
+  "size": [
+   549,
+   479
+  ],
+  "pivot": [
+   275,
+   474
+  ],
+  "group": "demon"
+ },
+ {
+  "file": "assets/sprites/demon/jump_2.png",
+  "source": "art_src/mechanics_v1/mechanics_04_demon_v1.png",
+  "source_id": "jump_airborne",
+  "size": [
+   549,
+   479
+  ],
+  "pivot": [
+   275,
+   474
+  ],
+  "group": "demon"
+ },
+ {
+  "file": "assets/sprites/demon/jump_3.png",
+  "source": "art_src/mechanics_v1/mechanics_04_demon_v1.png",
+  "source_id": "jump_lunge",
+  "size": [
+   549,
+   479
+  ],
+  "pivot": [
+   275,
+   474
+  ],
+  "group": "demon"
+ },
+ {
+  "file": "assets/sprites/demon/hit.png",
+  "source": "art_src/mechanics_v1/mechanics_04_demon_v1.png",
+  "source_id": "bullet_hit",
+  "size": [
+   549,
+   479
+  ],
+  "pivot": [
+   275,
+   474
+  ],
+  "group": "demon"
+ },
+ {
+  "file": "assets/sprites/demon/ash.png",
+  "source": "art_src/mechanics_v1/mechanics_04_demon_v1.png",
+  "source_id": "ash_breakup",
+  "size": [
+   549,
+   479
+  ],
+  "pivot": [
+   275,
+   474
+  ],
+  "group": "demon"
+ },
+ {
+  "file": "assets/sprites/fx/lava_flow_0.png",
+  "source": "art_src/mechanics_v1/mechanics_05_lava_flow_v1.png",
+  "source_id": "flow_1",
+  "size": [
+   125,
+   340
+  ],
+  "pivot": [
+   62,
+   4
+  ],
+  "group": "lava_flow"
+ },
+ {
+  "file": "assets/sprites/fx/lava_flow_1.png",
+  "source": "art_src/mechanics_v1/mechanics_05_lava_flow_v1.png",
+  "source_id": "flow_2",
+  "size": [
+   125,
+   340
+  ],
+  "pivot": [
+   62,
+   4
+  ],
+  "group": "lava_flow"
+ },
+ {
+  "file": "assets/sprites/fx/lava_flow_2.png",
+  "source": "art_src/mechanics_v1/mechanics_05_lava_flow_v1.png",
+  "source_id": "flow_3",
+  "size": [
+   125,
+   340
+  ],
+  "pivot": [
+   62,
+   4
+  ],
+  "group": "lava_flow"
+ },
+ {
+  "file": "assets/sprites/fx/lava_flow_3.png",
+  "source": "art_src/mechanics_v1/mechanics_05_lava_flow_v1.png",
+  "source_id": "flow_4",
+  "size": [
+   125,
+   340
+  ],
+  "pivot": [
+   62,
+   4
+  ],
+  "group": "lava_flow"
+ },
+ {
+  "file": "assets/sprites/fx/lava_drops_0.png",
+  "source": "art_src/mechanics_v1/mechanics_05_lava_flow_v1.png",
+  "source_id": "warning_drops_1",
+  "size": [
+   153,
+   248
+  ],
+  "pivot": [
+   76,
+   244
+  ],
+  "group": "lava_drops"
+ },
+ {
+  "file": "assets/sprites/fx/lava_drops_1.png",
+  "source": "art_src/mechanics_v1/mechanics_05_lava_flow_v1.png",
+  "source_id": "warning_drops_2",
+  "size": [
+   153,
+   248
+  ],
+  "pivot": [
+   76,
+   244
+  ],
+  "group": "lava_drops"
+ },
+ {
+  "file": "assets/sprites/fx/lava_splash_0.png",
+  "source": "art_src/mechanics_v1/mechanics_05_lava_flow_v1.png",
+  "source_id": "track_splash_1",
+  "size": [
+   342,
+   199
+  ],
+  "pivot": [
+   171,
+   195
+  ],
+  "group": "lava_splash"
+ },
+ {
+  "file": "assets/sprites/fx/lava_splash_1.png",
+  "source": "art_src/mechanics_v1/mechanics_05_lava_flow_v1.png",
+  "source_id": "track_splash_2",
+  "size": [
+   342,
+   199
+  ],
+  "pivot": [
+   171,
+   195
+  ],
+  "group": "lava_splash"
+ },
+ {
+  "file": "assets/sprites/fx/shield_0.png",
+  "source": "art_src/mechanics_v1/mechanics_05_lava_flow_v1.png",
+  "source_id": "shield_1",
+  "size": [
+   367,
+   281
+  ],
+  "pivot": [
+   186,
+   274
+  ],
+  "group": "shield"
+ },
+ {
+  "file": "assets/sprites/fx/shield_1.png",
+  "source": "art_src/mechanics_v1/mechanics_05_lava_flow_v1.png",
+  "source_id": "shield_2",
+  "size": [
+   367,
+   281
+  ],
+  "pivot": [
+   186,
+   274
+  ],
+  "group": "shield"
+ },
+ {
+  "file": "assets/sprites/fx/shield_2.png",
+  "source": "art_src/mechanics_v1/mechanics_05_lava_flow_v1.png",
+  "source_id": "shield_3",
+  "size": [
+   367,
+   281
+  ],
+  "pivot": [
+   186,
+   274
+  ],
+  "group": "shield"
+ },
+ {
+  "file": "assets/sprites/fx/shield_hit.png",
+  "source": "art_src/mechanics_v1/mechanics_05_lava_flow_v1.png",
+  "source_id": "shield_absorbs_hit",
+  "size": [
+   367,
+   281
+  ],
+  "pivot": [
+   186,
+   274
+  ],
+  "group": "shield"
+ }
+]
