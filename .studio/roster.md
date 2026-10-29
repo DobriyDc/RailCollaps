@@ -28,6 +28,17 @@
   агентам не передаётся и в репозиторий не кладётся; первый токен засветился в чате 2026-10-29 —
   заменить через `/revoke` в @BotFather.
 
+## Выкладка для бота
+
+- GitHub: `origin` = https://github.com/DobriyDc/RailCollaps (публичный), ветка `main`, GitHub Pages
+  с корня: https://dobriydc.github.io/RailCollaps/ — этот адрес открывает бот @railcollapsebot.
+- Первый залив 2026-10-29 был ручным через веб (коммиты a92d06a, 3d87214, история не связана с
+  нашей); по содержимому совпадает с `4cb3975`, отличаются только концы строк и `.gitattributes`
+  из шаблона GitHub. Связать без перезаписи: `git merge -s ours --allow-unrelated-histories
+  origin/main`, затем обычный `git push -u origin main` — без `--force`.
+- Выкладывать `main` после каждой принятой пачки. Pages отдаёт с `Cache-Control: max-age=600`:
+  новая версия в Telegram видна через 1–10 минут.
+
 ## Запуск воркера
 
 ```
