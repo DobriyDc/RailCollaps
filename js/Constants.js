@@ -72,6 +72,31 @@ const GAME_RUN_SEC = 8;                 // s: a full energy bar lasts this long 
 const GAME_REST_SEC = 4;                // s: an empty energy bar refills in this time while standing
 const GAME_STEP_SEC = 0.35;             // s: between footstep sounds while the character runs
 
+// --- RAIL LINK: COLLAPSE (CollapseRules.js — the run, CollapseScene.js — the tunnel). Distance is
+// counted in track SEGMENTS; the first numbers of the prototype, tuned in playtests (GDD v3 §8) ---
+const COLLAPSE_SEG_METERS = 10;         // m of distance shown per segment
+const COLLAPSE_SPEED = 2.2;             // segments/s: train speed at the start
+const COLLAPSE_SPEED_GROWTH = 0.0025;   // segments/s added per segment travelled
+const COLLAPSE_SPEED_MAX = 4.5;         // segments/s: the train never goes faster on its own
+const COLLAPSE_FRONT_SPEED = 1.5;       // segments/s: the collapse behind the train at the start
+const COLLAPSE_FRONT_GROWTH = 0.0035;   // segments/s added to the collapse per segment travelled
+const COLLAPSE_FRONT_MAX = 4.6;         // segments/s: collapse speed cap (above the train's cap: boosts are needed late)
+const COLLAPSE_FRONT_START_GAP = 8;     // segments between the collapse and the train at the start
+const COLLAPSE_FRONT_MAX_GAP = 14;      // segments: the collapse never falls farther behind than this
+const COLLAPSE_BOOST_MULT = 1.5;        // accelerator: speed multiplier
+const COLLAPSE_BOOST_SEC = 4;           // s: accelerator duration
+const COLLAPSE_SLOW_MULT = 0.65;        // decelerator: speed multiplier
+const COLLAPSE_SLOW_SEC = 3;            // s: decelerator duration
+const COLLAPSE_START_AMMO = 8;          // cartridges at the start: one shot switches one fork
+const COLLAPSE_AMMO_PICKUP = 4;         // cartridges per ammo pickup
+const COLLAPSE_DEMON_SEC = 1.6;         // s to shoot a jumping demon before it hits the train
+const COLLAPSE_DEMON_EVERY = 60;        // segments: a demon at most once per this distance (a rare event)
+const COLLAPSE_RENDER_HEIGHT = 640;     // px: the tunnel is rendered this tall and scaled up without smoothing
+const COLLAPSE_CAM_Y = 760;             // world units: camera height above the rails
+const COLLAPSE_CAM_Z = 1500;            // world units: camera distance in front of the train
+const COLLAPSE_CAM_LOOK_Z = -900;       // world units: the camera looks at this point behind the train
+const COLLAPSE_CAM_FOV_DEG = 50;        // vertical field of view of the tunnel camera
+
 // --- CAMERA (CameraControl.js): target on the map, azimuth, pitch and zoom. Zoom is
 // screen px per world px at the look-at point; distance is derived from it. Flight
 // (WASD, Q/E) lifts the look-at point off the ground. ---
