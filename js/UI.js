@@ -153,22 +153,25 @@ const UI = {
         return ref > 0 && h > 0 ? h / ref : 1;
     },
 
-    // The root covers the canvas; its inner size is the screen in layout px.
+    // Telegram insets are CSS px, applied once before the layout scale. CSS expressions keep
+    // SDK safe-area updates live even when the canvas itself has not resized.
     resize() {
         const c = this.canvas, r = this.root;
         if (!c || !r) return;
         const s = this.scale();
-        r.style.left = c.offsetLeft + 'px';
-        r.style.top = c.offsetTop + 'px';
-        r.style.width = (c.clientWidth / s) + 'px';
-        r.style.height = (c.clientHeight / s) + 'px';
+        const inset = side => '(var(--tg-safe-area-inset-' + side + ', 0px) + var(--tg-content-safe-area-inset-' + side + ', 0px))';
+        const top = inset('top'), right = inset('right'), bottom = inset('bottom'), left = inset('left');
+        r.style.left = 'calc(' + c.offsetLeft + 'px + ' + left + ')';
+        r.style.top = 'calc(' + c.offsetTop + 'px + ' + top + ')';
+        r.style.width = 'max(0px, calc((' + c.clientWidth + 'px - ' + left + ' - ' + right + ') * ' + (1 / s) + '))';
+        r.style.height = 'max(0px, calc((' + c.clientHeight + 'px - ' + top + ' - ' + bottom + ') * ' + (1 / s) + '))';
         r.style.transform = 'scale(' + s + ')';
     },
 
     // Screen size in layout px.
     size() {
-        const s = this.scale(), c = this.canvas;
-        return { w: c ? c.clientWidth / s : 0, h: c ? c.clientHeight / s : 0 };
+        const s = this.scale(), rect = this.root ? this.root.getBoundingClientRect() : null;
+        return { w: rect ? rect.width / s : 0, h: rect ? rect.height / s : 0 };
     },
 
     // --- Anchor math (no DOM — tests/ui.test.mjs) -------------------------------------
@@ -282,7 +285,13 @@ class UIElement {
             const t = this.inner.style;
             t.cssText = '';
             this.inner.textContent = this._text != null ? this._text : String(d.text == null ? '' : d.text);
-            t.whiteSpace = 'pre';
+            // Keep explicit line breaks, but let long hints and result lines fit their panel.
+            if (d.kind === 'text') {
+                s.width = 'max-content';
+                s.maxWidth = '100%';
+            }
+            t.whiteSpace = 'pre-wrap';
+            t.overflowWrap = 'anywhere';
             t.fontSize = px(d.fontSize || 20);
             t.fontWeight = '600';
             t.lineHeight = '1.2';
