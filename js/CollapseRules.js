@@ -18,12 +18,7 @@ const CollapseRules = {
     SWITCH_LEN: 0.8,       // segments the train needs to cross to the next lane after a fork
     TRAIN_LEN: 0.35,       // segments: the collapse behind catches the train at this gap
     FORK_RANGE: 6,         // segments: how far ahead the next fork can be armed
-    DIFFICULTY_SEGS: 600,  // segments over which the generator goes from calm to dense
-    // The generator's dice: pickups and the share of each pattern (the rest of a roll is a detour).
     PICKUPS: ['ammo', 'boost', 'slow', 'shield', 'rescue'],
-    PICKUP_WEIGHTS: [0.34, 0.2, 0.16, 0.15, 0.15],
-    GAP_ROLL: 0.52,
-    LAVA_ROLL: 0.66,       // + 0.1 × difficulty
 
     // All run numbers (Constants.js, GDD v3 §8) with defaults: Constants.js may be older than the code.
     cfg() {
@@ -33,11 +28,11 @@ const CollapseRules = {
             speed: typeof COLLAPSE_SPEED !== U ? COLLAPSE_SPEED : 2.2,
             speedGrowth: typeof COLLAPSE_SPEED_GROWTH !== U ? COLLAPSE_SPEED_GROWTH : 0.0025,
             speedMax: typeof COLLAPSE_SPEED_MAX !== U ? COLLAPSE_SPEED_MAX : 4.5,
-            frontSpeed: typeof COLLAPSE_FRONT_SPEED !== U ? COLLAPSE_FRONT_SPEED : 1.5,
-            frontGrowth: typeof COLLAPSE_FRONT_GROWTH !== U ? COLLAPSE_FRONT_GROWTH : 0.0035,
-            frontMax: typeof COLLAPSE_FRONT_MAX !== U ? COLLAPSE_FRONT_MAX : 4.6,
-            frontStartGap: typeof COLLAPSE_FRONT_START_GAP !== U ? COLLAPSE_FRONT_START_GAP : 8,
-            frontMaxGap: typeof COLLAPSE_FRONT_MAX_GAP !== U ? COLLAPSE_FRONT_MAX_GAP : 14,
+            frontSpeed: typeof COLLAPSE_FRONT_SPEED !== U ? COLLAPSE_FRONT_SPEED : 1.8,
+            frontGrowth: typeof COLLAPSE_FRONT_GROWTH !== U ? COLLAPSE_FRONT_GROWTH : 0.004,
+            frontMax: typeof COLLAPSE_FRONT_MAX !== U ? COLLAPSE_FRONT_MAX : 4.8,
+            frontStartGap: typeof COLLAPSE_FRONT_START_GAP !== U ? COLLAPSE_FRONT_START_GAP : 5,
+            frontMaxGap: typeof COLLAPSE_FRONT_MAX_GAP !== U ? COLLAPSE_FRONT_MAX_GAP : 6,
             boostMult: typeof COLLAPSE_BOOST_MULT !== U ? COLLAPSE_BOOST_MULT : 1.5,
             boostSec: typeof COLLAPSE_BOOST_SEC !== U ? COLLAPSE_BOOST_SEC : 4,
             slowMult: typeof COLLAPSE_SLOW_MULT !== U ? COLLAPSE_SLOW_MULT : 0.65,
@@ -60,6 +55,22 @@ const CollapseRules = {
             reactSec: typeof COLLAPSE_REACT_SEC !== U ? COLLAPSE_REACT_SEC : 0.6,
             continueGap: typeof COLLAPSE_CONTINUE_GAP !== U ? COLLAPSE_CONTINUE_GAP : 8,
             continueGrace: typeof COLLAPSE_CONTINUE_GRACE_SEC !== U ? COLLAPSE_CONTINUE_GRACE_SEC : 1.5,
+            // The generator's dice (the rest of a pattern roll is a detour for a pickup).
+            difficultySegs: typeof COLLAPSE_DIFFICULTY_SEGS !== U ? COLLAPSE_DIFFICULTY_SEGS : 600,
+            calmStart: typeof COLLAPSE_CALM_START !== U ? COLLAPSE_CALM_START : 4,
+            calmEnd: typeof COLLAPSE_CALM_END !== U ? COLLAPSE_CALM_END : 1,
+            gapShare: typeof COLLAPSE_GAP_SHARE !== U ? COLLAPSE_GAP_SHARE : 0.52,
+            lavaShare: typeof COLLAPSE_LAVA_SHARE !== U ? COLLAPSE_LAVA_SHARE : 0.14,
+            lavaGrowth: typeof COLLAPSE_LAVA_GROWTH !== U ? COLLAPSE_LAVA_GROWTH : 0.1,
+            hazardMid: typeof COLLAPSE_HAZARD_MID !== U ? COLLAPSE_HAZARD_MID : 0.5,
+            hazardReward: typeof COLLAPSE_HAZARD_REWARD !== U ? COLLAPSE_HAZARD_REWARD : 0.5,
+            pickupOdds: [
+                typeof COLLAPSE_ODDS_AMMO !== U ? COLLAPSE_ODDS_AMMO : 0.34,
+                typeof COLLAPSE_ODDS_BOOST !== U ? COLLAPSE_ODDS_BOOST : 0.2,
+                typeof COLLAPSE_ODDS_SLOW !== U ? COLLAPSE_ODDS_SLOW : 0.16,
+                typeof COLLAPSE_ODDS_SHIELD !== U ? COLLAPSE_ODDS_SHIELD : 0.15,
+                typeof COLLAPSE_ODDS_RESCUE !== U ? COLLAPSE_ODDS_RESCUE : 0.15,
+            ],
         };
     },
 
@@ -143,8 +154,8 @@ class CollapseTrack {
     }
 
     _pickupKind() {
-        let r = this.rand();
-        const w = CollapseRules.PICKUP_WEIGHTS;
+        const w = this.cfg.pickupOdds;
+        let r = this.rand() * w.reduce((a, b) => a + b, 0);
         for (let i = 0; i < w.length; i++) {
             if ((r -= w[i]) < 0) return CollapseRules.PICKUPS[i];
         }
@@ -154,22 +165,24 @@ class CollapseTrack {
     _pattern() {
         const R = CollapseRules, c = this.cfg;
         const at = this.segs.length;
-        const d = Math.min(1, at / R.DIFFICULTY_SEGS);          // difficulty 0..1
-        let calm = Math.round(4 - 3 * d) + this._int(2);
+        const d = Math.min(1, at / c.difficultySegs);           // difficulty 0..1
+        let calm = Math.max(0, Math.round(c.calmStart + (c.calmEnd - c.calmStart) * d)) + this._int(2);
         // The decision window: the pattern's fork (at boundary at + calm) is far enough from the last one.
         while ((at + calm - this.lastFork) / R.maxSpeedAt(c, at + calm) < c.reactSec) calm++;
         this._calm(calm);
         const demonOk = at >= c.demonStart && at - this.lastDemon >= c.demonEvery;
         if (demonOk && this.rand() < c.demonChance) { this._demon(); return; }
         const roll = this.rand();
-        if (roll < R.GAP_ROLL) this._hazard('gap', c.gapMin + this._int(1 + Math.round((c.gapMax - c.gapMin) * d)));
-        else if (roll < R.LAVA_ROLL + 0.1 * d) this._hazard('lava', 1);
+        if (roll < c.gapShare) this._hazard('gap', c.gapMin + this._int(1 + Math.round((c.gapMax - c.gapMin) * d)));
+        else if (roll < c.gapShare + c.lavaShare + c.lavaGrowth * d) this._hazard('lava', 1);
         else this._detour();
     }
 
     // A hazard of `len` segments on one lane: escape forks before it, return forks after it.
+    // The middle lane takes the hazardMid share: a train that never switches stays on it.
     _hazard(type, len) {
-        const lane = this._int(CollapseRules.LANES);
+        const c = this.cfg;
+        const lane = this.rand() < c.hazardMid ? 1 : this._int(2) * 2;
         const lead = collapseSegment(type + '-lead');
         for (const to of CollapseRules.neighbors(lane)) lead.forks.push({ from: lane, to });
         this._push(lead);
@@ -177,7 +190,7 @@ class CollapseTrack {
             const s = collapseSegment(type);
             s[type][lane] = true;
             // A reward on a safe lane beside a long hazard: the escape is also a choice.
-            if (i === 1 && this.rand() < 0.5) {
+            if (i === 1 && this.rand() < c.hazardReward) {
                 const side = CollapseRules.neighbors(lane);
                 s.pickup[side[this._int(side.length)]] = this._pickupKind();
             }

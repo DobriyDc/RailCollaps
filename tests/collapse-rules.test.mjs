@@ -21,6 +21,66 @@ function escapeBot(run, CollapseRules) {
   if (to !== undefined) run.shoot(next.at, to);
 }
 
+// The dodger of the balance table: real ammo, leaves its lane only when it is unsafe ahead, shoots
+// every leaping demon, does not seek pickups.
+function dodgeBot(run, CollapseRules) {
+  escapeBot(run, CollapseRules);
+  for (const d of run.leaping()) run.shootDemon(d.side);
+}
+
+// 20 seeds of one bot without a continue: distances (m) and times (s).
+function series(p, bot) {
+  const CollapseRun = p.get('CollapseRun'), R = p.get('CollapseRules');
+  const out = [];
+  for (let seed = 1; seed <= 20; seed++) {
+    const run = new CollapseRun(seed);
+    for (let f = 0; f < 60 * 900 && run.state === 'run'; f++) {
+      if (bot) bot(run, R);
+      run.update(1 / 60);
+    }
+    out.push({ m: run.meters, t: run.time, over: run.state === 'over' });
+  }
+  return out;
+}
+const median = a => { const s = [...a].sort((x, y) => x - y); return (s[9] + s[10]) / 2; };
+
+test('решения решают: без тапов забег кончается за 30 с, медиана не дальше 300 м (20 зёрен)', () => {
+  const idle = series(page(), null);
+  const m = median(idle.map(r => r.m)), slowest = Math.max(...idle.map(r => r.t));
+  assert.ok(m <= 300, `медиана без тапов ${m} м`);
+  assert.ok(slowest <= 30, `самый долгий забег без тапов ${slowest.toFixed(1)} с`);
+});
+
+test('уклонист с честными патронами доезжает дальше 1500 м, но обвал без ускорителей его настигает (20 зёрен)', () => {
+  const dodger = series(page(), dodgeBot);
+  const m = median(dodger.map(r => r.m)), t = median(dodger.map(r => r.t));
+  assert.ok(m >= 1500, `медиана уклониста ${m} м`);
+  // A short run (GDD v3: a session of 2–4 minutes): the gap melts without boosts.
+  assert.ok(dodger.every(r => r.over) && t <= 240, `медиана уклониста ${t.toFixed(0)} с, живых ${dodger.filter(r => !r.over).length}`);
+});
+
+test('замедлитель на поздней дистанции подпускает обвал до поезда, в начале — нет', () => {
+  const p = page();
+  const CollapseRun = p.get('CollapseRun');
+  const clear = { kind: 'calm', gap: [false, false, false], lava: [false, false, false], pickup: [null, null, null], forks: [], demon: null };
+  // The collapse at its natural distance after 20 s on a clear track from segment `from`, then a
+  // decelerator: the gap before and the smallest gap while slowed.
+  const slowAt = from => {
+    const run = new CollapseRun(1);
+    run.track.seg = () => clear;
+    run.pos = from; run._seg = from; run.front = from - run.c.frontMaxGap; run.invuln = 1e9;
+    runFrames(run, 60 * 20);
+    const before = run.pos - run.front;
+    run.slow = run.c.slowSec;
+    let min = before;
+    runFrames(run, Math.round(60 * run.c.slowSec), r => { min = Math.min(min, r.pos - r.front); return false; });
+    return { before, min, km: run.pos * run.c.segMeters / 1000 };
+  };
+  const early = slowAt(0), late = slowAt(300);
+  assert.ok(early.min >= 2, `в начале замедлитель губит: зазор ${early.before.toFixed(1)} -> ${early.min.toFixed(1)}`);
+  assert.ok(late.min <= 1, `на ${late.km.toFixed(1)} км зазор ${late.before.toFixed(1)} -> ${late.min.toFixed(1)} сегм.: обвал не подходит`);
+});
+
 test('трасса детерминирована по зерну: одно зерно — одна трасса, другое зерно — другая', () => {
   const p = page();
   const CollapseTrack = p.get('CollapseTrack');
