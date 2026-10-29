@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "tool": "built-in image_gen",
+  "generated_source": "generated/crossover_reference.png",
+  "prompt": "Use case: stylized-concept.\nAsset type: original pixel-art railway turnout material and engineering art reference for Rail Link: Collapse.\nPrimary request: one strictly orthographic top-down railway crossover, a straight track on left smoothly branching to join a second parallel straight track on right. Bottom-to-top travel. Long slender gentle S curve between the parallel tracks. Real stock rails, switch blades and frog crossings, guard rails. Continuous horizontal wooden sleepers perpendicular to main straight tracks even through switch. No diagonal sleepers.\nReference image 1 track.png is material and pixel scale reference: rusty brown rail web, grey thin steel heads, dark brown wooden ties, very dark chunky brown gravel. Reference image 2 is mood reference only, no perspective.\nComposition: portrait canvas, two parallel tracks, all four ends flush at top and bottom, enough length for gentle crossover; transparent outside ballast. Coarse crisp pixels, no antialiasing or blurry gradients, dark brown stone and worn rust, no lava, no arrows, no labels, no text, no UI. This is an original railway asset, never copy any game.\nDeliver a single coherent crossover asset, no sheet, no framing or typography. Pixel-exact game ports and state overlays will be authored separately from this source with the project's build script.",
+  "references": [
+    {
+      "file": "assets/textures/tunnel/track.png",
+      "role": "material, scale, exact port reference"
+    },
+    {
+      "file": "art_src/storyboard_tunnel_style_keyframe_v1.png",
+      "role": "mood only"
+    }
+  ],
+  "production_method": "Generated source retained as visual design study; final game raster authored deterministically by build_switches.py from the project's original track.png. No generated geometry or resampling used at ports.",
+  "constraints": [
+    "Original art",
+    "No text in game textures",
+    "No changes to existing assets or game code",
+    "Binary alpha",
+    "Exact 128px lane pitch"
+  ]
+}
