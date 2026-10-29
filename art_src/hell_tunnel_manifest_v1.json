@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "pack": "hell_tunnel_v1",
+  "created_date": "2026-10-29",
+  "source": "built-in image_gen",
+  "reference": "User-provided steam locomotive in lava brick tunnel image",
+  "status": "source_sheet_requires_slicing",
+  "recommended_filter": "nearest",
+  "notes": [
+    "Counts and layouts describe the intended sheet contents; exact slicing regions have not been established.",
+    "These source sheets are not integrated runtime atlases.",
+    "Animation timing, pivots, seamless tiling and track connections require validation after slicing.",
+    "No layered authoring source is included."
+  ],
+  "sheets": [
+    {
+      "file": "hell_tunnel_01_train_v1.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "format": "PNG",
+      "alpha": {
+        "present": true,
+        "extrema": [
+          0,
+          255
+        ],
+        "fully_transparent_pixels": 631760,
+        "partially_transparent_pixels": 940563,
+        "fully_opaque_pixels": 193,
+        "significant_threshold": 128,
+        "significant_content_bbox": [
+          21,
+          8,
+          1244,
+          1206
+        ],
+        "edge_pixels_above_threshold": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        },
+        "edge_pixels_above_16": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      },
+      "integrity": "verified_decode",
+      "sha256": "83b01548553df74b55464dfe500b6ed75423b383ead374bb0f7b64332adcce2e",
+      "count": 6,
+      "intended_layout": {
+        "columns": 3,
+        "rows": 2,
+        "verified_exact_grid": false
+      },
+      "status": "source_sheet_requires_slicing",
+      "regions": null,
+      "pivots": null,
+      "fps": null
+    },
+    {
+      "file": "hell_tunnel_02_tracks_v1.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "format": "PNG",
+      "alpha": {
+        "present": true,
+        "extrema": [
+          0,
+          255
+        ],
+        "fully_transparent_pixels": 717714,
+        "partially_transparent_pixels": 853882,
+        "fully_opaque_pixels": 920,
+        "significant_threshold": 128,
+        "significant_content_bbox": [
+          38,
+          38,
+          1230,
+          1215
+        ],
+        "edge_pixels_above_threshold": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        },
+        "edge_pixels_above_16": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      },
+      "integrity": "verified_decode",
+      "sha256": "5caf741369e750ca4c53057cc52bca663fce928bfe698ff66f2857a58b06036a",
+      "count": 9,
+      "intended_layout": {
+        "columns": 3,
+        "rows": 3,
+        "verified_exact_grid": false
+      },
+      "status": "source_sheet_requires_slicing",
+      "regions": null,
+      "pivots": null,
+      "fps": null
+    },
+    {
+      "file": "hell_tunnel_03_tunnel_v1.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "format": "PNG",
+      "alpha": {
+        "present": true,
+        "extrema": [
+          0,
+          255
+        ],
+        "fully_transparent_pixels": 808770,
+        "partially_transparent_pixels": 763348,
+        "fully_opaque_pixels": 398,
+        "significant_threshold": 128,
+        "significant_content_bbox": [
+          20,
+          18,
+          1239,
+          1219
+        ],
+        "edge_pixels_above_threshold": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        },
+        "edge_pixels_above_16": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      },
+      "integrity": "verified_decode",
+      "sha256": "b6d04b8c3b6a824101ffb789a29010051b73d818ea1cf16c7df962611cc8ca0a",
+      "count": 9,
+      "intended_layout": {
+        "columns": 3,
+        "rows": 3,
+        "verified_exact_grid": false
+      },
+      "status": "source_sheet_requires_slicing",
+      "regions": null,
+      "pivots": null,
+      "fps": null
+    },
+    {
+      "file": "hell_tunnel_04_fx_v1.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "format": "PNG",
+      "alpha": {
+        "present": true,
+        "extrema": [
+          0,
+          255
+        ],
+        "fully_transparent_pixels": 807442,
+        "partially_transparent_pixels": 764504,
+        "fully_opaque_pixels": 570,
+        "significant_threshold": 128,
+        "significant_content_bbox": [
+          29,
+          14,
+          1229,
+          1225
+        ],
+        "edge_pixels_above_threshold": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        },
+        "edge_pixels_above_16": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      },
+      "integrity": "verified_decode",
+      "sha256": "56603ed3648dbec3c2e9e5c6ac4ec87676f2b30da85a4cf3692a73baa49d5e3e",
+      "count": 16,
+      "intended_layout": {
+        "columns": 4,
+        "rows": 4,
+        "verified_exact_grid": false
+      },
+      "status": "source_sheet_requires_slicing",
+      "regions": null,
+      "pivots": null,
+      "fps": null
+    },
+    {
+      "file": "hell_tunnel_05_ui_v1.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "format": "PNG",
+      "alpha": {
+        "present": true,
+        "extrema": [
+          0,
+          255
+        ],
+        "fully_transparent_pixels": 844918,
+        "partially_transparent_pixels": 725954,
+        "fully_opaque_pixels": 1644,
+        "significant_threshold": 128,
+        "significant_content_bbox": [
+          43,
+          80,
+          1212,
+          1172
+        ],
+        "edge_pixels_above_threshold": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        },
+        "edge_pixels_above_16": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      },
+      "integrity": "verified_decode",
+      "sha256": "ac5cf188592d71ea4580d147cb096e009f4ee5e1c2a81700a0f985eb9318e7a1",
+      "count": 16,
+      "intended_layout": {
+        "columns": 4,
+        "rows": 4,
+        "verified_exact_grid": false
+      },
+      "status": "source_sheet_requires_slicing",
+      "regions": null,
+      "pivots": null,
+      "fps": null
+    }
+  ]
+}
