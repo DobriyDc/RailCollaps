@@ -101,10 +101,12 @@ const COLLAPSE_CONTINUE_GAP = 8;        // segments: a continue pushes the colla
 const COLLAPSE_CONTINUE_GRACE_SEC = 1.5; // s: no hazard hurts the train right after a continue
 const COLLAPSE_OVER_DELAY_SEC = 0.7;    // s: the fall plays before the end-of-run dialog
 const COLLAPSE_RENDER_HEIGHT = 640;     // px: the tunnel is rendered this tall and scaled up without smoothing
-const COLLAPSE_CAM_Y = 550;             // world units: camera height above the rails
-const COLLAPSE_CAM_Z = 1670;            // world units: camera distance in front of the train
-const COLLAPSE_CAM_LOOK_Z = 480;        // world units: the camera looks at this rail point in front of the train
-const COLLAPSE_CAM_FOV_DEG = 60;        // vertical field of view of the tunnel camera
+const COLLAPSE_CAM_Y = 650;             // world units: camera height above the rails
+const COLLAPSE_CAM_Z = 3000;            // world units: camera distance in front of the train
+const COLLAPSE_CAM_LOOK_Z = 920;        // world units: the camera looks at this rail point in front of the train
+const COLLAPSE_CAM_FOV_DEG = 40;        // vertical field of view of the tunnel camera (narrow: the side lanes stay in a 9:19.5 frame)
+const COLLAPSE_CAM_FOLLOW = 0.5;        // 0..1: share of the train's sideways offset the camera follows (0 — fixed on the center lane)
+const COLLAPSE_CAM_FOLLOW_RATE = 5;     // 1/s: how fast the camera eases toward that offset (larger — stiffer)
 
 // --- CAMERA (CameraControl.js): target on the map, azimuth, pitch and zoom. Zoom is
 // screen px per world px at the look-at point; distance is derived from it. Flight

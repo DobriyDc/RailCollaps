@@ -49,19 +49,28 @@ class CollapseScene {
 
         const dark = new BABYLON.Color3(0.045, 0.032, 0.038);
         scene.clearColor = new BABYLON.Color4(dark.r, dark.g, dark.b, 1);
-        scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
-        scene.fogColor = dark;
-        scene.fogStart = 2200;
-        scene.fogEnd = 7600;
         scene.ambientColor = new BABYLON.Color3(0, 0, 0);
 
         const cam = this.view.camera;
         const U = 'undefined';
         cam.fov = (typeof COLLAPSE_CAM_FOV_DEG !== U ? COLLAPSE_CAM_FOV_DEG : 50) * Math.PI / 180;
         cam.minZ = 10;
-        cam.maxZ = 9000;
-        cam.position.set(0, typeof COLLAPSE_CAM_Y !== U ? COLLAPSE_CAM_Y : 760, typeof COLLAPSE_CAM_Z !== U ? COLLAPSE_CAM_Z : 1500);
-        cam.setTarget(new BABYLON.Vector3(0, 0, typeof COLLAPSE_CAM_LOOK_Z !== U ? COLLAPSE_CAM_LOOK_Z : -900));
+        cam.position.set(0, typeof COLLAPSE_CAM_Y !== U ? COLLAPSE_CAM_Y : 650, typeof COLLAPSE_CAM_Z !== U ? COLLAPSE_CAM_Z : 3000);
+        cam.setTarget(new BABYLON.Vector3(0, 0, typeof COLLAPSE_CAM_LOOK_Z !== U ? COLLAPSE_CAM_LOOK_Z : 920));
+        // The camera follows the train sideways (GDD v3 §2): eye and look-at point shift together by a
+        // share of the train's offset, so the view direction never turns; camX eases toward that goal.
+        this.camFollow = typeof COLLAPSE_CAM_FOLLOW !== U ? COLLAPSE_CAM_FOLLOW : 0.5;
+        this.camRate = typeof COLLAPSE_CAM_FOLLOW_RATE !== U ? COLLAPSE_CAM_FOLLOW_RATE : 5;
+        this.camX = 0;
+        // Fog and the far plane are counted from the train, so a camera moved farther away keeps the
+        // same depth; the segment window reaches the camera, so the near track never pops in.
+        const camZ = cam.position.z, toTrain = cam.position.length();
+        scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
+        scene.fogColor = dark;
+        scene.fogStart = toTrain + 440;
+        scene.fogEnd = toTrain + 5840;
+        cam.maxZ = toTrain + CollapseScene.SEG * CollapseScene.BEHIND + 2000;
+        this.ahead = Math.max(CollapseScene.AHEAD, Math.ceil(camZ / CollapseScene.SEG) + 1);
         this.renderHeight = typeof COLLAPSE_RENDER_HEIGHT !== U ? COLLAPSE_RENDER_HEIGHT : 640;
 
         this._tex = new Map();
@@ -150,7 +159,7 @@ class CollapseScene {
     _buildTunnel() {
         const S = CollapseScene, scene = this.scene;
         const root = this.tunnel = new BABYLON.TransformNode('tunnel', scene);
-        const zFar = -S.SEG * S.BEHIND - S.PERIOD, zNear = S.SEG * S.AHEAD + S.PERIOD;
+        const zFar = -S.SEG * S.BEHIND - S.PERIOD, zNear = S.SEG * this.ahead + S.PERIOD;
         const len = zNear - zFar;
         const path = [new BABYLON.Vector3(0, 0, zFar), new BABYLON.Vector3(0, 0, zNear)];
         const W = S.WALL_X, top = S.WALL_TOP, R = S.WALL_X;
@@ -275,6 +284,15 @@ class CollapseScene {
         this._shotUntil = this._shieldHitUntil = this._ashUntil = -1;
         this._crashAt = null;
         this.demon.setEnabled(false);
+        this._camSnap = true;
+    }
+
+    // Sideways camera follow: dt = 0 (pause, the first frame) does not move it; a new run snaps it.
+    _followCamera(trainX, dt) {
+        const goal = trainX * this.camFollow;
+        if (this._camSnap) { this.camX = goal; this._camSnap = false; }
+        else this.camX += (goal - this.camX) * (1 - Math.exp(-this.camRate * dt));
+        this.view.camera.position.x = this.camX;
     }
 
     // Everything follows the run: called every frame before the render.
@@ -292,7 +310,7 @@ class CollapseScene {
         this._setSpriteTex(this.torchMat, CollapseArt.torch[Math.floor(this.time * 8) % 4]);
 
         // Segment window: create what came into view, drop what left it.
-        const lo = Math.floor(pos) - S.BEHIND, hi = Math.floor(pos) + S.AHEAD;
+        const lo = Math.floor(pos) - S.BEHIND, hi = Math.floor(pos) + this.ahead;
         for (const [i, v] of this.segViews) if (i < lo || i > hi) { this._disposeSeg(v); this.segViews.delete(i); }
         for (let i = Math.max(-S.BEHIND, lo); i <= hi; i++) if (!this.segViews.has(i)) this.segViews.set(i, this._segView(i, run));
 
@@ -356,6 +374,7 @@ class CollapseScene {
             }
         }
         this._setSpriteTex(this.train.material, frame);
+        this._followCamera(x, dt);
         this.shieldFx.setEnabled(run.shield > 0 && run.state === 'run');
         this.shieldFx.position.x = x;
         this._setSpriteTex(this.shieldFx.material, this._shieldHitUntil > this.time ? CollapseArt.shieldHit : CollapseArt.shield[Math.floor(this.time * 6) % 3]);
@@ -426,4 +445,4 @@ CollapseScene.TILE = 140;         // world units per texture tile along the tunn
 CollapseScene.WALL_X = 640;       // half width of the tunnel
 CollapseScene.WALL_TOP = 430;     // where the walls meet the vault
 CollapseScene.BEHIND = 16;        // segments drawn behind the train (into the vanishing point)
-CollapseScene.AHEAD = 6;          // segments drawn ahead of the train (toward the camera)
+CollapseScene.AHEAD = 6;          // at least this many segments drawn ahead of the train (up to the camera)
