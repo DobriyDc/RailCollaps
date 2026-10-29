@@ -23,6 +23,10 @@
 - Codex CLI — переходник `C:\Users\dobri\.local\bin\codex.exe` на свежий `codex.exe` из приложения Codex;
   вход ChatGPT Plus. Claude Code CLI не установлен: Claude-воркеров нет.
 - Node.js 26.13.0 LTS (`C:\Program Files\nodejs`), Python 3.12 с Pillow.
+- Telegram: бот **@railcollapsebot** (заведён Продюсером 2026-10-29; dev или боевой — не решено).
+  Mini App к нему ещё не подключён: нужен HTTPS-адрес игры (шаг 6). Токен бота только у Продюсера,
+  агентам не передаётся и в репозиторий не кладётся; первый токен засветился в чате 2026-10-29 —
+  заменить через `/revoke` в @BotFather.
 
 ## Запуск воркера
 
