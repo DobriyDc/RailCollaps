@@ -9,7 +9,10 @@
 | Арт / UI | **GPT** через `codex` | `gpt-6.1-sol`, effort `medium` | растр (`image_gen`), нарезка, текстуры, интерфейс |
 | Арт-директор | **GPT** через `codex` | `gpt-6-astra`, effort `high` | ключевые концепты; дорого, только по задаче |
 | Writer / Researcher | **GPT** через `codex` | `gpt-6.1-sol`, effort `medium` | тексты, локализация, исследования |
-| QA / Tester | **GPT** через `codex` | `gpt-6.1-sol`, effort `low` | прогон игры в браузере, отчёты о дефектах |
+| QA / Tester | **Kimi** через `kimi` (Kimi Code CLI) | модель аккаунта по умолчанию | механика проверки: ворота, прогоны по сидам, кадры, консоль; отчёты о дефектах. Запасной — GPT через `codex`, `gpt-6.1-sol`, effort `low` |
+
+Вердикт, чтение дифа на риск, мерж и пуш остаются у Продюсера: отчёт QA — данные, одно-два числа
+из него Продюсер перепроверяет сам.
 
 Коду от UI-провайдера в правилах забега не доверять: карточка в `js/Collapse*.js` или
 `js/Constants.js` уходит Claude.
@@ -21,7 +24,10 @@
 - Ящик координатора — терминал Orca «Claude · координатор» в корне collapse;
   команды `orchestration` из внешнего шелла — с `--from <его handle>`.
 - Codex CLI — переходник `C:\Users\dobri\.local\bin\codex.exe` на свежий `codex.exe` из приложения Codex;
-  вход ChatGPT Plus. Claude Code CLI не установлен: Claude-воркеров нет.
+  вход ChatGPT Plus. Claude Code CLI установлен (вход Pro): воркеры `--agent claude`.
+- Kimi Code CLI `@moonshot-ai/kimi-code` 2.4.0 из npm (`C:\Users\dobri\AppData\Roaming\npm\kimi`);
+  вход — аккаунт Kimi владельца (`/login` в TUI, входит сам владелец); в Orca — `--agent kimi`.
+  Kimi Desktop агентом Orca не бывает; его ключ в `D:\KimiData` не трогать.
 - Node.js 26.13.0 LTS (`C:\Program Files\nodejs`), Python 3.12 с Pillow.
 - Telegram: бот **@railcollapsebot** — бот для разработки и тестов (заведён Продюсером 2026-10-29). Боевой бот заведём перед релизом отдельно.
   Mini App к нему ещё не подключён: нужен HTTPS-адрес игры (шаг 6). Токен бота только у Продюсера,
