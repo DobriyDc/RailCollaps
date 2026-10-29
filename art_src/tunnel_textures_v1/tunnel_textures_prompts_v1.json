@@ -1,0 +1,54 @@
+{
+  "generator": "built-in image_gen",
+  "date": "2026-10-29",
+  "references": [
+    "art_src/storyboard_tunnel_style_keyframe_v1.png",
+    "art_src/storyboard_tunnel_motion_6frames_v1.png"
+  ],
+  "reference_usage": "Inspected for art direction; original flat material prompts, no reference pixels copied.",
+  "prompts": [
+    {
+      "name": "brick_wall",
+      "prompt": "Use case: stylized-concept. Create ONE original square flat texture for a low resolution 3D brick railway tunnel above lava. Orthographic material scan, fills entire square, no perspective, no border, no text, no objects, no cast lighting gradients. Coarse crisp pixel art designed to reduce to 128x128 nearest. Limited dark umber, charcoal, rusty brown, muted stone palette. Granular square-pixel surface, stepped shading, no blur, no bloom. A seamless X and Y staggered running-bond wall of dark aged brown bricks with black recessed mortar. About 4 bricks across and 8 rows, irregular stone chips and rusty specks, low contrast neutral lighting. Straight horizontal courses, edges must tile.",
+      "source": "generated/brick_wall.png",
+      "transparent_background": false
+    },
+    {
+      "name": "vault_brick",
+      "prompt": "Use case: stylized-concept. Create ONE original square flat texture for a low resolution 3D brick railway tunnel above lava. Orthographic material scan, fills entire square, no perspective, no border, no text, no objects, no cast lighting gradients. Coarse crisp pixel art designed to reduce to 128x128 nearest. Limited dark umber, charcoal, rusty brown, muted stone palette. Granular square-pixel surface, stepped shading, no blur, no bloom. A seamless X and Y flat unwrapped vault brick material. Narrow long dark umber bricks in aligned lengthwise courses, about 8 columns and 4 staggered rows. Fine burnt soot, worn edges, slightly darker than wall. No actual vault curve or perspective. Edges must tile.",
+      "source": "generated/vault_brick.png",
+      "transparent_background": false
+    },
+    {
+      "name": "arch_rib",
+      "prompt": "Use case: stylized-concept. Create ONE original square flat texture for a low resolution 3D brick railway tunnel above lava. Orthographic material scan, fills entire square, no perspective, no border, no text, no objects, no cast lighting gradients. Coarse crisp pixel art designed to reduce to 128x128 nearest. Limited dark umber, charcoal, rusty brown, muted stone palette. Granular square-pixel surface, stepped shading, no blur, no bloom. A flat face of broad ashlar brown-grey stone arch rib / pilaster. Fill full width with 2 columns of heavy rectangular blocks, 4 horizontal courses. Subtle chipped bevel edges and coarse rusty mineral grain. Seamless vertically Y, even scale, no silhouette or perspective.",
+      "source": "generated/arch_rib.png",
+      "transparent_background": false
+    },
+    {
+      "name": "floor_ballast",
+      "prompt": "Use case: stylized-concept. Create ONE original square flat texture for a low resolution 3D brick railway tunnel above lava. Orthographic material scan, fills entire square, no perspective, no border, no text, no objects, no cast lighting gradients. Coarse crisp pixel art designed to reduce to 128x128 nearest. Limited dark umber, charcoal, rusty brown, muted stone palette. Granular square-pixel surface, stepped shading, no blur, no bloom. A seamless X and Y top-down field of coarse angular crushed dark grey-brown railway ballast stones. Varied 3-10 pixel rocks at 128 resolution, packed solid, no large recognizable object, no rails, no light patch, neutral uniform lighting.",
+      "source": "generated/floor_ballast.png",
+      "transparent_background": false
+    },
+    {
+      "name": "track",
+      "prompt": "Use case: stylized-concept. Create ONE original square flat texture for a low resolution 3D brick railway tunnel above lava. Orthographic material scan, fills entire square, no perspective, no border, no text, no objects, no cast lighting gradients. Coarse crisp pixel art designed to reduce to 128x128 nearest. Limited dark umber, charcoal, rusty brown, muted stone palette. Granular square-pixel surface, stepped shading, no blur, no bloom. Exact orthographic top down railway track material, square edge to edge: exactly TWO perfectly parallel straight vertical iron rails at X=25% and 75%, on exactly FOUR equally spaced horizontal dark wooden sleepers. Rusty iron sides and thin dull steel highlights. Packed dark grey-brown angular gravel under sleepers. Vertical direction Y seamless: rail positions identical top and bottom and sleeper rhythm wraps. No convergence, no perspective, no scenery.",
+      "source": "generated/track.png",
+      "transparent_background": false
+    },
+    {
+      "name": "lava",
+      "prompt": "Use case: stylized-concept. Create ONE original square flat texture for a low resolution 3D brick railway tunnel above lava. Orthographic material scan, fills entire square, no perspective, no border, no text, no objects, no cast lighting gradients. Coarse crisp pixel art designed to reduce to 128x128 nearest. Limited dark umber, charcoal, rusty brown, muted stone palette. Granular square-pixel surface, stepped shading, no blur, no bloom. A seamless X and Y flat top-down molten lava surface. Dense interconnected winding orange-red channels among small dark maroon crust islands, small yellow-hot pixel accents. Coarse pixel art 128 logical pixels, sharp stair-step boundaries. Even emissive brightness, no central hotspot, no perspective, no border.",
+      "source": "generated/lava.png",
+      "transparent_background": false
+    },
+    {
+      "name": "torch_glow",
+      "prompt": "Use case: stylized-concept. Create ONE original square flat texture for a low resolution 3D brick railway tunnel above lava. Orthographic material scan, fills entire square, no perspective, no border, no text, no objects, no cast lighting gradients. Coarse crisp pixel art designed to reduce to 128x128 nearest. Limited dark umber, charcoal, rusty brown, muted stone palette. Granular square-pixel surface, stepped shading, no blur, no bloom. A transparent light decal ONLY, a warm amber torch illumination footprint for placing on a brick wall. NO torch, no flame, NO brick or opaque background. Irregular vertically elongated oval pool of amber light with 5 crisp nested stair-stepped bands fading via stepped alpha to a fully transparent generous outer margin. Coarse pixel edges. Center pale warm orange with translucent amber outer steps. Actual transparent background.",
+      "source": "generated/torch_glow.png",
+      "transparent_background": true
+    }
+  ],
+  "postprocess": "Pillow: nearest resize, limited palette, authored exact masonry grid; offset + minimum-error hard cuts for ballast/lava; straight rail repair; four 32px Y lava advection frames; quantized preserved alpha for glow. See build_textures.py."
+}
