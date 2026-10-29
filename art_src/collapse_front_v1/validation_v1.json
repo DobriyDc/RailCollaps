@@ -1,0 +1,55 @@
+{
+  "asset_count": 26,
+  "front_frames": 6,
+  "magma_frames": 4,
+  "magma_luminance": [
+    149.91,
+    149.86,
+    150.03,
+    149.87
+  ],
+  "old_lava_luminance": [
+    68.58,
+    68.58,
+    68.58,
+    68.58
+  ],
+  "front_molten_pixels_animated": 15380,
+  "seams": [
+    {
+      "frame": 0,
+      "mismatched_edge_pixels_x": 0,
+      "mismatched_edge_pixels_y": 0
+    },
+    {
+      "frame": 1,
+      "mismatched_edge_pixels_x": 0,
+      "mismatched_edge_pixels_y": 0
+    },
+    {
+      "frame": 2,
+      "mismatched_edge_pixels_x": 0,
+      "mismatched_edge_pixels_y": 0
+    },
+    {
+      "frame": 3,
+      "mismatched_edge_pixels_x": 0,
+      "mismatched_edge_pixels_y": 0
+    }
+  ],
+  "front_alpha_identical_all_frames": true,
+  "front_rgb_delta_including_wrap": [
+    6.71,
+    7.38,
+    7.29,
+    7.12,
+    7.26,
+    6.82
+  ],
+  "magma_rgb_delta_including_wrap": [
+    27.1,
+    26.74,
+    27.07,
+    27.03
+  ]
+}

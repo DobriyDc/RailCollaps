@@ -1,0 +1,565 @@
+{
+  "version": 1,
+  "generator": "built-in image_gen + Pillow build_pack.py",
+  "filtering": "nearest; no mipmaps for sprites",
+  "color_space": "sRGB",
+  "alpha": "straight, binary 0/255",
+  "assets": [
+    {
+      "file": "assets/sprites/collapse/brick_debris_00.png",
+      "size": [
+        64,
+        64
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "falling brick block",
+      "source_rect": [
+        8,
+        100,
+        320,
+        449
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/brick_debris_01.png",
+      "size": [
+        64,
+        64
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "falling brick block",
+      "source_rect": [
+        325,
+        100,
+        638,
+        449
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/brick_debris_02.png",
+      "size": [
+        64,
+        64
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "falling brick block",
+      "source_rect": [
+        641,
+        100,
+        957,
+        449
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/brick_debris_03.png",
+      "size": [
+        64,
+        64
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "falling brick block",
+      "source_rect": [
+        964,
+        100,
+        1254,
+        449
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/brick_debris_04.png",
+      "size": [
+        64,
+        64
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "falling brick block",
+      "source_rect": [
+        8,
+        462,
+        320,
+        805
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/brick_debris_05.png",
+      "size": [
+        64,
+        64
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "falling brick block",
+      "source_rect": [
+        325,
+        462,
+        638,
+        805
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/brick_debris_06.png",
+      "size": [
+        64,
+        64
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "falling brick block",
+      "source_rect": [
+        641,
+        462,
+        957,
+        805
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/brick_debris_07.png",
+      "size": [
+        64,
+        64
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "falling brick block",
+      "source_rect": [
+        960,
+        462,
+        1254,
+        805
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/rail_debris_00.png",
+      "size": [
+        80,
+        80
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "falling broken rail with sleepers",
+      "source_rect": [
+        8,
+        834,
+        330,
+        1170
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/rail_debris_01.png",
+      "size": [
+        80,
+        80
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "falling broken rail with sleepers",
+      "source_rect": [
+        333,
+        834,
+        664,
+        1170
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/rail_debris_02.png",
+      "size": [
+        80,
+        80
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "falling broken rail with sleepers",
+      "source_rect": [
+        666,
+        834,
+        973,
+        1170
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/crack_wall_00.png",
+      "size": [
+        128,
+        160
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "emissive crack decal ahead of collapse",
+      "source_rect": [
+        0,
+        0,
+        650,
+        635
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/crack_wall_01.png",
+      "size": [
+        128,
+        160
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "emissive crack decal ahead of collapse",
+      "source_rect": [
+        650,
+        0,
+        1305,
+        635
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/crack_vault_00.png",
+      "size": [
+        192,
+        112
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "emissive crack decal ahead of collapse",
+      "source_rect": [
+        0,
+        635,
+        710,
+        1206
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/sprites/collapse/crack_vault_01.png",
+      "size": [
+        192,
+        112
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "emissive crack decal ahead of collapse",
+      "source_rect": [
+        710,
+        635,
+        1305,
+        1206
+      ],
+      "frames": 1
+    },
+    {
+      "file": "assets/textures/collapse/magma_00.png",
+      "size": [
+        128,
+        128
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "bright molten floor surface",
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "frames": 1,
+      "sequence": "magma",
+      "frame": 0,
+      "duration_ms": 120,
+      "edge_policy": "duplicated edge row/column, period 127px"
+    },
+    {
+      "file": "assets/textures/collapse/magma_01.png",
+      "size": [
+        128,
+        128
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "bright molten floor surface",
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "frames": 1,
+      "sequence": "magma",
+      "frame": 1,
+      "duration_ms": 120,
+      "edge_policy": "duplicated edge row/column, period 127px"
+    },
+    {
+      "file": "assets/textures/collapse/magma_02.png",
+      "size": [
+        128,
+        128
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "bright molten floor surface",
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "frames": 1,
+      "sequence": "magma",
+      "frame": 2,
+      "duration_ms": 120,
+      "edge_policy": "duplicated edge row/column, period 127px"
+    },
+    {
+      "file": "assets/textures/collapse/magma_03.png",
+      "size": [
+        128,
+        128
+      ],
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "purpose": "bright molten floor surface",
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "frames": 1,
+      "sequence": "magma",
+      "frame": 3,
+      "duration_ms": 120,
+      "edge_policy": "duplicated edge row/column, period 127px"
+    },
+    {
+      "file": "assets/sprites/collapse/front_00.png",
+      "size": [
+        256,
+        256
+      ],
+      "pivot_normalized": [
+        0.5,
+        1.0
+      ],
+      "purpose": "rear collapse cross-section billboard",
+      "sequence": "front",
+      "frame": 0,
+      "frames": 1,
+      "duration_ms": 100
+    },
+    {
+      "file": "assets/sprites/collapse/front_01.png",
+      "size": [
+        256,
+        256
+      ],
+      "pivot_normalized": [
+        0.5,
+        1.0
+      ],
+      "purpose": "rear collapse cross-section billboard",
+      "sequence": "front",
+      "frame": 1,
+      "frames": 1,
+      "duration_ms": 100
+    },
+    {
+      "file": "assets/sprites/collapse/front_02.png",
+      "size": [
+        256,
+        256
+      ],
+      "pivot_normalized": [
+        0.5,
+        1.0
+      ],
+      "purpose": "rear collapse cross-section billboard",
+      "sequence": "front",
+      "frame": 2,
+      "frames": 1,
+      "duration_ms": 100
+    },
+    {
+      "file": "assets/sprites/collapse/front_03.png",
+      "size": [
+        256,
+        256
+      ],
+      "pivot_normalized": [
+        0.5,
+        1.0
+      ],
+      "purpose": "rear collapse cross-section billboard",
+      "sequence": "front",
+      "frame": 3,
+      "frames": 1,
+      "duration_ms": 100
+    },
+    {
+      "file": "assets/sprites/collapse/front_04.png",
+      "size": [
+        256,
+        256
+      ],
+      "pivot_normalized": [
+        0.5,
+        1.0
+      ],
+      "purpose": "rear collapse cross-section billboard",
+      "sequence": "front",
+      "frame": 4,
+      "frames": 1,
+      "duration_ms": 100
+    },
+    {
+      "file": "assets/sprites/collapse/front_05.png",
+      "size": [
+        256,
+        256
+      ],
+      "pivot_normalized": [
+        0.5,
+        1.0
+      ],
+      "purpose": "rear collapse cross-section billboard",
+      "sequence": "front",
+      "frame": 5,
+      "frames": 1,
+      "duration_ms": 100
+    },
+    {
+      "file": "assets/sprites/collapse/front_strip_v1.png",
+      "size": [
+        1536,
+        256
+      ],
+      "pivot_normalized": [
+        0.5,
+        1
+      ],
+      "purpose": "six-frame front atlas, left to right",
+      "frames": 6,
+      "frame_size": [
+        256,
+        256
+      ],
+      "duration_ms": 100
+    }
+  ],
+  "sequences": {
+    "front": {
+      "count": 6,
+      "fps": 10,
+      "loop": true,
+      "pivot": [
+        128,
+        256
+      ]
+    },
+    "magma": {
+      "count": 4,
+      "fps": 8.333333,
+      "loop": true,
+      "seamless_axes": [
+        "X",
+        "Y"
+      ]
+    }
+  },
+  "preview": {
+    "distances": [
+      "far",
+      "mid",
+      "near"
+    ],
+    "canvas": [
+      360,
+      640
+    ],
+    "front_widths": [
+      112,
+      196,
+      296
+    ],
+    "front_bottoms": [
+      274,
+      315,
+      368
+    ],
+    "foreground": "original keyframe train restored by polygon mask"
+  },
+  "sources": [
+    {
+      "file": "source_cracks_v1.png",
+      "size": [
+        1305,
+        1206
+      ]
+    },
+    {
+      "file": "source_debris_v1.png",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "file": "source_front_v1.png",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "file": "source_magma_v1.png",
+      "size": [
+        1254,
+        1254
+      ]
+    }
+  ],
+  "integration": "Art pack only; scene integration is a separate task."
+}
