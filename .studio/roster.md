@@ -9,7 +9,7 @@
 | Арт / UI | **GPT** через `codex` | `gpt-6.1-sol`, effort `medium` | растр (`image_gen`), нарезка, текстуры, интерфейс |
 | Арт-директор | **GPT** через `codex` | `gpt-6-astra`, effort `high` | ключевые концепты; дорого, только по задаче |
 | Writer / Researcher | **GPT** через `codex` | `gpt-6.1-sol`, effort `medium` | тексты, локализация, исследования |
-| QA / Tester | **Kimi** через `kimi` (Kimi Code CLI) | модель аккаунта по умолчанию | механика проверки: ворота, прогоны по сидам, кадры, консоль; отчёты о дефектах. Запасной — GPT через `codex`, `gpt-6.1-sol`, effort `low` |
+| QA / Tester | **GPT** через `codex` | `gpt-6.1-sol`, effort `low` | механика проверки: ворота, прогоны по сидам, кадры, консоль; отчёты о дефектах. Kimi (`--agent kimi`) — когда будет платный план Kimi Code |
 
 Вердикт, чтение дифа на риск, мерж и пуш остаются у Продюсера: отчёт QA — данные, одно-два числа
 из него Продюсер перепроверяет сам.
@@ -27,6 +27,8 @@
   вход ChatGPT Plus. Claude Code CLI установлен (вход Pro): воркеры `--agent claude`.
 - Kimi Code CLI `@moonshot-ai/kimi-code` 2.4.0 из npm (`C:\Users\dobri\AppData\Roaming\npm\kimi`);
   вход — аккаунт Kimi владельца (`/login` в TUI, входит сам владелец); в Orca — `--agent kimi`.
+  2026-10-30: вход есть, но бесплатный план получает 403 «subscription does not have access to
+  Kimi Code» на всех моделях — воркером не запускать до платного плана.
   Kimi Desktop агентом Orca не бывает; его ключ в `D:\KimiData` не трогать.
 - Node.js 26.13.0 LTS (`C:\Program Files\nodejs`), Python 3.12 с Pillow.
 - Telegram: бот **@railcollapsebot** — бот для разработки и тестов (заведён Продюсером 2026-10-29). Боевой бот заведём перед релизом отдельно.
