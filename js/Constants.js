@@ -99,6 +99,7 @@ const COLLAPSE_GAP_MAX = 4;             // segments: the longest gap — gaps al
 const COLLAPSE_REACT_SEC = 0.6;         // s: forks stand at least this far apart at the fastest allowed speed
 const COLLAPSE_CONTINUE_GAP = 8;        // segments: a continue pushes the collapse back to at least this gap
 const COLLAPSE_CONTINUE_GRACE_SEC = 1.5; // s: no hazard hurts the train right after a continue
+const COLLAPSE_OVER_DELAY_SEC = 0.7;    // s: the fall plays before the end-of-run dialog
 const COLLAPSE_RENDER_HEIGHT = 640;     // px: the tunnel is rendered this tall and scaled up without smoothing
 const COLLAPSE_CAM_Y = 550;             // world units: camera height above the rails
 const COLLAPSE_CAM_Z = 1670;            // world units: camera distance in front of the train
