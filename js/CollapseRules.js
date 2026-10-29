@@ -7,6 +7,8 @@
 // `to`; the player arms it with a shot (one cartridge) and the train changes lane when it passes i.
 // Hazards sit on one lane of one segment: `gap` (the track is gone) or `lava` (a stream from the
 // vault). A pickup stands in the middle of a segment and is taken by the train on its lane.
+// A demon segment releases one or two demons from the tunnel walls (side -1 left, +1 right); each
+// one needs its own shot before its leap ends.
 
 /** @satisfies {Record<string, any>} */
 const CollapseRules = {
@@ -16,13 +18,7 @@ const CollapseRules = {
     SWITCH_LEN: 0.8,       // segments the train needs to cross to the next lane after a fork
     TRAIN_LEN: 0.35,       // segments: the collapse behind catches the train at this gap
     FORK_RANGE: 6,         // segments: how far ahead the next fork can be armed
-    DIFFICULTY_SEGS: 600,  // segments over which the generator goes from calm to dense
-    // The generator's dice: pickups and the share of each pattern (the rest of a roll is a detour).
     PICKUPS: ['ammo', 'boost', 'slow', 'shield', 'rescue'],
-    PICKUP_WEIGHTS: [0.34, 0.2, 0.16, 0.15, 0.15],
-    DEMON_ROLL: 0.12,
-    GAP_ROLL: 0.52,
-    LAVA_ROLL: 0.66,       // + 0.1 × difficulty
 
     // All run numbers (Constants.js, GDD v3 §8) with defaults: Constants.js may be older than the code.
     cfg() {
@@ -32,11 +28,11 @@ const CollapseRules = {
             speed: typeof COLLAPSE_SPEED !== U ? COLLAPSE_SPEED : 2.2,
             speedGrowth: typeof COLLAPSE_SPEED_GROWTH !== U ? COLLAPSE_SPEED_GROWTH : 0.0025,
             speedMax: typeof COLLAPSE_SPEED_MAX !== U ? COLLAPSE_SPEED_MAX : 4.5,
-            frontSpeed: typeof COLLAPSE_FRONT_SPEED !== U ? COLLAPSE_FRONT_SPEED : 1.5,
-            frontGrowth: typeof COLLAPSE_FRONT_GROWTH !== U ? COLLAPSE_FRONT_GROWTH : 0.0035,
-            frontMax: typeof COLLAPSE_FRONT_MAX !== U ? COLLAPSE_FRONT_MAX : 4.6,
-            frontStartGap: typeof COLLAPSE_FRONT_START_GAP !== U ? COLLAPSE_FRONT_START_GAP : 8,
-            frontMaxGap: typeof COLLAPSE_FRONT_MAX_GAP !== U ? COLLAPSE_FRONT_MAX_GAP : 14,
+            frontSpeed: typeof COLLAPSE_FRONT_SPEED !== U ? COLLAPSE_FRONT_SPEED : 1.8,
+            frontGrowth: typeof COLLAPSE_FRONT_GROWTH !== U ? COLLAPSE_FRONT_GROWTH : 0.004,
+            frontMax: typeof COLLAPSE_FRONT_MAX !== U ? COLLAPSE_FRONT_MAX : 4.8,
+            frontStartGap: typeof COLLAPSE_FRONT_START_GAP !== U ? COLLAPSE_FRONT_START_GAP : 5,
+            frontMaxGap: typeof COLLAPSE_FRONT_MAX_GAP !== U ? COLLAPSE_FRONT_MAX_GAP : 6,
             boostMult: typeof COLLAPSE_BOOST_MULT !== U ? COLLAPSE_BOOST_MULT : 1.5,
             boostSec: typeof COLLAPSE_BOOST_SEC !== U ? COLLAPSE_BOOST_SEC : 4,
             slowMult: typeof COLLAPSE_SLOW_MULT !== U ? COLLAPSE_SLOW_MULT : 0.65,
@@ -47,12 +43,34 @@ const CollapseRules = {
             rescueMax: typeof COLLAPSE_RESCUE_MAX !== U ? COLLAPSE_RESCUE_MAX : 2,
             shieldGap: typeof COLLAPSE_SHIELD_GAP !== U ? COLLAPSE_SHIELD_GAP : 6,
             demonSec: typeof COLLAPSE_DEMON_SEC !== U ? COLLAPSE_DEMON_SEC : 1.6,
-            demonEvery: typeof COLLAPSE_DEMON_EVERY !== U ? COLLAPSE_DEMON_EVERY : 60,
+            demonEvery: typeof COLLAPSE_DEMON_EVERY !== U ? COLLAPSE_DEMON_EVERY : 30,
+            demonChance: typeof COLLAPSE_DEMON_CHANCE !== U ? COLLAPSE_DEMON_CHANCE : 0.2,
+            demonStart: typeof COLLAPSE_DEMON_START !== U ? COLLAPSE_DEMON_START : 60,
+            pairFrom: typeof COLLAPSE_DEMON_PAIR_FROM !== U ? COLLAPSE_DEMON_PAIR_FROM : 120,
+            pairFull: typeof COLLAPSE_DEMON_PAIR_FULL !== U ? COLLAPSE_DEMON_PAIR_FULL : 350,
+            pairMax: typeof COLLAPSE_DEMON_PAIR_MAX !== U ? COLLAPSE_DEMON_PAIR_MAX : 0.6,
+            pairLag: typeof COLLAPSE_DEMON_PAIR_LAG !== U ? COLLAPSE_DEMON_PAIR_LAG : 0.35,
             gapMin: typeof COLLAPSE_GAP_MIN !== U ? COLLAPSE_GAP_MIN : 2,
             gapMax: typeof COLLAPSE_GAP_MAX !== U ? COLLAPSE_GAP_MAX : 4,
             reactSec: typeof COLLAPSE_REACT_SEC !== U ? COLLAPSE_REACT_SEC : 0.6,
             continueGap: typeof COLLAPSE_CONTINUE_GAP !== U ? COLLAPSE_CONTINUE_GAP : 8,
             continueGrace: typeof COLLAPSE_CONTINUE_GRACE_SEC !== U ? COLLAPSE_CONTINUE_GRACE_SEC : 1.5,
+            // The generator's dice (the rest of a pattern roll is a detour for a pickup).
+            difficultySegs: typeof COLLAPSE_DIFFICULTY_SEGS !== U ? COLLAPSE_DIFFICULTY_SEGS : 600,
+            calmStart: typeof COLLAPSE_CALM_START !== U ? COLLAPSE_CALM_START : 4,
+            calmEnd: typeof COLLAPSE_CALM_END !== U ? COLLAPSE_CALM_END : 1,
+            gapShare: typeof COLLAPSE_GAP_SHARE !== U ? COLLAPSE_GAP_SHARE : 0.52,
+            lavaShare: typeof COLLAPSE_LAVA_SHARE !== U ? COLLAPSE_LAVA_SHARE : 0.14,
+            lavaGrowth: typeof COLLAPSE_LAVA_GROWTH !== U ? COLLAPSE_LAVA_GROWTH : 0.1,
+            hazardMid: typeof COLLAPSE_HAZARD_MID !== U ? COLLAPSE_HAZARD_MID : 0.5,
+            hazardReward: typeof COLLAPSE_HAZARD_REWARD !== U ? COLLAPSE_HAZARD_REWARD : 0.5,
+            pickupOdds: [
+                typeof COLLAPSE_ODDS_AMMO !== U ? COLLAPSE_ODDS_AMMO : 0.34,
+                typeof COLLAPSE_ODDS_BOOST !== U ? COLLAPSE_ODDS_BOOST : 0.2,
+                typeof COLLAPSE_ODDS_SLOW !== U ? COLLAPSE_ODDS_SLOW : 0.16,
+                typeof COLLAPSE_ODDS_SHIELD !== U ? COLLAPSE_ODDS_SHIELD : 0.15,
+                typeof COLLAPSE_ODDS_RESCUE !== U ? COLLAPSE_ODDS_RESCUE : 0.15,
+            ],
         };
     },
 
@@ -74,6 +92,13 @@ const CollapseRules = {
         };
     },
 
+    // The chance that a demon segment at segment `at` releases a pair: 0 before pairFrom, growing
+    // linearly to pairMax at pairFull.
+    pairChance(c, at) {
+        if (at < c.pairFrom) return 0;
+        return c.pairMax * Math.min(1, (at - c.pairFrom) / Math.max(1, c.pairFull - c.pairFrom));
+    },
+
     neighbors(lane) {
         return [lane - 1, lane + 1].filter(l => l >= 0 && l < CollapseRules.LANES);
     },
@@ -81,7 +106,9 @@ const CollapseRules = {
 
 // One track segment: per-lane hazards and pickups, forks at its start boundary.
 function collapseSegment(kind) {
-    return { kind, gap: [false, false, false], lava: [false, false, false], pickup: [null, null, null], forks: [], demon: false };
+    /** @type {{ side: number, lag: number }[] | null} */
+    const demon = null;
+    return { kind, gap: [false, false, false], lava: [false, false, false], pickup: [null, null, null], forks: [], demon };
 }
 
 // The endless track, generated pattern by pattern on demand. Every hazard on a lane has a fork
@@ -127,8 +154,8 @@ class CollapseTrack {
     }
 
     _pickupKind() {
-        let r = this.rand();
-        const w = CollapseRules.PICKUP_WEIGHTS;
+        const w = this.cfg.pickupOdds;
+        let r = this.rand() * w.reduce((a, b) => a + b, 0);
         for (let i = 0; i < w.length; i++) {
             if ((r -= w[i]) < 0) return CollapseRules.PICKUPS[i];
         }
@@ -138,21 +165,24 @@ class CollapseTrack {
     _pattern() {
         const R = CollapseRules, c = this.cfg;
         const at = this.segs.length;
-        const d = Math.min(1, at / R.DIFFICULTY_SEGS);          // difficulty 0..1
-        let calm = Math.round(4 - 3 * d) + this._int(2);
+        const d = Math.min(1, at / c.difficultySegs);           // difficulty 0..1
+        let calm = Math.max(0, Math.round(c.calmStart + (c.calmEnd - c.calmStart) * d)) + this._int(2);
         // The decision window: the pattern's fork (at boundary at + calm) is far enough from the last one.
         while ((at + calm - this.lastFork) / R.maxSpeedAt(c, at + calm) < c.reactSec) calm++;
         this._calm(calm);
+        const demonOk = at >= c.demonStart && at - this.lastDemon >= c.demonEvery;
+        if (demonOk && this.rand() < c.demonChance) { this._demon(); return; }
         const roll = this.rand();
-        if (at - this.lastDemon >= c.demonEvery && roll < R.DEMON_ROLL) this._demon();
-        else if (roll < R.GAP_ROLL) this._hazard('gap', c.gapMin + this._int(1 + Math.round((c.gapMax - c.gapMin) * d)));
-        else if (roll < R.LAVA_ROLL + 0.1 * d) this._hazard('lava', 1);
+        if (roll < c.gapShare) this._hazard('gap', c.gapMin + this._int(1 + Math.round((c.gapMax - c.gapMin) * d)));
+        else if (roll < c.gapShare + c.lavaShare + c.lavaGrowth * d) this._hazard('lava', 1);
         else this._detour();
     }
 
     // A hazard of `len` segments on one lane: escape forks before it, return forks after it.
+    // The middle lane takes the hazardMid share: a train that never switches stays on it.
     _hazard(type, len) {
-        const lane = this._int(CollapseRules.LANES);
+        const c = this.cfg;
+        const lane = this.rand() < c.hazardMid ? 1 : this._int(2) * 2;
         const lead = collapseSegment(type + '-lead');
         for (const to of CollapseRules.neighbors(lane)) lead.forks.push({ from: lane, to });
         this._push(lead);
@@ -160,7 +190,7 @@ class CollapseTrack {
             const s = collapseSegment(type);
             s[type][lane] = true;
             // A reward on a safe lane beside a long hazard: the escape is also a choice.
-            if (i === 1 && this.rand() < 0.5) {
+            if (i === 1 && this.rand() < c.hazardReward) {
                 const side = CollapseRules.neighbors(lane);
                 s.pickup[side[this._int(side.length)]] = this._pickupKind();
             }
@@ -187,10 +217,14 @@ class CollapseTrack {
         this._push(back);
     }
 
+    // One demon from a random wall, or a pair from both walls: the second leaps pairLag s later.
     _demon() {
+        const c = this.cfg, at = this.segs.length;
         const s = collapseSegment('demon');
-        s.demon = true;
-        this.lastDemon = this.segs.length;
+        const side = this.rand() < 0.5 ? -1 : 1;
+        s.demon = [{ side, lag: 0 }];
+        if (this.rand() < CollapseRules.pairChance(c, at)) s.demon.push({ side: -side, lag: c.pairLag });
+        this.lastDemon = at;
         this._push(s);
     }
 }
@@ -214,8 +248,9 @@ class CollapseRun {
         this.slow = 0;                // s left
         /** @type {{ at: number, from: number, to: number } | null} */
         this.armed = null;
-        /** @type {{ at: number, t: number } | null} */
-        this.demon = null;
+        // Demons out of the walls: `wait` s before the leap starts, then `t` s to shoot it.
+        /** @type {{ at: number, side: number, wait: number, t: number }[]} */
+        this.demons = [];
         this.state = 'run';           // 'run' | 'over'
         this.reason = '';             // why the run ended: gap | lava | demon | caught
         this.continued = false;
@@ -272,13 +307,20 @@ class CollapseRun {
         return 'ok';
     }
 
-    // Tap on a leaping demon: a shot drives it off.
-    shootDemon() {
-        if (this.state !== 'run' || !this.demon) return 'invalid';
+    // Leaping demons (out of the wall, not yet hit): the ones a tap can shoot.
+    leaping() { return this.demons.filter(d => d.wait <= 0); }
+
+    // Tap on a leaping demon: one shot drives off one demon — the one on `side`, or the nearest to
+    // the cab when the side is not given.
+    shootDemon(side) {
+        if (this.state !== 'run') return 'invalid';
+        const ds = this.leaping().filter(d => side === undefined || d.side === side);
+        if (!ds.length) return 'invalid';
         if (this.ammo <= 0) { this.events.push({ type: 'no-ammo' }); return 'no-ammo'; }
+        const d = ds.reduce((a, b) => (b.t < a.t ? b : a));
         this.ammo--;
-        this.events.push({ type: 'demon-killed', at: this.demon.at });
-        this.demon = null;
+        this.demons.splice(this.demons.indexOf(d), 1);
+        this.events.push({ type: 'demon-killed', at: d.at, side: d.side });
         return 'ok';
     }
 
@@ -326,17 +368,23 @@ class CollapseRun {
         this.front = Math.max(this.front + this.frontSpeed() * h, this.pos - this.c.frontMaxGap);
         if (this.pos - this.front <= CollapseRules.TRAIN_LEN) this._hit('caught');
 
-        if (this.demon) {
-            this.demon.t -= h;
-            if (this.demon.t <= 0) { this.demon = null; this._hit('demon'); }
+        for (const d of [...this.demons]) {
+            if (this.state !== 'run') break;
+            if (d.wait > 0) {
+                d.wait -= h;
+                if (d.wait <= 0) this.events.push({ type: 'demon', at: d.at, side: d.side });
+                continue;
+            }
+            d.t -= h;
+            if (d.t <= 0) { this.demons.splice(this.demons.indexOf(d), 1); this._hit('demon'); }
         }
     }
 
     _enter(i) {
         const s = this.track.seg(i);
-        if (s.demon && !this.demon) {
-            this.demon = { at: i, t: this.c.demonSec };
-            this.events.push({ type: 'demon', at: i });
+        for (const d of s.demon || []) {
+            this.demons.push({ at: i, side: d.side, wait: d.lag, t: this.c.demonSec });
+            if (d.lag <= 0) this.events.push({ type: 'demon', at: i, side: d.side });
         }
         if (s.gap[this.lane]) this._fall(i);
         else if (s.lava[this.lane]) this._hit('lava');
@@ -403,7 +451,7 @@ class CollapseRun {
         this.state = 'run';
         this.invuln = this.c.continueGrace;
         this.front = Math.min(this.front, this.pos - this.c.continueGap);
-        this.demon = null;
+        this.demons = [];
         this.armed = null;
         this.prevLane = this.lane = this._safeLane(this._seg);
         this.events.push({ type: 'continued' });

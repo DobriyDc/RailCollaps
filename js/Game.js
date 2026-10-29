@@ -64,7 +64,7 @@ class Game {
         if (b) b.setText(this.mode === 'pause' ? '▶' : 'II');
     }
 
-    // A tap on the canvas: the nearest fork sign or the demon within reach.
+    // A tap on the canvas: the nearest fork sign or demon within reach; a demon is shot by its side.
     tap(e) {
         const run = this.run;
         if (this.mode !== 'play' || !run || run.state !== 'run') return;
@@ -76,7 +76,7 @@ class Game {
             if (d < bestD) { best = t; bestD = d; }
         }
         if (!best) return;
-        const res = best.kind === 'demon' ? run.shootDemon() : run.shoot(best.at, best.to);
+        const res = best.kind === 'demon' ? run.shootDemon(best.side) : run.shoot(best.at, best.to);
         if (res === 'no-ammo') TG.haptic('deny');
     }
 
