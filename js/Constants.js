@@ -100,10 +100,10 @@ const COLLAPSE_REACT_SEC = 0.6;         // s: forks stand at least this far apar
 const COLLAPSE_CONTINUE_GAP = 8;        // segments: a continue pushes the collapse back to at least this gap
 const COLLAPSE_CONTINUE_GRACE_SEC = 1.5; // s: no hazard hurts the train right after a continue
 const COLLAPSE_RENDER_HEIGHT = 640;     // px: the tunnel is rendered this tall and scaled up without smoothing
-const COLLAPSE_CAM_Y = 760;             // world units: camera height above the rails
-const COLLAPSE_CAM_Z = 1500;            // world units: camera distance in front of the train
-const COLLAPSE_CAM_LOOK_Z = -900;       // world units: the camera looks at this point behind the train
-const COLLAPSE_CAM_FOV_DEG = 50;        // vertical field of view of the tunnel camera
+const COLLAPSE_CAM_Y = 550;             // world units: camera height above the rails
+const COLLAPSE_CAM_Z = 1670;            // world units: camera distance in front of the train
+const COLLAPSE_CAM_LOOK_Z = 480;        // world units: the camera looks at this rail point in front of the train
+const COLLAPSE_CAM_FOV_DEG = 60;        // vertical field of view of the tunnel camera
 
 // --- CAMERA (CameraControl.js): target on the map, azimuth, pitch and zoom. Zoom is
 // screen px per world px at the look-at point; distance is derived from it. Flight

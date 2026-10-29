@@ -158,7 +158,7 @@ class CollapseScene {
         const wallShape = side => [new BABYLON.Vector3(side * W, -60, 0), new BABYLON.Vector3(side * W, top, 0)];
         for (const side of [-1, 1]) {
             const wall = BABYLON.MeshBuilder.ExtrudeShape('wall', { shape: wallShape(side), path, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
-            wall.material = this.surface('wall', CollapseArt.tex.wall, (top + 60) / 170, len / 170);
+            wall.material = this.surface('wall', CollapseArt.tex.wall, (top + 60) / S.TILE, len / S.TILE);
             wall.parent = root;
         }
         const arc = [];
@@ -167,20 +167,20 @@ class CollapseScene {
             arc.push(new BABYLON.Vector3(-Math.cos(a) * R, top + Math.sin(a) * R * 0.75, 0));
         }
         const vault = BABYLON.MeshBuilder.ExtrudeShape('vault', { shape: arc, path, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
-        vault.material = this.surface('vault', CollapseArt.tex.vault, Math.PI * R / 170, len / 170);
+        vault.material = this.surface('vault', CollapseArt.tex.vault, Math.PI * R / S.TILE, len / S.TILE);
         vault.parent = root;
 
         // Lava under the whole floor: seen through gaps, in the side channels and behind the collapse.
         const lava = BABYLON.MeshBuilder.CreateGround('lava', { width: W * 2, height: len }, scene);
         lava.position.set(0, -150, (zFar + zNear) / 2);
-        this.lavaMat = this.surface('lava', CollapseArt.lava[0], W * 2 / 260, len / 260);
+        this.lavaMat = this.surface('lava', CollapseArt.lava[0], W * 2 / (2 * S.TILE), len / (2 * S.TILE));
         lava.material = this.lavaMat;
         lava.parent = root;
         // Ballast shoulders between the outer lanes and the lava channels.
         for (const side of [-1, 1]) {
             const sh = BABYLON.MeshBuilder.CreateGround('shoulder', { width: 70, height: len }, scene);
             sh.position.set(side * (S.LANE_W * 1.5 + 35), -8, (zFar + zNear) / 2);
-            sh.material = this.surface('ballast', CollapseArt.tex.ballast, 70 / 140, len / 140);
+            sh.material = this.surface('ballast', CollapseArt.tex.ballast, 70 / S.TILE, len / S.TILE);
             sh.parent = root;
         }
 
@@ -268,12 +268,23 @@ class CollapseScene {
         }
     }
 
+    // A new run (another seed, another track): drop the segment views and the accents of the last one.
+    reset() {
+        for (const v of this.segViews.values()) this._disposeSeg(v);
+        this.segViews.clear();
+        this._shotUntil = this._shieldHitUntil = this._ashUntil = -1;
+        this._crashAt = null;
+        this.demon.setEnabled(false);
+    }
+
     // Everything follows the run: called every frame before the render.
     sync(run, dt) {
         const S = CollapseScene;
         this.time += dt;
         const pos = run.pos;
-        this.tunnel.position.z = ((pos * S.SEG) % S.PERIOD + S.PERIOD) % S.PERIOD;
+        // The tunnel goes away from the camera with the track; it wraps by whole periods, and every
+        // texture tile divides PERIOD, so the wrap is invisible.
+        this.tunnel.position.z = -(((pos * S.SEG) % S.PERIOD + S.PERIOD) % S.PERIOD);
 
         // Animated shared materials: lava surface, torches.
         const lf = Math.floor(this.time * 6) % 4;
@@ -408,9 +419,10 @@ class CollapseScene {
     }
 }
 
-CollapseScene.SEG = 400;          // world units per segment along the track
+CollapseScene.SEG = 280;          // world units per segment along the track
 CollapseScene.LANE_W = 300;       // world units between lane centers
-CollapseScene.PERIOD = 800;       // the static tunnel repeats every two segments (ribs, torches)
+CollapseScene.PERIOD = 560;       // the static tunnel repeats every two segments (ribs, torches)
+CollapseScene.TILE = 140;         // world units per texture tile along the tunnel: divides PERIOD
 CollapseScene.WALL_X = 640;       // half width of the tunnel
 CollapseScene.WALL_TOP = 430;     // where the walls meet the vault
 CollapseScene.BEHIND = 16;        // segments drawn behind the train (into the vanishing point)
