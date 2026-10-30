@@ -1,0 +1,241 @@
+{
+  "generator": "built-in image_gen",
+  "transparent_background": true,
+  "use_case": "stylized-concept",
+  "assets": [
+    {
+      "id": "wheel_sparks",
+      "count": 6,
+      "frame_size": [
+        96,
+        64
+      ],
+      "source": "source_wheel_sparks_v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: original pixel art VFX sprite sheet for Rail Link Collapse, dark brick and rusty steam locomotive over lava. Create ONE horizontal strip of exactly 6 equal square cells in a single row, each containing one chronological frame. Wheel contact sparks fanning horizontally right and upwards: tiny initial hot contact, strong burst, widest fan, separated streaks, cooling embers, final few embers. Cream hot cores, gold, burnt orange and dark red edges. Coarse hand placed square pixels, hard stepped lighting, limited palette, nearest pixel edges, no blur or antialiasing. Transparent background, no checkerboard painted in. Keep every shape comfortably inside its cell with generous transparent margin. Same fixed emission pivot bottom center in each cell; coherent temporal progression. No text, no labels, no grid lines, no frame borders, no ground, no shadows outside shapes. Original game art, gritty substantial shapes readable at small phone scale.",
+      "pivot_px": [
+        48,
+        58
+      ],
+      "preview_anchor": [
+        108,
+        530
+      ],
+      "frame_duration_ms": 70,
+      "playback": "once",
+      "purpose": "Искры в контакте колеса со стрелкой",
+      "preview_frames": [
+        0,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "lane_smoke",
+      "count": 4,
+      "frame_size": [
+        128,
+        96
+      ],
+      "source": "source_lane_smoke_v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: original pixel art VFX sprite sheet for Rail Link Collapse, dark brick and rusty steam locomotive over lava. Create ONE horizontal strip of exactly 4 equal square cells in a single row, each containing one chronological frame. Sideways sheared charcoal smoke from a steam locomotive changing lanes. Four sequential phases: compact puff at bottom center, sweeping right, broad curling right trail, separated dissipating blocks. Slate gray with warm gray highlights and dark outlines, no bright white. Coarse hand placed square pixels, hard stepped lighting, limited palette, nearest pixel edges, no blur or antialiasing. Transparent background, no checkerboard painted in. Keep every shape comfortably inside its cell with generous transparent margin. Same fixed emission pivot bottom center in each cell; coherent temporal progression. No text, no labels, no grid lines, no frame borders, no ground, no shadows outside shapes. Original game art, gritty substantial shapes readable at small phone scale.",
+      "pivot_px": [
+        64,
+        90
+      ],
+      "preview_anchor": [
+        180,
+        340
+      ],
+      "frame_duration_ms": 100,
+      "playback": "once",
+      "purpose": "Снос дыма вправо при смене полосы; mirror X для левого сноса",
+      "preview_frames": [
+        0,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "demon_claw",
+      "count": 4,
+      "frame_size": [
+        128,
+        128
+      ],
+      "source": "source_demon_claw_v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: original pixel art VFX sprite sheet for Rail Link Collapse, dark brick and rusty steam locomotive over lava. Create ONE horizontal strip of exactly 4 equal square cells in a single row, each containing one chronological frame. Three hooked parallel diagonal claw slash arcs, dangerous demon strike, sweeping upper-right to lower-left. Four phases: first short hooks, fully extended three jagged slashes, broken trailing cuts, fading fragments. Dark crimson outer edge, rust red body, pale hot salmon sharp cores. No hand, no creature. Coarse hand placed square pixels, hard stepped lighting, limited palette, nearest pixel edges, no blur or antialiasing. Transparent background, no checkerboard painted in. Keep every shape comfortably inside its cell with generous transparent margin. Same fixed emission pivot bottom center in each cell; coherent temporal progression. No text, no labels, no grid lines, no frame borders, no ground, no shadows outside shapes. Original game art, gritty substantial shapes readable at small phone scale.",
+      "pivot_px": [
+        64,
+        64
+      ],
+      "preview_anchor": [
+        180,
+        415
+      ],
+      "frame_duration_ms": 65,
+      "playback": "once",
+      "purpose": "Три когтевых разреза при ударе демона",
+      "preview_frames": [
+        0,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "impact_ash",
+      "count": 4,
+      "frame_size": [
+        96,
+        96
+      ],
+      "source": "source_impact_ash_v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: original pixel art VFX sprite sheet for Rail Link Collapse, gritty rusty locomotive in dark brick tunnel above lava. ONE horizontal strip, exactly 4 equal square cells in ONE row. Impact burst of dark demon ash with muted crimson flecks. Four phases: dense central angular burst, expanding jagged ash splash, scattered falling cinders, final separated flecks. Graphite black outlines and contrasting warm gray rims so readable on dark background. No liquid pool. Coarse square pixels, chunky silhouettes, stepped lighting, limited palette, no blur, no antialiasing. Genuine transparent background, no painted checkerboard. All frames fully inside cells, generous transparent margins, common emission pivot bottom center, coherent sequential animation. No text, labels, grid, cell borders, ground, scenery or shadows outside shapes. Must read at 100 pixels wide.",
+      "pivot_px": [
+        48,
+        48
+      ],
+      "preview_anchor": [
+        180,
+        425
+      ],
+      "frame_duration_ms": 85,
+      "playback": "once",
+      "purpose": "Пепел удара демона",
+      "preview_frames": [
+        0,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "lava_splash",
+      "count": 6,
+      "frame_size": [
+        160,
+        128
+      ],
+      "source": "source_lava_splash_v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: original pixel art VFX sprite sheet for Rail Link Collapse, gritty rusty locomotive in dark brick tunnel above lava. ONE horizontal strip, exactly 6 equal square cells in ONE row. Molten lava splash crown when locomotive falls into lava. Six sequential phases: low surface impact, rising crown, tall maximum branched jets, broken crown with falling chunks, low collapsing splash, final low ripples and embers. Black-crusted red edges, vermilion, orange, yellow cream cores. No ground, no pool background. Coarse square pixels, chunky silhouettes, stepped lighting, limited palette, no blur, no antialiasing. Genuine transparent background, no painted checkerboard. All frames fully inside cells, generous transparent margins, common emission pivot bottom center, coherent sequential animation. No text, labels, grid, cell borders, ground, scenery or shadows outside shapes. Must read at 100 pixels wide.",
+      "pivot_px": [
+        80,
+        122
+      ],
+      "preview_anchor": [
+        180,
+        570
+      ],
+      "frame_duration_ms": 90,
+      "playback": "once",
+      "purpose": "Всплеск при падении паровоза в лаву",
+      "preview_frames": [
+        0,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "hot_steam",
+      "count": 4,
+      "frame_size": [
+        128,
+        128
+      ],
+      "source": "source_hot_steam_v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: original pixel art VFX sprite sheet for Rail Link Collapse, gritty rusty locomotive in dark brick tunnel above lava. ONE horizontal strip, exactly 4 equal square cells in ONE row. Pressurized hot steam venting above overheated locomotive. Four phases forming a continuous repeating vertical billowing loop, rising irregular chunky vapor curls, slate outer shadow, warm silver and pale ivory centers. Distinct upright plume, not sideways smoke, bottom center emission. No locomotive. Coarse square pixels, chunky silhouettes, stepped lighting, limited palette, no blur, no antialiasing. Genuine transparent background, no painted checkerboard. All frames fully inside cells, generous transparent margins, common emission pivot bottom center, coherent sequential animation. No text, labels, grid, cell borders, ground, scenery or shadows outside shapes. Must read at 100 pixels wide.",
+      "pivot_px": [
+        64,
+        122
+      ],
+      "preview_anchor": [
+        180,
+        320
+      ],
+      "frame_duration_ms": 120,
+      "playback": "loop",
+      "purpose": "Горячий пар над котлом; цикл пока действует перегрев",
+      "preview_frames": [
+        0,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "lava_droplets",
+      "count": 4,
+      "frame_size": [
+        96,
+        96
+      ],
+      "source": "source_lava_droplets_v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: original pixel art VFX sprite sheet for Rail Link Collapse, gritty rusty steam locomotive in dark brick tunnel over lava. ONE horizontal strip with exactly 4 equal square cells in ONE row. Ballistic spray of separated molten lava droplets. Four phases: small upward cluster, widely spread rising teardrops, droplets falling in arcs, low remaining cooled red droplets. Orange, gold cores, black-crusted red edges. No crown, no ground. Coarse square pixels, chunky substantial silhouettes, stepped lighting, limited palette, no blur, no antialiasing. Genuine transparent background, no painted checkerboard. Keep each sprite fully in its cell with generous transparent margins; common fixed center pivot across cells. No text, labels, grid lines, cell borders, scenery, ground or shadows outside shapes. Original art readable small on a phone.",
+      "pivot_px": [
+        48,
+        90
+      ],
+      "preview_anchor": [
+        265,
+        520
+      ],
+      "frame_duration_ms": 90,
+      "playback": "once",
+      "purpose": "Отдельные баллистические капли лавы",
+      "preview_frames": [
+        0,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "shield_break",
+      "count": 4,
+      "frame_size": [
+        160,
+        160
+      ],
+      "source": "source_shield_break_v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: original pixel art VFX sprite sheet for Rail Link Collapse, gritty rusty steam locomotive in dark brick tunnel over lava. ONE horizontal strip with exactly 4 equal square cells in ONE row. A magical pale cyan shield shattering on impact. Four phases: cracked incomplete circular perimeter with branching cracks, main impact fracture network with separated rim pieces, flying angular translucent-looking cyan shards, scattered small dim shards. Center remains mostly transparent, no solid disc, no icons. Steel blue edges, pale ice cyan sharp highlights. Coarse square pixels, chunky substantial silhouettes, stepped lighting, limited palette, no blur, no antialiasing. Genuine transparent background, no painted checkerboard. Keep each sprite fully in its cell with generous transparent margins; common fixed center pivot across cells. No text, labels, grid lines, cell borders, scenery, ground or shadows outside shapes. Original art readable small on a phone.",
+      "pivot_px": [
+        80,
+        80
+      ],
+      "preview_anchor": [
+        180,
+        420
+      ],
+      "frame_duration_ms": 90,
+      "playback": "once",
+      "purpose": "Трещины защитной оболочки и разлёт осколков",
+      "preview_frames": [
+        0,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "rail_debris",
+      "count": 4,
+      "frame_size": [
+        96,
+        96
+      ],
+      "source": "source_rail_debris_v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: original pixel art VFX sprite sheet for Rail Link Collapse, gritty rusty steam locomotive in dark brick tunnel over lava. ONE horizontal strip with exactly 4 equal square cells in ONE row. Four distinct flying debris sprites laid out left to right as four cells: bent snapped rusty I-beam railway rail fragment; broken splintered wooden sleeper with iron bolt; twisted short rail joint with two rivets; split timber fragment with metal plate. Consistent three-quarter perspective, diagonal tumbling orientations, chunky material texture, dark outlines and silver metal edges. These are four object variants, not an animation. Coarse square pixels, chunky substantial silhouettes, stepped lighting, limited palette, no blur, no antialiasing. Genuine transparent background, no painted checkerboard. Keep each sprite fully in its cell with generous transparent margins; common fixed center pivot across cells. No text, labels, grid lines, cell borders, scenery, ground or shadows outside shapes. Original art readable small on a phone.",
+      "pivot_px": [
+        48,
+        48
+      ],
+      "preview_anchor": [
+        100,
+        470
+      ],
+      "frame_duration_ms": 350,
+      "playback": "variants",
+      "purpose": "Четыре независимых обломка; длительность относится к полёту одного",
+      "preview_frames": [
+        0,
+        2,
+        3
+      ]
+    }
+  ]
+}

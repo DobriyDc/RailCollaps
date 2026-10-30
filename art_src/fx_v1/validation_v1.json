@@ -1,0 +1,431 @@
+[
+  {
+    "id": "wheel_sparks",
+    "frames": 6,
+    "frame_size": [
+      96,
+      64
+    ],
+    "source_size": [
+      2172,
+      724
+    ],
+    "alpha_values": [
+      0,
+      128,
+      255
+    ],
+    "unique_frames": 6,
+    "transparent_margin": true,
+    "frame_bounds": [
+      [
+        40,
+        38,
+        66,
+        58
+      ],
+      [
+        28,
+        16,
+        74,
+        58
+      ],
+      [
+        20,
+        6,
+        74,
+        58
+      ],
+      [
+        18,
+        14,
+        76,
+        58
+      ],
+      [
+        28,
+        24,
+        76,
+        58
+      ],
+      [
+        34,
+        28,
+        72,
+        58
+      ]
+    ]
+  },
+  {
+    "id": "lane_smoke",
+    "frames": 4,
+    "frame_size": [
+      128,
+      96
+    ],
+    "source_size": [
+      2172,
+      724
+    ],
+    "alpha_values": [
+      0,
+      128,
+      255
+    ],
+    "unique_frames": 4,
+    "transparent_margin": true,
+    "frame_bounds": [
+      [
+        30,
+        36,
+        92,
+        90
+      ],
+      [
+        22,
+        22,
+        106,
+        90
+      ],
+      [
+        20,
+        6,
+        108,
+        90
+      ],
+      [
+        20,
+        10,
+        106,
+        90
+      ]
+    ]
+  },
+  {
+    "id": "demon_claw",
+    "frames": 4,
+    "frame_size": [
+      128,
+      128
+    ],
+    "source_size": [
+      2172,
+      724
+    ],
+    "alpha_values": [
+      0,
+      128,
+      255
+    ],
+    "unique_frames": 4,
+    "transparent_margin": true,
+    "frame_bounds": [
+      [
+        28,
+        36,
+        112,
+        122
+      ],
+      [
+        16,
+        6,
+        112,
+        122
+      ],
+      [
+        16,
+        10,
+        110,
+        122
+      ],
+      [
+        16,
+        14,
+        106,
+        120
+      ]
+    ]
+  },
+  {
+    "id": "impact_ash",
+    "frames": 4,
+    "frame_size": [
+      96,
+      96
+    ],
+    "source_size": [
+      1983,
+      793
+    ],
+    "alpha_values": [
+      0,
+      128,
+      255
+    ],
+    "unique_frames": 4,
+    "transparent_margin": true,
+    "frame_bounds": [
+      [
+        14,
+        16,
+        84,
+        90
+      ],
+      [
+        10,
+        12,
+        90,
+        90
+      ],
+      [
+        12,
+        10,
+        90,
+        88
+      ],
+      [
+        6,
+        14,
+        76,
+        88
+      ]
+    ]
+  },
+  {
+    "id": "lava_splash",
+    "frames": 6,
+    "frame_size": [
+      160,
+      128
+    ],
+    "source_size": [
+      2172,
+      724
+    ],
+    "alpha_values": [
+      0,
+      128,
+      255
+    ],
+    "unique_frames": 6,
+    "transparent_margin": true,
+    "frame_bounds": [
+      [
+        44,
+        82,
+        122,
+        122
+      ],
+      [
+        42,
+        42,
+        122,
+        120
+      ],
+      [
+        40,
+        6,
+        120,
+        122
+      ],
+      [
+        38,
+        40,
+        120,
+        122
+      ],
+      [
+        40,
+        64,
+        120,
+        122
+      ],
+      [
+        40,
+        72,
+        118,
+        122
+      ]
+    ]
+  },
+  {
+    "id": "hot_steam",
+    "frames": 4,
+    "frame_size": [
+      128,
+      128
+    ],
+    "source_size": [
+      1983,
+      793
+    ],
+    "alpha_values": [
+      0,
+      128,
+      255
+    ],
+    "unique_frames": 4,
+    "transparent_margin": true,
+    "frame_bounds": [
+      [
+        44,
+        50,
+        90,
+        122
+      ],
+      [
+        34,
+        26,
+        92,
+        122
+      ],
+      [
+        32,
+        6,
+        94,
+        122
+      ],
+      [
+        34,
+        26,
+        88,
+        122
+      ]
+    ]
+  },
+  {
+    "id": "lava_droplets",
+    "frames": 4,
+    "frame_size": [
+      96,
+      96
+    ],
+    "source_size": [
+      2172,
+      724
+    ],
+    "alpha_values": [
+      0,
+      128,
+      255
+    ],
+    "unique_frames": 4,
+    "transparent_margin": true,
+    "frame_bounds": [
+      [
+        24,
+        36,
+        70,
+        90
+      ],
+      [
+        12,
+        6,
+        82,
+        90
+      ],
+      [
+        14,
+        24,
+        84,
+        88
+      ],
+      [
+        18,
+        54,
+        78,
+        90
+      ]
+    ]
+  },
+  {
+    "id": "shield_break",
+    "frames": 4,
+    "frame_size": [
+      160,
+      160
+    ],
+    "source_size": [
+      2172,
+      724
+    ],
+    "alpha_values": [
+      0,
+      128,
+      255
+    ],
+    "unique_frames": 4,
+    "transparent_margin": true,
+    "frame_bounds": [
+      [
+        18,
+        14,
+        148,
+        146
+      ],
+      [
+        14,
+        10,
+        146,
+        150
+      ],
+      [
+        12,
+        6,
+        142,
+        154
+      ],
+      [
+        24,
+        20,
+        138,
+        142
+      ]
+    ]
+  },
+  {
+    "id": "rail_debris",
+    "frames": 4,
+    "frame_size": [
+      96,
+      96
+    ],
+    "source_size": [
+      2172,
+      724
+    ],
+    "alpha_values": [
+      0,
+      128,
+      255
+    ],
+    "unique_frames": 4,
+    "transparent_margin": true,
+    "frame_bounds": [
+      [
+        16,
+        8,
+        84,
+        84
+      ],
+      [
+        10,
+        8,
+        82,
+        90
+      ],
+      [
+        18,
+        14,
+        84,
+        82
+      ],
+      [
+        10,
+        6,
+        76,
+        90
+      ]
+    ]
+  }
+]
