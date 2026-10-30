@@ -1,0 +1,90 @@
+{
+  "textures": {
+    "vault_brick_v2.png": {
+      "size": [
+        512,
+        128
+      ],
+      "edge_mismatch_pixels": {
+        "U": 0,
+        "V": 0
+      }
+    },
+    "arch_rib_v2.png": {
+      "size": [
+        1024,
+        64
+      ],
+      "edge_mismatch_pixels": {
+        "U": 0,
+        "V": 0
+      }
+    }
+  },
+  "decals": {
+    "vault_hangers_v2.png": {
+      "size": [
+        128,
+        192
+      ],
+      "alpha_levels": [
+        0,
+        51,
+        102,
+        153,
+        204,
+        255
+      ],
+      "opaque_bbox": [
+        14,
+        5,
+        124,
+        161
+      ]
+    },
+    "vault_soot_v2.png": {
+      "size": [
+        160,
+        160
+      ],
+      "alpha_levels": [
+        0,
+        51,
+        102,
+        153,
+        204,
+        255
+      ],
+      "opaque_bbox": [
+        18,
+        6,
+        156,
+        145
+      ]
+    },
+    "vault_magma_crack_v2.png": {
+      "size": [
+        128,
+        192
+      ],
+      "alpha_levels": [
+        0,
+        51,
+        102,
+        153,
+        204,
+        255
+      ],
+      "opaque_bbox": [
+        38,
+        4,
+        124,
+        162
+      ]
+    }
+  },
+  "preview_size": [
+    360,
+    640
+  ]
+}

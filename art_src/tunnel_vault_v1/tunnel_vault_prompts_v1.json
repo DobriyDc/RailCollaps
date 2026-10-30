@@ -1,0 +1,13 @@
+{
+  "tool": "built-in image_gen",
+  "sources": [
+    {
+      "file": "source_stone_v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: original game texture source for Rail Link Collapse, dark brick railway tunnel above lava. Generate a square material study only: tightly fitted soot-dark brown basalt and rusty stone voussoirs in straight UNWRAPPED courses, wide nearly black mortar, chipped block corners and coarse pixel clusters. Flat orthographic material swatch fills canvas, no perspective, no scene. Three broad horizontal courses, warm narrow orange reflected-light accents along bottom facets, central block per row slightly wider as keystone. Style early software-rendered coarse pixel art: square pixels, stepped shades, restrained granular brown/charcoal stone, no antialiasing, no blur. Original design. No text, labels, glyphs, logos, borders, objects, train, flames or lava pools. Useful material detail across entire square."
+    },
+    {
+      "file": "source_decals_v1.png",
+      "prompt": "Use case: stylized-concept. Original pixel art game decal sheet for Rail Link Collapse, transparent background. Three separate isolated assets arranged horizontally in equal thirds with large transparent gutters and no overlapping: LEFT a rusty ceiling anchor with two dangling iron chains and a loose draped black cable, amber lit bottom facets; CENTER a wide soot plume stain above a torch, irregular angular charcoal black stippling, dark opaque center with sparse stepped partially transparent edge, no torch or flame; RIGHT a branching jagged narrow stone crack with hot orange and yellow magma core and very dark rocky lip, no wall/background. Each object fits wholly within its third. Coarse 2–4px pixel clusters and hard stepped shading. Dark brown iron, charcoal, muted rust, sparse lava orange. Orthographic isolated front facing decals. No typography, no text, no border, no checkerboard, no scenery, no blur, no smooth bloom, no logos."
+    }
+  ]
+}
