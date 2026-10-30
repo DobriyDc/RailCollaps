@@ -35,6 +35,20 @@ const CollapseArt = {
     hazard: 'assets/px/ui/hazard.png',
     sw: { waiting: 'assets/px/switch/waiting.png', hit: 'assets/px/switch/hit.png',
         left: 'assets/px/switch/set_left.png', right: 'assets/px/switch/set_right.png' },
+    // Turnouts (card 07, art_src/switches_v1): a base with the through tracks and the curve, and one
+    // overlay of switch points per state; canvas 384x640 = three lanes, the curve leaves the middle lane.
+    switches: {
+        right: { base: 'assets/textures/switches/switch_right_base.png',
+            straight: 'assets/textures/switches/switch_right_points_straight.png',
+            right: 'assets/textures/switches/switch_right_points_right.png' },
+        left: { base: 'assets/textures/switches/switch_left_base.png',
+            straight: 'assets/textures/switches/switch_left_points_straight.png',
+            left: 'assets/textures/switches/switch_left_points_left.png' },
+        both: { base: 'assets/textures/switches/switch_both_base.png',
+            straight: 'assets/textures/switches/switch_both_points_straight.png',
+            left: 'assets/textures/switches/switch_both_points_left.png',
+            right: 'assets/textures/switches/switch_both_points_right.png' },
+    },
     pickup: { ammo: 'assets/px/pickups/ammo.png', boost: 'assets/px/pickups/boost.png', slow: 'assets/px/pickups/slow.png',
         shield: 'assets/px/pickups/shield.png', rescue: 'assets/px/pickups/rescue.png' },
 };
@@ -98,10 +112,13 @@ class CollapseScene {
 
     // --- Materials ------------------------------------------------------------------------
 
-    texture(url) {
+    // mip = false: a texture squeezed along the track (the turnouts) would drop to a blurred mip level
+    // and lose its thin rails; without mipmaps every screen pixel takes the nearest texel.
+    texture(url, mip = true) {
         let t = this._tex.get(url);
         if (!t) {
-            t = new BABYLON.Texture(url, this.scene, false, true, BABYLON.Texture.NEAREST_NEAREST_MIPLINEAR);
+            t = mip ? new BABYLON.Texture(url, this.scene, false, true, BABYLON.Texture.NEAREST_NEAREST_MIPLINEAR)
+                : new BABYLON.Texture(url, this.scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
             this._tex.set(url, t);
         }
         return t;
@@ -126,13 +143,13 @@ class CollapseScene {
     }
 
     // A cut-out sprite material (alpha test); frames swap its textures.
-    spriteMat(key, url) {
+    spriteMat(key, url, mip = true) {
         let m = this._mats.get(key);
         if (m) return m;
         m = new BABYLON.StandardMaterial(key, this.scene);
         m.disableLighting = true;
         m.backFaceCulling = false;
-        this._setSpriteTex(m, url);
+        this._setSpriteTex(m, url, mip);
         m.diffuseColor = new BABYLON.Color3(0, 0, 0);
         m.specularColor = new BABYLON.Color3(0, 0, 0);
         m.transparencyMode = BABYLON.Material.MATERIAL_ALPHATEST;
@@ -141,8 +158,8 @@ class CollapseScene {
         return m;
     }
 
-    _setSpriteTex(m, url) {
-        const t = this.texture(url);
+    _setSpriteTex(m, url, mip = true) {
+        const t = this.texture(url, mip);
         t.hasAlpha = true;
         t.wrapU = t.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
         m.emissiveTexture = t;
@@ -341,9 +358,54 @@ class CollapseScene {
         return run.track.seg(i).forks.some(f => f.from === lane) && !run.forkSafe(i, lane);
     }
 
+    // The turnouts drawn at one fork boundary. Every fork touches the middle lane: forks out of it
+    // use the texture as drawn (the curve leaves the middle lane), forks into it use it flipped along
+    // the track — the same S curve run backwards, the points at the merge. 'left'/'right' is the side
+    // lane: left = lane 0.
+    static switchGroups(forks) {
+        const out = [];
+        for (const flip of [false, true]) {
+            const side = new Set(forks.filter(f => (flip ? f.to : f.from) === 1).map(f => (flip ? f.from : f.to)));
+            if (side.size) out.push({ variant: side.size === 2 ? 'both' : side.has(0) ? 'left' : 'right', flip });
+        }
+        return out;
+    }
+
+    // The points of a turnout group: 'straight' until the switch is shot, then toward the side lane
+    // of the armed fork — the shot setting stays after the train has passed.
+    static pointsState(group, set) {
+        if (!set) return 'straight';
+        const side = group.flip ? (set.to === 1 ? set.from : -1) : (set.from === 1 ? set.to : -1);
+        return side === 0 ? 'left' : side === 2 ? 'right' : 'straight';
+    }
+
+    // A turnout plate over the three lanes: z from the fork boundary to SW_LEN, the curve (texture
+    // rows SW_ROWS) over exactly SWITCH_LEN segments — the train's own crossing curve (laneX).
+    // The texture row under a point `z` world units past the fork boundary.
+    static switchRow(z, flip) {
+        const S = CollapseScene, [top, bottom] = S.SW_ROWS;
+        const pxPerUnit = (bottom - top) / (CollapseRules.SWITCH_LEN * S.SEG);
+        return flip ? top + z * pxPerUnit : bottom - z * pxPerUnit;
+    }
+
+    _switchPlate(name, mat, flip, y) {
+        const S = CollapseScene, len = S.SW_LEN;
+        const m = BABYLON.MeshBuilder.CreateGround(name, { width: S.LANE_W * 3, height: len }, this.scene);
+        m.bakeTransformIntoVertices(BABYLON.Matrix.Translation(0, y, len / 2));
+        const pos = m.getVerticesData(BABYLON.VertexBuffer.PositionKind), uv = [];
+        for (let k = 0; k < pos.length; k += 3) {
+            uv.push((pos[k] + S.LANE_W * 1.5) / (S.LANE_W * 3), 1 - S.switchRow(pos[k + 2], flip) / S.SW_PX);
+        }
+        m.setVerticesData(BABYLON.VertexBuffer.UVKind, uv);
+        m.material = mat;
+        m.isPickable = false;
+        return m;
+    }
+
     _segView(i, run) {
         const S = CollapseScene, scene = this.scene, seg = run.track.seg(i);
-        const v = { lanes: [], forks: [], signs: [], crosses: [], pickups: [], flows: [] };
+        /** @type {{ lanes: any[], forks: any[], signs: any[], crosses: any[], pickups: any[], flows: any[], set: any }} */
+        const v = { lanes: [], forks: [], signs: [], crosses: [], pickups: [], flows: [], set: null };
         for (let l = 0; l < 3; l++) {
             if (seg.gap[l]) { v.lanes.push(null); continue; }
             const strip = BABYLON.MeshBuilder.CreateGround('strip', { width: S.LANE_W, height: S.SEG }, scene);
@@ -351,13 +413,14 @@ class CollapseScene {
             strip.position.x = S.laneX(l);
             v.lanes.push(strip);
         }
+        for (const g of S.switchGroups(seg.forks)) {
+            const art = CollapseArt.switches[g.variant];
+            const y = g.flip ? 3 : 1;   // a boundary never mixes both kinds; if it did, no z-fighting
+            const base = this._switchPlate('switch', this.spriteMat('sw:' + art.base, art.base, false), g.flip, y);
+            const points = this._switchPlate('points', this.spriteMat('sw:' + art.straight, art.straight, false), g.flip, y + 1);
+            v.forks.push({ g, base, points });
+        }
         for (const f of seg.forks) {
-            const dx = S.laneX(f.to) - S.laneX(f.from), dz = CollapseRules.SWITCH_LEN * S.SEG;
-            const cross = BABYLON.MeshBuilder.CreateGround('cross', { width: S.LANE_W * 0.55, height: Math.hypot(dx, dz) }, scene);
-            cross.material = this.surface('track', CollapseArt.tex.track, 1, S.SEG / S.LANE_W);
-            cross.rotation.y = Math.atan2(dx, dz);
-            cross.metadata = { dx, dz };
-            v.forks.push({ f, mesh: cross });
             const sign = this.sprite('sign', 'sign-' + i + '-' + f.from + '-' + f.to, CollapseArt.sign.left, 150, 128);
             sign.metadata = { at: i, from: f.from, to: f.to };
             v.signs.push(sign);
@@ -385,7 +448,7 @@ class CollapseScene {
     }
 
     _disposeSeg(v) {
-        for (const m of [...v.lanes, ...v.forks.map(f => f.mesh), ...v.signs, ...v.crosses, ...v.pickups, ...v.flows]) {
+        for (const m of [...v.lanes, ...v.forks.flatMap(f => [f.base, f.points]), ...v.signs, ...v.crosses, ...v.pickups, ...v.flows]) {
             if (m) { if (m.material && m.material.name.startsWith('sign-')) { this._mats.delete(m.material.name); m.material.dispose(); } m.dispose(); }
         }
     }
@@ -440,10 +503,14 @@ class CollapseScene {
                 m.position.y = -drop;
                 m.setEnabled(drop < 880);
             });
-            for (const { f, mesh } of v.forks) {
-                const md = mesh.metadata;
-                mesh.position.set(S.laneX(f.from) + md.dx / 2, 2 - drop, z + md.dz / 2);
-                mesh.setEnabled(drop < 880);
+            if (run.armed && run.armed.at === i) v.set = run.armed;
+            for (const sw of v.forks) {
+                const url = CollapseArt.switches[sw.g.variant][S.pointsState(sw.g, v.set)];
+                sw.points.material = this.spriteMat('sw:' + url, url, false);
+                for (const m of [sw.base, sw.points]) {
+                    m.position.set(0, -drop, z);
+                    m.setEnabled(drop < 880);
+                }
             }
             for (const sign of v.signs) {
                 const md = sign.metadata;
@@ -590,4 +657,7 @@ CollapseScene.WALL_X = 640;       // half width of the tunnel
 CollapseScene.WALL_TOP = 430;     // where the walls meet the vault
 CollapseScene.BEHIND = 16;        // segments drawn behind the train (into the vanishing point)
 CollapseScene.DEBRIS = 40;        // falling bricks along the collapse edge
-CollapseScene.AHEAD = 6;          // at least this many segments drawn ahead of the train (up to the camera)
+CollapseScene.AHEAD = 6;
+CollapseScene.SW_PX = 640;        // turnout texture height, px (art_src/switches_v1/switches_manifest_v1.json)
+CollapseScene.SW_ROWS = [96, 544]; // texture rows where the S curve ends and starts (travel: bottom to top)
+CollapseScene.SW_LEN = 272;       // world units of a turnout plate from its fork boundary: the curve and 48 more          // at least this many segments drawn ahead of the train (up to the camera)

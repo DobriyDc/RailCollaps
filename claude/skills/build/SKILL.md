@@ -22,6 +22,17 @@ node tools/make-sounds.mjs             # regenerate assets/sounds/*.wav (the sam
 node tools/make-sounds.mjs --check     # exit 1 if a file differs from the generator
 ```
 
+## Phone-size screenshots (`tools/qa-shots.mjs`)
+
+`node tools/qa-shots.mjs [--sizes=360x640,390x844] [--out=docs/qa/shots] [--name=game] [--wait=3000]
+[--eval-file=setup.js] [--url=http://…]` — headless Edge/Chrome over the DevTools protocol (Node's
+built-in `WebSocket`, no packages): `Emulation.setDeviceMetricsOverride` gives the page the exact CSS
+viewport (headless Edge on Windows will not shrink `--window-size` below ~496 px). Starts its own
+dev server on a free port unless `--url` is given. Writes `<name>-<W>x<H>.png` and a `.json` beside
+it: `innerWidth/innerHeight`, `devicePixelRatio`, console errors and exceptions, the value returned by
+`--eval-file` (an async function body run in the page before the shot — set up a state, stop the
+render loop, render frames by hand). Exit code 1 on any page error or a viewport not as ordered.
+
 Git: what stays out of the repository — `.gitignore`; `.gitattributes` (`* -text`) — files go
 byte for byte, no line-ending conversion.
 
