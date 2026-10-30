@@ -1,0 +1,454 @@
+{
+  "version": 2,
+  "generator": "built-in image_gen + deterministic Pillow crop/remap",
+  "sampling": "nearest, no mipmaps for decals; clamp U on full arch, repeat V on vault",
+  "integration": "Card 13; do not retain legacy rib uScale=6. Full arch U=0..1 once.",
+  "extrude_shape": {
+    "profile_units": "radius=1, spring_y=0; scale and translate in scene",
+    "path_normalized": [
+      [
+        0,
+        0,
+        -0.5
+      ],
+      [
+        0,
+        0,
+        0.5
+      ]
+    ],
+    "points": [
+      {
+        "position": [
+          -1.0,
+          0.0,
+          0
+        ],
+        "uv_u": 0.0
+      },
+      {
+        "position": [
+          -0.995185,
+          0.073513,
+          0
+        ],
+        "uv_u": 0.026675
+      },
+      {
+        "position": [
+          -0.980785,
+          0.146318,
+          0
+        ],
+        "uv_u": 0.053546
+      },
+      {
+        "position": [
+          -0.95694,
+          0.217714,
+          0
+        ],
+        "uv_u": 0.080801
+      },
+      {
+        "position": [
+          -0.92388,
+          0.287013,
+          0
+        ],
+        "uv_u": 0.108602
+      },
+      {
+        "position": [
+          -0.881921,
+          0.353548,
+          0
+        ],
+        "uv_u": 0.137083
+      },
+      {
+        "position": [
+          -0.83147,
+          0.416678,
+          0
+        ],
+        "uv_u": 0.166344
+      },
+      {
+        "position": [
+          -0.77301,
+          0.475795,
+          0
+        ],
+        "uv_u": 0.196447
+      },
+      {
+        "position": [
+          -0.707107,
+          0.53033,
+          0
+        ],
+        "uv_u": 0.22742
+      },
+      {
+        "position": [
+          -0.634393,
+          0.579758,
+          0
+        ],
+        "uv_u": 0.259255
+      },
+      {
+        "position": [
+          -0.55557,
+          0.623602,
+          0
+        ],
+        "uv_u": 0.291913
+      },
+      {
+        "position": [
+          -0.471397,
+          0.661441,
+          0
+        ],
+        "uv_u": 0.325328
+      },
+      {
+        "position": [
+          -0.382683,
+          0.69291,
+          0
+        ],
+        "uv_u": 0.359411
+      },
+      {
+        "position": [
+          -0.290285,
+          0.717705,
+          0
+        ],
+        "uv_u": 0.39405
+      },
+      {
+        "position": [
+          -0.19509,
+          0.735589,
+          0
+        ],
+        "uv_u": 0.429121
+      },
+      {
+        "position": [
+          -0.098017,
+          0.746389,
+          0
+        ],
+        "uv_u": 0.464486
+      },
+      {
+        "position": [
+          -0.0,
+          0.75,
+          0
+        ],
+        "uv_u": 0.5
+      },
+      {
+        "position": [
+          0.098017,
+          0.746389,
+          0
+        ],
+        "uv_u": 0.535514
+      },
+      {
+        "position": [
+          0.19509,
+          0.735589,
+          0
+        ],
+        "uv_u": 0.570879
+      },
+      {
+        "position": [
+          0.290285,
+          0.717705,
+          0
+        ],
+        "uv_u": 0.60595
+      },
+      {
+        "position": [
+          0.382683,
+          0.69291,
+          0
+        ],
+        "uv_u": 0.640589
+      },
+      {
+        "position": [
+          0.471397,
+          0.661441,
+          0
+        ],
+        "uv_u": 0.674672
+      },
+      {
+        "position": [
+          0.55557,
+          0.623602,
+          0
+        ],
+        "uv_u": 0.708087
+      },
+      {
+        "position": [
+          0.634393,
+          0.579758,
+          0
+        ],
+        "uv_u": 0.740745
+      },
+      {
+        "position": [
+          0.707107,
+          0.53033,
+          0
+        ],
+        "uv_u": 0.77258
+      },
+      {
+        "position": [
+          0.77301,
+          0.475795,
+          0
+        ],
+        "uv_u": 0.803553
+      },
+      {
+        "position": [
+          0.83147,
+          0.416678,
+          0
+        ],
+        "uv_u": 0.833656
+      },
+      {
+        "position": [
+          0.881921,
+          0.353548,
+          0
+        ],
+        "uv_u": 0.862917
+      },
+      {
+        "position": [
+          0.92388,
+          0.287013,
+          0
+        ],
+        "uv_u": 0.891398
+      },
+      {
+        "position": [
+          0.95694,
+          0.217714,
+          0
+        ],
+        "uv_u": 0.919199
+      },
+      {
+        "position": [
+          0.980785,
+          0.146318,
+          0
+        ],
+        "uv_u": 0.946454
+      },
+      {
+        "position": [
+          0.995185,
+          0.073513,
+          0
+        ],
+        "uv_u": 0.973325
+      },
+      {
+        "position": [
+          1.0,
+          0.0,
+          0
+        ],
+        "uv_u": 1.0
+      }
+    ],
+    "note": "Use cumulative physical profile length for U; V follows path. Split crown at U=.5 only, preserve shared UV."
+  },
+  "assets": [
+    {
+      "file": "assets/textures/tunnel/vault_brick_v2.png",
+      "size": [
+        512,
+        128
+      ],
+      "mode": "RGB",
+      "frames": 1,
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "pivot_pixels": [
+        256,
+        64
+      ],
+      "purpose": "Full semicircular vault, 4 staggered wedge courses",
+      "seamless_axes": [
+        "U",
+        "V"
+      ],
+      "repeat_axes": [
+        "V"
+      ],
+      "uv": {
+        "U": "left spring 0 -> crown 0.5 -> right spring 1",
+        "V": "tunnel longitudinal axis, 4 courses per 128 px period"
+      },
+      "texel_density": "512 px per complete arch; use physical arc length, not angle per face"
+    },
+    {
+      "file": "assets/textures/tunnel/arch_rib_v2.png",
+      "size": [
+        1024,
+        64
+      ],
+      "mode": "RGB",
+      "frames": 1,
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "pivot_pixels": [
+        512,
+        32
+      ],
+      "purpose": "Single complete arch rib strip, 17 voussoirs and crown keystone",
+      "seamless_axes": [
+        "U",
+        "V"
+      ],
+      "repeat_axes": [],
+      "uv": {
+        "U": "arc length from left spring to right spring, exactly once",
+        "V": "rib depth, 0 front outer bevel -> 1 back inner bevel"
+      },
+      "keystone_uv": [
+        0.5,
+        0.5
+      ],
+      "anchors": [
+        {
+          "name": "left_spring",
+          "uv": [
+            0,
+            0.5
+          ]
+        },
+        {
+          "name": "left_haunch",
+          "uv": [
+            0.25,
+            0.5
+          ]
+        },
+        {
+          "name": "crown_keystone",
+          "uv": [
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "name": "right_haunch",
+          "uv": [
+            0.75,
+            0.5
+          ]
+        },
+        {
+          "name": "right_spring",
+          "uv": [
+            1,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "file": "assets/textures/tunnel/vault_hangers_v2.png",
+      "size": [
+        128,
+        192
+      ],
+      "mode": "RGBA",
+      "frames": 1,
+      "pivot_normalized": [
+        0.5,
+        0.04
+      ],
+      "pivot_pixels": [
+        64,
+        8
+      ],
+      "purpose": "Ceiling iron chains, anchor and sagging cable",
+      "repeat_axes": [],
+      "seamless_axes": [],
+      "alpha": "straight stepped 0,51,102,153,204,255",
+      "blend": "alpha blend; crack orange pixels may feed emissive mask"
+    },
+    {
+      "file": "assets/textures/tunnel/vault_soot_v2.png",
+      "size": [
+        160,
+        160
+      ],
+      "mode": "RGBA",
+      "frames": 1,
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "pivot_pixels": [
+        80,
+        80
+      ],
+      "purpose": "Soot stain above torches, no wall backing",
+      "repeat_axes": [],
+      "seamless_axes": [],
+      "alpha": "straight stepped 0,51,102,153,204,255",
+      "blend": "alpha blend; crack orange pixels may feed emissive mask"
+    },
+    {
+      "file": "assets/textures/tunnel/vault_magma_crack_v2.png",
+      "size": [
+        128,
+        192
+      ],
+      "mode": "RGBA",
+      "frames": 1,
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "pivot_pixels": [
+        64,
+        96
+      ],
+      "purpose": "Magma-filled branching crack, no wall backing",
+      "repeat_axes": [],
+      "seamless_axes": [],
+      "alpha": "straight stepped 0,51,102,153,204,255",
+      "blend": "alpha blend; crack orange pixels may feed emissive mask"
+    }
+  ]
+}
