@@ -18,9 +18,10 @@ test('красный крест стоит на полосе перед кажд
         const starts = (s.gap[lane] && !before.gap[lane]) || (s.lava[lane] && !before.lava[lane]);
         if (!starts) continue;
         hazards++;
-        // The exit fork stands at the boundary before the hazard; the cross is in the same row.
-        assert.ok(t.seg(i - 1).forks.some(f => f.from === lane), `зерно ${seed}: нет развилки-выхода перед ${i}`);
-        assert.ok(CollapseScene.crossAt(run, i - 1, lane), `зерно ${seed}: нет креста перед опасностью ${i} на полосе ${lane}`);
+        // The exit fork stands SWITCH_LEAD segments before the hazard; the cross is in the same row.
+        const b = i - p.get('CollapseRules').SWITCH_LEAD;
+        assert.ok(t.seg(b).forks.some(f => f.from === lane), `зерно ${seed}: нет развилки-выхода за ${i - b} сегм. до ${i}`);
+        assert.ok(CollapseScene.crossAt(run, b, lane), `зерно ${seed}: нет креста перед опасностью ${i} на полосе ${lane}`);
       }
     }
     assert.ok(hazards > 50, `зерно ${seed}: опасностей ${hazards}`);
@@ -85,7 +86,13 @@ test('поезд едет по нарисованному ответвлению
       assert.ok(Math.abs(drawn - train) < 1e-9, `flip ${flip}, z ${z}: кривая ${drawn}, поезд ${train}`);
     }
   }
-  assert.ok(S.SW_LEN <= S.SEG, 'плита перевода кончается до следующего сегмента (там провал)');
-  assert.equal(S.switchRow(S.SW_LEN, false), 0);
-  assert.equal(S.switchRow(S.SW_LEN, true), S.SW_PX);
+  assert.ok(S.SW_LEN <= R.SWITCH_LEAD * S.SEG, 'плита перевода кончается до опасности, ради которой стоит');
+  // Full size: the drawn curve has the scale of the track texture along the track (128 px per LANE_W).
+  const pxPerUnit = (S.SW_ROWS[1] - S.SW_ROWS[0]) / (R.SWITCH_LEN * S.SEG), trackPxPerUnit = man.track_tile_px[0] / S.LANE_W;
+  assert.ok(Math.abs(pxPerUnit / trackPxPerUnit - 1) < 0.01, `перевод сжат вдоль пути в ${(trackPxPerUnit / pxPerUnit).toFixed(2)} раза`);
+  // The plate's far end stays inside the texture (the straight rails past the curve, cut at the hazard).
+  for (const flip of [false, true]) {
+    const row = S.switchRow(S.SW_LEN, flip);
+    assert.ok(row >= 0 && row <= S.SW_PX, `flip ${flip}: строка ${row} вне растра`);
+  }
 });

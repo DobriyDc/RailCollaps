@@ -107,7 +107,9 @@ test('у каждой опасности есть развилка-выход н
         hazards++;
         let end = i;
         while (t.seg(end).gap[l] || t.seg(end).lava[l]) end++;
-        const escapes = before.forks.filter(f => f.from === l && t.laneSafe(f.to, i - 1, end - i + 2));
+        // The escape fork SWITCH_LEAD segments before the hazard: the crossing is over before it.
+        const L = p.get('CollapseRules').SWITCH_LEAD, lead = t.seg(i - L);
+        const escapes = lead.forks.filter(f => f.from === l && t.laneSafe(f.to, i - L, end - i + L + 1));
         assert.ok(escapes.length > 0, `зерно ${seed}: у опасности на полосе ${l}, сегмент ${i}, нет выхода`);
         assert.ok(t.seg(end).forks.some(f => f.to === l), `зерно ${seed}: нет развилки назад на полосу ${l} после ${end}`);
       }

@@ -109,8 +109,8 @@ const COLLAPSE_CONTINUE_GAP = 8;        // segments: a continue pushes the colla
 const COLLAPSE_CONTINUE_GRACE_SEC = 1.5; // s: no hazard hurts the train right after a continue
 // The track generator's dice. Each pattern after a calm stretch is a demon, a gap, lava or a detour.
 const COLLAPSE_DIFFICULTY_SEGS = 600;   // segments over which the generator goes from calm to dense
-const COLLAPSE_CALM_START = 4;          // segments of calm between patterns at the start (+0..1 at random)
-const COLLAPSE_CALM_END = 1;            // segments of calm between patterns at full difficulty (+0..1)
+const COLLAPSE_CALM_START = 1;          // segments of calm between patterns at the start (+0..1 at random); a hazard has 4 more of lead
+const COLLAPSE_CALM_END = 0;            // segments of calm between patterns at full difficulty (+0..1)
 const COLLAPSE_GAP_SHARE = 0.52;        // share of patterns that are a gap
 const COLLAPSE_LAVA_SHARE = 0.14;       // share of patterns that are a lava stream at the start
 const COLLAPSE_LAVA_GROWTH = 0.1;       // lava share added at full difficulty; the rest of the patterns are detours

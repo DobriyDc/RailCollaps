@@ -14,8 +14,11 @@
 const CollapseRules = {
     LANES: 3,
     STEP: 1 / 60,          // s: the fixed simulation step
-    LOOK: 3,               // segments a fork signal checks on its destination lane
-    SWITCH_LEN: 0.8,       // segments the train needs to cross to the next lane after a fork
+    LOOK: 6,               // segments a fork signal checks on its destination lane (the lead and two more)
+    // The turnout at full size (debt-switch-scale, the owner 2026-10-30): the train crosses to the next
+    // lane along the drawn curve — 448 px of art_src/switches_v1 at 128 px per lane of 300 units.
+    SWITCH_LEN: 3.75,      // segments the train needs to cross to the next lane after a fork
+    SWITCH_LEAD: 4,        // segments from an escape fork to its hazard: the crossing is over before it
     TRAIN_LEN: 0.35,       // segments: the collapse behind catches the train at this gap
     FORK_RANGE: 6,         // segments: how far ahead the next fork can be armed
     PICKUPS: ['ammo', 'boost', 'slow', 'shield', 'rescue'],
@@ -106,11 +109,11 @@ const CollapseRules = {
     },
 
     // No trap (the owner, 2026-10-30): a hazard on `lane` over segments [from, from + n) of `segs` may
-    // stand only where no adjacent lane is a gap or lava from its escape fork segment to its return
-    // fork segment — two neighbouring dead ends on one segment never happen, and every hazard keeps a
-    // whole neighbour for its full length with a fork before and after it.
+    // stand only where no adjacent lane is a gap or lava from its escape fork segment (SWITCH_LEAD
+    // before it) to its return fork segment — two neighbouring dead ends on one segment never happen,
+    // and every hazard keeps a whole neighbour for its full length with a fork before and after it.
     trapFree(segs, lane, from, n) {
-        for (let i = Math.max(0, from - 1); i <= from + n && i < segs.length; i++) {
+        for (let i = Math.max(0, from - CollapseRules.SWITCH_LEAD); i <= from + n && i < segs.length; i++) {
             const s = segs[i];
             if (CollapseRules.neighbors(lane).some(l => s.gap[l] || s.lava[l])) return false;
         }
@@ -181,8 +184,9 @@ class CollapseTrack {
         const at = this.segs.length;
         const d = Math.min(1, at / c.difficultySegs);           // difficulty 0..1
         let calm = Math.max(0, Math.round(c.calmStart + (c.calmEnd - c.calmStart) * d)) + this._int(2);
-        // The decision window: the pattern's fork (at boundary at + calm) is far enough from the last one.
-        while ((at + calm - this.lastFork) / R.maxSpeedAt(c, at + calm) < c.reactSec) calm++;
+        // The decision window: the pattern's fork (at boundary at + calm) is far enough from the last one,
+        // and never before the crossing of the last one is over.
+        while ((at + calm - this.lastFork) / R.maxSpeedAt(c, at + calm) < c.reactSec || at + calm - this.lastFork < R.SWITCH_LEAD) calm++;
         this._calm(calm);
         const demonOk = at >= c.demonStart && at - this.lastDemon >= c.demonEvery;
         if (demonOk && this.rand() < c.demonChance) { this._demon(); return; }
@@ -209,9 +213,9 @@ class CollapseTrack {
         const block = [];
         const lane = this._lay(block, 0, 'gap', this.rand() < c.hazardMid ? 1 : this._int(2) * 2, len);
         if (this.rand() < c.gapOverlap * d) {
-            const off = Math.ceil(c.reactSec * R.maxSpeedAt(c, at + len) - 1e-9) + this._int(2);
+            const off = Math.max(R.SWITCH_LEAD, Math.ceil(c.reactSec * R.maxSpeedAt(c, at + len) - 1e-9)) + this._int(2);
             const len2 = this._gapLen(d);
-            const lanes = [0, 1, 2].filter(l => l !== lane && R.trapFree(block, l, off + 1, len2));
+            const lanes = [0, 1, 2].filter(l => l !== lane && R.trapFree(block, l, off + R.SWITCH_LEAD, len2));
             if (off <= len && lanes.length) this._lay(block, off, 'gap', lanes[this._int(lanes.length)], len2);
         }
         for (const s of block) this._push(s);
@@ -225,15 +229,16 @@ class CollapseTrack {
         for (const s of block) this._push(s);
     }
 
-    // Lay a hazard into a pattern block: the escape forks at boundary `at`, the hazard over the
-    // next `len` segments, the return forks right after it. Returns the lane.
+    // Lay a hazard into a pattern block: the escape forks at boundary `at`, the hazard over `len`
+    // segments from SWITCH_LEAD later, the return forks right after it. Returns the lane.
     _lay(block, at, type, lane, len) {
-        while (block.length < at + len + 2) block.push(collapseSegment('calm'));
+        const L = CollapseRules.SWITCH_LEAD;
+        while (block.length < at + L + len + 1) block.push(collapseSegment('calm'));
         const lead = block[at];
         lead.kind = type + '-lead';
         for (const to of CollapseRules.neighbors(lane)) lead.forks.push({ from: lane, to });
         for (let i = 1; i <= len; i++) {
-            const s = block[at + i];
+            const s = block[at + L - 1 + i];
             if (!s.kind.endsWith('-lead')) s.kind = type;
             s[type][lane] = true;
             // A reward on a safe lane beside a long hazard: the escape is also a choice.
@@ -242,13 +247,13 @@ class CollapseTrack {
                 if (side.length) s.pickup[side[this._int(side.length)]] = this._pickupKind();
             }
         }
-        const back = block[at + len + 1];
+        const back = block[at + L + len];
         if (back.kind === 'calm') back.kind = type + '-back';
         for (const from of CollapseRules.neighbors(lane)) back.forks.push({ from, to: lane });
         return lane;
     }
 
-    // A side trip for a pickup on a calm stretch: fork out, pickup, fork back.
+    // A side trip for a pickup on a calm stretch: fork out, the crossing, pickup, fork back.
     _detour() {
         const a = this._int(CollapseRules.LANES);
         const side = CollapseRules.neighbors(a);
@@ -256,6 +261,7 @@ class CollapseTrack {
         const out = collapseSegment('detour');
         out.forks.push({ from: a, to: b });
         this._push(out);
+        for (let i = 1; i < CollapseRules.SWITCH_LEAD; i++) this._push(collapseSegment('detour'));
         const mid = collapseSegment('detour');
         mid.pickup[b] = this._pickupKind();
         this._push(mid);

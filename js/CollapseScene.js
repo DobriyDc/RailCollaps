@@ -143,7 +143,17 @@ class CollapseScene {
         /** @type {{ mesh: any, until: number }[]} */
         this._flashes = [];
         this.applyResolution();
+        this._preload();
         this.ready = new Promise(resolve => scene.executeWhenReady(() => resolve(true)));
+    }
+
+    // Every frame a material swaps to later is loaded with the scene: a texture made on its first show
+    // is not ready in that frame, and the sprite blinks out (the first shot, the first effect).
+    _preload() {
+        const A = CollapseArt;
+        for (const u of [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoFall), A.locoDamaged, ...A.torch, ...A.flow,
+            ...A.shield, A.shieldHit, ...A.demon, A.demonAsh, ...Object.values(A.sign), ...A.lava, ...A.magma]) this.texture(u);
+        for (const u of [...A.front, ...Object.values(A.fx).flat(), ...Object.values(A.switches).flatMap(v => Object.values(v))]) this.texture(u, false);
     }
 
     // Render COLLAPSE_RENDER_HEIGHT px tall whatever the screen; CSS scales it up pixelated.
@@ -983,4 +993,4 @@ CollapseScene.MAGMA_FPS = 1 / 0.12; // magma frames per second (120 ms a frame)
 CollapseScene.AHEAD = 6;
 CollapseScene.SW_PX = 640;        // turnout texture height, px (art_src/switches_v1/switches_manifest_v1.json)
 CollapseScene.SW_ROWS = [96, 544]; // texture rows where the S curve ends and starts (travel: bottom to top)
-CollapseScene.SW_LEN = 272;       // world units of a turnout plate from its fork boundary: the curve and 48 more          // at least this many segments drawn ahead of the train (up to the camera)
+CollapseScene.SW_LEN = CollapseRules.SWITCH_LEAD * CollapseScene.SEG;   // world units of a turnout plate from its fork boundary: the curve, then straight up to the hazard
