@@ -19,6 +19,7 @@ class Game {
         this.newRecord = false;
         this._chase = -1;             // the chase bar value shown
         this.adPending = false;
+        this.flashLeft = 0;           // s the red flash of a demon hit stays up (hitFlash)
         this.best = parseInt(Store.get('collapse.best') || '0', 10) || 0;
         /** @type {Map<string, string>} */
         this._hudText = new Map();    // what the HUD shows: a DOM write only on change
@@ -47,6 +48,8 @@ class Game {
         this.mode = 'play';
         this.overIn = -1;
         this.adPending = false;
+        this.flashLeft = 0;
+        this._show('hitFlash', false);
         this._show('over', false);
         TG.runStarted();
     }
@@ -101,6 +104,7 @@ class Game {
         if (this.mode === 'play') run.update(dt);
         for (const ev of run.takeEvents()) this._onEvent(ev);
         if (this.overIn >= 0 && (this.overIn -= dt) < 0) this._showOver();
+        if (this.flashLeft > 0 && (this.flashLeft -= dt) <= 0) this._show('hitFlash', false);
         this.scene.sync(run, this.mode === 'pause' ? 0 : dt);
         this._hud(run);
     }
@@ -108,6 +112,11 @@ class Game {
     _onEvent(ev) {
         const run = this.run;
         this.scene.onEvent(ev, run);
+        // A demon reached the cab (the shield took it or not): a short red flash over the screen.
+        if ((ev.type === 'crash' || ev.type === 'shielded') && ev.reason === 'demon') {
+            this.flashLeft = typeof COLLAPSE_FX_FLASH_SEC !== 'undefined' ? COLLAPSE_FX_FLASH_SEC : 0.15;
+            this._show('hitFlash', true);
+        }
         if (ev.type === 'shot') TG.haptic('shot');
         else if (ev.type === 'pickup') TG.haptic('pickup');
         else if (ev.type === 'shielded' || ev.type === 'rescued') TG.haptic('shield');

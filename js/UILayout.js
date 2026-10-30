@@ -19,6 +19,7 @@ const UI_LAYOUT = [
     { id: 'effect', kind: 'text', anchor: 'top-right', x: 12, y: 80, text: "", fontSize: 13, color: '#ffd965', shadow: '#0b0809', alpha: 1, visible: 1 },
     { id: 'pauseBtn', kind: 'button', anchor: 'top-right', x: 12, y: 8, w: 50, h: 50, text: "II", fontSize: 20, color: '#f7eed2', fill: '#2a2224', border: '#5b6569', radius: 6, alpha: 0.85, visible: 1 },
     { id: 'hint', kind: 'text', anchor: 'bottom-center', x: 0, y: 22, text: "Тап по табличке — выстрел по стрелке", fontSize: 14, color: '#f7eed2', shadow: '#0b0809', alpha: 0.85, visible: 1 },
+    { id: 'hitFlash', kind: 'panel', anchor: 'top-left', x: 0, y: 0, w: 240, h: 80, stretch: 'both', fill: '#ff1e12', border: '', radius: 0, alpha: 0.38, visible: 0 },
     { id: 'over', kind: 'panel', anchor: 'top-left', x: 0, y: 0, w: 240, h: 80, stretch: 'both', fill: '', border: '', radius: 0, alpha: 1, visible: 0 },
     { id: 'overDim', kind: 'panel', anchor: 'top-left', parent: 'over', x: 0, y: 0, w: 240, h: 80, stretch: 'both', fill: '#000000', border: '', radius: 0, alpha: 0.55, visible: 1 },
     { id: 'overBox', kind: 'panel', anchor: 'middle-center', parent: 'over', x: 0, y: 0, w: 300, h: 270, fill: '#211c24', border: '#ff7f22', radius: 10, alpha: 0.96, visible: 1 },

@@ -65,6 +65,18 @@ const CollapseArt = {
             left: 'assets/textures/switches/switch_both_points_left.png',
             right: 'assets/textures/switches/switch_both_points_right.png' },
     },
+    // Lane change and damage effects (card 15, art_src/fx_v1): frames of one-shot sprites.
+    fx: {
+        sparks: ['assets/sprites/fx/wheel_sparks_00_v1.png', 'assets/sprites/fx/wheel_sparks_01_v1.png', 'assets/sprites/fx/wheel_sparks_02_v1.png', 'assets/sprites/fx/wheel_sparks_03_v1.png', 'assets/sprites/fx/wheel_sparks_04_v1.png', 'assets/sprites/fx/wheel_sparks_05_v1.png'],
+        smoke: ['assets/sprites/fx/lane_smoke_00_v1.png', 'assets/sprites/fx/lane_smoke_01_v1.png', 'assets/sprites/fx/lane_smoke_02_v1.png', 'assets/sprites/fx/lane_smoke_03_v1.png'],
+        claw: ['assets/sprites/fx/demon_claw_00_v1.png', 'assets/sprites/fx/demon_claw_01_v1.png', 'assets/sprites/fx/demon_claw_02_v1.png', 'assets/sprites/fx/demon_claw_03_v1.png'],
+        ash: ['assets/sprites/fx/impact_ash_00_v1.png', 'assets/sprites/fx/impact_ash_01_v1.png', 'assets/sprites/fx/impact_ash_02_v1.png', 'assets/sprites/fx/impact_ash_03_v1.png'],
+        splash: ['assets/sprites/fx/lava_splash_00_v1.png', 'assets/sprites/fx/lava_splash_01_v1.png', 'assets/sprites/fx/lava_splash_02_v1.png', 'assets/sprites/fx/lava_splash_03_v1.png', 'assets/sprites/fx/lava_splash_04_v1.png', 'assets/sprites/fx/lava_splash_05_v1.png'],
+        steam: ['assets/sprites/fx/hot_steam_00_v1.png', 'assets/sprites/fx/hot_steam_01_v1.png', 'assets/sprites/fx/hot_steam_02_v1.png', 'assets/sprites/fx/hot_steam_03_v1.png'],
+        drops: ['assets/sprites/fx/lava_droplets_00_v1.png', 'assets/sprites/fx/lava_droplets_01_v1.png', 'assets/sprites/fx/lava_droplets_02_v1.png', 'assets/sprites/fx/lava_droplets_03_v1.png'],
+        shieldBreak: ['assets/sprites/fx/shield_break_00_v1.png', 'assets/sprites/fx/shield_break_01_v1.png', 'assets/sprites/fx/shield_break_02_v1.png', 'assets/sprites/fx/shield_break_03_v1.png'],
+        rail: ['assets/sprites/fx/rail_debris_00_v1.png', 'assets/sprites/fx/rail_debris_01_v1.png', 'assets/sprites/fx/rail_debris_02_v1.png', 'assets/sprites/fx/rail_debris_03_v1.png'],
+    },
     pickup: { ammo: 'assets/px/pickups/ammo.png', boost: 'assets/px/pickups/boost.png', slow: 'assets/px/pickups/slow.png',
         shield: 'assets/px/pickups/shield.png', rescue: 'assets/px/pickups/rescue.png' },
 };
@@ -108,6 +120,15 @@ class CollapseScene {
         this.crackZone = typeof COLLAPSE_CRACK_ZONE !== U ? COLLAPSE_CRACK_ZONE : 3;
         this.crackLevel = typeof COLLAPSE_CRACK_LEVEL !== U ? COLLAPSE_CRACK_LEVEL : 1.6;
         this.debrisLead = typeof COLLAPSE_DEBRIS_LEAD !== U ? COLLAPSE_DEBRIS_LEAD : 1;
+        // Effects (card 16): the lean on a lane change, the camera shake of a demon hit, the glow of a
+        // lava hit, the lean into a gap.
+        this.rollMax = (typeof COLLAPSE_FX_ROLL_DEG !== U ? COLLAPSE_FX_ROLL_DEG : 8) * Math.PI / 180;
+        this.shakeAmp = typeof COLLAPSE_FX_SHAKE !== U ? COLLAPSE_FX_SHAKE : 24;
+        this.shakeSec = typeof COLLAPSE_FX_SHAKE_SEC !== U ? COLLAPSE_FX_SHAKE_SEC : 0.35;
+        this.heatSec = typeof COLLAPSE_FX_HEAT_SEC !== U ? COLLAPSE_FX_HEAT_SEC : 0.5;
+        this.fallTilt = (typeof COLLAPSE_FX_FALL_TILT_DEG !== U ? COLLAPSE_FX_FALL_TILT_DEG : 22) * Math.PI / 180;
+        this.camY = cam.position.y;
+        this._shakeAt = this._heatAt = -1e9;
         cam.maxZ = toTrain + CollapseScene.SEG * CollapseScene.BEHIND + 2000;
         this.ahead = Math.max(CollapseScene.AHEAD, Math.ceil(camZ / CollapseScene.SEG) + 1);
         this.slots = CollapseScene.BEHIND + this.ahead + 2;   // tunnel pieces: one per segment of the window
@@ -491,9 +512,99 @@ class CollapseScene {
     _buildTrain() {
         this.train = this.sprite('loco', 'loco', CollapseArt.loco[0], 290, 418);
         this.train.position.set(0, 0, 0);
+        // Not a billboard: the loco leans (rotation.z) and tips into a gap (rotation.x) about its
+        // bottom center; turned to face the camera, which looks straight down the track.
+        this.train.billboardMode = BABYLON.Mesh.BILLBOARDMODE_NONE;
+        this.train.rotation.y = Math.PI;
         this.shieldFx = this.sprite('shield', 'shield', CollapseArt.shield[0], 460, 352);
         this.shieldFx.position.set(0, 10, 20);
         this._buildDemons();
+        this._buildFx();
+    }
+
+    // --- Effects (card 16) -------------------------------------------------------------------------
+    // One plane per effect (two for the wheel sparks, four for the rail wreckage), each with its own
+    // material: an effect plays its frames once (steam loops) and hides. They show the run's events
+    // and state; they decide nothing.
+
+    _buildFx() {
+        const S = CollapseScene;
+        /** @type {{ mesh: any, frames: string[], ms: number, loop: boolean, start: number, until: number, at: number[], v: number[], g: number, spin: number, follow: boolean }[]} */
+        this.fx = [];
+        const add = (kind, frames) => {
+            const d = S.FX[kind], k = S.FX_ART * (d.scale || 1), w = d.size[0] * k, h = d.size[1] * k;
+            const p = BABYLON.MeshBuilder.CreatePlane('fx-' + kind, { width: w, height: h }, this.scene);
+            // Front side toward the camera, the art's pivot at the origin.
+            p.bakeTransformIntoVertices(BABYLON.Matrix.RotationY(Math.PI).multiply(BABYLON.Matrix.Translation(-(d.pivot[0] - 0.5) * w, (d.pivot[1] - 0.5) * h, 0)));
+            p.material = this.spriteMat('fx-' + kind + '-' + this.fx.length, frames[0], false, true);
+            p.isPickable = false;
+            p.setEnabled(false);
+            const fx = { mesh: p, frames, ms: d.ms, loop: !!d.loop, start: -1, until: -1, at: [0, 0, 0], v: [0, 0, 0], g: 0, spin: 0, follow: true };
+            this.fx.push(fx);
+            return fx;
+        };
+        const A = CollapseArt.fx;
+        this.fxSparks = [add('sparks', A.sparks), add('sparks', A.sparks)];
+        this.fxSmoke = add('smoke', A.smoke);
+        this.fxClaw = add('claw', A.claw);
+        this.fxAsh = add('ash', A.ash);
+        this.fxSplash = add('splash', A.splash);
+        this.fxSteam = add('steam', A.steam);
+        this.fxDrops = add('drops', A.drops);
+        this.fxShield = add('shieldBreak', A.shieldBreak);
+        this.fxRails = A.rail.map(u => add('rail', [u]));
+    }
+
+    // Start an effect: `at` — offset from the loco's bottom center (follow) or a world point;
+    // v — world units/s, g — fall acceleration, spin — rad/s, dur — s (default: its frames once).
+    _fxPlay(fx, at, o = {}) {
+        fx.start = this.time;
+        fx.until = this.time + (o.dur || fx.frames.length * fx.ms / 1000);
+        fx.at = at;
+        fx.v = o.v || [0, 0, 0];
+        fx.g = o.g || 0;
+        fx.spin = o.spin || 0;
+        fx.follow = o.follow !== false;
+        // The art's mirror for the opposite side: its back face (no culling) — a negative scale
+        // would turn the plane inside out.
+        fx.mesh.rotation.y = o.flip ? Math.PI : 0;
+        fx.mesh.setEnabled(true);
+    }
+
+    _syncFx(trainX, trainY) {
+        for (const fx of this.fx) {
+            if (!fx.mesh.isEnabled()) continue;
+            const t = this.time - fx.start;
+            if (this.time >= fx.until || t < 0) { fx.mesh.setEnabled(false); continue; }
+            const n = fx.frames.length, f = Math.floor(t * 1000 / fx.ms);
+            this._setSpriteTex(fx.mesh.material, fx.frames[fx.loop ? f % n : Math.min(n - 1, f)], false);
+            const bx = fx.follow ? trainX : 0, by = fx.follow ? trainY : 0;
+            fx.mesh.position.set(bx + fx.at[0] + fx.v[0] * t, by + fx.at[1] + fx.v[1] * t - fx.g * t * t / 2, fx.at[2] + fx.v[2] * t);
+            fx.mesh.rotation.z = fx.spin * t;
+        }
+    }
+
+    // A hit the run reports (its reason): what it looks like on the loco.
+    _hitFx(reason, run) {
+        if (reason === 'demon') {
+            this._fxPlay(this.fxClaw, [0, 230, 70]);
+            this._fxPlay(this.fxAsh, [0, 200, 60]);
+            this._shakeAt = this.time;
+        } else if (reason === 'lava') {
+            this._fxPlay(this.fxSplash, [0, 300, 70]);
+            this._fxPlay(this.fxDrops, [0, 330, 80]);
+            this._fxPlay(this.fxSteam, [0, 380, 50], { dur: this.heatSec + 0.25 });
+            this._heatAt = this.time;
+        } else if (reason === 'gap' || reason === 'caught') {
+            // The loco goes down into the magma: a splash where it meets it, the rails under it fly apart.
+            const x = CollapseScene.laneX(run.laneX());
+            this._fxPlay(this.fxSplash, [x, -60, 110], { follow: false });
+            this.fxRails.forEach((fx, k) => {
+                const dir = k < 2 ? -1 : 1;
+                this._fxPlay(fx, [x + dir * (60 + 50 * (k & 1)), 10, 70 + 30 * k],
+                    { follow: false, dur: 0.75, v: [dir * (260 + 120 * (k & 1)), 520 + 140 * (k & 1), 80], g: 2200, spin: dir * (6 + 3 * k) });
+            });
+        }
     }
 
     // One demon sprite per tunnel wall: a pair leaps from both walls at once. Each side has its
@@ -622,16 +733,23 @@ class CollapseScene {
         this.segViews.clear();
         this._shotUntil = this._shieldHitUntil = -1;
         this._crashAt = null;
+        this._shakeAt = this._heatAt = -1e9;
+        for (const fx of this.fx) fx.mesh.setEnabled(false);
         for (const side of [-1, 1]) { this.demonViews.get(side).setEnabled(false); this._ashUntil.set(side, -1); }
         this._camSnap = true;
     }
 
     // Sideways camera follow: dt = 0 (pause, the first frame) does not move it; a new run snaps it.
+    // A demon hit shakes it for shakeSec: the eye moves, the view direction does not turn — the
+    // frame and the tap targets (projected through the same camera) move together.
     _followCamera(trainX, dt) {
         const goal = trainX * this.camFollow;
         if (this._camSnap) { this.camX = goal; this._camSnap = false; }
         else this.camX += (goal - this.camX) * (1 - Math.exp(-this.camRate * dt));
-        this.view.camera.position.x = this.camX;
+        const k = (this.time - this._shakeAt) / this.shakeSec;
+        const a = k >= 0 && k < 1 ? this.shakeAmp * (1 - k) * (1 - k) : 0;
+        this.view.camera.position.x = this.camX + a * Math.sin(this.time * 71);
+        this.view.camera.position.y = this.camY + a * 0.6 * Math.cos(this.time * 53);
     }
 
     // Everything follows the run: called every frame before the render.
@@ -715,16 +833,26 @@ class CollapseScene {
         let frame = CollapseArt.loco[Math.floor(this.time * (4 + run.speed() * 2)) % 4];
         if (this._shotUntil > this.time) frame = this._shotFrame;
         this.train.position.y = 0;
-        this.train.rotation.z = 0;
+        // Lane change: the loco leans toward the new lane while it crosses (run.prevLane, switchAt).
+        const cross = (run.pos - run.switchAt) / CollapseRules.SWITCH_LEN;
+        let roll = run.lane !== run.prevLane && cross >= 0 && cross < 1 ? Math.sign(run.lane - run.prevLane) * this.rollMax * Math.sin(Math.PI * cross) : 0;
+        let tip = 0;
         if (run.state === 'over') {
             const k = Math.min(1, (this.time - (this._crashAt || this.time)) * 1.6);
             if (run.reason === 'gap' || run.reason === 'caught') {
                 frame = run.lane === 0 ? CollapseArt.locoFall.left : CollapseArt.locoFall.right;
                 this.train.position.y = -k * 260;
+                roll = (run.lane === 0 ? -1 : 1) * this.fallTilt * k;   // it tips over the side it falls to
+                tip = -0.45 * k;                                       // and its top comes toward the camera
             } else {
                 frame = CollapseArt.locoDamaged;
             }
         }
+        this.train.rotation.z = roll;
+        this.train.rotation.x = tip;
+        // A lava hit: the loco glows red-hot for heatSec (added to its unlit texture).
+        const heat = Math.max(0, 1 - (this.time - this._heatAt) / this.heatSec);
+        this.train.material.emissiveColor.set(heat * 0.9, heat * 0.3, heat * 0.05);
         this._setSpriteTex(this.train.material, frame);
         this._followCamera(x, dt);
         this.shieldFx.setEnabled(run.shield > 0 && run.state === 'run');
@@ -732,6 +860,7 @@ class CollapseScene {
         this._setSpriteTex(this.shieldFx.material, this._shieldHitUntil > this.time ? CollapseArt.shieldHit : CollapseArt.shield[Math.floor(this.time * 6) % 3]);
 
         this._syncDemons(run, x);
+        this._syncFx(x, this.train.position.y);
     }
 
     // Demons leap out of their wall toward the cab: at the start the sprite is half inside the
@@ -780,12 +909,21 @@ class CollapseScene {
         if (e.type === 'shot') {
             this._shotFrame = e.to < run.lane ? CollapseArt.locoShot.left : CollapseArt.locoShot.right;
             this._shotUntil = this.time + 0.18;
+        } else if (e.type === 'switched') {
+            // Sparks under both wheel sets, the smoke blown against the move (the art drifts right).
+            const dir = e.to > run.prevLane ? 1 : -1;
+            this._fxPlay(this.fxSparks[0], [-95, 0, 40], { flip: dir < 0 });
+            this._fxPlay(this.fxSparks[1], [95, 0, 40], { flip: dir < 0 });
+            this._fxPlay(this.fxSmoke, [0, 380, 10], { flip: dir > 0, v: [-dir * 420, 140, 0] });
         } else if (e.type === 'shielded') {
             this._shieldHitUntil = this.time + 0.3;
+            this._fxPlay(this.fxShield, [0, 200, 90]);
+            if (e.reason !== 'caught') this._hitFx(e.reason, run);   // the shield pushed the collapse back: no fall
         } else if (e.type === 'demon-killed') {
             this._ashUntil.set(e.side, this.time + 0.4);
         } else if (e.type === 'crash') {
             this._crashAt = this.time;
+            this._hitFx(e.reason, run);
         }
     }
 
@@ -827,6 +965,20 @@ CollapseScene.FRONT_W = 1400;     // the front plate: the arch of front_*.png ov
 CollapseScene.FRONT_H = 1080;
 CollapseScene.FRONT_Y = -150;     // its bottom edge: on the magma
 CollapseScene.FRONT_FPS = 10;     // front frames per second (art_src/collapse_front_v1: 6 frames, 600 ms)
+CollapseScene.FX_ART = 2.1;       // world units per art pixel of the effects (the loco: 290 / 139 px)
+// Effect art (art_src/fx_v1/fx_manifest_v1.json): frame size, px; pivot from the top left, 0..1;
+// ms per frame; scale over FX_ART (the shield break covers the shield sprite).
+CollapseScene.FX = {
+    sparks: { size: [96, 64], pivot: [0.5, 0.90625], ms: 70 },
+    smoke: { size: [128, 96], pivot: [0.5, 0.9375], ms: 100 },
+    claw: { size: [128, 128], pivot: [0.5, 0.5], ms: 65 },
+    ash: { size: [96, 96], pivot: [0.5, 0.5], ms: 85 },
+    splash: { size: [160, 128], pivot: [0.5, 0.953125], ms: 90 },
+    steam: { size: [128, 128], pivot: [0.5, 0.953125], ms: 120, loop: true },
+    drops: { size: [96, 96], pivot: [0.5, 0.9375], ms: 90 },
+    shieldBreak: { size: [160, 160], pivot: [0.5, 0.5], ms: 90, scale: 1.4 },
+    rail: { size: [96, 96], pivot: [0.5, 0.5], ms: 350 },
+};
 CollapseScene.MAGMA_FPS = 1 / 0.12; // magma frames per second (120 ms a frame)
 CollapseScene.AHEAD = 6;
 CollapseScene.SW_PX = 640;        // turnout texture height, px (art_src/switches_v1/switches_manifest_v1.json)

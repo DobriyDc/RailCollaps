@@ -137,6 +137,12 @@ const COLLAPSE_FRONT_BEHIND = 0.4;      // segments the collapse front plate sta
 const COLLAPSE_CRACK_ZONE = 5;          // segments ahead of the collapse with glowing cracks on walls and vault
 const COLLAPSE_CRACK_LEVEL = 1.8;       // brightness of the cracks over their pixel art
 const COLLAPSE_DEBRIS_LEAD = 1;         // segments ahead of the collapse where the vault starts to shed blocks
+const COLLAPSE_FX_ROLL_DEG = 8;         // degrees the loco leans toward the new lane while it crosses
+const COLLAPSE_FX_FALL_TILT_DEG = 22;   // degrees the loco tips over as it falls into a gap
+const COLLAPSE_FX_SHAKE = 24;           // world units: camera shake of a demon hit (fades out)
+const COLLAPSE_FX_SHAKE_SEC = 0.35;     // s: camera shake of a demon hit
+const COLLAPSE_FX_FLASH_SEC = 0.15;     // s: the red screen flash of a demon hit (element hitFlash in UILayout.js)
+const COLLAPSE_FX_HEAT_SEC = 0.5;       // s: the loco glows red-hot after lava from above
 
 // --- CAMERA (CameraControl.js): target on the map, azimuth, pitch and zoom. Zoom is
 // screen px per world px at the look-at point; distance is derived from it. Flight
