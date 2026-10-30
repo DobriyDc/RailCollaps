@@ -1,0 +1,24 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:60437/",
+  "browser": "msedge.exe",
+  "waitMs": 2000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-scene/6355d76e-266f-4f6f-9c89-dab8b6c65f16/scratchpad/qa/soak.js",
+  "evalResult": {
+    "sec": 180,
+    "runs": 2,
+    "switched": 6,
+    "ends": {
+      "caught": 1
+    }
+  },
+  "errors": [],
+  "ok": true
+}
