@@ -50,8 +50,10 @@ const CollapseRules = {
             pairFull: typeof COLLAPSE_DEMON_PAIR_FULL !== U ? COLLAPSE_DEMON_PAIR_FULL : 350,
             pairMax: typeof COLLAPSE_DEMON_PAIR_MAX !== U ? COLLAPSE_DEMON_PAIR_MAX : 0.6,
             pairLag: typeof COLLAPSE_DEMON_PAIR_LAG !== U ? COLLAPSE_DEMON_PAIR_LAG : 0.35,
-            gapMin: typeof COLLAPSE_GAP_MIN !== U ? COLLAPSE_GAP_MIN : 2,
-            gapMax: typeof COLLAPSE_GAP_MAX !== U ? COLLAPSE_GAP_MAX : 4,
+            gapMin: typeof COLLAPSE_GAP_MIN !== U ? COLLAPSE_GAP_MIN : 3,
+            gapMinEnd: typeof COLLAPSE_GAP_MIN_END !== U ? COLLAPSE_GAP_MIN_END : 4,
+            gapMax: typeof COLLAPSE_GAP_MAX !== U ? COLLAPSE_GAP_MAX : 8,
+            gapOverlap: typeof COLLAPSE_GAP_OVERLAP !== U ? COLLAPSE_GAP_OVERLAP : 0.5,
             reactSec: typeof COLLAPSE_REACT_SEC !== U ? COLLAPSE_REACT_SEC : 0.6,
             continueGap: typeof COLLAPSE_CONTINUE_GAP !== U ? COLLAPSE_CONTINUE_GAP : 8,
             continueGrace: typeof COLLAPSE_CONTINUE_GRACE_SEC !== U ? COLLAPSE_CONTINUE_GRACE_SEC : 1.5,
@@ -101,6 +103,18 @@ const CollapseRules = {
 
     neighbors(lane) {
         return [lane - 1, lane + 1].filter(l => l >= 0 && l < CollapseRules.LANES);
+    },
+
+    // No trap (the owner, 2026-10-30): a hazard on `lane` over segments [from, from + n) of `segs` may
+    // stand only where no adjacent lane is a gap or lava from its escape fork segment to its return
+    // fork segment — two neighbouring dead ends on one segment never happen, and every hazard keeps a
+    // whole neighbour for its full length with a fork before and after it.
+    trapFree(segs, lane, from, n) {
+        for (let i = Math.max(0, from - 1); i <= from + n && i < segs.length; i++) {
+            const s = segs[i];
+            if (CollapseRules.neighbors(lane).some(l => s.gap[l] || s.lava[l])) return false;
+        }
+        return true;
     },
 };
 
@@ -173,32 +187,65 @@ class CollapseTrack {
         const demonOk = at >= c.demonStart && at - this.lastDemon >= c.demonEvery;
         if (demonOk && this.rand() < c.demonChance) { this._demon(); return; }
         const roll = this.rand();
-        if (roll < c.gapShare) this._hazard('gap', c.gapMin + this._int(1 + Math.round((c.gapMax - c.gapMin) * d)));
+        if (roll < c.gapShare) this._gap(d);
         else if (roll < c.gapShare + c.lavaShare + c.lavaGrowth * d) this._hazard('lava', 1);
         else this._detour();
+    }
+
+    // Gap length at difficulty d: from gapMin at the start to gapMinEnd..gapMax at full difficulty.
+    _gapLen(d) {
+        const c = this.cfg;
+        const lo = Math.round(c.gapMin + (c.gapMinEnd - c.gapMin) * d), hi = Math.round(c.gapMin + (c.gapMax - c.gapMin) * d);
+        return lo + this._int(Math.max(0, hi - lo) + 1);
+    }
+
+    // A long gap, and with distance a second hazard overlapping it on another lane — only where
+    // CollapseRules.trapFree allows it (in practice the far outer lane, the middle one stays whole).
+    // Its escape fork stands a full reaction window after the first one.
+    _gap(d) {
+        const R = CollapseRules, c = this.cfg, at = this.segs.length;
+        const len = this._gapLen(d);
+        /** @type {ReturnType<typeof collapseSegment>[]} */
+        const block = [];
+        const lane = this._lay(block, 0, 'gap', this.rand() < c.hazardMid ? 1 : this._int(2) * 2, len);
+        if (this.rand() < c.gapOverlap * d) {
+            const off = Math.ceil(c.reactSec * R.maxSpeedAt(c, at + len) - 1e-9) + this._int(2);
+            const len2 = this._gapLen(d);
+            const lanes = [0, 1, 2].filter(l => l !== lane && R.trapFree(block, l, off + 1, len2));
+            if (off <= len && lanes.length) this._lay(block, off, 'gap', lanes[this._int(lanes.length)], len2);
+        }
+        for (const s of block) this._push(s);
     }
 
     // A hazard of `len` segments on one lane: escape forks before it, return forks after it.
     // The middle lane takes the hazardMid share: a train that never switches stays on it.
     _hazard(type, len) {
-        const c = this.cfg;
-        const lane = this.rand() < c.hazardMid ? 1 : this._int(2) * 2;
-        const lead = collapseSegment(type + '-lead');
+        const block = [];
+        this._lay(block, 0, type, this.rand() < this.cfg.hazardMid ? 1 : this._int(2) * 2, len);
+        for (const s of block) this._push(s);
+    }
+
+    // Lay a hazard into a pattern block: the escape forks at boundary `at`, the hazard over the
+    // next `len` segments, the return forks right after it. Returns the lane.
+    _lay(block, at, type, lane, len) {
+        while (block.length < at + len + 2) block.push(collapseSegment('calm'));
+        const lead = block[at];
+        lead.kind = type + '-lead';
         for (const to of CollapseRules.neighbors(lane)) lead.forks.push({ from: lane, to });
-        this._push(lead);
-        for (let i = 0; i < len; i++) {
-            const s = collapseSegment(type);
+        for (let i = 1; i <= len; i++) {
+            const s = block[at + i];
+            if (!s.kind.endsWith('-lead')) s.kind = type;
             s[type][lane] = true;
             // A reward on a safe lane beside a long hazard: the escape is also a choice.
-            if (i === 1 && this.rand() < c.hazardReward) {
-                const side = CollapseRules.neighbors(lane);
-                s.pickup[side[this._int(side.length)]] = this._pickupKind();
+            if (i === 2 && this.rand() < this.cfg.hazardReward) {
+                const side = CollapseRules.neighbors(lane).filter(l => !s.gap[l] && !s.lava[l]);
+                if (side.length) s.pickup[side[this._int(side.length)]] = this._pickupKind();
             }
-            this._push(s);
         }
-        const back = collapseSegment(type + '-back');
+        const back = block[at + len + 1];
+        if (back.kind === 'calm') back.kind = type + '-back';
         for (const from of CollapseRules.neighbors(lane)) back.forks.push({ from, to: lane });
-        this._push(back);
+        return lane;
     }
 
     // A side trip for a pickup on a calm stretch: fork out, pickup, fork back.

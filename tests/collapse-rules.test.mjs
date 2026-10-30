@@ -116,6 +116,77 @@ test('у каждой опасности есть развилка-выход н
   }
 });
 
+// Card 17 (the owner): over 20 seeds × 3000 segments — segments with two neighbouring lanes that are
+// a gap or lava, hazard runs without a neighbour whole for their full length, outer lanes both cut.
+function trapCount(p) {
+  const CollapseTrack = p.get('CollapseTrack'), R = p.get('CollapseRules');
+  let adjacent = 0, lonely = 0, overlaps = 0;
+  for (let seed = 1; seed <= 20; seed++) {
+    const t = new CollapseTrack(seed);
+    for (let i = 1; i < 3000; i++) {
+      const s = t.seg(i), bad = l => s.gap[l] || s.lava[l];
+      if ((bad(0) && bad(1)) || (bad(1) && bad(2))) adjacent++;
+      if (bad(0) && bad(2)) overlaps++;
+      for (const l of LANES) {
+        const before = t.seg(i - 1);
+        if (!bad(l) || before.gap[l] || before.lava[l]) continue;
+        let end = i;
+        while (t.seg(end).gap[l] || t.seg(end).lava[l]) end++;
+        if (!R.neighbors(l).some(n => t.laneSafe(n, i, end - i))) lonely++;
+      }
+    }
+  }
+  return { adjacent, lonely, overlaps };
+}
+
+test('провалы внахлёст, но не в ловушку: две соседние полосы никогда не тупиковые разом (20 зёрен × 3000)', () => {
+  const r = trapCount(page());
+  assert.equal(r.adjacent, 0, `сегментов с двумя соседними тупиковыми полосами: ${r.adjacent}`);
+  assert.equal(r.lonely, 0, `опасностей без целого соседа на всю длину: ${r.lonely}`);
+  assert.ok(r.overlaps > 100, `провалов внахлёст на крайних полосах: ${r.overlaps} — проверять нечего`);
+  // The probe sees the rule: the same generator without CollapseRules.trapFree builds traps.
+  const loose = page();
+  loose.get('CollapseRules').trapFree = () => true;
+  const bad = trapCount(loose);
+  assert.ok(bad.adjacent > 0 && bad.lonely > 0, `без правила ловушек нет: ${JSON.stringify(bad)}`);
+});
+
+test('провалы длиннее и растут с дистанцией: на старте COLLAPSE_GAP_MIN, к полной сложности до COLLAPSE_GAP_MAX', () => {
+  const p = page();
+  const CollapseTrack = p.get('CollapseTrack'), c = p.get('CollapseRules').cfg();
+  const early = [], late = [];
+  for (let seed = 1; seed <= 20; seed++) {
+    const t = new CollapseTrack(seed);
+    for (let i = 1; i < 3000; i++) {
+      for (const l of LANES) {
+        if (!t.seg(i).gap[l] || t.seg(i - 1).gap[l]) continue;
+        let end = i;
+        while (t.seg(end).gap[l]) end++;
+        if (i < 100) early.push(end - i);
+        if (i >= c.difficultySegs) late.push(end - i);
+      }
+    }
+  }
+  const med = a => [...a].sort((x, y) => x - y)[Math.floor(a.length / 2)];
+  assert.ok(early.every(n => n <= c.gapMin + 1), `на старте провалы ${Math.max(...early)} сегм.`);
+  assert.ok(med(late) >= 5 && Math.min(...late) >= c.gapMinEnd && Math.max(...late) === c.gapMax,
+    `на полной сложности медиана ${med(late)}, ${Math.min(...late)}–${Math.max(...late)} сегм.`);
+});
+
+test('уклонист с бесконечными патронами не гибнет ни от провала, ни от лавы (20 зёрен)', () => {
+  const p = page();
+  const CollapseRun = p.get('CollapseRun'), R = p.get('CollapseRules');
+  for (let seed = 1; seed <= 20; seed++) {
+    const run = new CollapseRun(seed);
+    for (let f = 0; f < 60 * 900 && run.state === 'run'; f++) {
+      run.ammo = 99;
+      dodgeBot(run, R);
+      run.update(1 / 60);
+    }
+    assert.ok(!['gap', 'lava'].includes(run.reason), `зерно ${seed}: ${run.reason} на ${run.meters} м`);
+  }
+});
+
 test('развилки только между соседними полосами; никогда не рушатся все три полосы сразу', () => {
   const p = page();
   const t = new (p.get('CollapseTrack'))(5);

@@ -1,0 +1,48 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:59427/",
+  "browser": "msedge.exe",
+  "waitMs": 2500,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-gaps/345767b3-880d-45b8-a4a3-d251a2afbc13/scratchpad/top-shot.js",
+  "evalResult": {
+    "seed": 7,
+    "fork": 52,
+    "forks": [
+      {
+        "from": 1,
+        "to": 0
+      },
+      {
+        "from": 1,
+        "to": 2
+      }
+    ],
+    "to": 0,
+    "pos": 48.439,
+    "lane": 1,
+    "laneX": 1,
+    "armed": {
+      "at": 52,
+      "from": 1,
+      "to": 0
+    },
+    "plates": [
+      {
+        "variant": "both",
+        "flip": false,
+        "points": "sw:assets/textures/switches/switch_both_points_left.png"
+      }
+    ],
+    "lint": [],
+    "lintTotal": 0
+  },
+  "errors": [],
+  "ok": true
+}
