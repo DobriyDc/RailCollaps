@@ -1,0 +1,31 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:62916/",
+  "browser": "msedge.exe",
+  "waitMs": 2500,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-scene/6355d76e-266f-4f6f-9c89-dab8b6c65f16/scratchpad/qa/fx-lane.js",
+  "evalResult": {
+    "effect": "lane",
+    "at": 0.15,
+    "fxOn": [
+      "fx-sparks",
+      "fx-sparks",
+      "fx-smoke"
+    ],
+    "roll": 0.139,
+    "tip": 0,
+    "camDx": 0,
+    "heat": 0,
+    "flash": false,
+    "lint": 0
+  },
+  "errors": [],
+  "ok": true
+}

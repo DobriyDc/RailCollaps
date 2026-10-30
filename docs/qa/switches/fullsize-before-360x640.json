@@ -1,0 +1,28 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:54795/",
+  "browser": "msedge.exe",
+  "waitMs": 2500,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-scene/6355d76e-266f-4f6f-9c89-dab8b6c65f16/scratchpad/qa/sw-before.js",
+  "evalResult": {
+    "phase": "before",
+    "fork": 13,
+    "from": 1,
+    "to": 2,
+    "aheadSec": 1.99,
+    "pointsPx": 26.3,
+    "armed": false,
+    "lane": 1,
+    "pos": 8.66,
+    "SWITCH_LEN": 3.75
+  },
+  "errors": [],
+  "ok": true
+}

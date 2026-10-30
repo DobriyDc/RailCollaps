@@ -1,0 +1,93 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:50934/",
+  "browser": "msedge.exe",
+  "waitMs": 2500,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-scene/6355d76e-266f-4f6f-9c89-dab8b6c65f16/scratchpad/qa/tapshake.js",
+  "evalResult": {
+    "armed": "8 / 8",
+    "out": [
+      {
+        "k": 0,
+        "ok": true,
+        "shake": 11.3,
+        "x": 273,
+        "y": 408,
+        "flash": true,
+        "hit": "canvas"
+      },
+      {
+        "k": 1,
+        "ok": true,
+        "shake": 3.3,
+        "x": 270,
+        "y": 406,
+        "flash": true,
+        "hit": "canvas"
+      },
+      {
+        "k": 2,
+        "ok": true,
+        "shake": 15.3,
+        "x": 276,
+        "y": 408,
+        "flash": true,
+        "hit": "canvas"
+      },
+      {
+        "k": 3,
+        "ok": true,
+        "shake": 10.6,
+        "x": 85,
+        "y": 406,
+        "flash": true,
+        "hit": "canvas"
+      },
+      {
+        "k": 4,
+        "ok": true,
+        "shake": 15.3,
+        "x": 261,
+        "y": 399,
+        "flash": true,
+        "hit": "canvas"
+      },
+      {
+        "k": 5,
+        "ok": true,
+        "shake": 11,
+        "x": 263,
+        "y": 407,
+        "flash": true,
+        "hit": "canvas"
+      },
+      {
+        "k": 6,
+        "ok": true,
+        "shake": 3.8,
+        "x": 91,
+        "y": 403,
+        "flash": true,
+        "hit": "canvas"
+      },
+      {
+        "k": 7,
+        "ok": true,
+        "shake": 4,
+        "x": 268,
+        "y": 402,
+        "flash": true,
+        "hit": "canvas"
+      }
+    ]
+  },
+  "errors": [],
+  "ok": true
+}

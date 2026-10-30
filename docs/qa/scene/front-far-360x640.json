@@ -1,0 +1,32 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:50081/",
+  "browser": "msedge.exe",
+  "waitMs": 2500,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-scene/6355d76e-266f-4f6f-9c89-dab8b6c65f16/scratchpad/qa/front-5.5.js",
+  "evalResult": {
+    "gap": 5.5,
+    "pos": 8.84396186336682,
+    "texErrors": [],
+    "textures": 70,
+    "frontPx": 217,
+    "frontTop": -14,
+    "cracks": [
+      10,
+      7,
+      5,
+      4,
+      3
+    ],
+    "debris": 6
+  },
+  "errors": [],
+  "ok": true
+}

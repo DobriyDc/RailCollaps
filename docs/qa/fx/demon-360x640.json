@@ -1,0 +1,30 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:50252/",
+  "browser": "msedge.exe",
+  "waitMs": 2500,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-scene/6355d76e-266f-4f6f-9c89-dab8b6c65f16/scratchpad/qa/fx-demon.js",
+  "evalResult": {
+    "effect": "demon",
+    "at": 0.08,
+    "fxOn": [
+      "fx-claw",
+      "fx-ash"
+    ],
+    "roll": 0,
+    "tip": 0,
+    "camDx": -10.7,
+    "heat": 0,
+    "flash": true,
+    "lint": 0
+  },
+  "errors": [],
+  "ok": true
+}

@@ -1,0 +1,33 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:49681/",
+  "browser": "msedge.exe",
+  "waitMs": 2500,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-scene/6355d76e-266f-4f6f-9c89-dab8b6c65f16/scratchpad/qa/fx-gap.js",
+  "evalResult": {
+    "effect": "gap",
+    "at": 0.3,
+    "fxOn": [
+      "fx-splash",
+      "fx-rail",
+      "fx-rail",
+      "fx-rail",
+      "fx-rail"
+    ],
+    "roll": 0.184,
+    "tip": -0.216,
+    "camDx": 0,
+    "heat": 0,
+    "flash": false,
+    "lint": 0
+  },
+  "errors": [],
+  "ok": true
+}
