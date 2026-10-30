@@ -133,6 +133,10 @@ const COLLAPSE_FOG_START = 1200;         // world units behind the train where t
 const COLLAPSE_FOG_END = 5600;          // world units behind the train where it is gone (the vanishing point stays dark)
 const COLLAPSE_BRICK_LEVEL = 1.25;      // brightness of the walls, vault and arch ribs over their pixel art (1 — as drawn)
 const COLLAPSE_LAVA_LEVEL = 1.3;        // brightness of the lava over its pixel art
+const COLLAPSE_FRONT_BEHIND = 0.4;      // segments the collapse front plate stands behind the edge (the first falling pieces show in front of it)
+const COLLAPSE_CRACK_ZONE = 5;          // segments ahead of the collapse with glowing cracks on walls and vault
+const COLLAPSE_CRACK_LEVEL = 1.8;       // brightness of the cracks over their pixel art
+const COLLAPSE_DEBRIS_LEAD = 1;         // segments ahead of the collapse where the vault starts to shed blocks
 
 // --- CAMERA (CameraControl.js): target on the map, azimuth, pitch and zoom. Zoom is
 // screen px per world px at the look-at point; distance is derived from it. Flight
