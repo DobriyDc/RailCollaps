@@ -135,6 +135,7 @@ const COLLAPSE_CAM_Y = 450;             // world units: camera height above the 
 const COLLAPSE_CAM_Z = 1467;            // world units: camera distance in front of the train
 const COLLAPSE_CAM_TOP_GAP = 0.01;      // share of the frame's height between the top of the loco and the top plate; the camera tilts to this gap on every screen
 const COLLAPSE_CAM_SIGN = 0.3;          // where a fork sign stands from its lane toward the next one, share of the lane step: the close camera sees a narrow strip of the track, and a sign out at the side enters late
+const COLLAPSE_CAM_SIGN_SCALE = 1;      // multiplier of the fork signs' size
 const COLLAPSE_CAM_FRONT_Y = -350;      // world units: the collapse front plate goes down this far: the close camera sees little of the height, and its arch would stay above the frame
 const COLLAPSE_CAM_FOV_DEG = 40;        // vertical field of view of the tunnel camera (narrow: the side lanes stay in a 9:19.5 frame)
 const COLLAPSE_CAM_FOLLOW = 0.7;        // 0..1: share of the train's sideways offset the camera follows (0 — fixed on the center lane)
