@@ -30,7 +30,7 @@ const TunerCore = {
     // What the interface sliders mean in UILayout.js records: [id, field, value].
     uiEdits(ui) {
         const next = Math.round(ui.icon * 26 / 36), wall = Math.round(ui.icon * 32 / 36);
-        const out = [['frameTop', 'h', ui.top], ['frameBottom', 'h', ui.bottom], ['iconStrip', 'y', ui.bottom], ['iconStrip', 'h', ui.icon + 12]];
+        const out = [['frameTop', 'h', ui.top], ['frameBottom', 'h', ui.bottom], ['iconStrip', 'y', ui.bottom], ['iconStrip', 'h', ui.icon + 8]];
         for (const l of [0, 1, 2]) {
             for (const f of ['w', 'h']) out.push(['iconLane' + l, f, ui.icon], ['iconLane' + l + 'Next', f, next]);
         }

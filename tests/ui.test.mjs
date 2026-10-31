@@ -131,3 +131,29 @@ test('дерево элементов: parentOf и isInside; нет родите
   assert.equal(tree.isInside(def('menu'), 'ok'), false);
   assert.equal(tree.isInside(def('row'), 'row'), false, 'сам в себе не лежит');
 });
+
+
+test('растровая панель: фон под детьми, цифры и кадр сохраняются после правки редактора', () => {
+  class Element {
+    constructor() { this.style = {}; this.dataset = {}; this.children = []; }
+    addEventListener() {} setAttribute() {}
+    appendChild(e) { this.children.push(e); }
+    insertBefore(e, before) { this.children.splice(before ? this.children.indexOf(before) : this.children.length, 0, e); }
+    get firstChild() { return this.children[0]; }
+    set textContent(v) { this.children = []; }
+  }
+  const p = loadScripts(['js/UI.js'], { document: { createElement: () => new Element() } });
+  const ui = p.get('UI'), E = p.get('UIElement');
+  const panel = new E({ ...ui.DEFAULTS.image, kind: 'image', id: 'panel', src: 'assets/ui/hud_v3/bar_top.png', slice: '14,9,14,9' });
+  const child = new Element(); panel.el.appendChild(child); panel.apply();
+  assert.equal(panel.el.firstChild, panel.inner, 'the raster must not paint over counters');
+  assert.equal(panel.el.children[1], child);
+  assert.match(panel.inner.style.borderImage, /9 14 9 14 fill \/ 9px 14px 9px 14px/);
+  const sprite = new E({ ...ui.DEFAULTS.image, kind: 'image', id: 'sprite', columns: 3, rows: 2 });
+  sprite.setFrame(4); assert.equal(sprite.inner.style.backgroundPosition, '50% 100%');
+  const rebuilt = new E(sprite.def, sprite); rebuilt.apply();
+  assert.equal(rebuilt.inner.style.backgroundPosition, '50% 100%');
+  const digits = new E({ ...ui.DEFAULTS.image, kind: 'image', id: 'digits', digits: 1 });
+  digits.setText('12345678'); assert.equal(digits.inner.children.length, 8);
+  assert.equal(formatUI([{ ...ui.DEFAULTS.image, kind: 'image', id: 'bad', slice: 'url(x)' }]).field, 'slice');
+});

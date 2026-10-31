@@ -1,0 +1,60 @@
+{
+  "ordered": {
+    "width": 320,
+    "height": 568
+  },
+  "innerWidth": 320,
+  "innerHeight": 568,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:63760/",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp/hud-menu-mainScreen.js",
+  "evalResult": {
+    "screen": "mainScreen",
+    "boxes": [
+      {
+        "id": "menuStart",
+        "w": 217.73333740234375,
+        "h": 44.177764892578125,
+        "x": 51.129859924316406,
+        "y": 221.99929809570312,
+        "right": 268.86319732666016,
+        "bottom": 266.17706298828125,
+        "textW": 217.73333740234375,
+        "lines": 56,
+        "cut": false
+      },
+      {
+        "id": "menuSettings",
+        "w": 217.73333740234375,
+        "h": 44.177764892578125,
+        "x": 51.129859924316406,
+        "y": 278.79931640625,
+        "right": 268.86319732666016,
+        "bottom": 322.9770812988281,
+        "textW": 217.73333740234375,
+        "lines": 56,
+        "cut": false
+      },
+      {
+        "id": "menuShop",
+        "w": 217.73333740234375,
+        "h": 44.177764892578125,
+        "x": 51.129859924316406,
+        "y": 335.59930419921875,
+        "right": 268.86319732666016,
+        "bottom": 379.7770690917969,
+        "textW": 217.73333740234375,
+        "lines": 56,
+        "cut": false
+      }
+    ],
+    "pressed": true,
+    "normal": true,
+    "disabled": true
+  },
+  "errors": [],
+  "ok": true
+}

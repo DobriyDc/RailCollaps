@@ -48,7 +48,7 @@ test('настройки: громкость обоих каналов пере�
     const elements = new Map();
     const UI = { get(id) {
       if (!elements.has(id)) elements.set(id, {
-        setText(v) { this.text = v; return this; }, setValue(v) { this.value = v; return this; },
+        setText(v) { this.text = v; return this; }, setAngle() { return this; }, setSrc() { return this; }, setValue(v) { this.value = v; return this; },
         onClick(fn) { this.click = fn; return this; }, show(v) { this.visible = v; return this; },
         setEnabled(v) { this.enabled = v; return this; },
       });

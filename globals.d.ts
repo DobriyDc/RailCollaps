@@ -46,6 +46,18 @@ interface UIRecord {
     alpha?: number;
     /** 0 — hidden until the game calls show() */
     visible?: number;
+    pressedSrc?: string;
+    disabledSrc?: string;
+    slice?: string;
+    sliceScale?: number;
+    columns?: number;
+    rows?: number;
+    frame?: number;
+    digits?: number;
+    angle?: number;
+    pivotX?: number;
+    pivotY?: number;
+    bleedTop?: number;
 }
 
 /** LOCATION_OBJECTS record (Objects.js, written by the editor). */
