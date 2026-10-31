@@ -6,7 +6,7 @@ import { loadScripts } from './browser-scripts.mjs';
 
 const page = () => loadScripts(['js/Constants.js', 'js/CollapseRules.js', 'js/CollapseScene.js']);
 
-test('красный крест стоит на полосе перед каждой опасностью — на той же границе, что и стрелка выхода', () => {
+test('перед каждой опасностью на полосе стоит развилка-выход, и оставаться на полосе небезопасно', () => {
   const p = page();
   const CollapseRun = p.get('CollapseRun'), CollapseScene = p.get('CollapseScene');
   for (const seed of [1, 2, 3, 99, 2026]) {
@@ -21,7 +21,7 @@ test('красный крест стоит на полосе перед кажд
         // The exit fork stands SWITCH_LEAD segments before the hazard; the cross is in the same row.
         const b = i - p.get('CollapseRules').SWITCH_LEAD;
         assert.ok(t.seg(b).forks.some(f => f.from === lane), `зерно ${seed}: нет развилки-выхода за ${i - b} сегм. до ${i}`);
-        assert.ok(CollapseScene.crossAt(run, b, lane), `зерно ${seed}: нет креста перед опасностью ${i} на полосе ${lane}`);
+        assert.ok(!run.forkSafe(b, lane), `зерно ${seed}: полоса ${lane} на границе ${b} считается безопасной перед опасностью ${i}`);
       }
     }
     assert.ok(hazards > 50, `зерно ${seed}: опасностей ${hazards}`);

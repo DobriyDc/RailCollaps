@@ -806,12 +806,6 @@ class CollapseScene {
 
     static laneX(l) { return (l - 1) * CollapseScene.LANE_W; }
 
-    // Red cross at fork boundary i on `lane` (GDD v3 §4): a fork leaves that lane here, and staying on
-    // it is not safe — the same CollapseRun.forkSafe that colors the arrows, asked about the lane itself.
-    static crossAt(run, i, lane) {
-        return run.track.seg(i).forks.some(f => f.from === lane) && !run.forkSafe(i, lane);
-    }
-
     // The frame of a fork's lever: waiting; a shot lever shows the sparks for hitSec seconds (`shot` ago),
     // then stands over toward its exit. Armed without a shot seen (a restored run): already over.
     static leverFrame(md, armed, shot, hitSec) {
@@ -941,8 +935,8 @@ class CollapseScene {
 
     _segView(i, run) {
         const S = CollapseScene, scene = this.scene, seg = run.track.seg(i);
-        /** @type {{ lanes: any[], forks: any[], signs: any[], crosses: any[], pickups: any[], flows: any[], set: any }} */
-        const v = { lanes: [], forks: [], signs: [], crosses: [], pickups: [], flows: [], set: null };
+        /** @type {{ lanes: any[], forks: any[], signs: any[], pickups: any[], flows: any[], set: any }} */
+        const v = { lanes: [], forks: [], signs: [], pickups: [], flows: [], set: null };
         for (let l = 0; l < 3; l++) {
             const edge = S.gapEdge(run.track, i, l);
             if (seg.gap[l] && !edge) { v.lanes.push(null); continue; }
@@ -965,12 +959,6 @@ class CollapseScene {
             sign.metadata = { at: i, from: f.from, to: f.to, badge: this._leverBadge(sign) };
             v.signs.push(sign);
         }
-        // A red cross on each lane a fork leaves from: shown when staying on that lane is a fall.
-        for (const from of new Set(seg.forks.map(f => f.from))) {
-            const cross = this.sprite('cross-sign', 'cross-sign', CollapseArt.sign.cross, 150, 128);
-            cross.metadata = { lane: from };
-            v.crosses.push(cross);
-        }
         for (let l = 0; l < 3; l++) {
             const kind = seg.pickup[l];
             if (kind) {
@@ -988,7 +976,7 @@ class CollapseScene {
     }
 
     _disposeSeg(v) {
-        for (const m of [...v.lanes, ...v.forks.flatMap(f => [f.base, f.points]), ...v.signs, ...v.crosses, ...v.pickups, ...v.flows]) {
+        for (const m of [...v.lanes, ...v.forks.flatMap(f => [f.base, f.points]), ...v.signs, ...v.pickups, ...v.flows]) {
             if (m) { if (m.material && m.material.name.startsWith('sign-')) { this._mats.delete(m.material.name); m.material.dispose(); } m.dispose(); }
         }
     }
@@ -1099,14 +1087,6 @@ class CollapseScene {
                 sign.position.set(S.laneX(md.from) + (md.to - md.from) * S.LANE_W * this.signShift, 0, z);
                 sign.scaling.set(k * mirror, k, k);
                 md.badge.setEnabled(frame !== 'hit');   // the sparks land on the disc
-            }
-            for (const c of v.crosses) {
-                const lane = c.metadata.lane;
-                const visible = lane === run.lane && i > pos - 0.2 && drop === 0 && S.crossAt(run, i, lane);
-                c.setEnabled(visible);
-                if (!visible) continue;
-                c.position.set(S.laneX(lane), 0, z);
-                c.scaling.setAll((next && next.at === i ? 1 : 0.75) * this.signScale);   // the size of the arrows beside it
             }
             for (const p of v.pickups) {
                 const taken = run.isTaken(i) && p.metadata.lane === run.lane;
