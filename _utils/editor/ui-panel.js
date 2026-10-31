@@ -27,7 +27,7 @@ const UIPanel = {
 
     // Editors of the record fields, in panel order. type: num | text | color | flag.
     FIELDS: [
-        ['x', 'num'], ['y', 'num'], ['w', 'num'], ['h', 'num'], ['src', 'text'], ['text', 'text'], ['fontSize', 'num'], ['value', 'unit'],
+        ['x', 'num'], ['y', 'num'], ['w', 'num'], ['h', 'num'], ['src', 'text'], ['pressedSrc', 'text'], ['disabledSrc', 'text'], ['slice', 'text'], ['sliceScale', 'num'], ['columns', 'num'], ['rows', 'num'], ['frame', 'num'], ['digits', 'flag'], ['angle', 'num'], ['pivotX', 'num'], ['pivotY', 'num'], ['bleedTop', 'flag'], ['text', 'text'], ['fontSize', 'num'], ['value', 'unit'],
         ['color', 'color'], ['shadow', 'color'], ['fill', 'color'], ['border', 'color'], ['radius', 'num'], ['alpha', 'unit'], ['visible', 'flag'],
     ],
     OPTIONAL: ['parent', 'stretch'],   // fields with a row of their own; empty — absent from the record

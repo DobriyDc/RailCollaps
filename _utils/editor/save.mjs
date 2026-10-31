@@ -271,20 +271,21 @@ const UI_COLOR = /^#[0-9a-fA-F]{6}$/;
 const UI_TYPES = {
   x: 'px', y: 'px', w: 'size', h: 'size', radius: 'size', fontSize: 'size', value: 'unit', alpha: 'unit',
   color: 'color', fill: 'color', border: 'color', shadow: 'color', text: 'text', visible: 'flag',
-  parent: 'id', stretch: 'stretch', src: 'image',
+  parent: 'id', stretch: 'stretch', src: 'image', pressedSrc: 'image', disabledSrc: 'image', slice: 'slice', sliceScale: 'size', columns: 'size', rows: 'size', frame: 'size', digits: 'flag', angle: 'px', pivotX: 'px', pivotY: 'px', bleedTop: 'flag',
 };
-const UI_OPTIONAL = ['parent', 'stretch'];
+const UI_OPTIONAL = ['pressedSrc', 'disabledSrc', 'parent', 'stretch', 'slice', 'sliceScale', 'columns', 'rows', 'frame', 'digits', 'text', 'angle', 'pivotX', 'pivotY', 'bleedTop'];
 const UI_STRETCH = ['h', 'v', 'both'];
 export const UI_FIELDS = {
   text: ['parent', 'x', 'y', 'text', 'fontSize', 'color', 'shadow', 'alpha', 'visible'],
   panel: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'fill', 'border', 'radius', 'alpha', 'visible'],
   bar: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'value', 'color', 'fill', 'border', 'radius', 'alpha', 'visible'],
   button: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'text', 'fontSize', 'color', 'fill', 'border', 'radius', 'alpha', 'visible'],
-  image: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'src', 'fill', 'border', 'radius', 'alpha', 'visible'],
+  image: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'src', 'pressedSrc', 'disabledSrc', 'slice', 'sliceScale', 'columns', 'rows', 'frame', 'digits', 'text', 'angle', 'pivotX', 'pivotY', 'bleedTop', 'fill', 'border', 'radius', 'alpha', 'visible'],
 };
 
 // A field value -> its literal in the file; invalid — null.
 function fmtUIField(type, v) {
+  if (type === 'slice') return /^(?:[0-9]+,){3}[0-9]+$/.test(String(v)) ? `'${v}'` : null;
   if (type === 'id') return UI_ID.test(String(v)) ? `'${v}'` : null;
   if (type === 'stretch') return UI_STRETCH.includes(v) ? `'${v}'` : null;
   if (type === 'image') return v === '' || isImagePath(String(v)) ? `'${v}'` : null;

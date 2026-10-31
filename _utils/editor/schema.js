@@ -15,7 +15,7 @@
 // The server contract version this client expects. Must match
 // EDITOR_API_VERSION in server.mjs — otherwise the editor warns that editor.bat
 // is running old code (Node reads server files only at process start).
-const EDITOR_API_VERSION = 21;
+const EDITOR_API_VERSION = 22;
 
 // Ink edges and outline levels: 0 — off, 1 — main objects (actor), 2 — and environment (prop).
 const SCHEMA_LEVELS = [
@@ -321,6 +321,10 @@ const KIT_SCHEMA = [
               label: { en: 'Clip cross-fade (s)', ru: 'Переход между клипами (с)' },
               hint: { en: 'How long a .glb model blends from one animation clip to the next (idle → run). 0 switches instantly',
                       ru: 'За сколько .glb-модель перетекает из одного клипа анимации в другой (idle → run). 0 — мгновенно' } },
+            { name: 'UI_GAUGE_MIN_DEG', min: -180, max: 0, step: 1, label: { en: 'Gauge start (deg)', ru: 'Начало шкалы (град)' } },
+            { name: 'UI_GAUGE_MAX_DEG', min: 0, max: 180, step: 1, label: { en: 'Gauge end (deg)', ru: 'Конец шкалы (град)' } },
+            { name: 'UI_PORTRAIT_TENSE_GAP', min: 0, max: 1, step: 0.05, label: { en: 'Tense chase gap share', ru: 'Доля отрыва для тревоги' } },
+            { name: 'UI_PORTRAIT_SEC', min: 0, max: 3, step: 0.1, label: { en: 'Portrait reaction (s)', ru: 'Реакция портрета (с)' } },
             { name: 'UI_REF_HEIGHT', min: 0, max: 2160, step: 10,
               label: { en: 'UI reference height (px)', ru: 'Опорная высота UI (px)' },
               hint: { en: 'The screen height the UI layout is drawn for: on other screens the whole UI scales with the height. 0 — no scaling, layout numbers are CSS px',

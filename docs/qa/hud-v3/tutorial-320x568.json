@@ -1,0 +1,30 @@
+{
+  "ordered": {
+    "width": 320,
+    "height": 568
+  },
+  "innerWidth": 320,
+  "innerHeight": 568,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:54983/",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp/hud-tutorial.js",
+  "evalResult": {
+    "maxTextHeight": 28.399993896484375,
+    "box": {
+      "x": 0,
+      "y": 100.06666564941406,
+      "width": 319.9930419921875,
+      "height": 45.75555419921875,
+      "top": 100.06666564941406,
+      "right": 319.9930419921875,
+      "bottom": 145.8222198486328,
+      "left": 0
+    },
+    "viewTop": 0.4865414794062225
+  },
+  "errors": [],
+  "ok": true
+}

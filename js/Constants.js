@@ -261,3 +261,9 @@ const WORLD3D_TOON_INK_ANGLE = 40;      // °: an edge is drawn if the faces are
 const WORLD3D_TOON_OUTLINE = 2;         // 0 — none, 1 — main objects, 2 — environment too (only when WORLD3D_TOON = 1)
 const WORLD3D_TOON_OUTLINE_ACTOR_WIDTH = 1;   // screen px: main objects outline
 const WORLD3D_TOON_OUTLINE_PROP_WIDTH = 1;  // screen px: environment outline (there is a lot of it in the frame — thinner)
+
+// Dashboard reaction hold, in seconds of active run time.
+const UI_PORTRAIT_SEC = 0.9;
+const UI_GAUGE_MIN_DEG = -120;
+const UI_GAUGE_MAX_DEG = 120;
+const UI_PORTRAIT_TENSE_GAP = 0.5;

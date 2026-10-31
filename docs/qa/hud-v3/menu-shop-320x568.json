@@ -1,0 +1,36 @@
+{
+  "ordered": {
+    "width": 320,
+    "height": 568
+  },
+  "innerWidth": 320,
+  "innerHeight": 568,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:58599/",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp/hud-menu-shopScreen.js",
+  "evalResult": {
+    "screen": "shopScreen",
+    "boxes": [
+      {
+        "id": "shopBack",
+        "w": 217.73333740234375,
+        "h": 44.17779541015625,
+        "x": 51.129859924316406,
+        "y": 372.67706298828125,
+        "right": 268.86319732666016,
+        "bottom": 416.8548583984375,
+        "textW": 217.73333740234375,
+        "lines": 56,
+        "cut": false
+      }
+    ],
+    "pressed": true,
+    "normal": true,
+    "disabled": true
+  },
+  "errors": [],
+  "ok": true
+}

@@ -29,15 +29,19 @@ const UI = {
     ANCHORS: ['top-left', 'top-center', 'top-right', 'middle-left', 'middle-center', 'middle-right',
         'bottom-left', 'bottom-center', 'bottom-right'],
     KINDS: ['text', 'panel', 'bar', 'button', 'image'],
+    DIGITS: ['assets/ui/hud_v3/digit_0.png', 'assets/ui/hud_v3/digit_1.png', 'assets/ui/hud_v3/digit_2.png', 'assets/ui/hud_v3/digit_3.png', 'assets/ui/hud_v3/digit_4.png', 'assets/ui/hud_v3/digit_5.png', 'assets/ui/hud_v3/digit_6.png', 'assets/ui/hud_v3/digit_7.png', 'assets/ui/hud_v3/digit_8.png', 'assets/ui/hud_v3/digit_9.png'],
     FONT: 'system-ui, "Segoe UI", Roboto, sans-serif',
 
+    // Images: slice is left,top,right,bottom in source pixels; sliceScale sets the drawn edge size.
+    // columns/rows/frame crop a sheet; digits uses the raster numerals; angle rotates around pivotX/Y (%).
+    // bleedTop extends only the artwork through the Telegram safe area, keeping children below it.
     // Fields of a record by kind and their defaults — a new element in the editor starts from them.
     DEFAULTS: {
         text: { parent: '', anchor: 'top-left', x: 20, y: 20, text: 'Text', fontSize: 24, color: '#ffffff', shadow: '#000000', alpha: 1, visible: 1 },
         panel: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 80, stretch: '', fill: '#10202c', border: '', radius: 10, alpha: 0.7, visible: 1 },
         bar: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 18, stretch: '', value: 0.6, color: '#5ad05a', fill: '#10202c', border: '#ffffff', radius: 9, alpha: 1, visible: 1 },
         button: { parent: '', anchor: 'bottom-center', x: 0, y: 40, w: 180, h: 48, stretch: '', text: 'Button', fontSize: 20, color: '#ffffff', fill: '#2a6fb0', border: '', radius: 10, alpha: 1, visible: 1 },
-        image: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 64, h: 64, stretch: '', src: '', fill: '', border: '', radius: 0, alpha: 1, visible: 1 },
+        image: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 64, h: 64, stretch: '', src: '', pressedSrc: '', disabledSrc: '', slice: '', sliceScale: 1, columns: 1, rows: 1, frame: 0, digits: 0, text: '', angle: 0, pivotX: 50, pivotY: 50, bleedTop: 0, fill: '', border: '', radius: 0, alpha: 1, visible: 1 },
     },
 
     /** @type {HTMLElement | null} */
@@ -59,7 +63,7 @@ const UI = {
         this.canvas = canvas;
         const root = this.root = document.createElement('div');
         root.className = 'arc-ui';
-        Object.assign(root.style, { position: 'absolute', overflow: 'hidden', pointerEvents: 'none', transformOrigin: '0 0',
+        Object.assign(root.style, { position: 'absolute', overflow: 'visible', pointerEvents: 'none', transformOrigin: '0 0',
             fontFamily: this.FONT, userSelect: 'none', webkitUserSelect: 'none' });
         (canvas.parentElement || document.body).appendChild(root);
         if (typeof ResizeObserver !== 'undefined') {
@@ -226,6 +230,13 @@ class UIElement {
         this._click = prev ? prev._click : null;
         this._enabled = prev ? prev._enabled : true;
         this._src = prev ? prev._src : null;
+        this._frame = prev ? prev._frame : null;
+        this._angle = prev ? prev._angle : null;
+        this._pressed = false;
+        for (const name of ['pointerdown', 'pointerup', 'pointercancel', 'pointerleave']) this.el.addEventListener(name, () => {
+            this._pressed = name === 'pointerdown' && this._enabled;
+            this._skins();
+        });
         this.el.addEventListener('click', (e) => {
             if (UI.editing || !this._enabled || this.def.kind !== 'button' || !this._click) return;
             e.stopPropagation();
@@ -241,9 +252,18 @@ class UIElement {
     // Image file: a literal path, so the builder's scanner sees it.
     setSrc(src) { this._src = String(src); this.apply(); return this; }
 
+    setFrame(frame) { this._frame = Math.max(0, Math.floor(Number(frame) || 0)); this.apply(); return this; }
+
+    setAngle(angle) { this._angle = Number(angle) || 0; this.apply(); return this; }
+
     show(on) { this._shown = on !== false; this.apply(); return this; }
 
-    setEnabled(on) { this._enabled = on !== false; this.apply(); return this; }
+    setEnabled(on) { this._enabled = on !== false; this._skins(); this.apply(); return this; }
+
+    _skins() {
+        if (this.def.kind !== 'button') return;
+        for (const child of UI.elements.values()) if (child.def.parent === this.def.id && child.def.kind === 'image') child.apply();
+    }
 
     onClick(fn) { this._click = fn || null; return this; }
 
@@ -284,8 +304,8 @@ class UIElement {
         const label = d.kind === 'text' || d.kind === 'button';
         if (label || d.kind === 'bar' || d.kind === 'image') {
             if (!this.inner) {
-                this.inner = document.createElement(d.kind === 'image' ? 'img' : 'div');
-                this.el.appendChild(this.inner);
+                this.inner = document.createElement('div');
+                this.el.insertBefore(this.inner, this.el.firstChild);
             }
         } else if (this.inner) {
             this.inner.remove();
@@ -300,6 +320,9 @@ class UIElement {
                 s.width = 'max-content';
                 s.maxWidth = '100%';
             }
+            t.position = 'relative';
+            t.zIndex = '1';
+            t.pointerEvents = 'none';
             t.whiteSpace = 'pre-wrap';
             t.overflowWrap = 'anywhere';
             t.fontSize = px(d.fontSize || 20);
@@ -314,14 +337,48 @@ class UIElement {
             this.inner.textContent = '';
             this.inner.style.cssText = 'height: 100%; width: ' + (v * 100) + '%; background: ' + (d.color || '#5ad05a') + ';';
         } else if (d.kind === 'image') {
-            const src = this._src != null ? this._src : d.src || '';
-            // Only on a change: setting src again restarts the load and blinks the picture.
-            if (this.inner.dataset.src !== src) {
-                this.inner.dataset.src = src;
-                if (src) this.inner.setAttribute('src', UI.assetBase + src);
-                else this.inner.removeAttribute('src');
+            const parent = UI.parentOf(d);
+            const src = parent && !parent._enabled && d.disabledSrc ? d.disabledSrc
+                : parent && parent._pressed && d.pressedSrc ? d.pressedSrc : this._src != null ? this._src : d.src || '';
+            const t = this.inner.style;
+            t.cssText = 'position: absolute; inset: 0; image-rendering: pixelated; pointer-events: none; box-sizing: border-box;';
+            if (d.bleedTop) {
+                s.overflow = 'visible';
+                t.top = 'calc(-1 * (var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)) / ' + UI.scale() + ')';
             }
-            this.inner.style.cssText = 'display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; pointer-events: none;';
+            const angle = this._angle != null ? this._angle : d.angle || 0;
+            t.transform = 'rotate(' + angle + 'deg)';
+            t.transformOrigin = (d.pivotX == null ? 50 : d.pivotX) + '% ' + (d.pivotY == null ? 50 : d.pivotY) + '%';
+            if (d.digits) {
+                const text = this._text != null ? this._text : d.text || '0';
+                if (this.inner.dataset.text !== text) {
+                    this.inner.dataset.text = text;
+                    this.inner.textContent = '';
+                    for (const digit of text.replace(/[^0-9]/g, '')) {
+                        const img = document.createElement('img');
+                        img.src = UI.assetBase + UI.DIGITS[Number(digit)];
+                        img.alt = '';
+                        img.style.cssText = 'height: 100%; min-width: 0; object-fit: contain; image-rendering: pixelated;';
+                        this.inner.appendChild(img);
+                    }
+                }
+                t.display = 'flex';
+                t.justifyContent = 'flex-end';
+                this.el.setAttribute('aria-label', text);
+            } else if (d.slice) {
+                const [left, top, right, bottom] = d.slice.split(',').map(Number);
+                const slice = [top, right, bottom, left];
+                t.borderStyle = 'solid';
+                t.borderWidth = slice.map(v => v * (d.sliceScale || 1) + 'px').join(' ');
+                t.borderImage = 'url("' + UI.assetBase + src + '") ' + slice.join(' ') + ' fill / ' + slice.map(v => v * (d.sliceScale || 1) + 'px').join(' ') + ' / 0 stretch';
+            } else {
+                const columns = Math.max(1, d.columns || 1), rows = Math.max(1, d.rows || 1);
+                const frame = Math.floor(this._frame != null ? this._frame : d.frame || 0) % (columns * rows);
+                t.backgroundImage = src ? 'url("' + UI.assetBase + src + '")' : '';
+                t.backgroundRepeat = 'no-repeat';
+                t.backgroundSize = columns > 1 || rows > 1 ? columns * 100 + '% ' + rows * 100 + '%' : '100% 100%';
+                t.backgroundPosition = (columns > 1 ? (frame % columns) * 100 / (columns - 1) : 0) + '% ' + (rows > 1 ? Math.floor(frame / columns) * 100 / (rows - 1) : 0) + '%';
+            }
         }
     }
 }

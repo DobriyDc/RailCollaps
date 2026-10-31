@@ -1,0 +1,56 @@
+{
+  "ordered": {
+    "width": 1280,
+    "height": 800
+  },
+  "innerWidth": 1280,
+  "innerHeight": 800,
+  "devicePixelRatio": 1,
+  "title": "ArcEngine — editor",
+  "url": "http://localhost:9467/_utils/editor/",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp/hud-editor.js",
+  "evalResult": {
+    "api": 22,
+    "saved": {
+      "ok": true,
+      "count": 119,
+      "backup": "_utils/.backups/UILayout-2026-10-31-17-12-19.js"
+    },
+    "edited": true,
+    "rotated": true,
+    "fields": [
+      "x",
+      "y",
+      "w",
+      "h",
+      "src",
+      "pressedSrc",
+      "disabledSrc",
+      "slice",
+      "sliceScale",
+      "columns",
+      "rows",
+      "frame",
+      "digits",
+      "angle",
+      "pivotX",
+      "pivotY",
+      "bleedTop",
+      "text",
+      "fontSize",
+      "value",
+      "color",
+      "shadow",
+      "fill",
+      "border",
+      "radius",
+      "alpha",
+      "visible"
+    ],
+    "images": 56
+  },
+  "errors": [],
+  "ok": true
+}
