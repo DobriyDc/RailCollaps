@@ -22,7 +22,7 @@ function dodge(run, R) {
     const to = next.to.find(l => run.forkSafe(next.at, l));
     if (to !== undefined) run.shoot(next.at, to);
   }
-  for (const d of run.leaping()) run.shootDemon(d.side);
+  for (const d of run.shootable()) run.shootDemon(d.side);
 }
 
 // To the first stop, or a failed test when the run ends before it.
