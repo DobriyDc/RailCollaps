@@ -131,7 +131,7 @@ class Game {
     // (`follow` — the share of the train's offset it takes), the farthest that lane's edge can get.
     static frameTable(cam, camX, follow = 0) {
         const S = CollapseScene, out = {};
-        for (const [body, b] of Object.entries(Game.BODIES)) {
+        for (const [body, b] of Object.entries(S.BODIES)) {
             out[body] = [0, 1, 2].map(l => {
                 const x = S.laneX(l);
                 return Game.frameEntry(Object.assign({}, cam, { x: camX === null ? x * follow : camX }), x, b.hw, b.top);
@@ -322,7 +322,8 @@ class Game {
         }
     }
 
-    // The camera as Game.frameEntry reads it; the box between the plates, counted once per screen size.
+    // The camera as Game.frameEntry reads it, tilted to the top plate; the box between the plates,
+    // counted once per screen size and per run.
     _frameNow() {
         const scene = this.scene, cam = scene.view.camera, engine = scene.engine;
         const size = engine.getRenderWidth() + 'x' + engine.getRenderHeight();
@@ -330,8 +331,10 @@ class Game {
             const box = scene.canvas.getBoundingClientRect();
             const edge = (id, side, def) => { const e = UI.get(id); return e ? e.el.getBoundingClientRect()[side] : def; };
             const ndc = y => 1 - 2 * (y - box.top) / box.height;
+            const top = ndc(edge('frameTop', 'bottom', box.top));
+            scene.fitFrame(top);
             const view = { y: scene.camY, z: cam.position.z, pitch: Math.abs(cam.rotation.x), fov: cam.fov, aspect: engine.getAspectRatio(cam),
-                top: ndc(edge('frameTop', 'bottom', box.top)), bottom: ndc(edge('frameBottom', 'top', box.bottom)) };
+                top, bottom: ndc(edge('frameBottom', 'top', box.bottom)) };
             this._frame = { key: size + ':', cam: view, enter: null, reach: Game.frameTable(view, null, scene.camFollow) };
         }
         const f = this._frame, key = size + ':' + Math.round(scene.camX / 8);
@@ -377,12 +380,3 @@ Game.ICONS = {
     rescue: 'assets/px/hud/rescue.png',
 };
 Game.ICON_IDS = ['iconWallLeft', 'iconLane0', 'iconLane0Next', 'iconLane1', 'iconLane1Next', 'iconLane2', 'iconLane2Next', 'iconWallRight'];
-
-// What of each object the frame can catch: half width and top, world units. These are the sizes of
-// CollapseScene._segView: a hole as wide as its lane, the lava flow (170 x 760 from y 120), a pickup
-// (90 x 135 from y 6, its bob 10).
-Game.BODIES = {
-    gap: { hw: CollapseScene.LANE_W / 2, top: 0 },
-    lava: { hw: 85, top: 880 },
-    pickup: { hw: 45, top: 151 },
-};

@@ -1,0 +1,95 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:60751/",
+  "browser": "msedge.exe",
+  "waitMs": 2000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-default/b857e4bf-0000-4b07-81b3-63e1ad980537/scratchpad/measure.js",
+  "evalResult": {
+    "w": 390,
+    "h": 844,
+    "render": [
+      166,
+      360
+    ],
+    "plateB": 77.36666870117188,
+    "plateT": 731.4666748046875,
+    "safe": 0,
+    "art": {
+      "w": 139,
+      "h": 200,
+      "top": 7,
+      "bot": 197,
+      "left": 16,
+      "right": 124
+    },
+    "train": [
+      {
+        "lane": 0,
+        "top": 86.1,
+        "bottom": 409.3,
+        "left": 21.9,
+        "right": 219.3,
+        "clearTop": 8.8,
+        "clearBottom": 322.2,
+        "clearLeft": 17.2,
+        "clearRight": 166
+      },
+      {
+        "lane": 1,
+        "top": 86.1,
+        "bottom": 409.3,
+        "left": 96.1,
+        "right": 287.5,
+        "clearTop": 8.8,
+        "clearBottom": 322.2,
+        "clearLeft": 91.4,
+        "clearRight": 97.8
+      },
+      {
+        "lane": 2,
+        "top": 86.1,
+        "bottom": 409.3,
+        "left": 170.3,
+        "right": 355.7,
+        "clearTop": 8.8,
+        "clearBottom": 322.2,
+        "clearLeft": 165.6,
+        "clearRight": 29.6
+      }
+    ],
+    "sign": {
+      "n": 45,
+      "minSeg": 3.09375,
+      "medSeg": 3.09375,
+      "maxSeg": 3.09375,
+      "min45": 0.688,
+      "min675": 0.458,
+      "med45": 0.688,
+      "med675": 0.458,
+      "worst": {
+        "dist": 3.09375,
+        "lane": 2,
+        "to": 1
+      }
+    },
+    "floorSeg": 2.6875,
+    "cross": [
+      12.3,
+      13.4
+    ],
+    "cam": {
+      "y": 450,
+      "z": 1467,
+      "pitch": 0.3068
+    }
+  },
+  "errors": [],
+  "ok": true
+}

@@ -96,3 +96,25 @@ test('поезд едет по нарисованному ответвлению
     assert.ok(row >= 0 && row <= S.SW_PX, `flip ${flip}: строка ${row} вне растра`);
   }
 });
+
+test('поезд целиком между плашками и рейками: шесть экранов, три полосы, безопасная зона 0, 48 и 92 px', () => {
+  const p = loadScripts(['js/Constants.js', 'js/UILayout.js', 'js/CollapseRules.js', 'js/CollapseScene.js']);
+  const S = p.get('CollapseScene'), share = id => p.get('UI_LAYOUT').find(d => d.id === id), ref = p.get('UI_REF_HEIGHT');
+  const y = p.get('COLLAPSE_CAM_Y'), z = p.get('COLLAPSE_CAM_Z'), fov = p.get('COLLAPSE_CAM_FOV_DEG') * Math.PI / 180, t = Math.tan(fov / 2);
+  const HW = 122;  // the widest run frame of the loco art, world units
+  for (const [w, h] of [[320, 568], [360, 640], [360, 800], [390, 844], [412, 915], [430, 932]]) {
+    for (const inset of [0, 48, 92]) {
+      const top = 1 - 2 * (share('frameTop').h * h / ref + inset) / h, bottom = -1 + 2 * share('frameBottom').h / ref;
+      const pitch = S.fitPitch(y, z, fov, S.LOCO_TOP, top - 2 * p.get('COLLAPSE_CAM_TOP_GAP'));
+      const cp = Math.cos(pitch), sp = Math.sin(pitch);
+      const v = at => (z * sp - (y - at) * cp) / ((z * cp + (y - at) * sp) * t);
+      assert.ok(v(S.LOCO_TOP) <= top, `${w}x${h}, отступ ${inset}: труба под плашкой`);
+      assert.ok(v(0) >= bottom, `${w}x${h}, отступ ${inset}: колёса под плашкой`);
+      const side = 1 - 2 * share('frameLeft').w * h / ref / w, half = (z * cp + y * sp) * t * w / h;
+      for (const l of [0, 1, 2]) {
+        const x = S.laneX(l), cam = x * p.get('COLLAPSE_CAM_FOLLOW');
+        assert.ok((Math.abs(x - cam) + HW) / half <= side, `${w}x${h}, полоса ${l}: паровоз за краем кадра`);
+      }
+    }
+  }
+});

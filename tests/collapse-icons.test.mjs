@@ -11,11 +11,11 @@ const SIZES = [[390, 844], [360, 640]];
 // The camera of Constants.js and the plates of UILayout.js, as Game._frameNow reads them from the page.
 function camera(p, w, h) {
   const height = id => p.get('UI_LAYOUT').find(d => d.id === id).h / p.get('UI_REF_HEIGHT');
+  const y = p.get('COLLAPSE_CAM_Y'), z = p.get('COLLAPSE_CAM_Z'), fov = p.get('COLLAPSE_CAM_FOV_DEG') * Math.PI / 180;
+  const top = 1 - 2 * height('frameTop'), S = p.get('CollapseScene');
   return {
-    y: p.get('COLLAPSE_CAM_Y'), z: p.get('COLLAPSE_CAM_Z'),
-    pitch: Math.atan2(p.get('COLLAPSE_CAM_Y'), p.get('COLLAPSE_CAM_Z') - p.get('COLLAPSE_CAM_LOOK_Z')),
-    fov: p.get('COLLAPSE_CAM_FOV_DEG') * Math.PI / 180, aspect: w / h,
-    top: 1 - 2 * height('frameTop'), bottom: -1 + 2 * height('frameBottom'),
+    y, z, pitch: S.fitPitch(y, z, fov, S.LOCO_TOP, top - 2 * p.get('COLLAPSE_CAM_TOP_GAP')),
+    fov, aspect: w / h, top, bottom: -1 + 2 * height('frameBottom'),
   };
 }
 

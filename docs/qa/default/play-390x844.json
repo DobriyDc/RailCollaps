@@ -1,0 +1,24 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:50758/",
+  "browser": "msedge.exe",
+  "waitMs": 2500,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-default/b857e4bf-0000-4b07-81b3-63e1ad980537/scratchpad/play.js",
+  "evalResult": {
+    "mode": "play",
+    "before": 0.3672,
+    "pitch": 0.3068,
+    "plate": 77.4,
+    "locoTop": 86,
+    "clear": 8.6
+  },
+  "errors": [],
+  "ok": true
+}
