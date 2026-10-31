@@ -29,8 +29,60 @@ const Lang = {
         "en": "Choose a mode"
     },
     "tutorial": {
-        "ru": "Обучение · скоро",
-        "en": "Tutorial · soon"
+        "ru": "Обучение",
+        "en": "Tutorial"
+    },
+    "tutorial.progress": {
+        "ru": "Обучение {value} / {total}",
+        "en": "Tutorial {value} / {total}"
+    },
+    "tutorial.retry": {
+        "ru": "Ещё раз.",
+        "en": "Once more."
+    },
+    "tutorial.sign": {
+        "ru": "Тап по табличке — машинист стреляет по стрелке, и поезд меняет полосу",
+        "en": "Tap the sign: the driver shoots the switch and the train changes lane"
+    },
+    "tutorial.ammo": {
+        "ru": "Выстрел стоит патрон, без патронов стрелку не перевести. Стреляй и забери ящик",
+        "en": "A shot costs a cartridge; no ammo, no switching. Shoot and grab the crate"
+    },
+    "tutorial.cross": {
+        "ru": "Красный крест: на этой полосе впереди опасность. Иконки внизу покажут какая",
+        "en": "A red cross: danger ahead on this lane. The icons below show what is coming"
+    },
+    "tutorial.gap": {
+        "ru": "Провал: колеи нет. Сверни заранее, иначе поезд упадёт",
+        "en": "A gap: the track is gone. Switch lanes early or the train falls"
+    },
+    "tutorial.lava": {
+        "ru": "Лава льётся сверху, на этой полосе не проехать. Сверни",
+        "en": "Lava pours from above and blocks this lane. Switch"
+    },
+    "tutorial.slow": {
+        "ru": "Замедлитель: больше времени на решение, но обвал подходит ближе",
+        "en": "Decelerator: more time to decide, but the collapse gets closer"
+    },
+    "tutorial.shield": {
+        "ru": "Щит прощает один удар: поезд пройдёт сквозь лаву",
+        "en": "A shield forgives one hit: the train goes through the lava"
+    },
+    "tutorial.rescue": {
+        "ru": "Спасение вытаскивает из провала на целую полосу",
+        "en": "A rescue pulls the train out of a gap onto a whole lane"
+    },
+    "tutorial.demon": {
+        "ru": "Демон из стены! Тап по нему — выстрел, иначе он доберётся до кабины",
+        "en": "A demon out of the wall! Tap it to shoot before it reaches the cab"
+    },
+    "tutorial.collapse": {
+        "ru": "Обвал догоняет! Сверни за ускорителем: он оторвёт поезд от обвала",
+        "en": "The collapse is catching up! Switch to the accelerator and pull away"
+    },
+    "tutorial.done": {
+        "ru": "Обучение пройдено! Дальше — бесконечный забег",
+        "en": "Tutorial complete! The endless run is next"
     },
     "endless": {
         "ru": "Бесконечный режим",

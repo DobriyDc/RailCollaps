@@ -75,7 +75,7 @@ const GAME_STEP_SEC = 0.35;             // s: between footstep sounds while the 
 
 // --- RAIL LINK: COLLAPSE (CollapseRules.js — the run, CollapseScene.js — the tunnel). Distance is
 // counted in track SEGMENTS; the first numbers of the prototype, tuned in playtests (GDD v3 §8) ---
-const COLLAPSE_RULES_VERSION = 1;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
+const COLLAPSE_RULES_VERSION = 2;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
 const COLLAPSE_SEG_METERS = 10;         // m of distance shown per segment
 const COLLAPSE_SPEED = 2.2;             // segments/s: train speed at the start
 const COLLAPSE_SPEED_GROWTH = 0.0025;   // segments/s added per segment travelled
@@ -119,19 +119,26 @@ const COLLAPSE_LAVA_GROWTH = 0.1;       // lava share added at full difficulty; 
 const COLLAPSE_HAZARD_MID = 0.5;        // share of hazards on the middle lane (1/3 — every lane alike); a train without taps stays there
 const COLLAPSE_HAZARD_REWARD = 0.5;     // chance of a pickup on a safe lane beside a gap of 2+ segments
 const COLLAPSE_ODDS_AMMO = 0.34;        // relative odds of each pickup kind
-const COLLAPSE_ODDS_BOOST = 0.2;
+const COLLAPSE_ODDS_BOOST = 0.07;       // the shop sells accelerators and rescues (card 28): on the track 2.5–3 times rarer than before
+const COLLAPSE_ODDS_BOOST_EMPTY = 0.13; // odds of nothing where an accelerator used to fall: the other kinds keep their places and their rate per km
 const COLLAPSE_ODDS_SLOW = 0.16;
 const COLLAPSE_ODDS_SHIELD = 0.15;
-const COLLAPSE_ODDS_RESCUE = 0.15;
+const COLLAPSE_ODDS_RESCUE = 0.05;
+const COLLAPSE_ODDS_RESCUE_EMPTY = 0.1; // the same where a rescue used to fall
+const COLLAPSE_TUTORIAL_FRONT_MULT = 0.7; // tutorial: the collapse's own speed, share of the usual one
+const COLLAPSE_TUTORIAL_FRONT_GAP = 8;  // segments: tutorial: the collapse stays this far behind (softer than COLLAPSE_FRONT_MAX_GAP)
+const COLLAPSE_TUTORIAL_RUSH = 4;       // segments/s: tutorial: the collapse on its step, until the accelerator is taken
 const COLLAPSE_OVER_DELAY_SEC = 0.7;    // s: the fall plays before the end-of-run dialog
 const COLLAPSE_ICON_LEAD_SEC = 1;       // s: an icon over the bottom plate lights at least this long before its object enters the frame
-const COLLAPSE_RENDER_HEIGHT = 640;     // px: the tunnel is rendered this tall and scaled up without smoothing
-const COLLAPSE_CAM_Y = 650;             // world units: camera height above the rails
-const COLLAPSE_CAM_Z = 3000;            // world units: camera distance in front of the train
-const COLLAPSE_CAM_LOOK_Z = 920;        // world units: the camera looks at this rail point in front of the train
+const COLLAPSE_RENDER_HEIGHT = 360;     // px: the tunnel is rendered this tall and scaled up without smoothing (docs/STYLE.md)
+const COLLAPSE_CAM_Y = 450;             // world units: camera height above the rails
+const COLLAPSE_CAM_Z = 1467;            // world units: camera distance in front of the train
+const COLLAPSE_CAM_TOP_GAP = 0.01;      // share of the frame's height between the top of the loco and the top plate; the camera tilts to this gap on every screen
+const COLLAPSE_CAM_SIGN = 0.3;          // where a fork sign stands from its lane toward the next one, share of the lane step: the close camera sees a narrow strip of the track, and a sign out at the side enters late
+const COLLAPSE_CAM_FRONT_Y = -350;      // world units: the collapse front plate goes down this far: the close camera sees little of the height, and its arch would stay above the frame
 const COLLAPSE_CAM_FOV_DEG = 40;        // vertical field of view of the tunnel camera (narrow: the side lanes stay in a 9:19.5 frame)
-const COLLAPSE_CAM_FOLLOW = 0.5;        // 0..1: share of the train's sideways offset the camera follows (0 — fixed on the center lane)
-const COLLAPSE_CAM_FOLLOW_RATE = 5;     // 1/s: how fast the camera eases toward that offset (larger — stiffer)
+const COLLAPSE_CAM_FOLLOW = 0.7;        // 0..1: share of the train's sideways offset the camera follows (0 — fixed on the center lane)
+const COLLAPSE_CAM_FOLLOW_RATE = 8;     // 1/s: how fast the camera eases toward that offset (larger — stiffer)
 const COLLAPSE_FOG_START = 1200;         // world units behind the train where the tunnel starts to fade into the dark
 const COLLAPSE_FOG_END = 5600;          // world units behind the train where it is gone (the vanishing point stays dark)
 const COLLAPSE_BRICK_LEVEL = 1.25;      // brightness of the walls, vault and arch ribs over their pixel art (1 — as drawn)
@@ -146,13 +153,14 @@ const COLLAPSE_FX_SHAKE = 24;           // world units: camera shake of a demon 
 const COLLAPSE_FX_SHAKE_SEC = 0.35;     // s: camera shake of a demon hit
 const COLLAPSE_FX_FLASH_SEC = 0.15;     // s: the red screen flash of a demon hit (element hitFlash in UILayout.js)
 const COLLAPSE_FX_HEAT_SEC = 0.5;       // s: the loco glows red-hot after lava from above
-// The owner's style test (card 18, CollapseLook.js): ?look=pixel|lowpoly|ink. Temporary: the winner stays.
-const COLLAPSE_LOOK_PIXEL_HEIGHT = 360; // px: the pixel look is rendered this tall
+// The look (CollapseLook.js, docs/STYLE.md): light in the tunnel and the final palette pass.
 const COLLAPSE_LOOK_DITHER = 0.09;      // 0..1: strength of the ordered dithering before the palette
 const COLLAPSE_LOOK_AMBIENT = 0.3;      // light that reaches every surface (the rest comes from lava and torches)
 const COLLAPSE_LOOK_BOUNCE = 0.35;      // share of the lava's light thrown back from below on what faces down or sideways
-const COLLAPSE_LOOK_LAMP_POWER = 1.2;   // strength of the loco's headlamp on the track ahead
-const COLLAPSE_LOOK_LAMP_RADIUS = 2000; // world units: where the headlamp's light ends
+const COLLAPSE_LOOK_LAMP_POWER = 1.8;   // strength of the loco's headlamp on the track ahead
+const COLLAPSE_LOOK_LAMP_RADIUS = 2400; // world units: where the headlamp's light ends
+const COLLAPSE_LOOK_LAMP_Y = 600;       // world units: the headlamp's height above the rails
+const COLLAPSE_LOOK_LAMP_Z = 700;       // world units: the headlamp's place on the track ahead of the train
 const LOOK_LAMP_COLOR = 0xfff2dc;       // headlamp color: nearly white, it shows the iron of the loco as it is
 const COLLAPSE_LOOK_FLICKER = 0.18;     // 0..1: how much the flames breathe
 const COLLAPSE_LOOK_TORCH_POWER = 1.4;  // strength of a torch
@@ -167,28 +175,6 @@ const COLLAPSE_LOOK_STREAM_POWER = 1.3; // strength of a lava stream from the va
 const COLLAPSE_LOOK_STREAM_RADIUS = 760; // world units: where a stream's light ends
 const COLLAPSE_LOOK_GAP_POWER = 1.1;    // strength of the magma seen in a gap
 const COLLAPSE_LOOK_GAP_RADIUS = 560;   // world units: where a gap's light ends
-const COLLAPSE_LOOK_INK_BANDS = 4;      // tones of light in the ink look (2..6)
-const COLLAPSE_LOOK_LOWPOLY_TEXEL = 4;  // art pixels per coarse texel in the lowpoly look (the turnouts keep theirs: their rails are a signal)
-const COLLAPSE_LOOK_LOWPOLY_FOG_START = 300; // world units behind the train: lowpoly fog starts
-const COLLAPSE_LOOK_LOWPOLY_FOG_END = 3000;  // world units behind the train: lowpoly fog is full
-// The owner's camera test (card 20, CollapseLook.camera): ?cam=1.3|1.6|2 — the train that many times
-// larger. Height, distance, look-at point, how far the front plate goes down so its arch stays in the frame, how far a fork sign stands from its lane (share of the lane step: a close
-// camera sees a narrow strip of the track, and a sign out at the side enters the frame late). Temporary: the winner goes to COLLAPSE_CAM_*.
-const COLLAPSE_CAM_V13_Y = 600;
-const COLLAPSE_CAM_V13_Z = 2284;
-const COLLAPSE_CAM_V13_LOOK_Z = 445;
-const COLLAPSE_CAM_V13_FRONT_Y = -120;
-const COLLAPSE_CAM_V13_SIGN = 0.5;
-const COLLAPSE_CAM_V16_Y = 520;
-const COLLAPSE_CAM_V16_Z = 1847;
-const COLLAPSE_CAM_V16_LOOK_Z = 344;
-const COLLAPSE_CAM_V16_FRONT_Y = -270;
-const COLLAPSE_CAM_V16_SIGN = 0.5;
-const COLLAPSE_CAM_V20_Y = 450;
-const COLLAPSE_CAM_V20_Z = 1467;
-const COLLAPSE_CAM_V20_LOOK_Z = 178;
-const COLLAPSE_CAM_V20_FRONT_Y = -350;
-const COLLAPSE_CAM_V20_SIGN = 0.3;
 
 // --- LEADERBOARD: the shared table on a Cloudflare Worker (js/Leaderboard.js — the game,
 // server/leaderboard — the function; tools/build-worker.mjs bakes these numbers into it, so a change
