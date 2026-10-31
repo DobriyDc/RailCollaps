@@ -1,0 +1,115 @@
+"""Reproduce the approved world pack from retained image_gen drafts; Pillow only."""
+from pathlib import Path
+from PIL import Image, ImageChops
+import json, re, sys, hashlib
+
+ROOT = Path(__file__).resolve().parents[2]
+SRC = ROOT / 'art_src/world_v3'
+TEX = ROOT / 'assets/textures/world'
+SPR = ROOT / 'assets/sprites/world'
+PAL = [tuple(bytes.fromhex(x)) for x in re.search(r'```\s*([\s\S]*?)```', (ROOT/'docs/STYLE.md').read_text(encoding='utf-8'))[1].split()]
+NAMES = ['brick_wall','vault_brick','arch_rib','floor_ballast','track'] + [f'lava_{i}' for i in range(4)]
+ENTRIES = []
+
+def quant(im, indices=None):
+    pal = PAL if indices is None else [PAL[i] for i in indices]
+    rgba=im.convert('RGBA'); out=Image.new('RGBA', im.size); cache={}
+    for p in set(rgba.getdata()):
+        rgb=min(pal,key=lambda c:sum((c[i]-p[i])**2 for i in range(3)))
+        cache[p]=(*rgb,255 if p[3]>=128 else 0) if p[3]>=128 else (*PAL[0],0)
+    out.putdata([cache[p] for p in rgba.getdata()])
+    return out if im.mode=='RGBA' else out.convert('RGB')
+
+def draft(name,size=(128,128)):
+    return Image.open(SRC/'drafts'/f'{name}.png').convert('RGBA').resize(size,Image.Resampling.BOX)
+
+def periodic(im,axes):
+    # Merge only the eight-pixel wrap margin; all final colours are snapped afterwards.
+    im=im.convert('RGB'); w,h=im.size
+    for axis in axes:
+        n=w if axis=='X' else h; m=h if axis=='X' else w
+        for k in range(8):
+            t=(8-k)/16
+            for j in range(m):
+                a=(k,j) if axis=='X' else (j,k)
+                b=(n-1-k,j) if axis=='X' else (j,n-1-k)
+                ca,cb=im.getpixel(a),im.getpixel(b)
+                im.putpixel(a,tuple(round(ca[i]*(1-t)+cb[i]*t) for i in range(3)))
+                im.putpixel(b,tuple(round(cb[i]*(1-t)+ca[i]*t) for i in range(3)))
+    return im
+
+def save(im,name,folder,purpose,axes=(),**extra):
+    im.save(folder/f'{name}.png')
+    entry=dict(file=(folder/f'{name}.png').relative_to(ROOT).as_posix(),size=list(im.size),frames=1,pivot=[.5,.5],purpose=purpose,seamless_axes=list(axes),mode=im.mode)
+    entry.update(extra); ENTRIES.append(entry)
+    if axes:
+        p=Image.new('RGB',(384,384))
+        for y in range(3):
+            for x in range(3):p.paste(im,(x*128,y*128))
+        p.save(SRC/'previews'/f'{name}_3x3.png')
+        entry['preview']=f'previews/{name}_3x3.png'
+
+def tiles():
+    # Rebuild staggered bond from quiet source brick faces, no generated borders.
+    wall=draft('wall').convert('RGB'); im=Image.new('RGB',(128,128),PAL[2])
+    for row in range(8):
+        for col in range(-1,5):
+            face=wall.crop((3+(col%4)*32,3+(row%5)*24,29+(col%4)*32,21+(row%5)*24)).resize((30,14),Image.Resampling.NEAREST)
+            x=col*32+(16 if row%2 else 0)
+            im.paste(face,(x+1,row*16+1))
+    save(quant(periodic(im,'XY'),[2,3,4,6]),'brick_wall',TEX,'Горизонтальная кладка стены', 'XY')
+    vault=draft('vault').convert('RGB'); im=Image.new('RGB',(128,128),PAL[2])
+    for col in range(8):
+        for row in range(-1,5):
+            face=vault.crop((2+(col%8)*16,3+(row%3)*32,14+(col%8)*16,29+(row%3)*32)).resize((14,30),Image.Resampling.NEAREST)
+            im.paste(face,(col*16+1,row*32+(16 if col%2 else 0)+1))
+    save(quant(periodic(im,'XY'),[2,3,4,6]),'vault_brick',TEX,'Кладка свода, длинная ось кирпича вдоль V','XY')
+    save(quant(periodic(draft('rib'),'Y'),[2,4,6,7]),'arch_rib',TEX,'Прямое ребро арки; изгиб задаёт меш','Y')
+    ballast=quant(periodic(draft('ballast'),'XY'),[2,19,20,6])
+    save(ballast,'floor_ballast',TEX,'Холодный балласт между путями','XY')
+    track=draft('track').convert('RGB'); im=ballast.copy()
+    # Four broad sleepers, two non-tapering rails, consistent gauge along V.
+    sleeper=track.crop((12,15,116,27)).resize((110,12),Image.Resampling.NEAREST)
+    for y in [10,42,74,106]: im.paste(sleeper,(9,y))
+    for x,sx in [(27,24),(91,91)]:
+        rail=track.crop((sx,0,sx+10,128)); im.paste(rail,(x,0))
+    save(quant(periodic(im,'Y'),[2,3,4,6,7,19,20,21]),'track',TEX,'Одна полоса: две прямые рельсы, четыре шпалы; вид сверху','Y',rail_centers_u_px=[32,96],sleeper_pitch_v_px=32)
+    lava=quant(periodic(draft('lava'),'XY'),[5,13,15,17])
+    # Exact four-phase loop; each frame remains periodic after toroidal shift.
+    for i in range(4):
+        frame=ImageChops.offset(lava,0,i*32)
+        save(frame,f'lava_{i}',TEX,'Магма; только сам источник излучает','XY',animation='lava_flow',frame=i,duration_ms=180)
+
+def finish():
+    sheet=Image.new('RGB',(1152,1152))
+    for i,name in enumerate(NAMES):sheet.paste(Image.open(SRC/'previews'/f'{name}_3x3.png'),((i%3)*384,(i//3)*384))
+    sheet.save(SRC/'previews/all_tiles_3x3.png')
+    m=dict(version=3,reference='art_src/keyframes_v1/01_furnace_390x844.png',sampling='nearest; binary alpha; no bloom; no baked scene lighting',pixel_grid='1 authored pixel = 1 logical render pixel at largest intended screen size',uv_axes={'X':'U / width','Y':'V / height / along track'},assets=ENTRIES)
+    (SRC/'world_manifest_v3.json').write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    check()
+
+def check():
+    m=json.loads((SRC/'world_manifest_v3.json').read_text(encoding='utf-8')); rows=[]
+    for e in m['assets']:
+        p=ROOT/e['file']; im=Image.open(p); rgba=im.convert('RGBA'); colors=set(rgba.getdata())
+        outside={c[:3] for c in colors if c[:3] not in PAL}
+        assert not outside,(p,outside)
+        assert set(rgba.getchannel('A').getdata()) <= {0,255},p
+        assert list(im.size)==e['size'],p
+        seam={}
+        for axis in e['seamless_axes']:
+            # Only unshifted magma has equal first/last samples; shifted frames retain the same periodic field.
+            if e.get('animation') and e['frame']>0:continue
+            a=im.crop((0,0,1,im.height)) if axis=='X' else im.crop((0,0,im.width,1))
+            b=im.crop((im.width-1,0,im.width,im.height)) if axis=='X' else im.crop((0,im.height-1,im.width,im.height))
+            seam[axis]=sum(x!=y for x,y in zip(a.getdata(),b.getdata()))
+            assert seam[axis]==0,(p,seam)
+        rows.append(dict(file=e['file'],size=list(im.size),colours=len({c[:3] for c in colors if c[3]}),outside_palette_colours=len(outside),outside_palette_pixels=sum(c[:3] not in PAL for c in rgba.getdata()),alpha_levels=sorted(set(rgba.getchannel('A').getdata())),edge_mismatches=seam,sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
+    frames=[Image.open(TEX/f'lava_{i}.png') for i in range(4)]
+    assert all(ImageChops.difference(ImageChops.offset(frames[i],0,32),frames[(i+1)%4]).getbbox() is None for i in range(4))
+    (SRC/'validation.json').write_text(json.dumps(dict(game_png_count=len(rows),outside_palette_colours=0,files=rows,lava_loop_exact=True),ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    print(f'{len(rows)} game PNGs; outside palette: 0; binary alpha; lava loop exact')
+
+if __name__=='__main__':
+    if '--check-only' in sys.argv:check()
+    else:tiles();finish()

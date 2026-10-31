@@ -1,0 +1,158 @@
+{
+  "game_png_count": 9,
+  "outside_palette_colours": 0,
+  "files": [
+    {
+      "file": "assets/textures/world/brick_wall.png",
+      "size": [
+        128,
+        128
+      ],
+      "colours": 4,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        255
+      ],
+      "edge_mismatches": {
+        "X": 0,
+        "Y": 0
+      },
+      "sha256": "04d7cf515978410953ac8f3e3190672271ab12eb5722ab8df07dacb1c84f1e7b"
+    },
+    {
+      "file": "assets/textures/world/vault_brick.png",
+      "size": [
+        128,
+        128
+      ],
+      "colours": 4,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        255
+      ],
+      "edge_mismatches": {
+        "X": 0,
+        "Y": 0
+      },
+      "sha256": "fee758e439fd568aa5f0eaea9884a2d1ed96624a235f1a8281e3747e60a1d3af"
+    },
+    {
+      "file": "assets/textures/world/arch_rib.png",
+      "size": [
+        128,
+        128
+      ],
+      "colours": 4,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        255
+      ],
+      "edge_mismatches": {
+        "Y": 0
+      },
+      "sha256": "7e876018e1c60ba373dd650bec2c9100fc1cbb564ec25e623b35fe8cebc0d6c7"
+    },
+    {
+      "file": "assets/textures/world/floor_ballast.png",
+      "size": [
+        128,
+        128
+      ],
+      "colours": 4,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        255
+      ],
+      "edge_mismatches": {
+        "X": 0,
+        "Y": 0
+      },
+      "sha256": "d7ae3b01ce9d2881563d1f39567f14012a54449379bfe17778512ef1e1f292d4"
+    },
+    {
+      "file": "assets/textures/world/track.png",
+      "size": [
+        128,
+        128
+      ],
+      "colours": 8,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        255
+      ],
+      "edge_mismatches": {
+        "Y": 0
+      },
+      "sha256": "d91c5996c21792399c507774b14a14c8d5e407732a9fc7ef2d3537f999e0d19e"
+    },
+    {
+      "file": "assets/textures/world/lava_0.png",
+      "size": [
+        128,
+        128
+      ],
+      "colours": 4,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        255
+      ],
+      "edge_mismatches": {
+        "X": 0,
+        "Y": 0
+      },
+      "sha256": "a1feaa89a33c9132be7e881a61bd8eb0e099e82e64c61254bc697327f51e4b61"
+    },
+    {
+      "file": "assets/textures/world/lava_1.png",
+      "size": [
+        128,
+        128
+      ],
+      "colours": 4,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        255
+      ],
+      "edge_mismatches": {},
+      "sha256": "8f0dac15b34b29c9d4a27471601852a7a338adf09cdfe01470ef2a984bd8397f"
+    },
+    {
+      "file": "assets/textures/world/lava_2.png",
+      "size": [
+        128,
+        128
+      ],
+      "colours": 4,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        255
+      ],
+      "edge_mismatches": {},
+      "sha256": "a973bce1e6f779fce1175c65c861dd3907a3e5c52cbfce38772a3290453e839f"
+    },
+    {
+      "file": "assets/textures/world/lava_3.png",
+      "size": [
+        128,
+        128
+      ],
+      "colours": 4,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        255
+      ],
+      "edge_mismatches": {},
+      "sha256": "cf045489ac3232fba358b238feffcf2d821a7eb88a86543b47530359bff09988"
+    }
+  ],
+  "lava_loop_exact": true
+}

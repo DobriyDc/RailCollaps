@@ -1,0 +1,31 @@
+{
+  "generator": "built-in image_gen; underlying model not disclosed",
+  "reference": "art_src/keyframes_v1/01_furnace_390x844.png",
+  "use_case": "stylized-concept",
+  "prompts": [
+    {
+      "id": "wall",
+      "prompt": "Use case: stylized-concept. Asset type: a single seamless square albedo texture for an original pixel-art railway furnace tunnel. Reference image is STYLE ONLY: reproduce its sombre soot brown masonry, restrained clustered pixel marks, no train/UI. Subject: flat front-facing brick wall, large staggered horizontal dark brown bricks, 4 rows of 4 bricks per square, mostly quiet unbroken brick faces, sparse chipped corners and soot. Uniform ambient material, NO directional lighting, highlights, glow, vignette or perspective. Full bleed square, no frame, no text. Perfectly tileable both axes. Coarse clean pixel art intended to reduce to 128x128, hard edges. Only four colours #241a24 #33232b #47303a #5c3a35. No cracks on every brick. Save as square image."
+    },
+    {
+      "id": "vault",
+      "prompt": "Use case: stylized-concept. Single square full-bleed seamless pixel-art albedo texture for 3D railway furnace tunnel. Reference is style only; original soot masonry, restrained coarse pixels; NO scene, NO train/UI/text, NO perspective, NO illumination, NO cast shadows/highlights/glow/vignette. Uniform flat material. Readable when reduced to 128x128. Unwrapped barrel-vault brickwork with elongated brick faces oriented vertically, staggered vertical running bond, 4 columns by 4 courses. Same dark warm brick as reference. Mostly calm surfaces, sparse nicks. Seamless X/Y. Exactly four material colours #241a24 #33232b #47303a #5c3a35."
+    },
+    {
+      "id": "rib",
+      "prompt": "Use case: stylized-concept. Single square full-bleed seamless pixel-art albedo texture for 3D railway furnace tunnel. Reference is style only; original soot masonry, restrained coarse pixels; NO scene, NO train/UI/text, NO perspective, NO illumination, NO cast shadows/highlights/glow/vignette. Uniform flat material. Readable when reduced to 128x128. Straight flat stone rib / pilaster texture, NOT a drawn curved arch. Vertical band of wide rectangular dark soot-brown voussoir stones across full square, four stacked courses, a narrow stepped bevel stripe on left and right. Orthographic face. Seamless vertically. Four colours #241a24 #47303a #5c3a35 #7a4a3a. Calm surfaces."
+    },
+    {
+      "id": "ballast",
+      "prompt": "Use case: stylized-concept. Single square full-bleed seamless pixel-art albedo texture for 3D railway furnace tunnel. Reference is style only; original soot masonry, restrained coarse pixels; NO scene, NO train/UI/text, NO perspective, NO illumination, NO cast shadows/highlights/glow/vignette. Uniform flat material. Readable when reduced to 128x128. Flat overhead railway ballast, many chunky irregular interlocking gravel stones, no large boulders. Cool charcoal/slate grays with some dark brown dirt matching reference floor. Even density, modest contrast, quiet clusters, no lighting. Seamless both axes. Four colours #241a24 #2a3038 #465058 #5c3a35."
+    },
+    {
+      "id": "track",
+      "prompt": "Use case: stylized-concept. Single square full-bleed seamless pixel-art albedo texture for 3D railway furnace tunnel. Reference is style only; original soot masonry, restrained coarse pixels; NO scene, NO train/UI/text, NO perspective, NO illumination, NO cast shadows/highlights/glow/vignette. Uniform flat material. Readable when reduced to 128x128. Exactly ONE railway track straight overhead orthographic, TWO perfectly parallel steel rails running vertically at 25 and 75 percent width, exactly FOUR broad horizontal dark wooden sleepers at equal spacing, slate gray ballast beneath. Rusted rail foot, thin dull iron head, bolt plates. No taper, perspective, glints or light. Uniform scale full canvas. Seamless Y. Wood #241a24 #33232b #47303a #5c3a35; iron #2a3038 #465058 #6c7880; rust #5c3a35 #7a4a3a."
+    },
+    {
+      "id": "lava",
+      "prompt": "Use case: stylized-concept. Single square full-bleed seamless pixel-art albedo texture for 3D railway furnace tunnel. Reference is style only; original soot masonry, restrained coarse pixels; NO scene, NO train/UI/text, NO perspective, NO illumination, NO cast shadows/highlights/glow/vignette. Uniform flat material. Readable when reduced to 128x128. Flat overhead molten magma surface: wide winding vermilion channels around dark crust islands, stepped orange cores, sparse yellow broken rivulets, no airborne flames or glow or lighting on surroundings. Seamless X/Y. Large connected calm shapes, NO fine speckles. Colours #3a1010 #9c1e10 #f0601a #fcc048."
+    }
+  ]
+}

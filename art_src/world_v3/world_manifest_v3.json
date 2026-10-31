@@ -1,0 +1,198 @@
+{
+  "version": 3,
+  "reference": "art_src/keyframes_v1/01_furnace_390x844.png",
+  "sampling": "nearest; binary alpha; no bloom; no baked scene lighting",
+  "pixel_grid": "1 authored pixel = 1 logical render pixel at largest intended screen size",
+  "uv_axes": {
+    "X": "U / width",
+    "Y": "V / height / along track"
+  },
+  "assets": [
+    {
+      "file": "assets/textures/world/brick_wall.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Горизонтальная кладка стены",
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "preview": "previews/brick_wall_3x3.png"
+    },
+    {
+      "file": "assets/textures/world/vault_brick.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Кладка свода, длинная ось кирпича вдоль V",
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "preview": "previews/vault_brick_3x3.png"
+    },
+    {
+      "file": "assets/textures/world/arch_rib.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Прямое ребро арки; изгиб задаёт меш",
+      "seamless_axes": [
+        "Y"
+      ],
+      "mode": "RGB",
+      "preview": "previews/arch_rib_3x3.png"
+    },
+    {
+      "file": "assets/textures/world/floor_ballast.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Холодный балласт между путями",
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "preview": "previews/floor_ballast_3x3.png"
+    },
+    {
+      "file": "assets/textures/world/track.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Одна полоса: две прямые рельсы, четыре шпалы; вид сверху",
+      "seamless_axes": [
+        "Y"
+      ],
+      "mode": "RGB",
+      "rail_centers_u_px": [
+        32,
+        96
+      ],
+      "sleeper_pitch_v_px": 32,
+      "preview": "previews/track_3x3.png"
+    },
+    {
+      "file": "assets/textures/world/lava_0.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Магма; только сам источник излучает",
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "animation": "lava_flow",
+      "frame": 0,
+      "duration_ms": 180,
+      "preview": "previews/lava_0_3x3.png"
+    },
+    {
+      "file": "assets/textures/world/lava_1.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Магма; только сам источник излучает",
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "animation": "lava_flow",
+      "frame": 1,
+      "duration_ms": 180,
+      "preview": "previews/lava_1_3x3.png"
+    },
+    {
+      "file": "assets/textures/world/lava_2.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Магма; только сам источник излучает",
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "animation": "lava_flow",
+      "frame": 2,
+      "duration_ms": 180,
+      "preview": "previews/lava_2_3x3.png"
+    },
+    {
+      "file": "assets/textures/world/lava_3.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Магма; только сам источник излучает",
+      "seamless_axes": [
+        "X",
+        "Y"
+      ],
+      "mode": "RGB",
+      "animation": "lava_flow",
+      "frame": 3,
+      "duration_ms": 180,
+      "preview": "previews/lava_3_3x3.png"
+    }
+  ]
+}
