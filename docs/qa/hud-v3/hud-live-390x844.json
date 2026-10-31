@@ -1,0 +1,56 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:60273/",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp/hud-live.js",
+  "evalResult": {
+    "icons": [
+      {
+        "id": "iconLane1",
+        "src": "assets/ui/hud_v3/icon_gap.png",
+        "rect": {
+          "x": 143.4140625,
+          "y": 654.1000366210938,
+          "width": 42.20001220703125,
+          "height": 42.20001220703125,
+          "top": 654.1000366210938,
+          "right": 185.61407470703125,
+          "bottom": 696.300048828125,
+          "left": 143.4140625
+        }
+      }
+    ],
+    "targets": [
+      {
+        "x": 101.03622819196667,
+        "y": 471.0201371160952,
+        "kind": "fork",
+        "at": 40,
+        "to": 0,
+        "canvasReceives": true,
+        "iconMargin": 125.52054289885257
+      },
+      {
+        "x": 288.96379206599386,
+        "y": 471.0201371160952,
+        "kind": "fork",
+        "at": 40,
+        "to": 2,
+        "canvasReceives": true,
+        "iconMargin": 147.83656599397216
+      }
+    ],
+    "pos": 38.5,
+    "portrait": "tense"
+  },
+  "errors": [],
+  "ok": true
+}
