@@ -56,7 +56,7 @@ const TERRAIN_CELL = 8;                 // px: terrain grid step (mobile — no 
 
 // --- MODELS (Gltf3D.js) and UI (UI.js) ---
 const MODEL_CLIP_BLEND_SEC = 0.2;       // s: cross-fade between animation clips of a .glb model (idle -> run); 0 — instant
-const UI_REF_HEIGHT = 720;              // px: the screen height the UI layout (UILayout.js) is drawn for; the UI scales with the screen height, 0 — no scaling
+const UI_REF_HEIGHT = 710;              // px: the screen height the UI layout (UILayout.js) is drawn for; the UI scales with the screen height, 0 — no scaling
 
 // --- SOUND (Sound3D.js): channel volumes; a sound with a place on the map is heard from where
 // the CAMERA is — its audible region is a sphere of AUDIO_FALLOFF_MAX around it ---
@@ -153,8 +153,8 @@ const COLLAPSE_STATION_TINT_1 = 0x9fd0ff;
 const COLLAPSE_STATION_TINT_2 = 0xb8ff9a;
 const COLLAPSE_STATION_TINT_3 = 0xe0a0ff;
 const COLLAPSE_RENDER_HEIGHT = 360;     // px: the tunnel is rendered this tall and scaled up without smoothing (docs/STYLE.md)
-const COLLAPSE_CAM_Y = 450;             // world units: camera height above the rails
-const COLLAPSE_CAM_Z = 1467;            // world units: camera distance in front of the train
+const COLLAPSE_CAM_Y = 446;             // world units: camera height above the rails
+const COLLAPSE_CAM_Z = 1452;            // world units: camera distance in front of the train
 const COLLAPSE_CAM_TOP_GAP = 0.01;      // share of the frame's height between the top of the loco and the top plate; the camera tilts to this gap on every screen
 const COLLAPSE_CAM_SIGN = 0.3;          // where a fork sign stands from its lane toward the next one, share of the lane step: the close camera sees a narrow strip of the track, and a sign out at the side enters late
 const COLLAPSE_CAM_SIGN_SCALE = 1;      // multiplier of the fork signs' size
