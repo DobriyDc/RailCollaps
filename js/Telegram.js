@@ -10,6 +10,8 @@ const TG = {
     get inside() { return !!(this.app && this.app.initData); },
     at(v) { return this.inside && !!(this.app.isVersionAtLeast && this.app.isVersionAtLeast(v)); },
     get mobile() { return !!this.app && ['ios', 'android'].includes(this.app.platform); },
+    // The string Telegram signed: the server checks it (skill telegram-miniapp); '' outside Telegram.
+    get initData() { return this.inside ? this.app.initData : ''; },
 
     _call(fn) {
         try { fn(); } catch (e) { console.warn('TG:', e); }

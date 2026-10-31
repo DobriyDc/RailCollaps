@@ -171,6 +171,8 @@ async function main() {
       if (/(?:src|href)\s*=\s*["']\/|url\(\s*['"]?\//.test(ln)) {
         absHits.push(f + ':' + (i + 1));
       }
+      // The one sanctioned host: the leaderboard function the owner set in Constants.js.
+      if (f === 'js/Constants.js' && /^const LEADERBOARD_URL = /.test(ln)) return;
       for (const m of ln.matchAll(/https?:\/\/[^\s"'`)]+/g)) {
         if (!/^https?:\/\/www\.w3\.org/.test(m[0])) {
           extHits.push(f + ':' + (i + 1) + ' -> ' + m[0]);

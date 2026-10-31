@@ -22,7 +22,7 @@ export const EXTRA_REFS = [];
 // index.html = a new line here, otherwise the file will not get into the archive.
 export const CODE_FILES = [
   'index.html',
-  'js/Constants.js', 'js/Objects.js', 'js/UILayout.js', 'js/Sound3D.js', 'js/World3D.js', 'js/Terrain3D.js', 'js/CameraControl.js', 'js/Model3D.js', 'js/Gltf3D.js', 'js/Instances3D.js', 'js/Location3D.js', 'js/Debug3D.js', 'js/UI.js', 'js/Telegram.js', 'js/CollapseRules.js', 'js/CollapseScene.js', 'js/Game.js', 'js/main.js',
+  'js/Constants.js', 'js/Objects.js', 'js/UILayout.js', 'js/Sound3D.js', 'js/World3D.js', 'js/Terrain3D.js', 'js/CameraControl.js', 'js/Model3D.js', 'js/Gltf3D.js', 'js/Instances3D.js', 'js/Location3D.js', 'js/Debug3D.js', 'js/UI.js', 'js/Telegram.js', 'js/CollapseRules.js', 'js/CollapseScene.js', 'js/Leaderboard.js', 'js/Game.js', 'js/main.js',
   'libs/telegram-web-app.js', 'libs/simplex-noise.js', 'libs/babylon.js', 'libs/babylonjs.loaders.min.js',
 ];
 
@@ -32,6 +32,8 @@ export const BUILD_EXCLUDE = [
   'CLAUDE.md', 'run.bat', 'build.bat', 'check.bat', 'upload.bat', 'editor.bat', 'README.md', 'tsconfig.json', 'globals.d.ts',
   // Rail Link: Collapse project sources: art generation sources, studio process, design docs.
   'art_src', 'gamestudio', 'docs', 'GAME.md', 'AGENTS.md',
+  // The leaderboard function: deployed to Cloudflare by itself, the game only calls its address.
+  'server',
 ];
 
 const SCAN_EXT = new Set(['.js', '.html', '.css']);
