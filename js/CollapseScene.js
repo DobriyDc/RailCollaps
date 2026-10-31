@@ -113,6 +113,9 @@ class CollapseScene {
         this.shakeSec = typeof COLLAPSE_FX_SHAKE_SEC !== U ? COLLAPSE_FX_SHAKE_SEC : 0.35;
         this.heatSec = typeof COLLAPSE_FX_HEAT_SEC !== U ? COLLAPSE_FX_HEAT_SEC : 0.5;
         this.fallTilt = (typeof COLLAPSE_FX_FALL_TILT_DEG !== U ? COLLAPSE_FX_FALL_TILT_DEG : 22) * Math.PI / 180;
+        // The lever of a fork after the driver's shot: sparks, then the throw.
+        this.leverHit = typeof COLLAPSE_SWITCH_HIT_SEC !== U ? COLLAPSE_SWITCH_HIT_SEC : 0.14;
+        this.leverThrow = typeof COLLAPSE_SWITCH_THROW_SEC !== U ? COLLAPSE_SWITCH_THROW_SEC : 0.12;
         // The layers of the collapse and the volume of the train.
         this.bgDepth = typeof COLLAPSE_BG_DEPTH !== U ? COLLAPSE_BG_DEPTH : 90;
         this.bgPx = typeof COLLAPSE_BG_PX !== U ? COLLAPSE_BG_PX : 3.4;
@@ -172,7 +175,7 @@ class CollapseScene {
     // is not ready in that frame, and the sprite blinks out (the first shot, the first effect).
     _preload() {
         const A = CollapseArt;
-        for (const u of [...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...A.demon, A.demonAsh, ...Object.values(A.sign), ...A.lava, ...A.smoke]) this.texture(u);
+        for (const u of [...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...A.demon, A.demonAsh, ...Object.values(A.sign), ...Object.values(A.sw), ...A.lava, ...A.smoke]) this.texture(u);
         const trainFrames = CollapseTrainMesh.GROUPS.flatMap(g => g.frames || [g.tex]);
         for (const u of [...trainFrames, ...Object.values(CollapseTrainMesh.BROKEN), A.flash, ...Object.values(A.gap), ...A.bg.map(b => b.url),
             ...Object.values(A.fx).flat(), ...Object.values(A.switches).flatMap(v => Object.values(v))]) this.texture(u, false);
@@ -809,6 +812,26 @@ class CollapseScene {
         return run.track.seg(i).forks.some(f => f.from === lane) && !run.forkSafe(i, lane);
     }
 
+    // The frame of a fork's lever: waiting; a shot lever shows the sparks for hitSec seconds (`shot` ago),
+    // then stands over toward its exit. Armed without a shot seen (a restored run): already over.
+    static leverFrame(md, armed, shot, hitSec) {
+        if (!armed) return 'waiting';
+        if (shot < hitSec) return 'hit';
+        return md.to < md.from ? 'left' : 'right';
+    }
+
+    // 0..1 of the throw: the armed lever grows to its armed size once the sparks are done.
+    static leverPop(armed, shot, hitSec, throwSec) {
+        if (!armed) return 0;
+        if (!Number.isFinite(shot)) return 1;
+        return Math.max(0, Math.min(1, (shot - hitSec) / Math.max(throwSec, 1e-3)));
+    }
+
+    // True while the shot lever at fork i is still in its sparks: the points on the track wait for it.
+    static leverHolds(lever, i, time, hitSec) {
+        return !!lever && lever.at === i && time - lever.time < hitSec;
+    }
+
     // Which edge art the hole's segment i of `lane` carries: the one the train meets first is 'front'
     // (whole side at the bottom of the art), the last one 'back'; null — not an end of a hole.
     static gapEdge(track, i, lane) {
@@ -899,6 +922,23 @@ class CollapseScene {
         return m;
     }
 
+    // The signal on a lever's disc: the lit panel of the old sign art (green arrows or the red cross),
+    // self-lit, so the safe and the deadly exit read as they did. A child of the stand: it stands and
+    // scales with it.
+    _leverBadge(stand) {
+        const S = CollapseScene, b = S.LEVER.badge, m = BABYLON.MeshBuilder.CreatePlane('lever-badge', { width: b.w, height: b.w * b.crop[3] / b.crop[2] }, this.scene);
+        const uv = m.getVerticesData(BABYLON.VertexBuffer.UVKind), [x, y, w, h] = b.crop;
+        for (let k = 0; k < uv.length; k += 2) {
+            uv[k] = x + uv[k] * w;
+            uv[k + 1] = 1 - y - h + uv[k + 1] * h;
+        }
+        m.setVerticesData(BABYLON.VertexBuffer.UVKind, uv);
+        m.position.y = b.y;
+        m.parent = stand;
+        m.isPickable = false;
+        return m;
+    }
+
     _segView(i, run) {
         const S = CollapseScene, scene = this.scene, seg = run.track.seg(i);
         /** @type {{ lanes: any[], forks: any[], signs: any[], crosses: any[], pickups: any[], flows: any[], set: any }} */
@@ -921,8 +961,8 @@ class CollapseScene {
             v.forks.push({ g, base, points });
         }
         for (const f of seg.forks) {
-            const sign = this.sprite('sign', 'sign-' + i + '-' + f.from + '-' + f.to, CollapseArt.sign.left, 150, 128);
-            sign.metadata = { at: i, from: f.from, to: f.to };
+            const sign = this.sprite('sign', 'sign-' + i + '-' + f.from + '-' + f.to, CollapseArt.sw.waiting, S.LEVER.w, S.LEVER.h);
+            sign.metadata = { at: i, from: f.from, to: f.to, badge: this._leverBadge(sign) };
             v.signs.push(sign);
         }
         // A red cross on each lane a fork leaves from: shown when staying on that lane is a fall.
@@ -959,6 +999,7 @@ class CollapseScene {
         this.segViews.clear();
         this._shotUntil = this._shieldHitUntil = -1;
         this._crashAt = null;
+        this._lever = null;
         this._shakeAt = this._heatAt = -1e9;
         this._setBroken(false);
         for (const fx of this.fx) fx.mesh.setEnabled(false);
@@ -1027,7 +1068,8 @@ class CollapseScene {
                 m.position.y = -drop - under;
                 m.setEnabled(drop + under < 880);
             });
-            if (run.armed && run.armed.at === i) v.set = run.armed;
+            // The points go over with the lever: not before the sparks are done.
+            if (run.armed && run.armed.at === i && !S.leverHolds(this._lever, i, this.time, this.leverHit)) v.set = run.armed;
             for (const sw of v.forks) {
                 const url = CollapseArt.switches[sw.g.variant][S.pointsState(sw.g, v.set)];
                 sw.points.material = this.spriteMat('sw:' + url, url, false);
@@ -1043,12 +1085,20 @@ class CollapseScene {
                 sign.setEnabled(visible);
                 if (!visible) continue;
                 const safe = run.forkSafe(md.at, md.to);
-                const url = !safe ? CollapseArt.sign.cross : md.to < md.from ? CollapseArt.sign.left : CollapseArt.sign.right;
-                this._setSpriteTex(sign.material, url);
-                const armed = run.armed && run.armed.at === md.at && run.armed.to === md.to;
-                const actionable = next && next.at === md.at;
-                sign.position.set(S.laneX(md.from) + (md.to - md.from) * S.LANE_W * this.signShift, armed ? 40 : 0, z);
-                sign.scaling.setAll((armed ? 1.15 : actionable ? 1 : 0.75) * this.signScale);
+                const signal = !safe ? 'cross' : md.to < md.from ? 'left' : 'right';
+                md.badge.material = this.spriteMat('badge-' + signal, CollapseArt.sign[signal]);
+                md.badge.material.zOffset = -4;
+                const armed = !!run.armed && run.armed.at === md.at && run.armed.to === md.to;
+                const shot = this._lever && this._lever.at === md.at && this._lever.to === md.to ? this.time - this._lever.time : Infinity;
+                const frame = S.leverFrame(md, armed, shot, this.leverHit);
+                this._setSpriteTex(sign.material, CollapseArt.sw[frame]);
+                const rest = next && next.at === md.at ? 1 : 0.75;
+                const k = (rest + (1.15 - rest) * S.leverPop(armed, shot, this.leverHit, this.leverThrow)) * this.signScale;
+                // The sparks and the lean of the hit frame are drawn to the left: a throw to the right mirrors them.
+                const mirror = frame === 'hit' && md.to > md.from ? -1 : 1;
+                sign.position.set(S.laneX(md.from) + (md.to - md.from) * S.LANE_W * this.signShift, 0, z);
+                sign.scaling.set(k * mirror, k, k);
+                md.badge.setEnabled(frame !== 'hit');   // the sparks land on the disc
             }
             for (const c of v.crosses) {
                 const lane = c.metadata.lane;
@@ -1149,6 +1199,7 @@ class CollapseScene {
     // React to run events (shots, pickups, crash) with short visual accents.
     onEvent(e, run) {
         if (e.type === 'shot') {
+            this._lever = { at: e.at, to: e.to, time: this.time };
             // The driver fires out of the cab, on the side of the fork.
             this._fxPlay(this.fxFlash, [(e.to < run.lane ? -1 : 1) * 150, 300, -60], { dur: 0.18 });
             this._shotUntil = this.time + 0.18;
@@ -1201,6 +1252,9 @@ CollapseScene.TILE = 140;         // world units per texture tile along the tunn
 CollapseScene.WALL_X = 640;       // half width of the tunnel
 CollapseScene.WALL_TOP = 430;     // where the walls meet the vault
 CollapseScene.LOCO_TOP = 414;     // world units: the top of the chimney (394 at COLLAPSE_TRAIN_SCALE) and of the smoke leaving it
+// The lever stand of a fork (assets/px/switch, 91 x 120 px) and its signal: the lit panel of the sign art
+// as shares of that file, on the disc at height y.
+CollapseScene.LEVER = { w: 150, h: 198, badge: { w: 84, y: 160, crop: [0.16, 0.13, 0.68, 0.56] } };
 CollapseScene.PICKUP = { w: 90, h: 135, y: 6, bob: 10 };   // a pickup's sprite, world units
 CollapseScene.FLOW = { w: 170, h: 760, y: 120 };           // a lava stream's sprite, world units
 // What of each object the frame can catch (Game.frameEntry): half width and top, world units: a hole
@@ -1235,7 +1289,7 @@ CollapseScene.FX = {
     drops: { size: [96, 96], pivot: [0.5, 0.9375], ms: 90 },
     shieldBreak: { size: [160, 160], pivot: [0.5, 0.5], ms: 90, scale: 1.4 },
     rail: { size: [96, 96], pivot: [0.5, 0.5], ms: 350 },
-    flash: { size: [124, 96], pivot: [0.5, 0.5], ms: 180 },
+    flash: { size: [124, 96], pivot: [0.5, 0.5], ms: 180, scale: 0.4 },
 };
 CollapseScene.LAVA_MS = 180;      // ms a frame of the magma (art_src/world_v3: four frames, 720 ms)
 CollapseScene.AHEAD = 6;

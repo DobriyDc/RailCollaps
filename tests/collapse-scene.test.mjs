@@ -148,3 +148,21 @@ test('пол под кромкой держится: падает только �
   assert.equal(S.floorDrop(1), 0, 'сегмент под откосом обломков на месте');
   assert.ok(S.floorDrop(S.FLOOR_HOLD + 1) > 0);
 });
+
+test('рычаг: ожидание, искры выстрела, перекинут к своей полосе; остряки ждут конца искр', () => {
+  const S = page().get('CollapseScene'), hit = 0.14, thr = 0.12, left = { from: 1, to: 0 }, right = { from: 1, to: 2 };
+  assert.equal(S.leverFrame(left, false, Infinity, hit), 'waiting');
+  assert.equal(S.leverFrame(right, false, 0, hit), 'waiting', 'соседний рычаг той же развилки не трогается');
+  assert.equal(S.leverFrame(left, true, 0.05, hit), 'hit');
+  assert.equal(S.leverFrame(left, true, hit, hit), 'left');
+  assert.equal(S.leverFrame(right, true, hit, hit), 'right');
+  assert.equal(S.leverFrame(right, true, Infinity, hit), 'right', 'взведено без выстрела на глазах: сразу перекинут');
+  assert.equal(S.leverPop(true, hit, hit, thr), 0);
+  assert.equal(S.leverPop(true, hit + thr, hit, thr), 1);
+  assert.equal(S.leverPop(false, 9, hit, thr), 0);
+  const lever = { at: 12, to: 0, time: 5 };
+  assert.ok(S.leverHolds(lever, 12, 5.05, hit), 'во время искр остряки на месте');
+  assert.ok(!S.leverHolds(lever, 12, 5.2, hit), 'кончились искры — идут вместе с рычагом');
+  assert.ok(!S.leverHolds(lever, 13, 5.05, hit), 'чужая развилка не держится');
+  assert.ok(!S.leverHolds(null, 12, 5.05, hit));
+});
