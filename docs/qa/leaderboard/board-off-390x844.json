@@ -1,0 +1,25 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:59743/",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp\\claude\\C--Users-dobri-orca-workspaces-collapse-dev-board\\96105e62-1322-4539-911b-fe712f8afc56\\scratchpad\\board-off.js",
+  "evalResult": {
+    "enabled": false,
+    "mode": "over",
+    "requests": [],
+    "boardBtn": false,
+    "board": false,
+    "rowsBuilt": false,
+    "dialog": true
+  },
+  "errors": [],
+  "ok": true
+}

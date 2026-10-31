@@ -36,6 +36,16 @@ render loop, render frames by hand). Exit code 1 on any page error or a viewport
 Git: what stays out of the repository — `.gitignore`; `.gitattributes` (`* -text`) — files go
 byte for byte, no line-ending conversion.
 
+## The leaderboard function (`tools/build-worker.mjs`)
+
+`node tools/build-worker.mjs` writes `server/leaderboard/dist/worker.js` (not in the repository; wrangler
+runs it before every deploy): the `COLLAPSE_*` and `LEADERBOARD_*` lines of `js/Constants.js` that the
+rules or the function name, all of `js/CollapseRules.js`, then `server/leaderboard/src/index.js`. The
+function has no copy of the rules. `server` is in `BUILD_EXCLUDE`. The one external host a shipped
+file may name is the line `const LEADERBOARD_URL = …` of `js/Constants.js`: `tools/build.mjs` skips
+that line in its external URL check. Changed the rules — raise `COLLAPSE_RULES_VERSION` and redeploy
+(`tests/leaderboard.test.mjs` holds a fingerprint per version).
+
 ## Dev server (`tools/dev-server.mjs`)
 
 - `Cache-Control: no-store` on everything: there is no build step, otherwise the browser
@@ -115,7 +125,8 @@ generator — after editing `tools/make-character.mjs` run it; the file's skelet
 clips; `Clips3D` cross-fade on fake animation groups), `instances` (`Instances3D.fill` — the
 matrix of a copy as Babylon applies it: position, heading, scale; `Debug3D.copyGroups`), `debug3d`
 (the pure parts of `js/Debug3D.js`: winding against normals, the side verdict with a mirrored
-matrix, the normal map verdict by file name, the held view pose kept above the ground), `claude`
+matrix, the normal map verdict by file name, the held view pose kept above the ground), `leaderboard` (the journal replay,
+the real function bundle over SQLite in memory with `schema.sql`), `claude`
 (skills in `claude/skills/` are linked to the CLAUDE.md table, `claude/launch.json` starts the
 servers, there is no `.claude/skills/` folder — GitHub web upload skips dot-prefixed names, so
 skills from there would never reach users).

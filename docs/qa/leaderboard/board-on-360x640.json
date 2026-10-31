@@ -1,0 +1,24 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:63062/",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp\\claude\\C--Users-dobri-orca-workspaces-collapse-dev-board\\96105e62-1322-4539-911b-fe712f8afc56\\scratchpad\\board-on.js",
+  "evalResult": {
+    "sent": 1,
+    "url": "https://collapse.test/score",
+    "sameMeters": true,
+    "seed": true,
+    "boardBtn": true,
+    "dialog": true
+  },
+  "errors": [],
+  "ok": true
+}

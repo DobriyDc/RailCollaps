@@ -1,0 +1,19 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:56106/",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp\\claude\\C--Users-dobri-orca-workspaces-collapse-dev-board\\96105e62-1322-4539-911b-fe712f8afc56\\scratchpad\\board-error.js",
+  "evalResult": {
+    "status": "Таблица недоступна.\nПроверь связь."
+  },
+  "errors": [],
+  "ok": true
+}
