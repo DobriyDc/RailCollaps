@@ -1,5 +1,5 @@
 {
-  "game_png_count": 9,
+  "game_png_count": 13,
   "outside_palette_colours": 0,
   "files": [
     {
@@ -152,6 +152,70 @@
       ],
       "edge_mismatches": {},
       "sha256": "cf045489ac3232fba358b238feffcf2d821a7eb88a86543b47530359bff09988"
+    },
+    {
+      "file": "assets/sprites/world/bg_01_void.png",
+      "size": [
+        384,
+        256
+      ],
+      "colours": 7,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "sha256": "4a28a7401ee24f2fbf33d5667384cc4d7bb7025fcc6b9429c04a5c7b4d1d039b"
+    },
+    {
+      "file": "assets/sprites/world/bg_02_arches.png",
+      "size": [
+        384,
+        256
+      ],
+      "colours": 8,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "sha256": "c3cfbd26bcb0dbf424a6adac634ac4517d02a32eba8e3483d82d751529a1c1ce"
+    },
+    {
+      "file": "assets/sprites/world/bg_03_column.png",
+      "size": [
+        384,
+        256
+      ],
+      "colours": 8,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "sha256": "af89dc1f3ac3e1ff248c42839b026a998e69e17cce707c18908b6bca882f07c5"
+    },
+    {
+      "file": "assets/sprites/world/bg_04_rubble.png",
+      "size": [
+        384,
+        256
+      ],
+      "colours": 9,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "sha256": "ebe7ecc002279aef0126b461d60963d7fa83b93875b6e8f47db0f71fa5e7390e"
     }
   ],
   "lava_loop_exact": true

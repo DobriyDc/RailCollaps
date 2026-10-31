@@ -193,6 +193,94 @@
       "frame": 3,
       "duration_ms": 180,
       "preview": "previews/lava_3_3x3.png"
+    },
+    {
+      "file": "assets/sprites/world/bg_01_void.png",
+      "size": [
+        384,
+        256
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        1.0
+      ],
+      "purpose": "Дальняя пустота с магмой",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "layer_order": 0,
+      "depth_relative": 48,
+      "depth_units": "same arbitrary world unit; tune to scene",
+      "world_anchor": "shared collapse-front floor center",
+      "wrap": "clamp",
+      "alpha_mode": "test >= 0.5",
+      "recommended_render_width_px": 384
+    },
+    {
+      "file": "assets/sprites/world/bg_02_arches.png",
+      "size": [
+        384,
+        256
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        1.0
+      ],
+      "purpose": "Рушащаяся круглая арка",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "layer_order": 1,
+      "depth_relative": 36,
+      "depth_units": "same arbitrary world unit; tune to scene",
+      "world_anchor": "shared collapse-front floor center",
+      "wrap": "clamp",
+      "alpha_mode": "test >= 0.5",
+      "recommended_render_width_px": 384
+    },
+    {
+      "file": "assets/sprites/world/bg_03_column.png",
+      "size": [
+        384,
+        256
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        1.0
+      ],
+      "purpose": "Колонна и падающая кладка",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "layer_order": 2,
+      "depth_relative": 24,
+      "depth_units": "same arbitrary world unit; tune to scene",
+      "world_anchor": "shared collapse-front floor center",
+      "wrap": "clamp",
+      "alpha_mode": "test >= 0.5",
+      "recommended_render_width_px": 384
+    },
+    {
+      "file": "assets/sprites/world/bg_04_rubble.png",
+      "size": [
+        384,
+        256
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        1.0
+      ],
+      "purpose": "Кромка балласта, шпал и рельсов",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "layer_order": 3,
+      "depth_relative": 12,
+      "depth_units": "same arbitrary world unit; tune to scene",
+      "world_anchor": "shared collapse-front floor center",
+      "wrap": "clamp",
+      "alpha_mode": "test >= 0.5",
+      "recommended_render_width_px": 384
     }
   ]
 }

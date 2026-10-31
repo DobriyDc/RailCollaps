@@ -80,6 +80,34 @@ def tiles():
         frame=ImageChops.offset(lava,0,i*32)
         save(frame,f'lava_{i}',TEX,'Магма; только сам источник излучает','XY',animation='lava_flow',frame=i,duration_ms=180)
 
+def backgrounds():
+    specs=[('bg_01_void','Дальняя пустота с магмой',48,[0,1,5,12,13,15,17]),
+           ('bg_02_arches','Рушащаяся круглая арка',36,[0,2,3,4,6,7,19,20]),
+           ('bg_03_column','Колонна и падающая кладка',24,[0,2,3,4,6,7,19,20]),
+           ('bg_04_rubble','Кромка балласта, шпал и рельсов',12,[0,2,3,4,6,7,19,20,21])]
+    layers=[]
+    for order,(name,purpose,depth,palette) in enumerate(specs):
+        im=quant(draft(name,(384,256)),palette)
+        if order==0:
+            # Raise magma through the nearest rubble's open silhouette.
+            canvas=Image.new('RGBA',(384,256),(*PAL[0],0))
+            canvas.paste(im,(0,-24)); im=canvas
+        save(im,name,SPR,purpose,layer_order=order,depth_relative=depth,depth_units='same arbitrary world unit; tune to scene',pivot=[.5,1.0],world_anchor='shared collapse-front floor center',wrap='clamp',alpha_mode='test >= 0.5',recommended_render_width_px=384)
+        layers.append(im)
+    composite=Image.new('RGBA',(384,256),(*PAL[0],255))
+    for im in layers:composite=Image.alpha_composite(composite,im)
+    composite.convert('RGB').save(SRC/'previews/background_composite.png')
+    board=Image.new('RGB',(1182,844),PAL[0])
+    board.paste(Image.open(ROOT/'art_src/keyframes_v1/01_furnace_390x844.png'),(0,0))
+    board.paste(composite.resize((768,512),Image.Resampling.NEAREST),(414,0))
+    for i,im in enumerate(layers):
+        thumb=im.resize((192,128),Image.Resampling.NEAREST)
+        board.paste(thumb,(414+i*192,560),thumb)
+    # Same-material swatches under the composited and exploded layer views.
+    for i,name in enumerate(['brick_wall','vault_brick','arch_rib','floor_ballast','track','lava_0']):
+        board.paste(Image.open(TEX/f'{name}.png'),(414+i*128,708))
+    board.save(SRC/'previews/reference_and_layers.png')
+
 def finish():
     sheet=Image.new('RGB',(1152,1152))
     for i,name in enumerate(NAMES):sheet.paste(Image.open(SRC/'previews'/f'{name}_3x3.png'),((i%3)*384,(i//3)*384))
@@ -112,4 +140,7 @@ def check():
 
 if __name__=='__main__':
     if '--check-only' in sys.argv:check()
-    else:tiles();finish()
+    else:
+        tiles()
+        if (SRC/'drafts/bg_04_rubble.png').exists():backgrounds()
+        finish()
