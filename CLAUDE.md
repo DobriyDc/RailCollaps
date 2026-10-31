@@ -161,6 +161,9 @@ _utils/editor/    редактор (в билд не едет): server.mjs (HTTP
                   Ctrl+Z / Ctrl+Shift+Z), loader.js, lab.js (вид), debug-tools.js (режим вида и «Lint scene»
                   на панели вида — Debug3D), onboarding.js (тур из 6 слайдов по редактору: первый
                   запуск и кнопка «?»), main.js; tsconfig.json — его типы
+_utils/tuner/     настройщик камеры и интерфейса (в билд не едет): настоящая игра в кадре телефона, ползунки и живые
+                  числа обзора; index.html, tuner.js, tuner-core.js (чистая часть, тесты tests/tuner.test.mjs); открыт на
+                  Pages (`.nojekyll` в корне: без него Pages не отдаёт папки с подчёркиванием), запись — на сервере редактора
 claude/           для Claude Code, едет пользователям (в билд игры — нет): skills/<имя>/SKILL.md — скиллы,
                   launch.json — шаблон .claude/launch.json для панели браузера
 ```

@@ -1,0 +1,28 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Настройщик Collapse",
+  "url": "http://127.0.0.1:9416/_utils/tuner/",
+  "browser": "msedge.exe",
+  "waitMs": 500,
+  "eval": "C:\\Users\\dobri\\AppData\\Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-tuner/749567af-bd3b-4769-a5e1-7e1f19128d95/scratchpad/demon.js",
+  "evalResult": {
+    "on": [
+      true,
+      true
+    ],
+    "lane": 2,
+    "camX": 210,
+    "alive": "pause",
+    "panel": 150,
+    "stage": 694,
+    "phone": 694
+  },
+  "errors": [],
+  "ok": true
+}

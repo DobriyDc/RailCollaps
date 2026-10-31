@@ -167,6 +167,17 @@ step from the schema field, so the bounds live in one place.
    A mode — select only; levels 0/1/2 and no/yes — the ready-made `SCHEMA_LEVELS`, `SCHEMA_NO_YES`.
 4. New prefix — add a branch in `Lab.onConstant`.
 
+## Tuner (`_utils/tuner`)
+
+`http://localhost:8090/_utils/tuner/` on the editor server, also on Pages. The real game in a phone-sized
+iframe: `TunerCore.page` takes the game's own `index.html` and puts `Constants.js` inline with `const` ->
+`var` (`srcdoc`), so there is no second list of scripts. The scene is built with `BOOT_Z`, the farthest
+camera of the slider, because its segment window is fixed at construction; the code's value comes back
+through `CollapseScene.applyCamera()`. Slider ranges come from `schema.js`. Numbers are read from the running
+game (`View3D.projectToScreen`, `Game._frameNow`, `Game.frameTable`), on the grid `docs/qa/default` used. Game
+consts and classes are lexical: `frameWin.eval('UI')`. `/api` is asked only when the page is served from
+the root of a local server: on Pages a failed request would be a console error.
+
 ## Pitfalls
 
 - Edited `server.mjs` or `save.mjs` — restart `editor.bat`: Node reads them once. When
