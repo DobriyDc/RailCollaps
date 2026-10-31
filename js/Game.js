@@ -42,6 +42,7 @@ class Game {
         on('menuShop', () => this.openMenu('shopScreen'));
         on('menuExit', () => TG.close());
         on('modeEndless', () => this.start());
+        on('modeTutorial', () => this.start(new CollapseTutorial()));
         for (const id of ['modeBack', 'settingsBack', 'shopBack', 'overMenu']) on(id, () => this.openMenu());
         this.volumes = {};
         const audio = Sound3D.cfg();
@@ -55,8 +56,7 @@ class Game {
         }
         on('languageRU', () => Lang.set('ru'));
         on('languageEN', () => Lang.set('en'));
-        const tutorial = UI.get('modeTutorial');
-        if (tutorial) tutorial.setEnabled(false);
+        this.tutorialPassed = Store.get('collapse.tutorial') === '1';
         Lang.listeners.add(() => this.refreshLanguage());
         this.refreshLanguage();
         this.openMenu();
@@ -86,7 +86,10 @@ class Game {
         if (this.mode === 'pause') this._pauseDialog();
         else if (this.mode === 'over' && this.overIn < 0) this._showOver();
         this._settingsView();
+        this._tutorialLabel();
     }
+
+    _tutorialLabel() { this._set('modeTutorial', (this.tutorialPassed ? '✓ ' : '') + Lang.t('tutorial')); }
 
     changeVolume(channel, direction) {
         const step = typeof AUDIO_VOLUME_STEP !== 'undefined' ? AUDIO_VOLUME_STEP : 0.1;
@@ -157,12 +160,13 @@ class Game {
         return (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
     }
 
-    start() {
+    // A run: a new endless one unless given another (the tutorial, a retry of its step).
+    start(run = new CollapseRun(Game.newSeed())) {
         this._show('menu', false);
         for (const id of ['frameTop', 'frameBottom', 'iconStrip']) this._show(id, true);
         this._set('pauseBtn', Lang.t('pauseIcon'));
         this.scene.reset();
-        this.run = new CollapseRun(Game.newSeed());
+        this.run = run;
         this.mode = 'play';
         this.overIn = -1;
         this.adPending = false;
@@ -170,6 +174,8 @@ class Game {
         this._frame = null;           // the safe area may have changed since the last run
         this._show('hitFlash', false);
         this._show('over', false);
+        this._show('tutorialBox', run.tutorial);
+        this._hudBest();
         TG.runStarted();
     }
 
@@ -187,8 +193,9 @@ class Game {
     }
 
     _pauseDialog() {
-        this._dialog(Lang.t('pause'), Lang.t('pauseText'), [Lang.t('resume'), () => this.setPaused(false)], [Lang.t('restart'), () => this.start()]);
-        this._show('overMenu', false);
+        this._dialog(Lang.t('pause'), Lang.t('pauseText'), [Lang.t('resume'), () => this.setPaused(false)],
+            [Lang.t('restart'), () => this.start(this.run.tutorial ? new CollapseTutorial() : undefined)]);
+        this._show('overMenu', this.run.tutorial);
         this._set('pauseBtn', Lang.t('resumeIcon'));
     }
 
@@ -228,6 +235,7 @@ class Game {
         if (!run || this.mode === 'menu') return;
         if (this.mode === 'play') run.update(dt);
         for (const ev of run.takeEvents()) this._onEvent(ev);
+        if (this.mode === 'play' && run.tutorial && (run.missed || run.finished)) { this._tutorialEnd(run); return; }
         if (this.overIn >= 0 && (this.overIn -= dt) < 0) this._showOver();
         if (this.flashLeft > 0 && (this.flashLeft -= dt) <= 0) this._show('hitFlash', false);
         this.scene.sync(run, this.mode === 'pause' ? 0 : dt);
@@ -251,6 +259,7 @@ class Game {
             TG.runEnded();
             this.mode = 'over';
             this.overIn = typeof COLLAPSE_OVER_DELAY_SEC !== 'undefined' ? COLLAPSE_OVER_DELAY_SEC : 0.7;
+            if (run.tutorial) return;     // neither the record nor the table: _showOver sends it back to its step
             if (run.meters > this.best) {
                 this.best = run.meters;
                 this.newRecord = true;
@@ -263,9 +272,20 @@ class Game {
         }
     }
 
+    // A miss goes back to the step; the last step passed goes on to the endless mode, a new run: the
+    // table replays a run from its seed, and the tutorial's track is not of any seed.
+    _tutorialEnd(run) {
+        if (run.missed) { this.start(run.retry()); return; }
+        this.tutorialPassed = true;
+        Store.set('collapse.tutorial', '1');
+        this._tutorialLabel();
+        this.start();
+    }
+
     // The end of a run: reason, meters, record; a continue for an ad only once per run.
     _showOver() {
         const run = this.run;
+        if (run.tutorial) { this.start(run.retry()); return; }
         const why = run.reason ? Lang.t('reason.' + run.reason) : '';
         this._dialog(Lang.t(this.newRecord ? 'recordTitle' : 'overTitle'),
             why + '\n' + Lang.t('result', { meters: run.meters, best: this.best }),
@@ -361,6 +381,12 @@ class Game {
             if (chase) chase.setValue(gap);
         }
         if (this.mode !== 'play') return;
+        if (run.tutorial) {
+            this._show('hint', false);
+            this._set('best', Lang.t('tutorial.progress', { value: run.index + 1, total: CollapseRules.TUTORIAL.length }));
+            this._set('tutorialText', (run.failed ? Lang.t('tutorial.retry') + ' ' : '') + Lang.t('tutorial.' + run.step.id));
+            return;
+        }
         const next = run.nextFork();
         this._show('hint', true);
         this._set('hint', run.ammo <= 0 ? Lang.t('noAmmo')

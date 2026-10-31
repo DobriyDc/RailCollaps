@@ -1,0 +1,51 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:64075/?step=gap",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-tutorial/75ac4bbd-761d-4735-a40a-b9dec45dbd7c/scratchpad/shot.js",
+  "evalResult": {
+    "seconds": 0,
+    "taps": 137,
+    "retries": 0,
+    "steps": [
+      [
+        "sign",
+        0
+      ],
+      [
+        "ammo",
+        5.9
+      ],
+      [
+        "cross",
+        11.2
+      ],
+      [
+        "gap",
+        16.9
+      ]
+    ],
+    "text": [],
+    "hint": {
+      "text": "Провал: колеи нет. Сверни заранее, иначе поезд упадёт",
+      "font": "15px",
+      "inBox": true,
+      "inPlate": true,
+      "h": 42.2,
+      "boxH": 68,
+      "w": 371.2
+    },
+    "retried": null,
+    "mode": "play"
+  },
+  "errors": [],
+  "ok": true
+}
