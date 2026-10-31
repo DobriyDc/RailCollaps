@@ -1,0 +1,23 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:65286/",
+  "browser": "msedge.exe",
+  "waitMs": 2200,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-world/90e1ba18-60cb-4c37-a21e-6dfa2458b069/scratchpad/stage-fx-switch.js",
+  "evalResult": {
+    "pos": 30,
+    "front": 26,
+    "yawDeg": 25.85797228691515,
+    "camX": 45.35999999999999,
+    "lint": null
+  },
+  "errors": [],
+  "ok": true
+}

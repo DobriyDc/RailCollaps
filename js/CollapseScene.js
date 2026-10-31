@@ -48,17 +48,14 @@ const CollapseArt = {
     hazard: 'assets/px/ui/hazard.png',
     sw: { waiting: 'assets/px/switch/waiting.png', hit: 'assets/px/switch/hit.png',
         left: 'assets/px/switch/set_left.png', right: 'assets/px/switch/set_right.png' },
-    // Turnouts (card 07, art_src/switches_v1): a base with the through tracks and the curve, and one
-    // overlay of switch points per state; canvas 384x640 = three lanes, the curve leaves the middle lane.
+    // Turnouts (card 07, art_src/switches_v1): one overlay of switch points per state, canvas 384x640 =
+    // three lanes. The curve itself is geometry cut from the rails of track.png (_branchRails).
     switches: {
-        right: { base: 'assets/textures/switches/switch_right_base.png',
-            straight: 'assets/textures/switches/switch_right_points_straight.png',
+        right: { straight: 'assets/textures/switches/switch_right_points_straight.png',
             right: 'assets/textures/switches/switch_right_points_right.png' },
-        left: { base: 'assets/textures/switches/switch_left_base.png',
-            straight: 'assets/textures/switches/switch_left_points_straight.png',
+        left: { straight: 'assets/textures/switches/switch_left_points_straight.png',
             left: 'assets/textures/switches/switch_left_points_left.png' },
-        both: { base: 'assets/textures/switches/switch_both_base.png',
-            straight: 'assets/textures/switches/switch_both_points_straight.png',
+        both: { straight: 'assets/textures/switches/switch_both_points_straight.png',
             left: 'assets/textures/switches/switch_both_points_left.png',
             right: 'assets/textures/switches/switch_both_points_right.png' },
     },
@@ -674,7 +671,7 @@ class CollapseScene {
             BABYLON.Matrix.ScalingToRef(grow, grow, 1, m[0]);
             BABYLON.Matrix.RotationZToRef((p.hash - 0.5) * 3, m[1]);
             m[0].multiplyToRef(m[1], m[2]);
-            BABYLON.Matrix.TranslationToRef(p.x + (p.hash - 0.5) * 60 * t, p.y + this.smokeRise * t + S.SMOKE.h * grow / 2 * 0.4, p.z - back * life * t, m[1]);
+            BABYLON.Matrix.TranslationToRef(p.x + (p.hash - 0.25) * S.SMOKE.drift * t, p.y + this.smokeRise * t, p.z - back * life * t, m[1]);
             m[2].multiplyToRef(m[1], m[3]);
             S._put(sets[Math.min(sets.length - 1, Math.floor(t * sets.length))], m[3]);
         }
@@ -854,6 +851,37 @@ class CollapseScene {
         return m;
     }
 
+    // The branch of a turnout: both rails along the curve the train rides (the rules' own laneX over
+    // SWITCH_LEN, nothing of its shape is kept here), over the ballast of the straight lanes. Each rail is a ribbon cut out of the rail
+    // column of track.png, so it is the same iron as the lanes; a side lane of 'both' has its own pair.
+    _branchRails(g, y) {
+        const S = CollapseScene, len = CollapseRules.SWITCH_LEN * S.SEG, [from, to] = S.RAIL_U, half = (to - from) / 128 * S.LANE_W / 2;
+        const sides = g.variant === 'both' ? [0, 2] : [g.variant === 'left' ? 0 : 2], run = { prevLane: 1, lane: 1, switchAt: 0, pos: 0, laneX: CollapseRun.prototype.laneX };
+        const pos = [], uv = [], nor = [], idx = [];
+        for (const lane of sides) {
+            for (const rail of [-1, 1]) {
+                const base = pos.length / 3, mid = rail * S.LANE_W / 4;
+                for (let k = 0; k <= S.BRANCH_STEPS; k++) {
+                    const t = k / S.BRANCH_STEPS, z = t * len;
+                    run.lane = g.flip ? 1 : lane;
+                    run.prevLane = g.flip ? lane : 1;
+                    run.pos = t * CollapseRules.SWITCH_LEN;
+                    const x = S.laneX(k === S.BRANCH_STEPS ? run.lane : run.laneX()) + mid;
+                    pos.push(x - half, y, z, x + half, y, z);
+                    uv.push(from / 128, z / S.SEG, to / 128, z / S.SEG);
+                    nor.push(0, 1, 0, 0, 1, 0);
+                    if (k) { const a = base + 2 * k; idx.push(a - 2, a - 1, a + 1, a - 2, a + 1, a); }
+                }
+            }
+        }
+        const m = new BABYLON.Mesh('branch', this.scene), d = new BABYLON.VertexData();
+        d.positions = pos; d.uvs = uv; d.normals = nor; d.indices = idx;
+        d.applyToMesh(m);
+        m.material = this.surface('track', CollapseArt.tex.track, 1, 1);
+        m.isPickable = false;
+        return m;
+    }
+
     _segView(i, run) {
         const S = CollapseScene, scene = this.scene, seg = run.track.seg(i);
         /** @type {{ lanes: any[], forks: any[], signs: any[], crosses: any[], pickups: any[], flows: any[], set: any }} */
@@ -871,7 +899,7 @@ class CollapseScene {
         for (const g of S.switchGroups(seg.forks)) {
             const art = CollapseArt.switches[g.variant];
             const y = g.flip ? 3 : 1;   // a boundary never mixes both kinds; if it did, no z-fighting
-            const base = this._switchPlate('switch', this.spriteMat('sw:' + art.base, art.base, false), g.flip, y);
+            const base = this._branchRails(g, y);
             const points = this._switchPlate('points', this.spriteMat('sw:' + art.straight, art.straight, false), g.flip, y + 1);
             v.forks.push({ g, base, points });
         }
@@ -969,6 +997,8 @@ class CollapseScene {
         for (let i = Math.max(-S.BEHIND, lo); i <= hi; i++) if (!this.segViews.has(i)) this.segViews.set(i, this._segView(i, run));
 
         const next = run.nextFork();
+        const falling = run.state === 'over' && (run.reason === 'gap' || run.reason === 'caught');
+        const sink = falling ? Math.min(1, (this.time - (this._crashAt || this.time)) * 1.6) * S.FALL_SINK : 0;
         for (const [i, v] of this.segViews) {
             const z = (i - pos) * S.SEG;
             // Behind the collapse front the floor falls into the lava.
@@ -976,8 +1006,9 @@ class CollapseScene {
             v.lanes.forEach((m, l) => {
                 if (!m) return;
                 m.position.z = z + S.SEG / 2;
-                m.position.y = -drop;
-                m.setEnabled(drop < 880);
+                const under = l === run.lane && i <= pos + 1 && i >= pos - S.TRAIN_SEGS ? sink : 0;
+                m.position.y = -drop - under;
+                m.setEnabled(drop + under < 880);
             });
             if (run.armed && run.armed.at === i) v.set = run.armed;
             for (const sw of v.forks) {
@@ -1032,7 +1063,7 @@ class CollapseScene {
         this._yaw = yaw;
         if (run.state === 'over') {
             const k = Math.min(1, (this.time - (this._crashAt || this.time)) * 1.6);
-            if (run.reason === 'gap' || run.reason === 'caught') {
+            if (falling) {
                 fall = -k * 260;
                 roll = (run.lane === 0 ? -1 : 1) * this.fallTilt * k;   // it tips over the side it falls to
                 tip = 0.3 * k;                                         // and its nose goes down first
@@ -1169,9 +1200,11 @@ CollapseScene.LEAN = { vault: 0.75, torch: 0.45, rib: 0.55, 'wall-hi': 0.45, 'wa
 CollapseScene.CRACK_ART = 3;      // world units per art pixel of the cracks (the loco: 2.1); walls are seen edge-on
 CollapseScene.BG_PX = [384, 256]; // size of a layer of the collapse, art px (art_src/world_v3/world_manifest_v3.json)
 CollapseScene.RAIL_ROW = 180;     // art row of bg_04_rubble.png: the fold, just under its broken rails
+CollapseScene.FALL_SINK = 900;    // world units the lane under the hull drops as the train falls: it never goes through whole floor
+CollapseScene.TRAIN_SEGS = 3;     // segments of track under the hull behind its nose
 CollapseScene.FLOOR_HOLD = 1;     // segments behind the edge where the floor still holds, under the wreck
 CollapseScene.CHUNK_PX = 96;      // size of a falling chunk's art, px (the biggest of them; 64 for a brick)
-CollapseScene.SMOKE = { w: 260, h: 250, puffs: 8 };   // chimney smoke: a puff's sprite, world units, how many at once
+CollapseScene.SMOKE = { w: 260, h: 250, puffs: 8, drift: 420 };   // chimney smoke: a puff's sprite, world units; how many at once; how far the air takes it sideways
 CollapseScene.FX_ART = 2.1;       // world units per art pixel of the effects (the loco: 290 / 139 px)
 // Effect art (art_src/fx_v1/fx_manifest_v1.json): frame size, px; pivot from the top left, 0..1;
 // ms per frame; scale over FX_ART (the shield break covers the shield sprite).
@@ -1191,4 +1224,6 @@ CollapseScene.LAVA_MS = 180;      // ms a frame of the magma (art_src/world_v3: 
 CollapseScene.AHEAD = 6;
 CollapseScene.SW_PX = 640;        // turnout texture height, px (art_src/switches_v1/switches_manifest_v1.json)
 CollapseScene.SW_ROWS = [96, 544]; // texture rows where the S curve ends and starts (travel: bottom to top)
+CollapseScene.RAIL_U = [30, 37];   // the rail's column in track.png, px (the left rail; the tile's rails are at 32 and 96)
+CollapseScene.BRANCH_STEPS = 20;  // straight pieces of one rail of a turnout's curve
 CollapseScene.SW_LEN = CollapseRules.SWITCH_LEAD * CollapseScene.SEG;   // world units of a turnout plate from its fork boundary: the curve, then straight up to the hazard

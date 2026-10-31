@@ -1,0 +1,23 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:64677/",
+  "browser": "msedge.exe",
+  "waitMs": 2200,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-world/90e1ba18-60cb-4c37-a21e-6dfa2458b069/scratchpad/stage-train-curve.js",
+  "evalResult": {
+    "pos": 30,
+    "front": 26,
+    "yawDeg": 29.915889566848236,
+    "camX": 89.30250000000002,
+    "lint": null
+  },
+  "errors": [],
+  "ok": true
+}
