@@ -145,6 +145,6 @@ test('края провала: первый сегмент дыры — front, �
 test('пол под кромкой держится: падает только то, что уже за обломками', () => {
   const S = page().get('CollapseScene');
   assert.equal(S.floorDrop(-1), 0);
-  assert.equal(S.floorDrop(S.FLOOR_HOLD), 0, 'сегмент под откосом обломков на месте');
+  assert.equal(S.floorDrop(1), 0, 'сегмент под откосом обломков на месте');
   assert.ok(S.floorDrop(S.FLOOR_HOLD + 1) > 0);
 });

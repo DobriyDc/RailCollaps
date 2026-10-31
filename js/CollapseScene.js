@@ -315,8 +315,8 @@ class CollapseScene {
             const ribShape = side < 0 ? [V(-(W - 40), -60), ...arc(R - 40, 0, 8)] : [...arc(R - 40, 8, 16), V(W - 40, -60)];
             const rib = extrude('rib-' + s, ribShape, ribPath);
             S._alongPath(rib, arcTiles(R - 40) + (top + 60) / BRICK, 0);
-            rib.material = this.surface('rib', CollapseArt.tex.rib, 1, 1, this.brickLevel);
-            rib.material.emissiveTexture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+            const ribMat = rib.material = this.surface('rib', CollapseArt.tex.rib, 1, 1, this.brickLevel);
+            ribMat.emissiveTexture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
             piece(rib, side, 'rib', [side * W, -60]);
             const sh = BABYLON.MeshBuilder.CreateGround('shoulder', { width: shoulder, height: S.SEG }, scene);
             sh.bakeTransformIntoVertices(BABYLON.Matrix.Translation(side * (edge + shoulder / 2), -8, S.SEG / 2));
@@ -1204,7 +1204,7 @@ CollapseScene.FALL_SINK = 900;    // world units the lane under the hull drops a
 CollapseScene.TRAIN_SEGS = 3;     // segments of track under the hull behind its nose
 CollapseScene.FLOOR_HOLD = 1;     // segments behind the edge where the floor still holds, under the wreck
 CollapseScene.CHUNK_PX = 96;      // size of a falling chunk's art, px (the biggest of them; 64 for a brick)
-CollapseScene.SMOKE = { w: 260, h: 250, puffs: 8, drift: 420 };   // chimney smoke: a puff's sprite, world units; how many at once; how far the air takes it sideways
+CollapseScene.SMOKE = { w: 190, h: 182, puffs: 8, drift: 420 };   // chimney smoke: a puff's sprite, world units; how many at once; how far the air takes it sideways
 CollapseScene.FX_ART = 2.1;       // world units per art pixel of the effects (the loco: 290 / 139 px)
 // Effect art (art_src/fx_v1/fx_manifest_v1.json): frame size, px; pivot from the top left, 0..1;
 // ms per frame; scale over FX_ART (the shield break covers the shield sprite).
