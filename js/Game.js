@@ -18,6 +18,8 @@ class Game {
         this.newRecord = false;
         this._chase = -1;             // the chase bar value shown
         this.adPending = false;
+        this.portrait = 'calm';
+        this.portraitLeft = 0;
         this.flashLeft = 0;           // s the red flash of a demon hit stays up (hitFlash)
         this.best = parseInt(Store.get('collapse.best') || '0', 10) || 0;
         /** @type {Map<string, string>} */
@@ -25,7 +27,7 @@ class Game {
         /** @type {{ cam: any, enter: any, reach: any, key: string } | null} */
         this._frame = null;           // the frame in segments ahead, by body and lane (frameTable)
         // Loaded ahead: an icon that fetches its file when it lights shows empty for its first moments.
-        this._iconFiles = Object.values(Game.ICONS).map(url => { const img = new Image(); img.src = url; return img; });
+        this._iconFiles = [...Object.values(Game.ICONS), ...Object.values(Game.PORTRAITS), ...(UI.DIGITS || [])].map(url => { const img = new Image(); img.src = url; return img; });
         TG.loadBest(m => { if (m > this.best) { this.best = m; Store.set('collapse.best', String(m)); this._hudBest(); } });
 
         const pause = UI.get('pauseBtn');
@@ -72,6 +74,7 @@ class Game {
         this._show('over', false);
         this._show('hitFlash', false);
         this._show('menu', true);
+        this._show('tutorialBox', false);
         for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen']) this._show(id, id === screen);
         for (const id of ['frameTop', 'frameBottom', 'iconStrip']) this._show(id, false);
         this._show('menuExit', TG.inside);
@@ -164,7 +167,9 @@ class Game {
     start(run = new CollapseRun(Game.newSeed())) {
         this._show('menu', false);
         for (const id of ['frameTop', 'frameBottom', 'iconStrip']) this._show(id, true);
-        this._set('pauseBtn', Lang.t('pauseIcon'));
+        this._set('pauseBtn', '');
+        this.portrait = 'calm';
+        this.portraitLeft = 0;
         this.scene.reset();
         this.run = run;
         this.mode = 'play';
@@ -189,14 +194,14 @@ class Game {
             this._show('over', false);
         }
         const b = UI.get('pauseBtn');
-        if (b) b.setText(Lang.t(this.mode === 'pause' ? 'resumeIcon' : 'pauseIcon'));
+        if (b) b.setText('');
     }
 
     _pauseDialog() {
         this._dialog(Lang.t('pause'), Lang.t('pauseText'), [Lang.t('resume'), () => this.setPaused(false)],
             [Lang.t('restart'), () => this.start(this.run.tutorial ? new CollapseTutorial() : undefined)]);
         this._show('overMenu', this.run.tutorial);
-        this._set('pauseBtn', Lang.t('resumeIcon'));
+        this._set('pauseBtn', '');
     }
 
     // A tap on the canvas: the nearest fork sign or demon within reach; a demon is shot by its side.
@@ -233,7 +238,10 @@ class Game {
     update(dt) {
         const run = this.run;
         if (!run || this.mode === 'menu') return;
-        if (this.mode === 'play') run.update(dt);
+        if (this.mode === 'play') {
+            run.update(dt);
+            this.portraitLeft = Math.max(0, this.portraitLeft - dt);
+        }
         for (const ev of run.takeEvents()) this._onEvent(ev);
         if (this.mode === 'play' && run.tutorial && (run.missed || run.finished)) { this._tutorialEnd(run); return; }
         if (this.overIn >= 0 && (this.overIn -= dt) < 0) this._showOver();
@@ -246,6 +254,11 @@ class Game {
     _onEvent(ev) {
         const run = this.run;
         this.scene.onEvent(ev, run);
+        const reaction = Game.portraitEvent(ev);
+        if (reaction && (this.portraitLeft <= 0 || Game.PORTRAIT_PRIORITY.indexOf(reaction) >= Game.PORTRAIT_PRIORITY.indexOf(this.portrait))) {
+            this.portrait = reaction;
+            this.portraitLeft = typeof UI_PORTRAIT_SEC !== 'undefined' ? UI_PORTRAIT_SEC : 0.9;
+        }
         // A demon reached the cab (the shield took it or not): a short red flash over the screen.
         if ((ev.type === 'crash' || ev.type === 'shielded') && ev.reason === 'demon') {
             this.flashLeft = typeof COLLAPSE_FX_FLASH_SEC !== 'undefined' ? COLLAPSE_FX_FLASH_SEC : 0.15;
@@ -351,7 +364,7 @@ class Game {
             const box = scene.canvas.getBoundingClientRect();
             const edge = (id, side, def) => { const e = UI.get(id); return e ? e.el.getBoundingClientRect()[side] : def; };
             const ndc = y => 1 - 2 * (y - box.top) / box.height;
-            const top = ndc(edge('frameTop', 'bottom', box.top));
+            const top = ndc(edge(this.run && this.run.tutorial ? 'tutorialBox' : 'frameTop', 'bottom', box.top));
             scene.fitFrame(top);
             const view = { y: scene.camY, z: cam.position.z, pitch: Math.abs(cam.rotation.x), fov: cam.fov, aspect: engine.getAspectRatio(cam),
                 top, bottom: ndc(edge('frameBottom', 'top', box.bottom)) };
@@ -365,13 +378,37 @@ class Game {
         return f;
     }
 
-    _hudBest() { this._set('best', Lang.t('best', { value: this.best })); }
+    _hudBest() { this._set('best', String(this.best)); }
+
+    static portraitEvent(ev) {
+        if (ev.type === 'crash' || ev.type === 'shielded') return ev.reason === 'gap' ? 'fall' : ev.reason === 'lava' ? 'fire' : 'hit';
+        if (['pickup', 'demon-killed', 'rescued', 'continued'].includes(ev.type)) return 'joy';
+        if (['demon', 'no-ammo'].includes(ev.type)) return 'tense';
+        return '';
+    }
+
+    _portrait(run) {
+        const urgent = run.ammo <= 0 || run.pos - run.front < run.c.frontMaxGap * (typeof UI_PORTRAIT_TENSE_GAP !== 'undefined' ? UI_PORTRAIT_TENSE_GAP : 0.5) || run.demons.some(d => d.wait <= 0) || !!(run.nextFork() && !run.nextFork().armed);
+        const state = this.portraitLeft > 0 || run.state !== 'run' ? this.portrait : urgent ? 'tense' : 'calm';
+        const el = UI.get('portrait');
+        if (el && this._hudText.get('portrait') !== state) {
+            this._hudText.set('portrait', state);
+            el.setSrc(Game.PORTRAITS[state]);
+        }
+    }
 
     _hud(run) {
-        this._set('dist', Lang.t('meters', { value: run.meters }));
-        this._set('ammo', Lang.t('ammo', { value: run.ammo }));
-        this._set('rescue', Lang.t('rescue', { value: run.rescue }));
-        this._set('shield', Lang.t('shield', { value: run.shield }));
+        const needle = UI.get('needle');
+        if (needle) {
+            const min = typeof UI_GAUGE_MIN_DEG !== 'undefined' ? UI_GAUGE_MIN_DEG : -120;
+            const max = typeof UI_GAUGE_MAX_DEG !== 'undefined' ? UI_GAUGE_MAX_DEG : 120;
+            needle.setAngle(min + Math.min(1, run.speed() / (run.c.speedMax * Math.max(1, run.c.boostMult))) * (max - min));
+        }
+        this._portrait(run);
+        this._set('dist', String(run.meters));
+        this._set('ammo', String(run.ammo));
+        this._set('rescue', String(run.rescue));
+        this._set('shield', String(run.shield));
         this._set('effect', run.boost > 0 ? Lang.t('boost', { value: run.boost.toFixed(1) })
             : run.slow > 0 ? Lang.t('slow', { value: run.slow.toFixed(1) }) : '');
         const gap = Math.round(Math.max(0, Math.min(1, (run.pos - run.front) / run.c.frontMaxGap)) * 100) / 100;
@@ -383,7 +420,7 @@ class Game {
         if (this.mode !== 'play') return;
         if (run.tutorial) {
             this._show('hint', false);
-            this._set('best', Lang.t('tutorial.progress', { value: run.index + 1, total: CollapseRules.TUTORIAL.length }));
+            this._set('best', String(run.index + 1));
             this._set('tutorialText', (run.failed ? Lang.t('tutorial.retry') + ' ' : '') + Lang.t('tutorial.' + run.step.id));
             return;
         }
@@ -394,15 +431,25 @@ class Game {
     }
 }
 
-// Temporary icons from the sprites in the game (card 21); the final ones are card 22.
+// Incoming symbols use the same raster family as the dashboard.
 Game.ICONS = {
-    gap: 'assets/px/ui/hazard.png',
-    lava: 'assets/px/fx/lava_burst.png',
-    demon: 'assets/px/demon/jump_1.png',
-    ammo: 'assets/px/hud/ammo.png',
-    boost: 'assets/px/hud/boost.png',
-    slow: 'assets/px/hud/slow.png',
-    shield: 'assets/px/hud/shield.png',
-    rescue: 'assets/px/hud/rescue.png',
+    gap: 'assets/ui/hud_v3/icon_gap.png',
+    lava: 'assets/ui/hud_v3/icon_lava.png',
+    demon: 'assets/ui/hud_v3/icon_demon.png',
+    ammo: 'assets/ui/hud_v3/pickup_ammo.png',
+    boost: 'assets/ui/hud_v3/pickup_boost.png',
+    slow: 'assets/ui/hud_v3/pickup_slow.png',
+    shield: 'assets/ui/hud_v3/pickup_shield.png',
+    rescue: 'assets/ui/hud_v3/pickup_rescue.png',
 };
 Game.ICON_IDS = ['iconWallLeft', 'iconLane0', 'iconLane0Next', 'iconLane1', 'iconLane1Next', 'iconLane2', 'iconLane2Next', 'iconWallRight'];
+
+Game.PORTRAITS = {
+    calm: 'assets/ui/hud_v3/portrait_calm.png',
+    tense: 'assets/ui/hud_v3/portrait_tense.png',
+    joy: 'assets/ui/hud_v3/portrait_joy.png',
+    hit: 'assets/ui/hud_v3/portrait_hit.png',
+    fire: 'assets/ui/hud_v3/portrait_fire.png',
+    fall: 'assets/ui/hud_v3/portrait_fall.png',
+};
+Game.PORTRAIT_PRIORITY = ['calm', 'tense', 'joy', 'hit', 'fire', 'fall'];

@@ -125,7 +125,7 @@ function boot() {
   const localStorage = { getItem: k => store.get(k) ?? null, setItem: (k, v) => store.set(k, String(v)), removeItem: k => store.delete(k) };
   const UI = { get(id) {
     if (!elements.has(id)) elements.set(id, {
-      setText(v) { this.text = v; return this; }, setValue() { return this; },
+      setText(v) { this.text = v; return this; }, setAngle(v) { this.angle = v; return this; }, setSrc(v) { this.src = v; return this; }, setValue() { return this; },
       onClick(fn) { this.click = fn; return this; }, show(v) { this.visible = v; return this; },
     });
     return elements.get(id);
@@ -173,7 +173,7 @@ test('промах возвращает на шаг сразу, подсказк
   assert.deepEqual([game.run.index, game.mode], [0, 'play']);
   game.update(1 / 60);
   assert.match(b.UI.get('tutorialText').text, /Тап по табличке/);
-  assert.match(b.UI.get('best').text, /^Обучение 1 \/ 11$/);
+  assert.equal(b.UI.get('best').text, '1');
   b.lang.set('en');
   game.update(1 / 60);
   assert.match(b.UI.get('tutorialText').text, /Tap the sign/);
@@ -187,10 +187,37 @@ test('конец обучения: пройдено в Store, новый заб�
   assert.equal(b.store.get('collapse.tutorial'), '1');
   assert.deepEqual([game.mode, game.run.tutorial, game.run.pos], ['play', false, 0]);
   assert.equal(b.UI.get('tutorialBox').visible, false);
-  assert.match(b.UI.get('best').text, /^Рекорд/);
+  assert.equal(b.UI.get('best').text, '0');
   assert.match(b.UI.get('modeTutorial').text, /^✓ /);
   assert.equal(b.submits.length, 0);
   game.run._crash('gap');
   game.update(1 / 60);
   assert.equal(b.submits.length, 1);
+});
+
+
+test('портрет: все шесть кадров приходят из состояния и событий правил, манометр читает скорость', () => {
+  const b = boot(), g = b.game;
+  const states = ['calm', 'tense', 'joy', 'hit', 'fire', 'fall'];
+  for (const state of states) {
+    g.start();
+    if (state === 'tense') g.run.ammo = 0;
+    if (state === 'joy') {
+      let at = 1;
+      while (!g.run.track.seg(at).pickup.some(Boolean)) at++;
+      g.run.lane = g.run.track.seg(at).pickup.findIndex(Boolean);
+      g.run._collect(at);
+    }
+    if (state === 'hit' || state === 'fire') { g.run.shield = 1; g.run._hit(state === 'hit' ? 'demon' : 'lava'); }
+    if (state === 'fall') g.run._crash('gap');
+    g.update(0);
+    assert.equal(b.UI.get('portrait').src, g.constructor.PORTRAITS[state], state);
+  }
+  g.start(); g._hud(g.run);
+  const start = b.UI.get('needle').angle;
+  g.run.pos = 10000; g._hud(g.run);
+  const fast = b.UI.get('needle').angle;
+  g.run.boost = g.run.c.boostSec; g._hud(g.run);
+  assert.ok(start < fast && fast < b.UI.get('needle').angle);
+  assert.equal(b.UI.get('needle').angle, 120);
 });
