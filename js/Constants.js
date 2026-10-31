@@ -168,6 +168,24 @@ const COLLAPSE_LOOK_INK_BANDS = 4;      // tones of light in the ink look (2..6)
 const COLLAPSE_LOOK_LOWPOLY_TEXEL = 4;  // art pixels per coarse texel in the lowpoly look (the turnouts keep theirs: their rails are a signal)
 const COLLAPSE_LOOK_LOWPOLY_FOG_START = 300; // world units behind the train: lowpoly fog starts
 const COLLAPSE_LOOK_LOWPOLY_FOG_END = 3000;  // world units behind the train: lowpoly fog is full
+// The owner's camera test (card 20, CollapseLook.camera): ?cam=1.3|1.6|2 — the train that many times
+// larger. Height, distance, look-at point, how far the front plate goes down so its arch stays in the frame, how far a fork sign stands from its lane (share of the lane step: a close
+// camera sees a narrow strip of the track, and a sign out at the side enters the frame late). Temporary: the winner goes to COLLAPSE_CAM_*.
+const COLLAPSE_CAM_V13_Y = 600;
+const COLLAPSE_CAM_V13_Z = 2284;
+const COLLAPSE_CAM_V13_LOOK_Z = 445;
+const COLLAPSE_CAM_V13_FRONT_Y = -120;
+const COLLAPSE_CAM_V13_SIGN = 0.5;
+const COLLAPSE_CAM_V16_Y = 520;
+const COLLAPSE_CAM_V16_Z = 1847;
+const COLLAPSE_CAM_V16_LOOK_Z = 344;
+const COLLAPSE_CAM_V16_FRONT_Y = -270;
+const COLLAPSE_CAM_V16_SIGN = 0.5;
+const COLLAPSE_CAM_V20_Y = 450;
+const COLLAPSE_CAM_V20_Z = 1467;
+const COLLAPSE_CAM_V20_LOOK_Z = 178;
+const COLLAPSE_CAM_V20_FRONT_Y = -350;
+const COLLAPSE_CAM_V20_SIGN = 0.3;
 
 // --- CAMERA (CameraControl.js): target on the map, azimuth, pitch and zoom. Zoom is
 // screen px per world px at the look-at point; distance is derived from it. Flight

@@ -1,6 +1,6 @@
-// CollapseLook.js — the temporary style switch of Rail Link: Collapse (card 18): ?look=pixel|lowpoly|ink.
-// Without it nothing here runs and the game is drawn as it always was. The owner picks one look; the
-// rest goes away.
+// CollapseLook.js — the temporary style and camera switches of Rail Link: Collapse (cards 18, 20):
+// ?look=pixel|lowpoly|ink and ?cam=1.3|1.6|2, which combine. Without them nothing here runs and the
+// game is drawn as it always was. The owner picks one look and one camera; the rest goes away.
 //
 // Every look relights the same tunnel with REAL light: lava and torches are positions and colors the
 // rig below moves every frame, and one material plugin turns them into light on the walls, the rails
@@ -14,6 +14,7 @@
 /** @satisfies {Record<string, any>} */
 const CollapseLook = {
     LOOKS: ['pixel', 'lowpoly', 'ink'],
+    CAMS: ['1.3', '1.6', '2'],
     LIGHTS: 19,             // the light list of the shader: 10 torches, 2 streams, 3 gaps, the front, the headlamp, a shot, the heat
     GLOW: 0, SOLID: 1, SPRITE: 2, FIRE: 3,   // how a material takes the light: lookMat.x
     // The one palette of the pixel look: the darks of the tunnel, brick, fire, iron, the signal colors.
@@ -30,13 +31,14 @@ const CollapseLook = {
     /** @type {CollapseLookRig | null} */
     rig: null,              // the rig of this page: the plugin reads the light list from it
 
-    // The page query -> { look }: null where it is absent or unknown, so a stray value leaves the
-    // game as it is.
+    // The page query -> { look, cam }: null where it is absent or unknown, so a stray value leaves the
+    // game as it is. The cam key is the variant's name in the constants.
     parse(search) {
-        const out = { look: null };
+        const out = { look: null, cam: null };
         for (const pair of String(search || '').replace(/^\?/, '').split('&')) {
             const [k, v] = pair.split('=');
             if (k === 'look' && this.LOOKS.includes(v)) out.look = v;
+            if (k === 'cam' && this.CAMS.includes(v === '2.0' ? '2' : v)) out.cam = v === '2.0' ? '2' : v;
         }
         return out;
     },
@@ -44,6 +46,33 @@ const CollapseLook = {
     // What this page asked for.
     current() {
         return this.parse(typeof location !== 'undefined' ? location.search : '');
+    },
+
+    // The tunnel camera of a variant, or null for the camera of Constants.js.
+    camera(cam) {
+        const U = 'undefined';
+        if (cam === '1.3') return {
+            y: typeof COLLAPSE_CAM_V13_Y !== U ? COLLAPSE_CAM_V13_Y : 600,
+            z: typeof COLLAPSE_CAM_V13_Z !== U ? COLLAPSE_CAM_V13_Z : 2284,
+            lookZ: typeof COLLAPSE_CAM_V13_LOOK_Z !== U ? COLLAPSE_CAM_V13_LOOK_Z : 445,
+            frontY: typeof COLLAPSE_CAM_V13_FRONT_Y !== U ? COLLAPSE_CAM_V13_FRONT_Y : -120,
+            sign: typeof COLLAPSE_CAM_V13_SIGN !== U ? COLLAPSE_CAM_V13_SIGN : 0.5,
+        };
+        if (cam === '1.6') return {
+            y: typeof COLLAPSE_CAM_V16_Y !== U ? COLLAPSE_CAM_V16_Y : 520,
+            z: typeof COLLAPSE_CAM_V16_Z !== U ? COLLAPSE_CAM_V16_Z : 1847,
+            lookZ: typeof COLLAPSE_CAM_V16_LOOK_Z !== U ? COLLAPSE_CAM_V16_LOOK_Z : 344,
+            frontY: typeof COLLAPSE_CAM_V16_FRONT_Y !== U ? COLLAPSE_CAM_V16_FRONT_Y : -270,
+            sign: typeof COLLAPSE_CAM_V16_SIGN !== U ? COLLAPSE_CAM_V16_SIGN : 0.5,
+        };
+        if (cam === '2') return {
+            y: typeof COLLAPSE_CAM_V20_Y !== U ? COLLAPSE_CAM_V20_Y : 450,
+            z: typeof COLLAPSE_CAM_V20_Z !== U ? COLLAPSE_CAM_V20_Z : 1467,
+            lookZ: typeof COLLAPSE_CAM_V20_LOOK_Z !== U ? COLLAPSE_CAM_V20_LOOK_Z : 178,
+            frontY: typeof COLLAPSE_CAM_V20_FRONT_Y !== U ? COLLAPSE_CAM_V20_FRONT_Y : -350,
+            sign: typeof COLLAPSE_CAM_V20_SIGN !== U ? COLLAPSE_CAM_V20_SIGN : 0.3,
+        };
+        return null;
     },
 
     // How a scene material takes the light, by the key it is made under (CollapseScene.surface,

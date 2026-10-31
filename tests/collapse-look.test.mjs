@@ -7,13 +7,25 @@ import { loadScripts } from './browser-scripts.mjs';
 const look = () => loadScripts(['js/Constants.js', 'js/CollapseLook.js']).get('CollapseLook');
 const plain = v => JSON.parse(JSON.stringify(v));
 
-test('вид: без параметра и с чужим значением — игра как есть', () => {
+test('вид и камера: без параметров и с чужими значениями — игра как есть, параметры сочетаются', () => {
   const L = look();
-  for (const q of ['', '?', '?v=0.1.0', '?look=', '?look=neon', '?LOOK=pixel']) {
-    assert.deepEqual(plain(L.parse(q)), { look: null }, q);
+  for (const q of ['', '?', '?v=0.1.0', '?look=', '?look=neon', '?cam=3', '?cam=', '?LOOK=pixel']) {
+    assert.deepEqual(plain(L.parse(q)), { look: null, cam: null }, q);
   }
-  assert.deepEqual(plain(L.parse('?look=pixel')), { look: 'pixel' });
-  assert.deepEqual(plain(L.parse('?a=1&look=ink')), { look: 'ink' });
+  assert.deepEqual(plain(L.parse('?look=pixel&cam=1.6')), { look: 'pixel', cam: '1.6' });
+  assert.deepEqual(plain(L.parse('?cam=2&look=ink')), { look: 'ink', cam: '2' });
+  assert.deepEqual(plain(L.parse('?cam=2.0')), { look: null, cam: '2' });
+  assert.equal(L.camera(null), null, 'без ?cam камера — из COLLAPSE_CAM_*');
+});
+
+test('варианты камеры: поезд крупнее во столько раз, во сколько обещано, числа — из Constants.js', () => {
+  const p = loadScripts(['js/Constants.js', 'js/CollapseLook.js']), L = p.get('CollapseLook');
+  const base = p.get('COLLAPSE_CAM_Z');
+  for (const [key, k] of [['1.3', 1.3], ['1.6', 1.6], ['2', 2]]) {
+    const v = L.camera(key);
+    assert.ok(Math.abs(base / v.z - k) / k < 0.03, `${key}: крупнее в ${(base / v.z).toFixed(2)} раза`);
+  }
+  assert.equal(L.camera('2').z, p.get('COLLAPSE_CAM_V20_Z'));
 });
 
 test('сигнал не гаснет: таблички и подбираемое светятся сами, в темноте видно только освещаемое', () => {
