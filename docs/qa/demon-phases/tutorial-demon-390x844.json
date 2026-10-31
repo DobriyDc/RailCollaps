@@ -1,0 +1,28 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:65223/",
+  "browser": "msedge.exe",
+  "waitMs": 1500,
+  "eval": "одноразовый скрипт",
+  "evalResult": {
+    "fits": true,
+    "box": [
+      389.98370361328125,
+      67.9888916015625
+    ],
+    "t": [
+      389.98370361328125,
+      42.20000457763672
+    ],
+    "left": 4.338205029683749
+  },
+  "errors": [],
+  "ok": true
+}

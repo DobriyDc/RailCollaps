@@ -204,7 +204,7 @@ class Game {
         this._set('pauseBtn', '');
     }
 
-    // A tap on the canvas: the nearest fork sign or demon within reach; a demon is shot by its side.
+    // A tap on the canvas: the nearest fork lever or demon within reach; a demon is shot by its side.
     tap(e) {
         const run = this.run;
         if (this.mode !== 'play' || !run || run.state !== 'run') return;
@@ -342,7 +342,9 @@ class Game {
         const lit = new Map();
         if (this.mode === 'play') {
             const f = this._frameNow();
-            for (const [id, item] of Game.iconSlots(run.ahead(run.c.iconLead, f.enter, f.reach))) lit.set(id, Game.ICONS[item.kind]);
+            const hz = typeof COLLAPSE_DEMON_BLINK_HZ !== 'undefined' ? COLLAPSE_DEMON_BLINK_HZ : 3;
+            const off = Math.floor(run.time * hz * 2) % 2 === 1;       // a demon's icon blinks: both walls of a pair in step
+            for (const [id, item] of Game.iconSlots(run.ahead(run.c.iconLead, f.enter, f.reach))) if (item.lane >= 0 || !off) lit.set(id, Game.ICONS[item.kind]);
         }
         for (const id of Game.ICON_IDS) {
             const url = lit.get(id) || '';
@@ -394,7 +396,7 @@ class Game {
     }
 
     _portrait(run) {
-        const urgent = run.ammo <= 0 || run.pos - run.front < run.c.frontMaxGap * (typeof UI_PORTRAIT_TENSE_GAP !== 'undefined' ? UI_PORTRAIT_TENSE_GAP : 0.5) || run.demons.some(d => d.wait <= 0) || this._forkDanger(run);
+        const urgent = run.ammo <= 0 || run.pos - run.front < run.c.frontMaxGap * (typeof UI_PORTRAIT_TENSE_GAP !== 'undefined' ? UI_PORTRAIT_TENSE_GAP : 0.5) || run.demons.length > 0 || this._forkDanger(run);
         const state = this.portraitLeft > 0 || run.state !== 'run' ? this.portrait : urgent ? 'tense' : 'calm';
         const el = UI.get('portrait');
         if (el && this._hudText.get('portrait') !== state) {

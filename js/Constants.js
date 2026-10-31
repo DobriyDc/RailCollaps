@@ -75,7 +75,7 @@ const GAME_STEP_SEC = 0.35;             // s: between footstep sounds while the 
 
 // --- RAIL LINK: COLLAPSE (CollapseRules.js — the run, CollapseScene.js — the tunnel). Distance is
 // counted in track SEGMENTS; the first numbers of the prototype, tuned in playtests (GDD v3 §8) ---
-const COLLAPSE_RULES_VERSION = 2;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
+const COLLAPSE_RULES_VERSION = 3;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
 const COLLAPSE_SEG_METERS = 10;         // m of distance shown per segment
 const COLLAPSE_SPEED = 2.2;             // segments/s: train speed at the start
 const COLLAPSE_SPEED_GROWTH = 0.0025;   // segments/s added per segment travelled
@@ -91,14 +91,17 @@ const COLLAPSE_SLOW_MULT = 0.65;        // decelerator: speed multiplier
 const COLLAPSE_SLOW_SEC = 3;            // s: decelerator duration
 const COLLAPSE_START_AMMO = 8;          // cartridges at the start: one shot switches one fork
 const COLLAPSE_AMMO_PICKUP = 4;         // cartridges per ammo pickup
-const COLLAPSE_DEMON_SEC = 1.6;         // s to shoot a jumping demon before it hits the train
+const COLLAPSE_DEMON_WARN_SEC = 1;      // s: the wall icons warn of a demon before it shows on its wall
+const COLLAPSE_DEMON_BLINK_HZ = 3;      // the wall icon of a demon in its warning blinks this many times a second
+const COLLAPSE_DEMON_PERCH_SEC = 1;     // s a demon stands on its wall in the frame; it can be shot from its first frame
+const COLLAPSE_DEMON_SEC = 0.6;         // s of the leap: a demon not shot by its end hits the train
 const COLLAPSE_DEMON_EVERY = 30;        // segments: a demon at most once per this distance
 const COLLAPSE_DEMON_CHANCE = 0.2;      // chance that a pattern is a demon once the spacing above allows one
 const COLLAPSE_DEMON_START = 60;        // segments: no demon before this distance (600 m)
 const COLLAPSE_DEMON_PAIR_FROM = 120;   // segments: demons come in pairs (both walls) from this distance (1200 m)
 const COLLAPSE_DEMON_PAIR_FULL = 350;   // segments: the chance of a pair grows until this distance
 const COLLAPSE_DEMON_PAIR_MAX = 0.6;    // chance of a pair from DEMON_PAIR_FULL on
-const COLLAPSE_DEMON_PAIR_LAG = 0.35;   // s: the second demon of a pair leaps this much after the first
+const COLLAPSE_DEMON_PAIR_LAG = 0.35;   // s: the second demon of a pair shows and leaps this much after the first
 const COLLAPSE_SHIELD_MAX = 2;          // shields the train can carry
 const COLLAPSE_RESCUE_MAX = 2;          // rescues from a fall the train can carry
 const COLLAPSE_SHIELD_GAP = 6;          // segments: a shield that takes the collapse pushes it back this far
