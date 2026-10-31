@@ -84,6 +84,10 @@ const CollapseArt = {
 class CollapseScene {
     constructor(canvas) {
         this.canvas = canvas;
+        // The temporary switches (CollapseLook.js): without them the rig is null and the camera is Constants.js'.
+        const pick = CollapseLook.current(), camVar = CollapseLook.camera(pick.cam);
+        /** @type {CollapseLookRig | null} */
+        this.rig = pick.look ? new CollapseLookRig(pick.look) : null;
         this.view = World3D.createView({});
         const scene = this.scene = this.view.scene;
         this.engine = this.view.engine;
@@ -97,8 +101,8 @@ class CollapseScene {
         const U = 'undefined';
         cam.fov = (typeof COLLAPSE_CAM_FOV_DEG !== U ? COLLAPSE_CAM_FOV_DEG : 50) * Math.PI / 180;
         cam.minZ = 10;
-        cam.position.set(0, typeof COLLAPSE_CAM_Y !== U ? COLLAPSE_CAM_Y : 650, typeof COLLAPSE_CAM_Z !== U ? COLLAPSE_CAM_Z : 3000);
-        cam.setTarget(new BABYLON.Vector3(0, 0, typeof COLLAPSE_CAM_LOOK_Z !== U ? COLLAPSE_CAM_LOOK_Z : 920));
+        cam.position.set(0, camVar ? camVar.y : typeof COLLAPSE_CAM_Y !== U ? COLLAPSE_CAM_Y : 650, camVar ? camVar.z : typeof COLLAPSE_CAM_Z !== U ? COLLAPSE_CAM_Z : 3000);
+        cam.setTarget(new BABYLON.Vector3(0, 0, camVar ? camVar.lookZ : typeof COLLAPSE_CAM_LOOK_Z !== U ? COLLAPSE_CAM_LOOK_Z : 920));
         // The camera follows the train sideways (GDD v3 §2): eye and look-at point shift together by a
         // share of the train's offset, so the view direction never turns; camX eases toward that goal.
         this.camFollow = typeof COLLAPSE_CAM_FOLLOW !== U ? COLLAPSE_CAM_FOLLOW : 0.5;
@@ -117,6 +121,8 @@ class CollapseScene {
         // The collapse: where the front plate stands behind the edge, the crack zone ahead of it, how
         // bright the cracks glow, how far ahead of the edge the vault starts to shed blocks.
         this.frontBack = typeof COLLAPSE_FRONT_BEHIND !== U ? COLLAPSE_FRONT_BEHIND : 0.4;
+        this.signShift = camVar ? camVar.sign : 0.5;      // where a fork sign stands between its two lanes
+        this.frontLift = camVar ? camVar.frontY : 0;      // a closer camera sees less of the height: the arch comes down to it
         this.crackZone = typeof COLLAPSE_CRACK_ZONE !== U ? COLLAPSE_CRACK_ZONE : 3;
         this.crackLevel = typeof COLLAPSE_CRACK_LEVEL !== U ? COLLAPSE_CRACK_LEVEL : 1.6;
         this.debrisLead = typeof COLLAPSE_DEBRIS_LEAD !== U ? COLLAPSE_DEBRIS_LEAD : 1;
@@ -132,12 +138,13 @@ class CollapseScene {
         cam.maxZ = toTrain + CollapseScene.SEG * CollapseScene.BEHIND + 2000;
         this.ahead = Math.max(CollapseScene.AHEAD, Math.ceil(camZ / CollapseScene.SEG) + 1);
         this.slots = CollapseScene.BEHIND + this.ahead + 2;   // tunnel pieces: one per segment of the window
-        this.renderHeight = typeof COLLAPSE_RENDER_HEIGHT !== U ? COLLAPSE_RENDER_HEIGHT : 640;
+        this.renderHeight = (this.rig && this.rig.renderHeight) || (typeof COLLAPSE_RENDER_HEIGHT !== U ? COLLAPSE_RENDER_HEIGHT : 640);
 
         this._tex = new Map();
         this._mats = new Map();
         this._buildTunnel();
         this._buildTrain();
+        if (this.rig) this.rig.finish(this);
         /** @type {Map<number, any>} */
         this.segViews = new Map();
         /** @type {{ mesh: any, until: number }[]} */
@@ -191,6 +198,7 @@ class CollapseScene {
         m.emissiveTexture = t;
         m.diffuseColor = new BABYLON.Color3(0, 0, 0);
         m.specularColor = new BABYLON.Color3(0, 0, 0);
+        if (this.rig) m.metadata = { look: CollapseLook.kindOf(key) };
         this._mats.set(key, m);
         return m;
     }
@@ -208,6 +216,7 @@ class CollapseScene {
         // Blend: art with half-transparent pixels (decals, steam, sparks) — straight alpha blending.
         m.transparencyMode = blend ? BABYLON.Material.MATERIAL_ALPHABLEND : BABYLON.Material.MATERIAL_ALPHATEST;
         m.alphaCutOff = 0.5;
+        if (this.rig) m.metadata = { look: CollapseLook.kindOf(key) };
         this._mats.set(key, m);
         return m;
     }
@@ -309,6 +318,7 @@ class CollapseScene {
             const torch = this.sprite('torch', 'torch', CollapseArt.torch[0], 105, 210, false);
             torch.bakeTransformIntoVertices(BABYLON.Matrix.Translation(side * (W - 60), 250, 0));
             piece(torch, side, 'torch', [side * W, mid]);
+            if (this.rig) continue;     // the painted glow of a torch: a look has the real light instead
             const glow = BABYLON.MeshBuilder.CreatePlane('glow', { width: 400, height: 400 }, scene);
             glow.bakeTransformIntoVertices(BABYLON.Matrix.RotationY(side > 0 ? -Math.PI / 2 : Math.PI / 2).multiply(BABYLON.Matrix.Translation(side * (W - 4), 360, 0)));
             glow.material = this.spriteMat('glow', CollapseArt.tex.glow);
@@ -352,6 +362,7 @@ class CollapseScene {
         plate.material = this.spriteMat('collapse-front', CollapseArt.front[0], false);
         for (const u of CollapseArt.front) this.texture(u, false).level = this.lavaLevel;   // the frames glow like the lava
         plate.isPickable = false;
+        plate.position.y = this.frontLift;
         const cap = 4 * (Math.ceil(this.crackZone) + 2);   // per segment: two walls, two on the floor
         this.cracks = {
             wall: CollapseArt.crackWall.map(u => this._instSprite('crack-wall', u, 128 * S.CRACK_ART, 160 * S.CRACK_ART, cap, true)),
@@ -814,7 +825,7 @@ class CollapseScene {
                 this._setSpriteTex(sign.material, url);
                 const armed = run.armed && run.armed.at === md.at && run.armed.to === md.to;
                 const actionable = next && next.at === md.at;
-                sign.position.set(S.laneX(md.from) + (md.to - md.from) * S.LANE_W * 0.5, armed ? 40 : 0, z);
+                sign.position.set(S.laneX(md.from) + (md.to - md.from) * S.LANE_W * this.signShift, armed ? 40 : 0, z);
                 sign.scaling.setAll(armed ? 1.15 : actionable ? 1 : 0.75);
             }
             for (const c of v.crosses) {
@@ -871,6 +882,7 @@ class CollapseScene {
 
         this._syncDemons(run, x);
         this._syncFx(x, this.train.position.y);
+        if (this.rig) this.rig.sync(run, pos, this.time, x, heat, this._shotUntil > this.time);
     }
 
     // Demons leap out of their wall toward the cab: at the start the sprite is half inside the
@@ -884,7 +896,7 @@ class CollapseScene {
                 const k = 1 - Math.max(0, d.t) / run.c.demonSec;
                 const e = k * k * (3 - 2 * k);
                 const z0 = -S.SEG * 2.5, z1 = 120;
-                const x0 = this._inFrameX(side * (S.WALL_X - 40), z0), x1 = trainX + side * S.LANE_W * 0.45;
+                const x0 = this._inFrameX(side * (S.WALL_X - 40), z0), x1 = this._inFrameX(trainX + side * S.LANE_W * 0.45, z1);
                 view.setEnabled(true);
                 view.position.set(x0 + (x1 - x0) * e, 150 - 110 * e + Math.sin(k * Math.PI) * 120, z0 + (z1 - z0) * e);
                 this._setSpriteTex(view.material, CollapseArt.demon[Math.min(3, Math.floor(k * 4))]);

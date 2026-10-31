@@ -11,8 +11,12 @@
 //  node tools/qa-shots.mjs --sizes=360x640 --out=docs/qa/x --name=start --wait=4000
 //  node tools/qa-shots.mjs --eval-file=path/to/setup.js # an async function body run before the shot
 //  node tools/qa-shots.mjs --url=http://localhost:8080/ # an already running server
+//  node tools/qa-shots.mjs --help
 //  options: --browser=<exe>  --dpr=1  --keep (leave the browser profile folder)
-//  Exit code 1 — a page error, a console error, or innerWidth/innerHeight not as ordered.
+//           --timeout=120000 (ms for the whole run; past it the browser is closed and the exit code is 1)
+//  Exit code 1 — a page error, a console error, innerWidth/innerHeight not as ordered, or the timeout.
+//  The browser and our dev server never outlive the run: Browser.close, then the process tree, then
+//  whatever still carries our profile folder on its command line (orphans fall out of the tree).
 // ============================================================================
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
@@ -20,7 +24,7 @@ import os from 'node:os';
 import path from 'node:path';
 import net from 'node:net';
 import url from 'node:url';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 
 const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '..');
 const arg = (name, def) => {
@@ -45,6 +49,26 @@ export function parseSizes(s) {
     return { width: Number(m[1]), height: Number(m[2]) };
   });
 }
+
+const HELP = `qa-shots — кадры игры на размерах телефона (headless Edge или Chrome)
+
+  node tools/qa-shots.mjs [параметры]
+
+  --sizes=360x640,390x844   размеры кадра, CSS px
+  --out=docs/qa/shots       папка для PNG и JSON
+  --name=game               начало имени файла
+  --wait=3000               мс после загрузки страницы
+  --eval=<код>              тело async-функции, выполнить в странице перед кадром
+  --eval-file=<файл>        то же из файла
+  --url=<адрес>             уже запущенный сервер, адрес с параметрами
+  --query=<параметры>       дописать к адресу страницы, например look=pixel&cam=1.6
+  --browser=<exe>           путь к браузеру
+  --dpr=1                   devicePixelRatio
+  --timeout=120000          предел всего запуска, мс
+  --keep                    оставить папку профиля браузера
+  --help                    эта справка
+
+Код выхода 1 — ошибка страницы, не тот размер окна или вышел предел времени.`;
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -145,7 +169,40 @@ async function shoot(cdp, pageUrl, size, opts) {
   return { view, png: Buffer.from(shot.data, 'base64'), errors, evalResult };
 }
 
+// The whole tree of a spawned process. On Windows child.kill() ends only the process itself.
+function killTree(child) {
+  if (!child || child.pid == null) return;
+  if (process.platform === 'win32') spawnSync('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore', timeout: 5000 });
+  else try { process.kill(-child.pid, 'SIGKILL'); } catch { child.kill('SIGKILL'); }
+}
+
+// Processes that fell out of the tree (their parent died first) still name our profile folder.
+function killByProfile(browser, profile) {
+  const tag = path.basename(profile);
+  if (process.platform === 'win32') {
+    const exe = path.basename(browser);
+    const ps = `Get-CimInstance Win32_Process -Filter "Name='${exe}'" | Where-Object { $_.CommandLine -like '*${tag}*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`;
+    spawnSync('powershell', ['-NoProfile', '-NonInteractive', '-Command', ps], { stdio: 'ignore', timeout: 8000 });
+  } else {
+    spawnSync('pkill', ['-9', '-f', tag], { stdio: 'ignore', timeout: 5000 });
+  }
+}
+
+// Closes everything the run started. Every step is bounded: a wedged browser must not wedge the exit.
+async function shutdown(cdp, edge, server, browser, profile) {
+  if (cdp) {
+    await Promise.race([cdp.send('Browser.close').catch(() => {}), sleep(2000)]);
+    cdp.close();
+  }
+  killTree(edge);
+  killByProfile(browser, profile);
+  killTree(server);
+  await sleep(200);
+  if (!flag('keep')) await fsp.rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }).catch(() => {});
+}
+
 async function main() {
+  if (flag('help')) { console.log(HELP); return; }
   const sizes = parseSizes(arg('sizes', '360x640,390x844'));
   const out = path.resolve(ROOT, arg('out', 'docs/qa/shots'));
   const name = arg('name', 'game');
@@ -157,31 +214,38 @@ async function main() {
   };
   const browser = arg('browser', null) || BROWSERS.find(b => fs.existsSync(b));
   if (!browser) throw new Error('нет Edge или Chrome: --browser=<путь к exe>');
+  const limit = Number(arg('timeout', '120000'));
 
   // The game: an already running server or our own dev server on a free port.
   let pageUrl = arg('url', null), server = null;
   if (!pageUrl) {
     const port = await freePort();
-    server = spawn(process.execPath, [path.join(ROOT, 'tools', 'dev-server.mjs'), '--port=' + port, '--no-open'], { stdio: 'ignore' });
+    server = spawn(process.execPath, [path.join(ROOT, 'tools', 'dev-server.mjs'), '--port=' + port, '--no-open'], { stdio: 'ignore', detached: process.platform !== 'win32' });
     pageUrl = `http://127.0.0.1:${port}/`;
     await waitFor(async () => (await fetch(pageUrl)).ok, 15000, 'dev-server ' + pageUrl);
   }
+  const query = arg('query', '');
+  if (query) pageUrl += (pageUrl.includes('?') ? '&' : '?') + query;
 
   const profile = await fsp.mkdtemp(path.join(os.tmpdir(), 'qa-shots-'));
   const edge = spawn(browser, [
     '--headless=new', '--remote-debugging-port=0', '--user-data-dir=' + profile, '--no-first-run',
     '--no-default-browser-check', '--disable-extensions', '--hide-scrollbars', '--mute-audio',
     '--enable-unsafe-swiftshader', '--autoplay-policy=no-user-gesture-required', 'about:blank',
-  ], { stdio: 'ignore' });
+  ], { stdio: 'ignore', detached: process.platform !== 'win32' });
 
-  let failed = false;
-  try {
+  let failed = false, cdp = null, timer = null;
+  const expired = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error('вышел предел времени ' + limit + ' мс')), limit);
+    for (const sig of ['SIGINT', 'SIGTERM']) process.once(sig, () => reject(new Error('прервано: ' + sig)));
+  });
+  const work = async () => {
     // Port 0: the browser picks a port and writes it with the browser endpoint into the profile.
     const active = await waitFor(() => {
       const f = path.join(profile, 'DevToolsActivePort');
       return fs.existsSync(f) && fs.readFileSync(f, 'utf8').trim().split(/\r?\n/);
     }, 20000, 'DevToolsActivePort');
-    const cdp = await Cdp.open(`ws://127.0.0.1:${active[0]}${active[1]}`);
+    cdp = await Cdp.open(`ws://127.0.0.1:${active[0]}${active[1]}`);
     await fsp.mkdir(out, { recursive: true });
     for (const size of sizes) {
       const r = await shoot(cdp, pageUrl, size, opts);
@@ -199,16 +263,17 @@ async function main() {
       console.log(`${ok ? 'OK  ' : 'FAIL'} ${path.relative(ROOT, base)}.png  inner ${r.view.innerWidth}x${r.view.innerHeight}, ошибок ${r.errors.length}`);
       for (const e of r.errors) console.log('     ' + e.kind + ': ' + e.text.split('\n')[0]);
     }
-    cdp.close();
+  };
+  try {
+    await Promise.race([work(), expired]);
   } finally {
-    edge.kill();
-    if (server) server.kill();
-    await sleep(300);
-    if (!flag('keep')) await fsp.rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }).catch(() => {});
+    clearTimeout(timer);
+    await shutdown(cdp, edge, server, browser, profile);
   }
   process.exitCode = failed ? 1 : 0;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === url.fileURLToPath(import.meta.url)) {
-  main().catch(e => { console.error('qa-shots: ' + (e && e.message || e)); process.exitCode = 1; });
+  // An explicit exit: a socket left open by a wedged browser must not keep the process alive.
+  main().catch(e => { console.error('qa-shots: ' + (e && e.message || e)); process.exitCode = 1; }).finally(() => process.exit());
 }

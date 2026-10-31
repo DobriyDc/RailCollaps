@@ -1,0 +1,17 @@
+{
+  "ordered": {
+    "width": 1640,
+    "height": 900
+  },
+  "innerWidth": 1640,
+  "innerHeight": 900,
+  "devicePixelRatio": 1,
+  "title": "Варианты камеры",
+  "url": "http://127.0.0.1:8197/docs/qa/camera/index.html",
+  "browser": "msedge.exe",
+  "waitMs": 800,
+  "eval": null,
+  "evalResult": null,
+  "errors": [],
+  "ok": true
+}

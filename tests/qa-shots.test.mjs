@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { ROOT } from './browser-scripts.mjs';
 import { parseSizes } from '../tools/qa-shots.mjs';
 
@@ -18,4 +19,10 @@ test('qa-shots: без зависимостей — импорты только 
   assert.ok(imports.length > 0 && imports.every(m => m.startsWith('node:')), imports.join(', '));
   assert.match(src, /Emulation\.setDeviceMetricsOverride/);
   assert.doesNotMatch(src, /--window-size/);
+});
+
+test('qa-shots: --help печатает справку и выходит, браузер не запускается', () => {
+  const r = spawnSync(process.execPath, ['tools/qa-shots.mjs', '--help', '--browser=' + path.join(ROOT, 'нет-такого-браузера')], { cwd: ROOT, encoding: 'utf8', timeout: 5000 });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /--timeout=/);
 });
