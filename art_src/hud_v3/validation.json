@@ -1,0 +1,596 @@
+{
+  "files": 45,
+  "outside_palette_colors": 0,
+  "bottom_panel_css_height": 144,
+  "viewport": [
+    390,
+    844
+  ],
+  "files_checked": [
+    {
+      "file": "assets/ui/hud_v3/bar_bottom.png",
+      "size": [
+        195,
+        72
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "aafe88b95427d90e2fc979de8c231428708ac2860f73debdc64f19801f2ae661"
+    },
+    {
+      "file": "assets/ui/hud_v3/bar_top.png",
+      "size": [
+        195,
+        30
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "5ec9c88d704ec8a6dd0e9afc1ec00581ebf223050640ff7da910f37ba3fa55a5"
+    },
+    {
+      "file": "assets/ui/hud_v3/counter_socket.png",
+      "size": [
+        46,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "1180cc66e7fe2356274b57f0ea6bb4a1696f5dfbd22715c1f1cf10fb5ad9f679"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_0.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "abd837a0acb84604c2af4302b19a8bd0ff91229cf6dfd3c8139645e452e6d183"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_1.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "003ec797a09090364fd1432417e4e85ea618abbf302921ea52580041ab9fe0a8"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_2.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "db93c2472c35610db4d09a68c2889dffe5ef1e39e82f74de3b25349a5ed2dbef"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_3.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "4d41cc574147501f0fd3084fffeb804c17e2b3868ff9fb0482f2d17c19452218"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_4.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "a7e63007ccb0b756b8f72e333143989fe6f3c3806b38228e27a86520748e4590"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_5.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "55b160cd5d7256ff579e46810973f3d41dc0e184867d60fcb927fe13508f5128"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_6.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "35a6db6a0aa48bdd40b9d897257ff12b7ae8b525b76dd18140a66a7e0bad084a"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_7.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "35b0de003a3e70833d6d44ac68fa809e465dbd04e0d58d4d3d83e910487d6269"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_8.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "06d1c2ce6fd6c71b46ec50f4479064953ce1def2fb0ba94fca46988cb4619b44"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_9.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "954cb419e252c6efc9c8da61b07537ffae66f57c2755e6fb443c2436f7ce6388"
+    },
+    {
+      "file": "assets/ui/hud_v3/gauge_face.png",
+      "size": [
+        58,
+        58
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "781ae92945153114152ac07814c26cefd552a851060161430e38386cd157125f"
+    },
+    {
+      "file": "assets/ui/hud_v3/gauge_needle.png",
+      "size": [
+        10,
+        36
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "eca90be3d9bcd1b4f7208b181721f1b1d28dd1ef99e4f78677ec6d1fac4d00d0"
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_ammo.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "1dffcf08dee51e042f6937dd56c0747f568e5c943295eac5b99664b87b4be16a"
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_boost.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "223ad80e70337c1c9f658f182d15b0523bb0fa79b18d097ac6332b3f35afe7e4"
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_demon.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "2074966edbf4b436bc1822e9a50e68019557ca511bebad32a9affc2e3f675f62"
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_distance.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "d4cbffa8744f7be3ffd745ffbc23295f8707b88f459f1a0c81e9ca2c4a2b56cc"
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_gap.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "b346c78400cbf5f87d9322744b36b902298177231d0a270734ebf34d4edc6d4a"
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_lava.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "4d5dcfb8d1565ed808499d880d4bd05ca1519fed009c3a86f5d0bb0fe424e34b"
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_pause.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "6b6b3c0b0753af984354c6d4d84c1ca6bde28ec6a5e71ed2528577824b8ba297"
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_record.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "5abb5465dc12263c56b0d8a660e153d539bb60e9b2f46ced55c2ef83842a5ea5"
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_rescue.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "ae7bdcd7adb15c76c36dda0e9f9762c4e9918d03260a86680aa1c708967025aa"
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_settings.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "f2a7a450fbf19de3cf6244d49a250bc4c39f33d04ffb020637b96f4cdb170776"
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_shield.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "73a5c774405af65c32d45b852d2e50ed8c1779da44af074720780f084ac83042"
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_slow.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "42e6731534bb560fe28a73a3dc5d065b25a61b08f9cf57a6fc47041741f305a9"
+    },
+    {
+      "file": "assets/ui/hud_v3/menu_button_disabled.png",
+      "size": [
+        138,
+        28
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "469fc8f2d6dce1036b54be4a347447e3679644d3c8cdb18caffdad6cd545df3f"
+    },
+    {
+      "file": "assets/ui/hud_v3/menu_button_normal.png",
+      "size": [
+        138,
+        28
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "0051ea6e6b888f7c333fc3b01d67fcb8b01a5b335d1d93c9da774dff3a7cd27d"
+    },
+    {
+      "file": "assets/ui/hud_v3/menu_button_pressed.png",
+      "size": [
+        138,
+        28
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "005eac0caf7051a83930400ba3495dc90d01925fb2a52c4f1f361d7708bc1ef8"
+    },
+    {
+      "file": "assets/ui/hud_v3/menu_panel_disabled.png",
+      "size": [
+        160,
+        220
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "86d75ad6a3d9a1fc3824e7d2052f9f7acf3bebe78ded8366422ebc5a624b9397"
+    },
+    {
+      "file": "assets/ui/hud_v3/menu_panel_normal.png",
+      "size": [
+        160,
+        220
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "59e78f21edc9adcb57b82e352aa1c78c227ea96fb1300aea110a25f5e07a46b8"
+    },
+    {
+      "file": "assets/ui/hud_v3/menu_panel_pressed.png",
+      "size": [
+        160,
+        220
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "ed8ea037c1c2917a50a44feb0ec47e79a8967eddcf5af472a85c2941a1378b7f"
+    },
+    {
+      "file": "assets/ui/hud_v3/pickup_ammo.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "16d602ff3c8d3533a29fa682278774fee33983432327e3f0fbff568fcf613158"
+    },
+    {
+      "file": "assets/ui/hud_v3/pickup_boost.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "900e3c639d029f598fac841144f191c4e15a7a03938b56a952033b541e5d30bf"
+    },
+    {
+      "file": "assets/ui/hud_v3/pickup_rescue.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "6cdcdade8b58fa81ac5ab6113208f2eadd14b176b758b8a9968f805025563131"
+    },
+    {
+      "file": "assets/ui/hud_v3/pickup_shield.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "46fc41d3e331722bc94c5515a94ad5bbd40639875ce452a9e8b86646bc3abf6f"
+    },
+    {
+      "file": "assets/ui/hud_v3/pickup_slow.png",
+      "size": [
+        24,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "b062bc4e040ca5d723aa01397bb186ef2a01008065c3a983a38a33aac1b84f1c"
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_calm.png",
+      "size": [
+        48,
+        48
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "12eaf79a0f63217b9cc04da6b6213c52c37f465a53bbe4926590fb27723dd453"
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_fall.png",
+      "size": [
+        48,
+        48
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "daa8ac1e123862828722e5b1712a6738771bcfa8a7d72df770305eee8e5e38b1"
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_fire.png",
+      "size": [
+        48,
+        48
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "f2965b641dc551dd9d9a5af84dff383cf9b94e3b56ed830cc54fb3a98b40c1b8"
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_frame.png",
+      "size": [
+        58,
+        58
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "cc7c6ddef4131ae484d0701535280cc2dfc4924b03d367fed6c2502f01e6a69e"
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_hit.png",
+      "size": [
+        48,
+        48
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "1af1eb6d3c7c7995d447d7afc05ff4142a2c45a239f3973a2246b11657d7463e"
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_joy.png",
+      "size": [
+        48,
+        48
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "f3c57d560b06e316da0693b22322a455e11ca31f6b851192088ea6e47b6bdd7a"
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_tense.png",
+      "size": [
+        48,
+        48
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "556e746ce952c9de609ff9f45b6e3bf28d915894450f262c18a0dcaf4eb875d8"
+    }
+  ]
+}

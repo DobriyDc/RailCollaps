@@ -539,6 +539,8 @@ const KIT_SCHEMA = [
                       ru: 'Камера наклоняется под этот зазор на любом экране, с учётом безопасной зоны' } },
             { name: 'COLLAPSE_CAM_SIGN', min: 0, max: 1, step: 0.05,
               label: { en: 'Fork sign offset from its lane (share of the lane step)', ru: 'Отступ таблички от полосы (доля шага полосы)' } },
+            { name: 'COLLAPSE_CAM_SIGN_SCALE', min: 0.5, max: 2, step: 0.05,
+              label: { en: 'Fork sign size (multiplier)', ru: 'Размер таблички (множитель)' } },
             { name: 'COLLAPSE_CAM_FRONT_Y', min: -900, max: 300, step: 10,
               label: { en: 'Lift of the far collapse layers (world units)', ru: 'Подъём дальних слоёв обвала (ед. мира)' } },
             { name: 'COLLAPSE_CAM_FOV_DEG', min: 20, max: 100, step: 1,

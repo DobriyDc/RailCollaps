@@ -1,0 +1,44 @@
+{
+  "ordered": {
+    "width": 1280,
+    "height": 800
+  },
+  "innerWidth": 1280,
+  "innerHeight": 800,
+  "devicePixelRatio": 1,
+  "title": "Настройщик Collapse",
+  "url": "http://127.0.0.1:9413/RailCollaps/_utils/tuner/",
+  "browser": "msedge.exe",
+  "waitMs": 500,
+  "eval": "C:\\Users\\dobri\\AppData\\Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-tuner/749567af-bd3b-4769-a5e1-7e1f19128d95/scratchpad/shot.js",
+  "evalResult": {
+    "n": {
+      "slow": 4.5,
+      "fast": 6.75,
+      "signSeg": 3.09375,
+      "clearSeg": 2.859375,
+      "floorSeg": 2.6875,
+      "signSlow": 0.6875,
+      "signFast": 0.4583333333333333,
+      "clearSlow": 0.6354166666666666,
+      "clearFast": 0.4236111111111111,
+      "gapSide": 2.375,
+      "gapMid": 2.625,
+      "trainPct": 38.661726191430404,
+      "bottomPct": 13.333332369112854,
+      "clearTop": 8.621257616959426
+    },
+    "lat": {
+      "min": 3.7,
+      "median": 11.6,
+      "max": 17.2
+    },
+    "copy": "Настройки Rail Link: Collapse\nЭкран 390×844, отступ Telegram 0 px\nВсё как в коде\nТабличка 3,09 сегм.: 0,69 с на 4,50, 0,46 с на 6,75 сегм./с\nПоезд 38,7 % высоты, нижняя панель 13,3 %",
+    "saveShown": false,
+    "stageH": 800,
+    "panelTop": 0,
+    "gameFrame": 800
+  },
+  "errors": [],
+  "ok": true
+}

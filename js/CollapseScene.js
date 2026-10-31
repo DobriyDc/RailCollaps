@@ -90,30 +90,19 @@ class CollapseScene {
 
         const cam = this.view.camera;
         const U = 'undefined';
-        cam.fov = (typeof COLLAPSE_CAM_FOV_DEG !== U ? COLLAPSE_CAM_FOV_DEG : 50) * Math.PI / 180;
         cam.minZ = 10;
-        cam.position.set(0, typeof COLLAPSE_CAM_Y !== U ? COLLAPSE_CAM_Y : 450, typeof COLLAPSE_CAM_Z !== U ? COLLAPSE_CAM_Z : 1467);
-        cam.setTarget(BABYLON.Vector3.Zero());
-        this.topGap = typeof COLLAPSE_CAM_TOP_GAP !== U ? COLLAPSE_CAM_TOP_GAP : 0.01;
-        // The camera follows the train sideways (GDD v3 §2): eye and look-at point shift together by a
-        // share of the train's offset, so the view direction never turns; camX eases toward that goal.
-        this.camFollow = typeof COLLAPSE_CAM_FOLLOW !== U ? COLLAPSE_CAM_FOLLOW : 0.5;
-        this.camRate = typeof COLLAPSE_CAM_FOLLOW_RATE !== U ? COLLAPSE_CAM_FOLLOW_RATE : 5;
-        this.camX = 0;
-        // Fog and the far plane are counted from the train, so a camera moved farther away keeps the
-        // same depth; the segment window reaches the camera, so the near track never pops in.
-        const camZ = cam.position.z, toTrain = cam.position.length();
         scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
         scene.fogColor = dark;
-        scene.fogStart = toTrain + (typeof COLLAPSE_FOG_START !== U ? COLLAPSE_FOG_START : 1200);
-        scene.fogEnd = toTrain + (typeof COLLAPSE_FOG_END !== U ? COLLAPSE_FOG_END : 5600);
+        this.applyCamera();
+        cam.setTarget(BABYLON.Vector3.Zero());
+        this.camX = 0;
+        // The segment window reaches the camera, so the near track never pops in.
+        const camZ = cam.position.z;
         // Brightness of the unlit pixel art (texture level): brick a bit above its file, lava glows.
         this.brickLevel = typeof COLLAPSE_BRICK_LEVEL !== U ? COLLAPSE_BRICK_LEVEL : 1.35;
         this.lavaLevel = typeof COLLAPSE_LAVA_LEVEL !== U ? COLLAPSE_LAVA_LEVEL : 1.5;
         // The collapse: the crack zone ahead of it, how bright the cracks glow, how far ahead of the
         // edge the vault starts to shed blocks.
-        this.signShift = typeof COLLAPSE_CAM_SIGN !== U ? COLLAPSE_CAM_SIGN : 0.3;        // where a fork sign stands between its two lanes
-        this.frontLift = typeof COLLAPSE_CAM_FRONT_Y !== U ? COLLAPSE_CAM_FRONT_Y : -350;  // the close camera sees little of the height: the far layers of the collapse come down to it
         this.crackZone = typeof COLLAPSE_CRACK_ZONE !== U ? COLLAPSE_CRACK_ZONE : 3;
         this.crackLevel = typeof COLLAPSE_CRACK_LEVEL !== U ? COLLAPSE_CRACK_LEVEL : 1.6;
         this.debrisLead = typeof COLLAPSE_DEBRIS_LEAD !== U ? COLLAPSE_DEBRIS_LEAD : 1;
@@ -132,11 +121,9 @@ class CollapseScene {
         this.chunkArt = typeof COLLAPSE_CHUNK_ART !== U ? COLLAPSE_CHUNK_ART : 4;
         this.trainScale = typeof COLLAPSE_TRAIN_SCALE !== U ? COLLAPSE_TRAIN_SCALE : 2.54;
         this.yawGain = typeof COLLAPSE_TRAIN_YAW_GAIN !== U ? COLLAPSE_TRAIN_YAW_GAIN : 1.3;
-        this.smokeRise = typeof COLLAPSE_TRAIN_SMOKE_RISE !== U ? COLLAPSE_TRAIN_SMOKE_RISE : 240;
-        this.smokeLife = typeof COLLAPSE_TRAIN_SMOKE_SEC !== U ? COLLAPSE_TRAIN_SMOKE_SEC : 0.9;
-        this.camY = cam.position.y;
+        this.smokeRise = typeof COLLAPSE_TRAIN_SMOKE_RISE !== U ? COLLAPSE_TRAIN_SMOKE_RISE : 100;
+        this.smokeLife = typeof COLLAPSE_TRAIN_SMOKE_SEC !== U ? COLLAPSE_TRAIN_SMOKE_SEC : 1.1;
         this._shakeAt = this._heatAt = -1e9;
-        cam.maxZ = toTrain + CollapseScene.SEG * CollapseScene.BEHIND + 2000;
         this.ahead = Math.max(CollapseScene.AHEAD, Math.ceil(camZ / CollapseScene.SEG) + 1);
         this.slots = CollapseScene.BEHIND + this.ahead + 2;   // tunnel pieces: one per segment of the window
         this.renderHeight = typeof COLLAPSE_RENDER_HEIGHT !== U ? COLLAPSE_RENDER_HEIGHT : 360;
@@ -154,6 +141,31 @@ class CollapseScene {
         this.applyResolution();
         this._preload();
         this.ready = new Promise(resolve => scene.executeWhenReady(() => resolve(true)));
+    }
+
+    // Reads the COLLAPSE_CAM_* numbers into the camera: at construction and whenever they change
+    // live (_utils/tuner). The tilt is fitFrame's. The segment window (ahead) stays as built, so a
+    // camera moved farther than the one the scene was built with needs the larger one at construction.
+    applyCamera() {
+        const cam = this.view.camera, scene = this.scene, U = 'undefined';
+        const y = typeof COLLAPSE_CAM_Y !== U ? COLLAPSE_CAM_Y : 450, z = typeof COLLAPSE_CAM_Z !== U ? COLLAPSE_CAM_Z : 1467;
+        cam.fov = (typeof COLLAPSE_CAM_FOV_DEG !== U ? COLLAPSE_CAM_FOV_DEG : 50) * Math.PI / 180;
+        cam.position.set(this.camX || 0, y, z);
+        this.camY = y;
+        this.topGap = typeof COLLAPSE_CAM_TOP_GAP !== U ? COLLAPSE_CAM_TOP_GAP : 0.01;
+        // The camera follows the train sideways (GDD v3 §2): eye and look-at point shift together by a
+        // share of the train's offset, so the view direction never turns; camX eases toward that goal.
+        this.camFollow = typeof COLLAPSE_CAM_FOLLOW !== U ? COLLAPSE_CAM_FOLLOW : 0.5;
+        this.camRate = typeof COLLAPSE_CAM_FOLLOW_RATE !== U ? COLLAPSE_CAM_FOLLOW_RATE : 5;
+        this.signShift = typeof COLLAPSE_CAM_SIGN !== U ? COLLAPSE_CAM_SIGN : 0.3;        // where a fork sign stands between its two lanes
+        this.signScale = typeof COLLAPSE_CAM_SIGN_SCALE !== U ? COLLAPSE_CAM_SIGN_SCALE : 1;
+        this.frontLift = typeof COLLAPSE_CAM_FRONT_Y !== U ? COLLAPSE_CAM_FRONT_Y : -350;  // the close camera sees little of the height: the far layers of the collapse come down to it
+        if (this.bgLayers) this._sinkLayers();
+        // Fog and the far plane are counted from the train, so a camera moved farther away keeps the same depth.
+        const toTrain = Math.sqrt(y * y + z * z);
+        scene.fogStart = toTrain + (typeof COLLAPSE_FOG_START !== U ? COLLAPSE_FOG_START : 1200);
+        scene.fogEnd = toTrain + (typeof COLLAPSE_FOG_END !== U ? COLLAPSE_FOG_END : 5600);
+        cam.maxZ = toTrain + CollapseScene.SEG * CollapseScene.BEHIND + 2000;
     }
 
     // Every frame a material swaps to later is loaded with the scene: a texture made on its first show
@@ -363,14 +375,14 @@ class CollapseScene {
         /** @type {{ mesh: any, back: number }[]} */
         this.bgLayers = CollapseArt.bg.map((b, k) => {
             const back = (b.depth - near) * this.bgDepth, px = this.bgPx * (ref + back) / ref, w = S.BG_PX[0] * px, h = S.BG_PX[1] * px;
-            const y = this.frontLift * (1 + (last - 1 - k) * 0.5);
             const mesh = k === last ? this._rubble(b, w, h) : BABYLON.MeshBuilder.CreatePlane(b.key, { width: w, height: h }, scene);
-            if (k !== last) mesh.bakeTransformIntoVertices(BABYLON.Matrix.RotationY(Math.PI).multiply(BABYLON.Matrix.Translation(0, y + h / 2, 0)));
+            if (k !== last) mesh.bakeTransformIntoVertices(BABYLON.Matrix.RotationY(Math.PI).multiply(BABYLON.Matrix.Translation(0, h / 2, 0)));
             mesh.material = this.spriteMat(b.key, b.url, false);
             mesh.material.fogEnabled = false;   // the wreck glows through the dark of the tunnel
             mesh.isPickable = false;
-            return { mesh, back };
+            return { mesh, back, sink: k === last ? 0 : 1 + (last - 1 - k) * 0.5 };
         });
+        this._sinkLayers();
         const cap = 4 * (Math.ceil(this.crackZone) + 2);   // per segment: two walls, two on the floor
         this.cracks = {
             wall: CollapseArt.crackWall.map(u => this._instSprite('crack-wall', u, 128 * S.CRACK_ART, 160 * S.CRACK_ART, cap, true)),
@@ -383,6 +395,11 @@ class CollapseScene {
         this.bricks = CollapseArt.brick.map(u => this._instSprite('brick', u, 1, 1, S.DEBRIS, false));
         for (const b of this.bricks) b.mesh.material.emissiveTexture.level = this.brickLevel;
         this.railBits = CollapseArt.railBits.map(u => this._instSprite('rail-bit', u, 1, 1, S.DEBRIS, false));
+    }
+
+    // The rubble stays on the floor; the layers behind it go down by shares of frontLift (applyCamera).
+    _sinkLayers() {
+        for (const l of this.bgLayers) l.mesh.position.y = this.frontLift * l.sink;
     }
 
     // The rubble layer: rows above the rails stand up from the fold, rows below it lie on a slope down
@@ -1031,7 +1048,7 @@ class CollapseScene {
                 const armed = run.armed && run.armed.at === md.at && run.armed.to === md.to;
                 const actionable = next && next.at === md.at;
                 sign.position.set(S.laneX(md.from) + (md.to - md.from) * S.LANE_W * this.signShift, armed ? 40 : 0, z);
-                sign.scaling.setAll(armed ? 1.15 : actionable ? 1 : 0.75);
+                sign.scaling.setAll((armed ? 1.15 : actionable ? 1 : 0.75) * this.signScale);
             }
             for (const c of v.crosses) {
                 const lane = c.metadata.lane;
@@ -1039,7 +1056,7 @@ class CollapseScene {
                 c.setEnabled(visible);
                 if (!visible) continue;
                 c.position.set(S.laneX(lane), 0, z);
-                c.scaling.setAll(next && next.at === i ? 1 : 0.75);   // the size of the arrows beside it
+                c.scaling.setAll((next && next.at === i ? 1 : 0.75) * this.signScale);   // the size of the arrows beside it
             }
             for (const p of v.pickups) {
                 const taken = run.isTaken(i) && p.metadata.lane === run.lane;
