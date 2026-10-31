@@ -145,6 +145,49 @@ const COLLAPSE_FX_SHAKE = 24;           // world units: camera shake of a demon 
 const COLLAPSE_FX_SHAKE_SEC = 0.35;     // s: camera shake of a demon hit
 const COLLAPSE_FX_FLASH_SEC = 0.15;     // s: the red screen flash of a demon hit (element hitFlash in UILayout.js)
 const COLLAPSE_FX_HEAT_SEC = 0.5;       // s: the loco glows red-hot after lava from above
+// The owner's style test (card 18, CollapseLook.js): ?look=pixel|lowpoly|ink. Temporary: the winner stays.
+const COLLAPSE_LOOK_PIXEL_HEIGHT = 360; // px: the pixel look is rendered this tall
+const COLLAPSE_LOOK_DITHER = 0.09;      // 0..1: strength of the ordered dithering before the palette
+const COLLAPSE_LOOK_AMBIENT = 0.3;      // light that reaches every surface (the rest comes from lava and torches)
+const COLLAPSE_LOOK_BOUNCE = 0.35;      // share of the lava's light thrown back from below on what faces down or sideways
+const COLLAPSE_LOOK_LAMP_POWER = 1.2;   // strength of the loco's headlamp on the track ahead
+const COLLAPSE_LOOK_LAMP_RADIUS = 2000; // world units: where the headlamp's light ends
+const LOOK_LAMP_COLOR = 0xfff2dc;       // headlamp color: nearly white, it shows the iron of the loco as it is
+const COLLAPSE_LOOK_FLICKER = 0.18;     // 0..1: how much the flames breathe
+const COLLAPSE_LOOK_TORCH_POWER = 1.4;  // strength of a torch
+const COLLAPSE_LOOK_TORCH_RADIUS = 900; // world units: where a torch's light ends
+const LOOK_TORCH_COLOR = 0xffa858; // torch light color
+const COLLAPSE_LOOK_LAVA_POWER = 1.2;   // strength of the lava channels along the walls
+const COLLAPSE_LOOK_LAVA_RADIUS = 620;  // world units: where the channels' light ends
+const LOOK_LAVA_COLOR = 0xff5a18; // lava light color
+const COLLAPSE_LOOK_FRONT_POWER = 1.6;  // strength of the collapse front
+const COLLAPSE_LOOK_FRONT_RADIUS = 1500; // world units: where the front's light ends
+const COLLAPSE_LOOK_STREAM_POWER = 1.3; // strength of a lava stream from the vault
+const COLLAPSE_LOOK_STREAM_RADIUS = 760; // world units: where a stream's light ends
+const COLLAPSE_LOOK_GAP_POWER = 1.1;    // strength of the magma seen in a gap
+const COLLAPSE_LOOK_GAP_RADIUS = 560;   // world units: where a gap's light ends
+const COLLAPSE_LOOK_INK_BANDS = 4;      // tones of light in the ink look (2..6)
+const COLLAPSE_LOOK_LOWPOLY_TEXEL = 4;  // art pixels per coarse texel in the lowpoly look (the turnouts keep theirs: their rails are a signal)
+const COLLAPSE_LOOK_LOWPOLY_FOG_START = 300; // world units behind the train: lowpoly fog starts
+const COLLAPSE_LOOK_LOWPOLY_FOG_END = 3000;  // world units behind the train: lowpoly fog is full
+// The owner's camera test (card 20, CollapseLook.camera): ?cam=1.3|1.6|2 — the train that many times
+// larger. Height, distance, look-at point, how far the front plate goes down so its arch stays in the frame, how far a fork sign stands from its lane (share of the lane step: a close
+// camera sees a narrow strip of the track, and a sign out at the side enters the frame late). Temporary: the winner goes to COLLAPSE_CAM_*.
+const COLLAPSE_CAM_V13_Y = 600;
+const COLLAPSE_CAM_V13_Z = 2284;
+const COLLAPSE_CAM_V13_LOOK_Z = 445;
+const COLLAPSE_CAM_V13_FRONT_Y = -120;
+const COLLAPSE_CAM_V13_SIGN = 0.5;
+const COLLAPSE_CAM_V16_Y = 520;
+const COLLAPSE_CAM_V16_Z = 1847;
+const COLLAPSE_CAM_V16_LOOK_Z = 344;
+const COLLAPSE_CAM_V16_FRONT_Y = -270;
+const COLLAPSE_CAM_V16_SIGN = 0.5;
+const COLLAPSE_CAM_V20_Y = 450;
+const COLLAPSE_CAM_V20_Z = 1467;
+const COLLAPSE_CAM_V20_LOOK_Z = 178;
+const COLLAPSE_CAM_V20_FRONT_Y = -350;
+const COLLAPSE_CAM_V20_SIGN = 0.3;
 
 // --- LEADERBOARD: the shared table on a Cloudflare Worker (js/Leaderboard.js — the game,
 // server/leaderboard — the function; tools/build-worker.mjs bakes these numbers into it, so a change

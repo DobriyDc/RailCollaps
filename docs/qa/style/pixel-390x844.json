@@ -1,0 +1,29 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:61644/?look=pixel",
+  "browser": "msedge.exe",
+  "waitMs": 1500,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-look/815d760e-09c3-447d-a539-58aafbf8aa2f/scratchpad/moment.js",
+  "evalResult": {
+    "ready": true,
+    "bad": [],
+    "notReady": [],
+    "P": 92,
+    "pos": 92.35,
+    "tris": 4968,
+    "meshes": 71,
+    "render": [
+      166,
+      360
+    ]
+  },
+  "errors": [],
+  "ok": true
+}
