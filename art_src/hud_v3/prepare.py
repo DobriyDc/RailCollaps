@@ -95,11 +95,43 @@ def hardware():
 def load(name):
     return Image.open(OUT/(name+'.png')).convert('RGBA')
 
+def portraits():
+    src=Image.open(HERE/'drafts/portraits.png')
+    states=['calm','tense','joy','hit','fire','fall']
+    faces=[]
+    for i,state in enumerate(states):
+        x,y=(i%3)*500,(i//3)*480
+        face=finish(src.crop((87+x,36+y,447+x,446+y)).resize((48,48),N))
+        if faces:
+            # The cap and lower scarf are literally shared pixels, preserving identity.
+            face.paste(faces[0].crop((0,0,48,17)),(0,0))
+            face.paste(faces[0].crop((0,44,48,48)),(0,44))
+        faces.append(face.copy())
+        canvas=Image.new('RGBA',(48,48),rgba('241a24'))
+        canvas.alpha_composite(face)
+        mask=Image.new('L',(48,48))
+        ImageDraw.Draw(mask).ellipse((0,0,47,47),fill=255)
+        canvas.putalpha(mask)
+        save('portrait_'+state,canvas,'Engineer reaction: '+state,identity='engineer_01',face_anchor=[24,26],frame_offset=[5,6])
+    sheet=Image.new('RGB',(696,292),'#17121b')
+    d=ImageDraw.Draw(sheet)
+    for i,state in enumerate(states):
+        face=load('portrait_'+state)
+        tile=Image.new('RGBA',(58,58))
+        tile.alpha_composite(face,(5,6))
+        tile.alpha_composite(load('portrait_frame'))
+        sheet.paste(tile.resize((116,116),N),(i*116,24),tile.resize((116,116),N))
+        sheet.paste(face.resize((96,96),N),(i*116+10,170),face.resize((96,96),N))
+        d.text((i*116+10,6),state,fill='#e8d0a8')
+    sheet.save(PRE/'portraits_six_states.png')
+
 def compose():
     board=Image.new('RGBA',(195,72))
     board.alpha_composite(load('bar_bottom'))
     board.alpha_composite(load('gauge_face'),(7,7))
     board.alpha_composite(load('gauge_needle'),(31,7))
+    if (OUT/'portrait_calm.png').exists():
+        board.alpha_composite(load('portrait_calm'),(74,13))
     board.alpha_composite(load('portrait_frame'),(69,7))
     board.alpha_composite(load('counter_socket'),(139,10))
     board.alpha_composite(load('counter_socket'),(139,39))
@@ -136,6 +168,8 @@ def main():
     PRE.mkdir(parents=True,exist_ok=True)
     if '--check-only' not in sys.argv:
         hardware()
+        if (HERE/'drafts/portraits.png').exists():
+            portraits()
         compose()
         manifest=dict(version=3,kind='integration art description; not a runtime registry',palette_source='docs/STYLE.md',filter='nearest',alpha='binary',css_art_scale_390=2,
                       bottom_panel=dict(css_rect=[0,700,390,144],max_css_height=150,headroom_css=6),assets=records)

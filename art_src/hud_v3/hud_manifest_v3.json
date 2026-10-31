@@ -471,6 +471,204 @@
       "purpose": "Original numeral 9",
       "baseline": 15,
       "advance": 12
+    },
+    {
+      "id": "portrait_calm",
+      "file": "assets/ui/hud_v3/portrait_calm.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        24.0,
+        24.0
+      ],
+      "purpose": "Engineer reaction: calm",
+      "identity": "engineer_01",
+      "face_anchor": [
+        24,
+        26
+      ],
+      "frame_offset": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "portrait_tense",
+      "file": "assets/ui/hud_v3/portrait_tense.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        24.0,
+        24.0
+      ],
+      "purpose": "Engineer reaction: tense",
+      "identity": "engineer_01",
+      "face_anchor": [
+        24,
+        26
+      ],
+      "frame_offset": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "portrait_joy",
+      "file": "assets/ui/hud_v3/portrait_joy.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        24.0,
+        24.0
+      ],
+      "purpose": "Engineer reaction: joy",
+      "identity": "engineer_01",
+      "face_anchor": [
+        24,
+        26
+      ],
+      "frame_offset": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "portrait_hit",
+      "file": "assets/ui/hud_v3/portrait_hit.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        24.0,
+        24.0
+      ],
+      "purpose": "Engineer reaction: hit",
+      "identity": "engineer_01",
+      "face_anchor": [
+        24,
+        26
+      ],
+      "frame_offset": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "portrait_fire",
+      "file": "assets/ui/hud_v3/portrait_fire.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        24.0,
+        24.0
+      ],
+      "purpose": "Engineer reaction: fire",
+      "identity": "engineer_01",
+      "face_anchor": [
+        24,
+        26
+      ],
+      "frame_offset": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "portrait_fall",
+      "file": "assets/ui/hud_v3/portrait_fall.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        24.0,
+        24.0
+      ],
+      "purpose": "Engineer reaction: fall",
+      "identity": "engineer_01",
+      "face_anchor": [
+        24,
+        26
+      ],
+      "frame_offset": [
+        5,
+        6
+      ]
     }
   ]
 }

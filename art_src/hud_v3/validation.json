@@ -1,5 +1,5 @@
 {
-  "files": 16,
+  "files": 22,
   "outside_palette_colors": 0,
   "bottom_panel_css_height": 144,
   "viewport": [
@@ -203,6 +203,45 @@
       "sha256": "6c5ec59a7f09863723177870c05c23c32d05b21277a14d4244e4db77af188dad"
     },
     {
+      "file": "assets/ui/hud_v3/portrait_calm.png",
+      "size": [
+        48,
+        48
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "c0bfc47e7720326aafb47ebb6dab6c2aadd0231c7c4f95024344313e4919b896"
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_fall.png",
+      "size": [
+        48,
+        48
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "b0087634929885cc57972c801e2faf18b64ebda0af9e1759f21d244c3748b2f7"
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_fire.png",
+      "size": [
+        48,
+        48
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "998580e196796f9cd9d1894f6cadb93b2a96420246c30b90ff8d3e84a6671276"
+    },
+    {
       "file": "assets/ui/hud_v3/portrait_frame.png",
       "size": [
         58,
@@ -214,6 +253,45 @@
         255
       ],
       "sha256": "f645fae8455e02dc27c3903e6d301af26247260ffdfdfca367e50441a2d58db0"
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_hit.png",
+      "size": [
+        48,
+        48
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "6cfedaaa413d5e9796a9a5ef48f6e8b59fe204e12f64b5d2b6f57298c9721ec9"
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_joy.png",
+      "size": [
+        48,
+        48
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "08e6f66701c954abed15771a6568bd50201c3cb3c51f7a7cfb4f99c5403d5d1b"
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_tense.png",
+      "size": [
+        48,
+        48
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "67db392543d2c593da370bbde639c754a84f6899a6cb94ffd5f154175053e2e5"
     }
   ]
 }
