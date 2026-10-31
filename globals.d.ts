@@ -19,7 +19,7 @@ interface Window {
 /** UI_LAYOUT record (UILayout.js, written by the editor's UI tab); fields by kind — UI.DEFAULTS. */
 interface UIRecord {
     id: string;
-    /** 'text' | 'panel' | 'bar' | 'button' */
+    /** 'text' | 'panel' | 'bar' | 'button' | 'image' */
     kind: string;
     /** One of 9 points of the container (the screen or the parent): 'top-left' … 'bottom-right' */
     anchor: string;
@@ -32,6 +32,8 @@ interface UIRecord {
     /** 'h' | 'v' | 'both' — fills the container on that axis: x (y) — the inset, w (h) ignored. */
     stretch?: string;
     text?: string;
+    /** Image file: a path in assets/, '' — none */
+    src?: string;
     fontSize?: number;
     /** Text color; bar — the filled part. '#rrggbb' */
     color?: string;

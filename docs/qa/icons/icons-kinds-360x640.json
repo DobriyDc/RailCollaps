@@ -1,0 +1,171 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:53282/",
+  "browser": "msedge.exe",
+  "waitMs": 2500,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-icons/a6d55347-a537-44d3-b7bf-66c77e471b53/scratchpad/qa-kinds.js",
+  "evalResult": {
+    "state": "kinds",
+    "at": {
+      "seed": 7,
+      "pos": 1,
+      "lane": 1
+    },
+    "lit": [
+      "iconWallLeft=assets/px/ui/hazard.png",
+      "iconLane0=assets/px/fx/lava_burst.png",
+      "iconLane0Next=assets/px/demon/jump_1.png",
+      "iconLane1=assets/px/hud/ammo.png",
+      "iconLane1Next=assets/px/hud/boost.png",
+      "iconLane2=assets/px/hud/slow.png",
+      "iconLane2Next=assets/px/hud/shield.png",
+      "iconWallRight=assets/px/hud/rescue.png"
+    ],
+    "broken": [],
+    "plates": {
+      "plateLow": 58.66666793823242,
+      "plateTop": 554.6666870117188,
+      "canvas": [
+        360,
+        640
+      ]
+    },
+    "cam": {
+      "pitch": -0.30288486917177976,
+      "expected": 0.3028848683749714,
+      "fov": 0.6981317007977318,
+      "y": 650,
+      "z": 3000,
+      "x": 0
+    },
+    "tables": {
+      "enter": {
+        "gap": [
+          7,
+          7,
+          7
+        ],
+        "lava": [
+          7.375,
+          10.125,
+          7.375
+        ],
+        "pickup": [
+          6.75,
+          7.875,
+          6.75
+        ]
+      },
+      "reach": {
+        "gap": [
+          7,
+          7,
+          7
+        ],
+        "lava": [
+          9.625,
+          10.125,
+          9.625
+        ],
+        "pickup": [
+          7.875,
+          7.875,
+          7.875
+        ]
+      },
+      "frameCam": {
+        "y": 650,
+        "z": 3000,
+        "pitch": 0.30288486917177976,
+        "fov": 0.6981317007977318,
+        "aspect": 0.5625,
+        "top": 0.8166666626930237,
+        "bottom": -0.7333333969116211
+      }
+    },
+    "lane0Left": true,
+    "entry": {
+      "checks": 27,
+      "miss": []
+    },
+    "tap": {
+      "targets": 192,
+      "icons": 8,
+      "hits": 0,
+      "sample": [],
+      "radius": 57.6,
+      "marginPx": 41.63853908203307,
+      "lowestSignY": 418.0947739062482
+    },
+    "iconOverlaps": [],
+    "rects": [
+      {
+        "id": "iconWallLeft",
+        "l": 5.333333492279053,
+        "t": 519.1111450195312,
+        "r": 33.77777814865112,
+        "b": 547.5555419921875
+      },
+      {
+        "id": "iconLane0",
+        "l": 94.66666412353516,
+        "t": 517.3333129882812,
+        "r": 126.66666412353516,
+        "b": 549.3333129882812
+      },
+      {
+        "id": "iconLane0Next",
+        "l": 127.55555725097656,
+        "t": 521.7777709960938,
+        "r": 150.6666717529297,
+        "b": 544.888916015625
+      },
+      {
+        "id": "iconLane1",
+        "l": 164,
+        "t": 517.3333129882812,
+        "r": 196,
+        "b": 549.3333129882812
+      },
+      {
+        "id": "iconLane1Next",
+        "l": 196.88888549804688,
+        "t": 521.7777709960938,
+        "r": 220,
+        "b": 544.888916015625
+      },
+      {
+        "id": "iconLane2",
+        "l": 233.3333282470703,
+        "t": 517.3333129882812,
+        "r": 265.3333435058594,
+        "b": 549.3333129882812
+      },
+      {
+        "id": "iconLane2Next",
+        "l": 266.22222900390625,
+        "t": 521.7777709960938,
+        "r": 289.3333435058594,
+        "b": 544.888916015625
+      },
+      {
+        "id": "iconWallRight",
+        "l": 326.22222900390625,
+        "t": 519.1111450195312,
+        "r": 354.6666564941406,
+        "b": 547.5555419921875
+      }
+    ],
+    "belowPlate": [],
+    "throughToCanvas": true
+  },
+  "errors": [],
+  "ok": true
+}

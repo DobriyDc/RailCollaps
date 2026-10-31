@@ -15,7 +15,7 @@
 // The server contract version this client expects. Must match
 // EDITOR_API_VERSION in server.mjs — otherwise the editor warns that editor.bat
 // is running old code (Node reads server files only at process start).
-const EDITOR_API_VERSION = 20;
+const EDITOR_API_VERSION = 21;
 
 // Ink edges and outline levels: 0 — off, 1 — main objects (actor), 2 — and environment (prop).
 const SCHEMA_LEVELS = [
@@ -503,6 +503,10 @@ const KIT_SCHEMA = [
               label: { en: 'Grace after a continue (s)', ru: 'Неуязвимость после продолжения (с)' } },
             { name: 'COLLAPSE_OVER_DELAY_SEC', min: 0, max: 3, step: 0.1,
               label: { en: 'Fall plays before the dialog (s)', ru: 'Падение до диалога итога (с)' } },
+            { name: 'COLLAPSE_ICON_LEAD_SEC', min: 0.2, max: 3, step: 0.1,
+              label: { en: 'Ahead icons: lead (s)', ru: 'Иконки впереди: упреждение (с)' },
+              hint: { en: 'An icon over the bottom plate lights this long before its object enters the frame, at the fastest speed the train may reach',
+                      ru: 'Иконка над нижней плашкой загорается за столько до входа предмета в кадр — на самой большой скорости, какую может набрать поезд' } },
             { name: 'COLLAPSE_RENDER_HEIGHT', min: 240, max: 1080, step: 20,
               label: { en: 'Render height (px)', ru: 'Высота рендера (px)' },
               hint: { en: 'The tunnel is rendered this tall and scaled up without smoothing',

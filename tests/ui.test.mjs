@@ -60,6 +60,17 @@ test('UILayout.js: негодные элементы отклоняются с �
   }
 });
 
+test('картинка: путь в assets пишется, чужой путь отклоняется, пустая — без файла', () => {
+  const image = { id: 'icon', kind: 'image', ...UI.DEFAULTS.image };
+  assert.equal(evalLayout(formatUI([{ ...image, src: 'assets/px/ui/hazard.png' }]).src)[0].src, 'assets/px/ui/hazard.png');
+  assert.equal(evalLayout(formatUI([image]).src)[0].src, '');
+  for (const src of ['http://x/a.png', 'assets/../secret.png', "assets/a'b.png", 'assets/a.exe', undefined]) {
+    const f = formatUI([{ ...image, src }]);
+    assert.equal(f.code, 'bad_element', String(src));
+    assert.equal(f.field, 'src');
+  }
+});
+
 test('js/UILayout.js набора записан редактором: формат воспроизводится, id не повторяются', () => {
   const src = fs.readFileSync(path.join(ROOT, 'js/UILayout.js'), 'utf8').replace(/\r\n/g, '\n');
   const r = formatUI(evalLayout(src));

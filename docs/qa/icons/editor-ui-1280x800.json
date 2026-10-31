@@ -1,0 +1,78 @@
+{
+  "ordered": {
+    "width": 1280,
+    "height": 800
+  },
+  "innerWidth": 1280,
+  "innerHeight": 800,
+  "devicePixelRatio": 1,
+  "title": "ArcEngine — editor",
+  "url": "http://localhost:9177/_utils/editor/",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-icons/a6d55347-a537-44d3-b7bf-66c77e471b53/scratchpad/editor.js",
+  "evalResult": {
+    "addButtons": [
+      "+ text",
+      "+ panel",
+      "+ bar",
+      "+ button",
+      "+ image"
+    ],
+    "rows": [
+      "iconStrippanel",
+      "iconWallLeftimage",
+      "iconLane0image",
+      "iconLane0Nextimage",
+      "iconLane1image",
+      "iconLane1Nextimage",
+      "iconLane2image",
+      "iconLane2Nextimage",
+      "iconWallRightimage"
+    ],
+    "srcRow": [
+      "iconLane0",
+      "assets/px/ui/hazard.png"
+    ],
+    "img": {
+      "src": "/assets/px/ui/hazard.png",
+      "natural": 79,
+      "display": "block",
+      "opacity": "0.35"
+    },
+    "moved": {
+      "before": 366.5,
+      "after": 398.5,
+      "x": -46,
+      "dirty": true
+    },
+    "afterSrc": "/assets/px/hud/ammo.png",
+    "added": {
+      "kind": "image",
+      "id": "image",
+      "count": 1
+    },
+    "dirtyAfterRevert": false,
+    "save": {
+      "ok": true,
+      "count": 32,
+      "backup": "_utils/.backups/UILayout-2026-10-31-12-12-23.js"
+    },
+    "bad": {
+      "ok": false,
+      "code": "bad_element",
+      "error": "invalid UI element",
+      "index": 17,
+      "field": "src"
+    },
+    "status": {
+      "ok": true,
+      "editor": "arcengine",
+      "api": 21,
+      "root": "C:\\Users\\dobri\\orca\\workspaces\\collapse\\dev-icons"
+    },
+    "schema": true
+  },
+  "errors": [],
+  "ok": true
+}
