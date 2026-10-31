@@ -9,6 +9,9 @@
 // vault). A pickup stands in the middle of a segment and is taken by the train on its lane.
 // A demon segment releases one or two demons from the tunnel walls (side -1 left, +1 right); each
 // one needs its own shot before its leap ends.
+//
+// The tutorial (end of the file) is a run on a scripted track of the same segments: its steps are
+// data, CollapseRules.TUTORIAL. It never reaches the record or the table: Game owns that.
 
 /** @satisfies {Record<string, any>} */
 const CollapseRules = {
@@ -22,6 +25,37 @@ const CollapseRules = {
     TRAIN_LEN: 0.35,       // segments: the collapse behind catches the train at this gap
     FORK_RANGE: 6,         // segments: how far ahead the next fork can be armed
     PICKUPS: ['ammo', 'boost', 'slow', 'shield', 'rescue'],
+    PICKUP_DICE: ['ammo', 'boost', null, 'slow', 'shield', 'rescue', null],   // the faces of cfg().pickupOdds; null — nothing
+
+    // The tutorial: the steps follow one another on one track. Numbers are segments from the step's
+    // start: forks [at, from, to], gaps [at, lane, n], lava [at, lane], pickups [at, lane, kind],
+    // demons [at, side]. A step is passed when the train reaches its end with every pickup of the step
+    // taken and on the lane of the next step; a crash or a miss sends the player back to its start.
+    // shield and rescue show the pickup at work: the hazard behind the crate has no fork on purpose.
+    // rush: the collapse runs at the train until the step's pickup is taken.
+    TUTORIAL: [
+        { id: 'sign', lane: 1, len: 13, forks: [[8, 1, 2]] },
+        { id: 'ammo', lane: 2, len: 12, forks: [[6, 2, 1]], pickups: [[10, 1, 'ammo']] },
+        { id: 'cross', lane: 1, len: 13, forks: [[5, 1, 0]], gaps: [[9, 1, 3]] },
+        { id: 'gap', lane: 0, len: 13, forks: [[5, 0, 1]], gaps: [[9, 0, 3]] },
+        { id: 'lava', lane: 1, len: 11, forks: [[5, 1, 2]], lava: [[9, 1]] },
+        { id: 'slow', lane: 2, len: 6, pickups: [[3, 2, 'slow']] },
+        { id: 'shield', lane: 2, len: 8, pickups: [[2, 2, 'shield']], lava: [[6, 2]] },
+        { id: 'rescue', lane: 2, len: 8, pickups: [[2, 2, 'rescue']], gaps: [[6, 2, 1]] },
+        { id: 'demon', lane: 1, len: 10, demons: [[4, -1]] },
+        { id: 'collapse', lane: 1, len: 15, forks: [[4, 1, 2]], pickups: [[8, 2, 'boost']], rush: true },
+        { id: 'done', lane: 2, len: 8 },
+    ],
+
+    // The tutorial's own numbers, apart from cfg(): they cannot change the replay of a run.
+    tutorialCfg() {
+        const U = 'undefined';
+        return {
+            frontMult: typeof COLLAPSE_TUTORIAL_FRONT_MULT !== U ? COLLAPSE_TUTORIAL_FRONT_MULT : 0.7,
+            frontGap: typeof COLLAPSE_TUTORIAL_FRONT_GAP !== U ? COLLAPSE_TUTORIAL_FRONT_GAP : 8,
+            rush: typeof COLLAPSE_TUTORIAL_RUSH !== U ? COLLAPSE_TUTORIAL_RUSH : 4,
+        };
+    },
 
     // All run numbers (Constants.js, GDD v3 §8) with defaults: Constants.js may be older than the code.
     cfg() {
@@ -72,10 +106,12 @@ const CollapseRules = {
             hazardReward: typeof COLLAPSE_HAZARD_REWARD !== U ? COLLAPSE_HAZARD_REWARD : 0.5,
             pickupOdds: [
                 typeof COLLAPSE_ODDS_AMMO !== U ? COLLAPSE_ODDS_AMMO : 0.34,
-                typeof COLLAPSE_ODDS_BOOST !== U ? COLLAPSE_ODDS_BOOST : 0.2,
+                typeof COLLAPSE_ODDS_BOOST !== U ? COLLAPSE_ODDS_BOOST : 0.07,
+                typeof COLLAPSE_ODDS_BOOST_EMPTY !== U ? COLLAPSE_ODDS_BOOST_EMPTY : 0.13,
                 typeof COLLAPSE_ODDS_SLOW !== U ? COLLAPSE_ODDS_SLOW : 0.16,
                 typeof COLLAPSE_ODDS_SHIELD !== U ? COLLAPSE_ODDS_SHIELD : 0.15,
-                typeof COLLAPSE_ODDS_RESCUE !== U ? COLLAPSE_ODDS_RESCUE : 0.15,
+                typeof COLLAPSE_ODDS_RESCUE !== U ? COLLAPSE_ODDS_RESCUE : 0.05,
+                typeof COLLAPSE_ODDS_RESCUE_EMPTY !== U ? COLLAPSE_ODDS_RESCUE_EMPTY : 0.1,
             ],
         };
     },
@@ -171,13 +207,14 @@ class CollapseTrack {
         for (let i = 0; i < n; i++) this._push(collapseSegment('calm'));
     }
 
+    // A pickup kind, or null: the dice left this place empty.
     _pickupKind() {
         const w = this.cfg.pickupOdds;
         let r = this.rand() * w.reduce((a, b) => a + b, 0);
         for (let i = 0; i < w.length; i++) {
-            if ((r -= w[i]) < 0) return CollapseRules.PICKUPS[i];
+            if ((r -= w[i]) < 0) return CollapseRules.PICKUP_DICE[i];
         }
-        return 'ammo';
+        return null;
     }
 
     _pattern() {
@@ -254,17 +291,24 @@ class CollapseTrack {
         return lane;
     }
 
-    // A side trip for a pickup on a calm stretch: fork out, the crossing, pickup, fork back.
+    // A side trip for a pickup on a calm stretch: fork out, the crossing, pickup, fork back. No pickup —
+    // the same stretch without forks: a sign that leads to nothing is a dishonest signal.
     _detour() {
         const a = this._int(CollapseRules.LANES);
         const side = CollapseRules.neighbors(a);
         const b = side[this._int(side.length)];
+        const kind = this._pickupKind();
+        if (!kind) {
+            this._calm(CollapseRules.SWITCH_LEAD + 2);
+            this.lastFork = this.segs.length - 1;    // the rest of the track as if the detour stood here
+            return;
+        }
         const out = collapseSegment('detour');
         out.forks.push({ from: a, to: b });
         this._push(out);
         for (let i = 1; i < CollapseRules.SWITCH_LEAD; i++) this._push(collapseSegment('detour'));
         const mid = collapseSegment('detour');
-        mid.pickup[b] = this._pickupKind();
+        mid.pickup[b] = kind;
         this._push(mid);
         const back = collapseSegment('detour');
         back.forks.push({ from: b, to: a });
@@ -286,10 +330,11 @@ CollapseTrack.BEHIND = collapseSegment('behind');
 
 // The run: position, lane, resources, the collapse behind, events for the scene and the HUD.
 class CollapseRun {
-    constructor(seed) {
+    constructor(seed, track = new CollapseTrack(seed)) {
         this.c = CollapseRules.cfg();
         this.seed = seed >>> 0;
-        this.track = new CollapseTrack(this.seed);
+        this.track = track;
+        this.tutorial = false;
         this.pos = 0;                 // segments travelled (the train nose)
         this.lane = 1;
         this.prevLane = 1;
@@ -581,4 +626,76 @@ class CollapseRun {
         advance(maxSteps);
         return run.state === 'over' ? run : null;
     }
+}
+
+// The track of the tutorial: CollapseRules.TUTORIAL laid out on the generator's segments, calm after it.
+class CollapseTutorialTrack extends CollapseTrack {
+    constructor() {
+        super(0);
+        this.segs = [];
+        /** @type {number[]} */
+        this.starts = [];       // the first segment of each step
+        for (const step of CollapseRules.TUTORIAL) {
+            const from = this.segs.length;
+            this.starts.push(from);
+            this._calm(step.len);
+            for (const [at, lane, n] of step.gaps || []) for (let i = 0; i < n; i++) this.segs[from + at + i].gap[lane] = true;
+            for (const [at, lane] of step.lava || []) this.segs[from + at].lava[lane] = true;
+            for (const [at, lane, kind] of step.pickups || []) this.segs[from + at].pickup[lane] = kind;
+            for (const [at, side] of step.demons || []) this.segs[from + at].demon = [{ side, lag: 0 }];
+            for (const [at, f, to] of step.forks || []) this.segs[from + at].forks.push({ from: f, to });
+        }
+    }
+
+    _pattern() { this._calm(1); }
+}
+
+// The tutorial run: starts at step `index` with `kit` (cartridges, shields and rescues on arrival
+// there), under a softer collapse. It decides on its own whether a step is passed: Game only reads
+// `missed` and `finished` and takes retry() after a crash or a miss.
+class CollapseTutorial extends CollapseRun {
+    constructor(index = 0, kit = null, failed = false) {
+        super(0, new CollapseTutorialTrack());
+        const t = CollapseRules.tutorialCfg(), c = this.c;
+        this.c = Object.assign({}, c, { frontSpeed: c.frontSpeed * t.frontMult, frontGrowth: c.frontGrowth * t.frontMult, frontMaxGap: t.frontGap });
+        this.tutorial = true;
+        this.rush = t.rush;
+        this.index = index;
+        this.failed = failed;         // this step already sent the player back
+        this.missed = false;          // the end of the step reached without its goal
+        this.finished = false;        // the end of the last step reached
+        this.pos = this._seg = this.track.starts[index];
+        this.lane = this.prevLane = this.step.lane;
+        this.front = this.pos - t.frontGap;
+        if (kit) Object.assign(this, kit);
+        this._kit = this._takeKit();
+    }
+
+    get step() { return CollapseRules.TUTORIAL[this.index]; }
+
+    _takeKit() { return { ammo: this.ammo, shield: this.shield, rescue: this.rescue }; }
+
+    _goalTaken() {
+        const from = this.track.starts[this.index];
+        return (this.step.pickups || []).every(([at]) => this._taken.has(from + at));
+    }
+
+    frontSpeed() { return this.step.rush && !this._goalTaken() ? this.rush : super.frontSpeed(); }
+
+    _step(h) {
+        super._step(h);
+        if (this.state !== 'run' || this.missed || this.finished) return;
+        if (this.pos < this.track.starts[this.index] + this.step.len) return;
+        const next = CollapseRules.TUTORIAL[this.index + 1];
+        if (!this._goalTaken() || (next && this.lane !== next.lane)) this.missed = true;
+        else if (!next) this.finished = true;
+        else {
+            this.index++;
+            this.failed = false;
+            this._kit = this._takeKit();
+        }
+    }
+
+    // The same step again from its start, with what the player brought to it.
+    retry() { return new CollapseTutorial(this.index, this._kit, true); }
 }

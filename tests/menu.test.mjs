@@ -66,7 +66,6 @@ test('настройки: громкость обоих каналов пере�
   const first = boot();
   first.UI.get('menuStart').click();
   assert.equal(first.UI.get('modeScreen').visible, true);
-  assert.equal(first.UI.get('modeTutorial').enabled, false);
   first.UI.get('modeEndless').click();
   assert.equal(first.game.mode, 'play');
   assert.equal(first.UI.get('menu').visible, false);

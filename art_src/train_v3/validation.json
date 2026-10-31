@@ -1,0 +1,254 @@
+{
+  "game_png_count": 31,
+  "colors_outside_palette": 0,
+  "files": [
+    {
+      "file": "assets/textures/train/boiler_face.png",
+      "size_px": [80, 80],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 6,
+      "sha256": "678206f2cc4d887eaa4cd41450dbf8293ba161bc682e7eeea63be86a62dca0d4"
+    },
+    {
+      "file": "assets/textures/train/boiler_side.png",
+      "size_px": [160, 80],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "42f3a1b3389eecf5fb33f0163f7088416e0659730f2bb17f4cfd423828990ed0"
+    },
+    {
+      "file": "assets/textures/train/boiler_top.png",
+      "size_px": [160, 32],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "e933f120b39a789c68942768ccac4472ed8dfd6313677480161fa19f7b94ebab"
+    },
+    {
+      "file": "assets/textures/train/cab_side.png",
+      "size_px": [48, 100],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "5396afdfa622912cb11eabcce3e38c958675f1bab710de1e8dd1d3bc6e181e5a"
+    },
+    {
+      "file": "assets/textures/train/cab_front.png",
+      "size_px": [88, 100],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "921c6634783dcb6d14867c8c072941fc5ba18674779158e47a22f8855f98ec7e"
+    },
+    {
+      "file": "assets/textures/train/cab_back.png",
+      "size_px": [88, 100],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "921c6634783dcb6d14867c8c072941fc5ba18674779158e47a22f8855f98ec7e"
+    },
+    {
+      "file": "assets/textures/train/cab_roof.png",
+      "size_px": [96, 56],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 10,
+      "sha256": "3977d7c3ecdf81b078df9b5396f36eed77fca264cb2504f45db8ecdbe587fbaa"
+    },
+    {
+      "file": "assets/textures/train/tender_side.png",
+      "size_px": [80, 52],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "eb095116f6db9e4af4aed40891bacf444963670ef56c5419f141ce5a43ebbb89"
+    },
+    {
+      "file": "assets/textures/train/tender_end.png",
+      "size_px": [80, 52],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "eb095116f6db9e4af4aed40891bacf444963670ef56c5419f141ce5a43ebbb89"
+    },
+    {
+      "file": "assets/textures/train/tender_top.png",
+      "size_px": [80, 80],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "834eefdaec79e2ca3aa92074e8ba23e2279c4760c6112b415f50db0cb3daa6ca"
+    },
+    {
+      "file": "assets/textures/train/chimney_side.png",
+      "size_px": [24, 52],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "216a6a8f273c60050f150f8c7f2168a3a052fc3e75386f6ed619ec8f7dc5ecb0"
+    },
+    {
+      "file": "assets/textures/train/chimney_top.png",
+      "size_px": [24, 24],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 3,
+      "sha256": "5caf1099b463645728e26ed2c932151ef86b7252fe6cbbe1e427f045f6b3f2db"
+    },
+    {
+      "file": "assets/textures/train/dome_side.png",
+      "size_px": [24, 20],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "55f527d0a619ee14ecd3ad86140b6a093d5d001814eaba51f06177a584750fd0"
+    },
+    {
+      "file": "assets/textures/train/dome_top.png",
+      "size_px": [24, 24],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "614aa40f3975ed4a3713f9810528ff1920898fb497ed060cf0adcd9eba32d947"
+    },
+    {
+      "file": "assets/textures/train/chassis.png",
+      "size_px": [160, 12],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "947fba5661a3d72ed42facdbcf4c7b3c4d8559b98d6a141bd9b369f914a63655"
+    },
+    {
+      "file": "assets/textures/train/pilot_front.png",
+      "size_px": [92, 30],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 10,
+      "sha256": "5158167ae727eb904db66c3f412723ead4fc00da834c20dd45b07d8b32c6d9ee"
+    },
+    {
+      "file": "assets/textures/train/wheel_0.png",
+      "size_px": [40, 40],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "64f45edd7cfe795f2934794fbfef4f8b1a85285d4fbb94aa0999f2f4e6ff29c7"
+    },
+    {
+      "file": "assets/textures/train/rods_0.png",
+      "size_px": [160, 44],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 5,
+      "sha256": "ea13716dd1134789a9872d6265d3ed9d962e6186a3e9ba7e1f18ac891d23a7b8"
+    },
+    {
+      "file": "assets/textures/train/wheel_1.png",
+      "size_px": [40, 40],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "b38d69dee45813679ed8b061bffd613114a297573574cbd65b26ea6a1254550a"
+    },
+    {
+      "file": "assets/textures/train/rods_1.png",
+      "size_px": [160, 44],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 5,
+      "sha256": "fc80bfea2883109ce90a8adbb3980c53854503f081a27336b3e4d8584e70a545"
+    },
+    {
+      "file": "assets/textures/train/wheel_2.png",
+      "size_px": [40, 40],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "58b0095ae3f1848b9b1a08691422748b3fbab6e40be3c850a00e1dabfb680bc4"
+    },
+    {
+      "file": "assets/textures/train/rods_2.png",
+      "size_px": [160, 44],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 5,
+      "sha256": "5d2c147d6f3df394036adb3d648da4fb9eea3ca2db2093d818916629c6e9a249"
+    },
+    {
+      "file": "assets/textures/train/wheel_3.png",
+      "size_px": [40, 40],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "1173b95813cf9c3b0990dbb12d05ddf630280fa6d43609f9a5885c710419b9c7"
+    },
+    {
+      "file": "assets/textures/train/rods_3.png",
+      "size_px": [160, 44],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 5,
+      "sha256": "4e4f1490fc109a8739341f67fae12e13fa7e8f05ecd6683141f90c756e9d8356"
+    },
+    {
+      "file": "assets/textures/train/tender_wheel.png",
+      "size_px": [24, 24],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 6,
+      "sha256": "fad57746589efcef3b514e98115bab0e967c207666c4216d16ab0e1b74c8f181"
+    },
+    {
+      "file": "assets/textures/train/headlamp_emissive.png",
+      "size_px": [80, 80],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 3,
+      "sha256": "98e20816a3f876e204d71ca948dfdb8928787ba5c15a64bce06bfb5939d93d13"
+    },
+    {
+      "file": "assets/textures/train/firebox_emissive.png",
+      "size_px": [88, 100],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 4,
+      "sha256": "2189d5a520e2cfd5469c5e0ee30417468872ba389bdab7cbcb305131dfa70663"
+    },
+    {
+      "file": "assets/textures/train/boiler_face_broken.png",
+      "size_px": [80, 80],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "2ebfc9b972c66b297e8d54ecbfead43abd045ea216610a0a94f0c8672fb2cac4"
+    },
+    {
+      "file": "assets/textures/train/boiler_side_broken.png",
+      "size_px": [160, 80],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 8,
+      "sha256": "3b3c27718bb752ff786d836fa7d57c1d2fb6ffebc0b4d7906173afe8eca7a21c"
+    },
+    {
+      "file": "assets/textures/train/cab_side_broken.png",
+      "size_px": [48, 100],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 8,
+      "sha256": "cbe440f153bb982a44eb340831cf2dfbfd1ce3038592082ece1cd4230c365969"
+    },
+    {
+      "file": "assets/textures/train/soot.png",
+      "size_px": [80, 80],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 2,
+      "sha256": "fe75e695d574bcdb779cdec346855e7c6bd93d7ae09a901cc0826e57236b4933"
+    }
+  ]
+}

@@ -214,7 +214,7 @@ test('таблица: лучший результат игрока за сезо
 // The rules of a version do not change: the fingerprint of the numbers and of what they do. A new
 // fingerprint without a new version would make the function refuse honest runs of older clients.
 test('правила изменились — подними COLLAPSE_RULES_VERSION и добавь отпечаток сюда', () => {
-  const FINGERPRINTS = { 1: '630a834b' };
+  const FINGERPRINTS = { 1: '630a834b', 2: 'ba60d729' };
   const p = page(), R = p.get('CollapseRules');
   const { iconLead, ...numbers } = R.cfg();
   const walk = SEEDS.slice(0, 5).map(seed => { const r = live(p, seed); return [r.meters, r.steps, r.pos]; });
@@ -250,7 +250,7 @@ test('игра без адреса функции: ни запроса, ни к�
   on.L.submit(run);
   assert.equal(calls.length, 1);
   assert.equal(calls[0][0], 'https://collapse.test/score');
-  assert.deepEqual(JSON.parse(calls[0][1].body), { rules: 1, seed: 4, meters: run.meters, log: JSON.parse(JSON.stringify(run.log)) });
+  assert.deepEqual(JSON.parse(calls[0][1].body), { rules: on.get('COLLAPSE_RULES_VERSION'), seed: 4, meters: run.meters, log: JSON.parse(JSON.stringify(run.log)) });
   assert.equal(calls[0][1].headers.Authorization, 'tma ' + signed.initData);
 
   const outside = load({ initData: '' });
