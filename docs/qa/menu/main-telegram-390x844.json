@@ -1,0 +1,26 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:63390/",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp/menu-telegram-qa.js",
+  "evalResult": {
+    "telegramEmulated": true,
+    "closed": 1,
+    "exit": {
+      "x": 33.22517395019531,
+      "y": 573.760009765625,
+      "width": 323.5333251953125,
+      "height": 65.6444091796875
+    }
+  },
+  "errors": [],
+  "ok": true
+}
