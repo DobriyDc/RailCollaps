@@ -1,0 +1,93 @@
+{
+  "version": 3,
+  "stage": "face_and_side",
+  "unit": "front boiler width = 1 = 80 source pixels",
+  "assets": [
+    {
+      "file": "assets/textures/train/boiler_face.png",
+      "size_px": [
+        80,
+        80
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Круглая дверь дымовой коробки, фара выключена",
+      "face_units": [
+        1,
+        1
+      ],
+      "source_crop": [
+        40,
+        304,
+        576,
+        840
+      ]
+    },
+    {
+      "file": "assets/textures/train/boiler_side.png",
+      "size_px": [
+        160,
+        80
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Плоская обшивка котла: U от носа к кабине, V сверху вниз",
+      "face_units": [
+        2,
+        1
+      ],
+      "source_crop": [
+        745,
+        372,
+        1460,
+        790
+      ]
+    }
+  ],
+  "boiler": {
+    "length_units": 2,
+    "center_y_units": 0.8,
+    "cross_section_xy_units": [
+      [
+        -0.2,
+        1.3
+      ],
+      [
+        0.2,
+        1.3
+      ],
+      [
+        0.5,
+        1
+      ],
+      [
+        0.5,
+        0.6
+      ],
+      [
+        0.2,
+        0.3
+      ],
+      [
+        -0.2,
+        0.3
+      ],
+      [
+        -0.5,
+        0.6
+      ],
+      [
+        -0.5,
+        1
+      ]
+    ],
+    "front_z": 0,
+    "rear_z": 2
+  }
+}

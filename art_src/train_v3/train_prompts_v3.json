@@ -1,0 +1,11 @@
+{
+  "tool": "built-in image_gen",
+  "model": "not exposed by tool",
+  "reference": "art_src/keyframes_v1/01_furnace_390x844.png",
+  "requests": [
+    {
+      "output": "drafts/boiler.png",
+      "prompt": "Use case: stylized-concept. Asset: original pixel-art production atlas for Rail Link: Collapse, matching the locomotive in reference image, not the surrounding scene. Reference: dark iron cylindrical steam boiler, riveted circular front smokebox door, small central round headlamp OFF, rusty brass bands, oxblood red pilot, tall narrow chimney, old heavy cab. Make a clean texture source atlas on opaque flat pale gray background, 1536x1024 landscape, exactly two isolated orthographic flat views with generous margins: LEFT HALF a large front-facing circular smokebox door alone, with thick concentric iron rims, sparse rivets, central OFF headlight black socket and brass rim, door hinges; RIGHT HALF a rectangular flat side boiler skin alone, horizontal long axis 2:1 ratio, front end at left, dark cast iron plates with two narrow rusty brass vertical bands, subtle sparse wear, thin straight pipe along bottom. These are two UNLIT ALBEDO texture sources: no directional light, no glow, no bright specular light, no cast shadows, no vignette, no scene, no wheels, no smoke, no cabin, no typography, no labels, no floor. Large deliberately stepped pixel clusters, handcrafted coarse pixel style faithful to reference, calm dark metal areas. Color families dark iron #17121b #241a24 #2a3038 #465058, rust #47303a #5c3a35 #7a4a3a #96604a. Circle is perfectly head-on and side is perfectly flat rectangular, no perspective. Both objects large and fully visible, never overlap."
+    }
+  ]
+}

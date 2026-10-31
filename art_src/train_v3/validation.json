@@ -1,0 +1,28 @@
+{
+  "game_png_count": 2,
+  "colors_outside_palette": 0,
+  "files": [
+    {
+      "file": "assets/textures/train/boiler_face.png",
+      "size_px": [
+        80,
+        80
+      ],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 6,
+      "sha256": "678206f2cc4d887eaa4cd41450dbf8293ba161bc682e7eeea63be86a62dca0d4"
+    },
+    {
+      "file": "assets/textures/train/boiler_side.png",
+      "size_px": [
+        160,
+        80
+      ],
+      "colors_outside_palette": 0,
+      "alpha_outside_binary": 0,
+      "visible_colors": 7,
+      "sha256": "42f3a1b3389eecf5fb33f0163f7088416e0659730f2bb17f4cfd423828990ed0"
+    }
+  ]
+}
