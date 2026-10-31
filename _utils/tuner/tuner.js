@@ -244,7 +244,7 @@ function showDemon() {
     const run = app.game.run;
     for (const side of [-1, 1]) {
         if (run.demons.some(d => d.side === side)) continue;
-        run.demons.push({ at: Math.floor(run.pos), side, wait: 0, t: run.c.demonSec * (state.paused ? 0.15 : 1) });
+        run.demons.push({ at: Math.floor(run.pos), side, wait: 0, t: state.paused ? run.c.demonSec * 0.35 : run.c.demonPerch + run.c.demonSec });
         run.events.push({ type: 'demon', at: Math.floor(run.pos), side });
     }
 }

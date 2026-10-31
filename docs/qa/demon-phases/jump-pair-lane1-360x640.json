@@ -1,0 +1,54 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:51051/",
+  "browser": "msedge.exe",
+  "waitMs": 1500,
+  "eval": "одноразовый скрипт",
+  "evalResult": {
+    "cfg": {
+      "phase": "jump",
+      "lane": 1,
+      "pair": true,
+      "side": 1
+    },
+    "pos": 46.38525720039424,
+    "steps": 166,
+    "targets": [
+      {
+        "x": 69.90942297573397,
+        "y": 141.38365430888743,
+        "kind": "demon",
+        "side": -1
+      },
+      {
+        "x": 308.04486097706024,
+        "y": 137.16992033681035,
+        "kind": "demon",
+        "side": 1
+      }
+    ],
+    "lit": [],
+    "lint": 0,
+    "views": [
+      [
+        -208,
+        78,
+        -222
+      ],
+      [
+        310,
+        38,
+        -700
+      ]
+    ]
+  },
+  "errors": [],
+  "ok": true
+}
