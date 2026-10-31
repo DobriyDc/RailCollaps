@@ -1,0 +1,3149 @@
+{
+  "version": 3,
+  "reference": "art_src/keyframes_v1/01_furnace_390x844.png",
+  "coordinate_system": {
+    "handedness": "right",
+    "x": "right looking from behind the engine",
+    "y": "up",
+    "z": "nose to tender",
+    "origin": "boiler nose plane, rail height, centerline",
+    "unit": "front boiler width = 1 = 80 source pixels",
+    "front_direction": [0, 0, -1],
+    "train_pivot_units": [0, 0, 1.275]
+  },
+  "render": {
+    "filter": "nearest",
+    "wrap": "clamp",
+    "mipmaps": false,
+    "alpha_test": 0.5,
+    "texture_v": "0 at top of image; convert explicitly to engine UV convention",
+    "indices": "CCW outward; cross(b-a,c-a) agrees with normal; Babylon CounterClockWiseSideOrientation",
+    "lighting": "all diffuse maps unlit; only named emissive layers emit; no baked ambient occlusion",
+    "decals_offset_px": 0.125
+  },
+  "assets": [
+    {
+      "file": "assets/textures/train/boiler_face.png",
+      "size_px": [80, 80],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Круглая дверь дымовой коробки, фара выключена",
+      "face_units": [1, 1],
+      "source_crop": [40, 304, 576, 840]
+    },
+    {
+      "file": "assets/textures/train/boiler_side.png",
+      "size_px": [160, 80],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Плоская обшивка котла: U от носа к кабине, V сверху вниз",
+      "face_units": [2, 1],
+      "source_crop": [745, 372, 1460, 790]
+    },
+    {
+      "file": "assets/textures/train/boiler_top.png",
+      "size_px": [160, 32],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Верх и низ восьмигранного котла, U нос→кабина"
+    },
+    {
+      "file": "assets/textures/train/cab_side.png",
+      "size_px": [48, 100],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Бок кабины, машинист у рычага; U нос→тендер",
+      "source_crop": [79, 109, 442, 449],
+      "source": "drafts/components.png"
+    },
+    {
+      "file": "assets/textures/train/cab_front.png",
+      "size_px": [88, 100],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Лицевая стенка кабины, два окна и закрытая топка",
+      "source_crop": [560, 105, 945, 489],
+      "source": "drafts/components.png"
+    },
+    {
+      "file": "assets/textures/train/cab_back.png",
+      "size_px": [88, 100],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Задняя стенка кабины с окнами и топкой",
+      "source_crop": [560, 105, 945, 489],
+      "source": "drafts/components.png"
+    },
+    {
+      "file": "assets/textures/train/cab_roof.png",
+      "size_px": [96, 56],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Плоская крыша кабины, X поперёк, Z от носа к тендеру"
+    },
+    {
+      "file": "assets/textures/train/tender_side.png",
+      "size_px": [80, 52],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Бок угольного тендера",
+      "source_crop": [1024, 129, 1492, 447],
+      "source": "drafts/components.png"
+    },
+    {
+      "file": "assets/textures/train/tender_end.png",
+      "size_px": [80, 52],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Торец тендера",
+      "source_crop": [1024, 129, 1492, 447],
+      "source": "drafts/components.png"
+    },
+    {
+      "file": "assets/textures/train/tender_top.png",
+      "size_px": [80, 80],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Вид сверху: крупный уголь в металлическом ободе",
+      "source_crop": [1045, 602, 1483, 895],
+      "source": "drafts/components.png"
+    },
+    {
+      "file": "assets/textures/train/chimney_side.png",
+      "size_px": [24, 52],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Высокая труба, материал без освещения"
+    },
+    {
+      "file": "assets/textures/train/chimney_top.png",
+      "size_px": [24, 24],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Чёрное жерло трубы без запечённого дыма"
+    },
+    {
+      "file": "assets/textures/train/dome_side.png",
+      "size_px": [24, 20],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Обшивка сухопарника"
+    },
+    {
+      "file": "assets/textures/train/dome_top.png",
+      "size_px": [24, 24],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Крышка сухопарника"
+    },
+    {
+      "file": "assets/textures/train/chassis.png",
+      "size_px": [160, 12],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Рама, торцы и нижние закрывающие поверхности"
+    },
+    {
+      "file": "assets/textures/train/pilot_front.png",
+      "size_px": [92, 30],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Красная решётка путеочистителя, ортографический фасад",
+      "source_crop": [492, 607, 978, 910],
+      "source": "drafts/components.png"
+    },
+    {
+      "file": "assets/textures/train/wheel_0.png",
+      "size_px": [40, 40],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Ведущее колесо; общий цикл с дышлами",
+      "animation": "running",
+      "frame": 0,
+      "duration_ms": 100
+    },
+    {
+      "file": "assets/textures/train/rods_0.png",
+      "size_px": [160, 44],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Сцепные дышла и шатун, U нос→кабина",
+      "animation": "running",
+      "frame": 0,
+      "duration_ms": 100,
+      "crank_px": [7, 0]
+    },
+    {
+      "file": "assets/textures/train/wheel_1.png",
+      "size_px": [40, 40],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Ведущее колесо; общий цикл с дышлами",
+      "animation": "running",
+      "frame": 1,
+      "duration_ms": 100
+    },
+    {
+      "file": "assets/textures/train/rods_1.png",
+      "size_px": [160, 44],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Сцепные дышла и шатун, U нос→кабина",
+      "animation": "running",
+      "frame": 1,
+      "duration_ms": 100,
+      "crank_px": [0, 7]
+    },
+    {
+      "file": "assets/textures/train/wheel_2.png",
+      "size_px": [40, 40],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Ведущее колесо; общий цикл с дышлами",
+      "animation": "running",
+      "frame": 2,
+      "duration_ms": 100
+    },
+    {
+      "file": "assets/textures/train/rods_2.png",
+      "size_px": [160, 44],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Сцепные дышла и шатун, U нос→кабина",
+      "animation": "running",
+      "frame": 2,
+      "duration_ms": 100,
+      "crank_px": [-7, 0]
+    },
+    {
+      "file": "assets/textures/train/wheel_3.png",
+      "size_px": [40, 40],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Ведущее колесо; общий цикл с дышлами",
+      "animation": "running",
+      "frame": 3,
+      "duration_ms": 100
+    },
+    {
+      "file": "assets/textures/train/rods_3.png",
+      "size_px": [160, 44],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Сцепные дышла и шатун, U нос→кабина",
+      "animation": "running",
+      "frame": 3,
+      "duration_ms": 100,
+      "crank_px": [0, -7]
+    },
+    {
+      "file": "assets/textures/train/tender_wheel.png",
+      "size_px": [24, 24],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Малое колесо тендера, 24 px"
+    },
+    {
+      "file": "assets/textures/train/headlamp_emissive.png",
+      "size_px": [80, 80],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Только стекло фары, UV точно совпадает с boiler_face",
+      "blend": "alpha_test",
+      "emissive": true
+    },
+    {
+      "file": "assets/textures/train/firebox_emissive.png",
+      "size_px": [88, 100],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Открытая топка на cab_back, локальный источник",
+      "blend": "alpha_test",
+      "emissive": true
+    },
+    {
+      "file": "assets/textures/train/boiler_face_broken.png",
+      "size_px": [80, 80],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Повреждённая замена с тем же UV и силуэтом",
+      "replaces": "boiler_face.png"
+    },
+    {
+      "file": "assets/textures/train/boiler_side_broken.png",
+      "size_px": [160, 80],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Повреждённая замена с тем же UV и силуэтом",
+      "replaces": "boiler_side.png"
+    },
+    {
+      "file": "assets/textures/train/cab_side_broken.png",
+      "size_px": [48, 100],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Повреждённая замена с тем же UV и силуэтом",
+      "replaces": "cab_side.png"
+    },
+    {
+      "file": "assets/textures/train/soot.png",
+      "size_px": [80, 80],
+      "frames": 1,
+      "pivot": [0.5, 0.5],
+      "purpose": "Декаль копоти поверх обшивки, отдельный след без свечения",
+      "blend": "alpha_test"
+    }
+  ],
+  "faces": [
+    {
+      "part": "boiler",
+      "id": "boiler_front",
+      "texture": "boiler_face.png",
+      "vertices_px": [
+        [-16, 104, 0],
+        [16, 104, 0],
+        [40, 80, 0],
+        [40, 48, 0],
+        [16, 24, 0],
+        [-16, 24, 0],
+        [-40, 48, 0],
+        [-40, 80, 0]
+      ],
+      "vertices_units": [
+        [-0.2, 1.3, 0.0],
+        [0.2, 1.3, 0.0],
+        [0.5, 1.0, 0.0],
+        [0.5, 0.6, 0.0],
+        [0.2, 0.3, 0.0],
+        [-0.2, 0.3, 0.0],
+        [-0.5, 0.6, 0.0],
+        [-0.5, 1.0, 0.0]
+      ],
+      "uv_top_left": [
+        [0.3, 0.0],
+        [0.7, 0.0],
+        [1.0, 0.3],
+        [1.0, 0.7],
+        [0.7, 1.0],
+        [0.3, 1.0],
+        [0.0, 0.7],
+        [0.0, 0.3]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3],
+        [0, 3, 4],
+        [0, 4, 5],
+        [0, 5, 6],
+        [0, 6, 7]
+      ],
+      "normal": [0.0, 0.0, -1.0],
+      "solid": true,
+      "extent_xyz_px": [80, 80, 0],
+      "extent_xyz_units": [1.0, 1.0, 0.0],
+      "texture_size_px": [80, 80],
+      "texture_rect_px": [0.0, 0.0, 80.0, 80.0]
+    },
+    {
+      "part": "boiler",
+      "id": "boiler_back",
+      "texture": "boiler_face.png",
+      "vertices_px": [
+        [-40, 80, 160],
+        [-40, 48, 160],
+        [-16, 24, 160],
+        [16, 24, 160],
+        [40, 48, 160],
+        [40, 80, 160],
+        [16, 104, 160],
+        [-16, 104, 160]
+      ],
+      "vertices_units": [
+        [-0.5, 1.0, 2.0],
+        [-0.5, 0.6, 2.0],
+        [-0.2, 0.3, 2.0],
+        [0.2, 0.3, 2.0],
+        [0.5, 0.6, 2.0],
+        [0.5, 1.0, 2.0],
+        [0.2, 1.3, 2.0],
+        [-0.2, 1.3, 2.0]
+      ],
+      "uv_top_left": [
+        [0.0, 0.3],
+        [0.0, 0.7],
+        [0.3, 1.0],
+        [0.7, 1.0],
+        [1.0, 0.7],
+        [1.0, 0.3],
+        [0.7, 0.0],
+        [0.3, 0.0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3],
+        [0, 3, 4],
+        [0, 4, 5],
+        [0, 5, 6],
+        [0, 6, 7]
+      ],
+      "normal": [0.0, 0.0, 1.0],
+      "solid": true,
+      "extent_xyz_px": [80, 80, 0],
+      "extent_xyz_units": [1.0, 1.0, 0.0],
+      "texture_size_px": [80, 80],
+      "texture_rect_px": [0.0, 0.0, 80.0, 80.0]
+    },
+    {
+      "part": "boiler",
+      "id": "boiler_strip_0",
+      "texture": "boiler_top.png",
+      "vertices_px": [
+        [-16, 104, 0],
+        [-16, 104, 160],
+        [16, 104, 160],
+        [16, 104, 0]
+      ],
+      "vertices_units": [
+        [-0.2, 1.3, 0.0],
+        [-0.2, 1.3, 2.0],
+        [0.2, 1.3, 2.0],
+        [0.2, 1.3, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [32, 0, 160],
+      "extent_xyz_units": [0.4, 0.0, 2.0],
+      "edge_lengths_px": [160.0, 32.0, 160.0, 32.0],
+      "edge_lengths_units": [2.0, 0.4, 2.0, 0.4],
+      "texture_size_px": [160, 32],
+      "texture_rect_px": [0, 0, 160, 32]
+    },
+    {
+      "part": "boiler",
+      "id": "boiler_strip_1",
+      "texture": "boiler_side.png",
+      "vertices_px": [
+        [16, 104, 0],
+        [16, 104, 160],
+        [40, 80, 160],
+        [40, 80, 0]
+      ],
+      "vertices_units": [
+        [0.2, 1.3, 0.0],
+        [0.2, 1.3, 2.0],
+        [0.5, 1.0, 2.0],
+        [0.5, 1.0, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 0.0],
+        [1, 0.0],
+        [1, 0.3],
+        [0, 0.3]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.70710678, 0.70710678, 0.0],
+      "solid": true,
+      "extent_xyz_px": [24, 24, 160],
+      "extent_xyz_units": [0.3, 0.3, 2.0],
+      "edge_lengths_px": [160.0, 33.941125, 160.0, 33.941125],
+      "edge_lengths_units": [2.0, 0.42426406, 2.0, 0.42426406],
+      "texture_size_px": [160, 80],
+      "texture_rect_px": [0, 0.0, 160, 24.0]
+    },
+    {
+      "part": "boiler",
+      "id": "boiler_strip_2",
+      "texture": "boiler_side.png",
+      "vertices_px": [
+        [40, 80, 0],
+        [40, 80, 160],
+        [40, 48, 160],
+        [40, 48, 0]
+      ],
+      "vertices_units": [
+        [0.5, 1.0, 0.0],
+        [0.5, 1.0, 2.0],
+        [0.5, 0.6, 2.0],
+        [0.5, 0.6, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 0.3],
+        [1, 0.3],
+        [1, 0.7],
+        [0, 0.7]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 32, 160],
+      "extent_xyz_units": [0.0, 0.4, 2.0],
+      "edge_lengths_px": [160.0, 32.0, 160.0, 32.0],
+      "edge_lengths_units": [2.0, 0.4, 2.0, 0.4],
+      "texture_size_px": [160, 80],
+      "texture_rect_px": [0, 24.0, 160, 56.0]
+    },
+    {
+      "part": "boiler",
+      "id": "boiler_strip_3",
+      "texture": "boiler_side.png",
+      "vertices_px": [
+        [40, 48, 0],
+        [40, 48, 160],
+        [16, 24, 160],
+        [16, 24, 0]
+      ],
+      "vertices_units": [
+        [0.5, 0.6, 0.0],
+        [0.5, 0.6, 2.0],
+        [0.2, 0.3, 2.0],
+        [0.2, 0.3, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 0.7],
+        [1, 0.7],
+        [1, 1.0],
+        [0, 1.0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.70710678, -0.70710678, 0.0],
+      "solid": true,
+      "extent_xyz_px": [24, 24, 160],
+      "extent_xyz_units": [0.3, 0.3, 2.0],
+      "edge_lengths_px": [160.0, 33.941125, 160.0, 33.941125],
+      "edge_lengths_units": [2.0, 0.42426406, 2.0, 0.42426406],
+      "texture_size_px": [160, 80],
+      "texture_rect_px": [0, 56.0, 160, 80.0]
+    },
+    {
+      "part": "boiler",
+      "id": "boiler_strip_4",
+      "texture": "boiler_top.png",
+      "vertices_px": [
+        [16, 24, 0],
+        [16, 24, 160],
+        [-16, 24, 160],
+        [-16, 24, 0]
+      ],
+      "vertices_units": [
+        [0.2, 0.3, 0.0],
+        [0.2, 0.3, 2.0],
+        [-0.2, 0.3, 2.0],
+        [-0.2, 0.3, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, -1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [32, 0, 160],
+      "extent_xyz_units": [0.4, 0.0, 2.0],
+      "edge_lengths_px": [160.0, 32.0, 160.0, 32.0],
+      "edge_lengths_units": [2.0, 0.4, 2.0, 0.4],
+      "texture_size_px": [160, 32],
+      "texture_rect_px": [0, 0, 160, 32]
+    },
+    {
+      "part": "boiler",
+      "id": "boiler_strip_5",
+      "texture": "boiler_side.png",
+      "vertices_px": [
+        [-16, 24, 0],
+        [-16, 24, 160],
+        [-40, 48, 160],
+        [-40, 48, 0]
+      ],
+      "vertices_units": [
+        [-0.2, 0.3, 0.0],
+        [-0.2, 0.3, 2.0],
+        [-0.5, 0.6, 2.0],
+        [-0.5, 0.6, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 1.0],
+        [1, 1.0],
+        [1, 0.7],
+        [0, 0.7]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [-0.70710678, -0.70710678, 0.0],
+      "solid": true,
+      "extent_xyz_px": [24, 24, 160],
+      "extent_xyz_units": [0.3, 0.3, 2.0],
+      "edge_lengths_px": [160.0, 33.941125, 160.0, 33.941125],
+      "edge_lengths_units": [2.0, 0.42426406, 2.0, 0.42426406],
+      "texture_size_px": [160, 80],
+      "texture_rect_px": [0, 56.0, 160, 80.0]
+    },
+    {
+      "part": "boiler",
+      "id": "boiler_strip_6",
+      "texture": "boiler_side.png",
+      "vertices_px": [
+        [-40, 48, 0],
+        [-40, 48, 160],
+        [-40, 80, 160],
+        [-40, 80, 0]
+      ],
+      "vertices_units": [
+        [-0.5, 0.6, 0.0],
+        [-0.5, 0.6, 2.0],
+        [-0.5, 1.0, 2.0],
+        [-0.5, 1.0, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 0.7],
+        [1, 0.7],
+        [1, 0.3],
+        [0, 0.3]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [-1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 32, 160],
+      "extent_xyz_units": [0.0, 0.4, 2.0],
+      "edge_lengths_px": [160.0, 32.0, 160.0, 32.0],
+      "edge_lengths_units": [2.0, 0.4, 2.0, 0.4],
+      "texture_size_px": [160, 80],
+      "texture_rect_px": [0, 24.0, 160, 56.0]
+    },
+    {
+      "part": "boiler",
+      "id": "boiler_strip_7",
+      "texture": "boiler_side.png",
+      "vertices_px": [
+        [-40, 80, 0],
+        [-40, 80, 160],
+        [-16, 104, 160],
+        [-16, 104, 0]
+      ],
+      "vertices_units": [
+        [-0.5, 1.0, 0.0],
+        [-0.5, 1.0, 2.0],
+        [-0.2, 1.3, 2.0],
+        [-0.2, 1.3, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 0.3],
+        [1, 0.3],
+        [1, 0.0],
+        [0, 0.0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [-0.70710678, 0.70710678, 0.0],
+      "solid": true,
+      "extent_xyz_px": [24, 24, 160],
+      "extent_xyz_units": [0.3, 0.3, 2.0],
+      "edge_lengths_px": [160.0, 33.941125, 160.0, 33.941125],
+      "edge_lengths_units": [2.0, 0.42426406, 2.0, 0.42426406],
+      "texture_size_px": [160, 80],
+      "texture_rect_px": [0, 0.0, 160, 24.0]
+    },
+    {
+      "part": "cab",
+      "id": "cab_front",
+      "texture": "cab_front.png",
+      "vertices_px": [
+        [-44, 124, 152],
+        [44, 124, 152],
+        [44, 24, 152],
+        [-44, 24, 152]
+      ],
+      "vertices_units": [
+        [-0.55, 1.55, 1.9],
+        [0.55, 1.55, 1.9],
+        [0.55, 0.3, 1.9],
+        [-0.55, 0.3, 1.9]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, -1.0],
+      "solid": true,
+      "extent_xyz_px": [88, 100, 0],
+      "extent_xyz_units": [1.1, 1.25, 0.0],
+      "edge_lengths_px": [88.0, 100.0, 88.0, 100.0],
+      "edge_lengths_units": [1.1, 1.25, 1.1, 1.25],
+      "texture_size_px": [88, 100],
+      "texture_rect_px": [0, 0, 88, 100]
+    },
+    {
+      "part": "cab",
+      "id": "cab_back",
+      "texture": "cab_back.png",
+      "vertices_px": [
+        [44, 124, 200],
+        [-44, 124, 200],
+        [-44, 24, 200],
+        [44, 24, 200]
+      ],
+      "vertices_units": [
+        [0.55, 1.55, 2.5],
+        [-0.55, 1.55, 2.5],
+        [-0.55, 0.3, 2.5],
+        [0.55, 0.3, 2.5]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, 1.0],
+      "solid": true,
+      "extent_xyz_px": [88, 100, 0],
+      "extent_xyz_units": [1.1, 1.25, 0.0],
+      "edge_lengths_px": [88.0, 100.0, 88.0, 100.0],
+      "edge_lengths_units": [1.1, 1.25, 1.1, 1.25],
+      "texture_size_px": [88, 100],
+      "texture_rect_px": [0, 0, 88, 100]
+    },
+    {
+      "part": "cab",
+      "id": "cab_right",
+      "texture": "cab_side.png",
+      "vertices_px": [
+        [44, 124, 152],
+        [44, 124, 200],
+        [44, 24, 200],
+        [44, 24, 152]
+      ],
+      "vertices_units": [
+        [0.55, 1.55, 1.9],
+        [0.55, 1.55, 2.5],
+        [0.55, 0.3, 2.5],
+        [0.55, 0.3, 1.9]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 100, 48],
+      "extent_xyz_units": [0.0, 1.25, 0.6],
+      "edge_lengths_px": [48.0, 100.0, 48.0, 100.0],
+      "edge_lengths_units": [0.6, 1.25, 0.6, 1.25],
+      "texture_size_px": [48, 100],
+      "texture_rect_px": [0, 0, 48, 100]
+    },
+    {
+      "part": "cab",
+      "id": "cab_left",
+      "texture": "cab_side.png",
+      "vertices_px": [
+        [-44, 24, 152],
+        [-44, 24, 200],
+        [-44, 124, 200],
+        [-44, 124, 152]
+      ],
+      "vertices_units": [
+        [-0.55, 0.3, 1.9],
+        [-0.55, 0.3, 2.5],
+        [-0.55, 1.55, 2.5],
+        [-0.55, 1.55, 1.9]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [-1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 100, 48],
+      "extent_xyz_units": [0.0, 1.25, 0.6],
+      "edge_lengths_px": [48.0, 100.0, 48.0, 100.0],
+      "edge_lengths_units": [0.6, 1.25, 0.6, 1.25],
+      "texture_size_px": [48, 100],
+      "texture_rect_px": [0, 0, 48, 100]
+    },
+    {
+      "part": "cab",
+      "id": "cab_top",
+      "texture": "cab_roof.png",
+      "vertices_px": [
+        [-44, 124, 200],
+        [44, 124, 200],
+        [44, 124, 152],
+        [-44, 124, 152]
+      ],
+      "vertices_units": [
+        [-0.55, 1.55, 2.5],
+        [0.55, 1.55, 2.5],
+        [0.55, 1.55, 1.9],
+        [-0.55, 1.55, 1.9]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [88, 0, 48],
+      "extent_xyz_units": [1.1, 0.0, 0.6],
+      "edge_lengths_px": [88.0, 48.0, 88.0, 48.0],
+      "edge_lengths_units": [1.1, 0.6, 1.1, 0.6],
+      "texture_size_px": [96, 56],
+      "texture_rect_px": [0, 0, 96, 56]
+    },
+    {
+      "part": "cab",
+      "id": "cab_bottom",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-44, 24, 152],
+        [44, 24, 152],
+        [44, 24, 200],
+        [-44, 24, 200]
+      ],
+      "vertices_units": [
+        [-0.55, 0.3, 1.9],
+        [0.55, 0.3, 1.9],
+        [0.55, 0.3, 2.5],
+        [-0.55, 0.3, 2.5]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, -1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [88, 0, 48],
+      "extent_xyz_units": [1.1, 0.0, 0.6],
+      "edge_lengths_px": [88.0, 48.0, 88.0, 48.0],
+      "edge_lengths_units": [1.1, 0.6, 1.1, 0.6],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "roof",
+      "id": "roof_front",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-48, 130, 148],
+        [48, 130, 148],
+        [48, 124, 148],
+        [-48, 124, 148]
+      ],
+      "vertices_units": [
+        [-0.6, 1.625, 1.85],
+        [0.6, 1.625, 1.85],
+        [0.6, 1.55, 1.85],
+        [-0.6, 1.55, 1.85]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, -1.0],
+      "solid": true,
+      "extent_xyz_px": [96, 6, 0],
+      "extent_xyz_units": [1.2, 0.075, 0.0],
+      "edge_lengths_px": [96.0, 6.0, 96.0, 6.0],
+      "edge_lengths_units": [1.2, 0.075, 1.2, 0.075],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "roof",
+      "id": "roof_back",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [48, 130, 204],
+        [-48, 130, 204],
+        [-48, 124, 204],
+        [48, 124, 204]
+      ],
+      "vertices_units": [
+        [0.6, 1.625, 2.55],
+        [-0.6, 1.625, 2.55],
+        [-0.6, 1.55, 2.55],
+        [0.6, 1.55, 2.55]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, 1.0],
+      "solid": true,
+      "extent_xyz_px": [96, 6, 0],
+      "extent_xyz_units": [1.2, 0.075, 0.0],
+      "edge_lengths_px": [96.0, 6.0, 96.0, 6.0],
+      "edge_lengths_units": [1.2, 0.075, 1.2, 0.075],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "roof",
+      "id": "roof_right",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [48, 130, 148],
+        [48, 130, 204],
+        [48, 124, 204],
+        [48, 124, 148]
+      ],
+      "vertices_units": [
+        [0.6, 1.625, 1.85],
+        [0.6, 1.625, 2.55],
+        [0.6, 1.55, 2.55],
+        [0.6, 1.55, 1.85]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 6, 56],
+      "extent_xyz_units": [0.0, 0.075, 0.7],
+      "edge_lengths_px": [56.0, 6.0, 56.0, 6.0],
+      "edge_lengths_units": [0.7, 0.075, 0.7, 0.075],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "roof",
+      "id": "roof_left",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-48, 124, 148],
+        [-48, 124, 204],
+        [-48, 130, 204],
+        [-48, 130, 148]
+      ],
+      "vertices_units": [
+        [-0.6, 1.55, 1.85],
+        [-0.6, 1.55, 2.55],
+        [-0.6, 1.625, 2.55],
+        [-0.6, 1.625, 1.85]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [-1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 6, 56],
+      "extent_xyz_units": [0.0, 0.075, 0.7],
+      "edge_lengths_px": [56.0, 6.0, 56.0, 6.0],
+      "edge_lengths_units": [0.7, 0.075, 0.7, 0.075],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "roof",
+      "id": "roof_top",
+      "texture": "cab_roof.png",
+      "vertices_px": [
+        [-48, 130, 204],
+        [48, 130, 204],
+        [48, 130, 148],
+        [-48, 130, 148]
+      ],
+      "vertices_units": [
+        [-0.6, 1.625, 2.55],
+        [0.6, 1.625, 2.55],
+        [0.6, 1.625, 1.85],
+        [-0.6, 1.625, 1.85]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [96, 0, 56],
+      "extent_xyz_units": [1.2, 0.0, 0.7],
+      "edge_lengths_px": [96.0, 56.0, 96.0, 56.0],
+      "edge_lengths_units": [1.2, 0.7, 1.2, 0.7],
+      "texture_size_px": [96, 56],
+      "texture_rect_px": [0, 0, 96, 56]
+    },
+    {
+      "part": "roof",
+      "id": "roof_bottom",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-48, 124, 148],
+        [48, 124, 148],
+        [48, 124, 204],
+        [-48, 124, 204]
+      ],
+      "vertices_units": [
+        [-0.6, 1.55, 1.85],
+        [0.6, 1.55, 1.85],
+        [0.6, 1.55, 2.55],
+        [-0.6, 1.55, 2.55]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, -1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [96, 0, 56],
+      "extent_xyz_units": [1.2, 0.0, 0.7],
+      "edge_lengths_px": [96.0, 56.0, 96.0, 56.0],
+      "edge_lengths_units": [1.2, 0.7, 1.2, 0.7],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "chimney",
+      "id": "chimney_front",
+      "texture": "chimney_side.png",
+      "vertices_px": [
+        [-12, 155, 16],
+        [12, 155, 16],
+        [12, 103, 16],
+        [-12, 103, 16]
+      ],
+      "vertices_units": [
+        [-0.15, 1.9375, 0.2],
+        [0.15, 1.9375, 0.2],
+        [0.15, 1.2875, 0.2],
+        [-0.15, 1.2875, 0.2]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, -1.0],
+      "solid": true,
+      "extent_xyz_px": [24, 52, 0],
+      "extent_xyz_units": [0.3, 0.65, 0.0],
+      "edge_lengths_px": [24.0, 52.0, 24.0, 52.0],
+      "edge_lengths_units": [0.3, 0.65, 0.3, 0.65],
+      "texture_size_px": [24, 52],
+      "texture_rect_px": [0, 0, 24, 52]
+    },
+    {
+      "part": "chimney",
+      "id": "chimney_back",
+      "texture": "chimney_side.png",
+      "vertices_px": [
+        [12, 155, 40],
+        [-12, 155, 40],
+        [-12, 103, 40],
+        [12, 103, 40]
+      ],
+      "vertices_units": [
+        [0.15, 1.9375, 0.5],
+        [-0.15, 1.9375, 0.5],
+        [-0.15, 1.2875, 0.5],
+        [0.15, 1.2875, 0.5]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, 1.0],
+      "solid": true,
+      "extent_xyz_px": [24, 52, 0],
+      "extent_xyz_units": [0.3, 0.65, 0.0],
+      "edge_lengths_px": [24.0, 52.0, 24.0, 52.0],
+      "edge_lengths_units": [0.3, 0.65, 0.3, 0.65],
+      "texture_size_px": [24, 52],
+      "texture_rect_px": [0, 0, 24, 52]
+    },
+    {
+      "part": "chimney",
+      "id": "chimney_right",
+      "texture": "chimney_side.png",
+      "vertices_px": [
+        [12, 155, 16],
+        [12, 155, 40],
+        [12, 103, 40],
+        [12, 103, 16]
+      ],
+      "vertices_units": [
+        [0.15, 1.9375, 0.2],
+        [0.15, 1.9375, 0.5],
+        [0.15, 1.2875, 0.5],
+        [0.15, 1.2875, 0.2]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 52, 24],
+      "extent_xyz_units": [0.0, 0.65, 0.3],
+      "edge_lengths_px": [24.0, 52.0, 24.0, 52.0],
+      "edge_lengths_units": [0.3, 0.65, 0.3, 0.65],
+      "texture_size_px": [24, 52],
+      "texture_rect_px": [0, 0, 24, 52]
+    },
+    {
+      "part": "chimney",
+      "id": "chimney_left",
+      "texture": "chimney_side.png",
+      "vertices_px": [
+        [-12, 103, 16],
+        [-12, 103, 40],
+        [-12, 155, 40],
+        [-12, 155, 16]
+      ],
+      "vertices_units": [
+        [-0.15, 1.2875, 0.2],
+        [-0.15, 1.2875, 0.5],
+        [-0.15, 1.9375, 0.5],
+        [-0.15, 1.9375, 0.2]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [-1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 52, 24],
+      "extent_xyz_units": [0.0, 0.65, 0.3],
+      "edge_lengths_px": [24.0, 52.0, 24.0, 52.0],
+      "edge_lengths_units": [0.3, 0.65, 0.3, 0.65],
+      "texture_size_px": [24, 52],
+      "texture_rect_px": [0, 0, 24, 52]
+    },
+    {
+      "part": "chimney",
+      "id": "chimney_top",
+      "texture": "chimney_top.png",
+      "vertices_px": [
+        [-12, 155, 40],
+        [12, 155, 40],
+        [12, 155, 16],
+        [-12, 155, 16]
+      ],
+      "vertices_units": [
+        [-0.15, 1.9375, 0.5],
+        [0.15, 1.9375, 0.5],
+        [0.15, 1.9375, 0.2],
+        [-0.15, 1.9375, 0.2]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [24, 0, 24],
+      "extent_xyz_units": [0.3, 0.0, 0.3],
+      "edge_lengths_px": [24.0, 24.0, 24.0, 24.0],
+      "edge_lengths_units": [0.3, 0.3, 0.3, 0.3],
+      "texture_size_px": [24, 24],
+      "texture_rect_px": [0, 0, 24, 24]
+    },
+    {
+      "part": "chimney",
+      "id": "chimney_bottom",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-12, 103, 16],
+        [12, 103, 16],
+        [12, 103, 40],
+        [-12, 103, 40]
+      ],
+      "vertices_units": [
+        [-0.15, 1.2875, 0.2],
+        [0.15, 1.2875, 0.2],
+        [0.15, 1.2875, 0.5],
+        [-0.15, 1.2875, 0.5]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, -1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [24, 0, 24],
+      "extent_xyz_units": [0.3, 0.0, 0.3],
+      "edge_lengths_px": [24.0, 24.0, 24.0, 24.0],
+      "edge_lengths_units": [0.3, 0.3, 0.3, 0.3],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "dome",
+      "id": "dome_front",
+      "texture": "dome_side.png",
+      "vertices_px": [
+        [-12, 120, 88],
+        [12, 120, 88],
+        [12, 100, 88],
+        [-12, 100, 88]
+      ],
+      "vertices_units": [
+        [-0.15, 1.5, 1.1],
+        [0.15, 1.5, 1.1],
+        [0.15, 1.25, 1.1],
+        [-0.15, 1.25, 1.1]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, -1.0],
+      "solid": true,
+      "extent_xyz_px": [24, 20, 0],
+      "extent_xyz_units": [0.3, 0.25, 0.0],
+      "edge_lengths_px": [24.0, 20.0, 24.0, 20.0],
+      "edge_lengths_units": [0.3, 0.25, 0.3, 0.25],
+      "texture_size_px": [24, 20],
+      "texture_rect_px": [0, 0, 24, 20]
+    },
+    {
+      "part": "dome",
+      "id": "dome_back",
+      "texture": "dome_side.png",
+      "vertices_px": [
+        [12, 120, 112],
+        [-12, 120, 112],
+        [-12, 100, 112],
+        [12, 100, 112]
+      ],
+      "vertices_units": [
+        [0.15, 1.5, 1.4],
+        [-0.15, 1.5, 1.4],
+        [-0.15, 1.25, 1.4],
+        [0.15, 1.25, 1.4]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, 1.0],
+      "solid": true,
+      "extent_xyz_px": [24, 20, 0],
+      "extent_xyz_units": [0.3, 0.25, 0.0],
+      "edge_lengths_px": [24.0, 20.0, 24.0, 20.0],
+      "edge_lengths_units": [0.3, 0.25, 0.3, 0.25],
+      "texture_size_px": [24, 20],
+      "texture_rect_px": [0, 0, 24, 20]
+    },
+    {
+      "part": "dome",
+      "id": "dome_right",
+      "texture": "dome_side.png",
+      "vertices_px": [
+        [12, 120, 88],
+        [12, 120, 112],
+        [12, 100, 112],
+        [12, 100, 88]
+      ],
+      "vertices_units": [
+        [0.15, 1.5, 1.1],
+        [0.15, 1.5, 1.4],
+        [0.15, 1.25, 1.4],
+        [0.15, 1.25, 1.1]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 20, 24],
+      "extent_xyz_units": [0.0, 0.25, 0.3],
+      "edge_lengths_px": [24.0, 20.0, 24.0, 20.0],
+      "edge_lengths_units": [0.3, 0.25, 0.3, 0.25],
+      "texture_size_px": [24, 20],
+      "texture_rect_px": [0, 0, 24, 20]
+    },
+    {
+      "part": "dome",
+      "id": "dome_left",
+      "texture": "dome_side.png",
+      "vertices_px": [
+        [-12, 100, 88],
+        [-12, 100, 112],
+        [-12, 120, 112],
+        [-12, 120, 88]
+      ],
+      "vertices_units": [
+        [-0.15, 1.25, 1.1],
+        [-0.15, 1.25, 1.4],
+        [-0.15, 1.5, 1.4],
+        [-0.15, 1.5, 1.1]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [-1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 20, 24],
+      "extent_xyz_units": [0.0, 0.25, 0.3],
+      "edge_lengths_px": [24.0, 20.0, 24.0, 20.0],
+      "edge_lengths_units": [0.3, 0.25, 0.3, 0.25],
+      "texture_size_px": [24, 20],
+      "texture_rect_px": [0, 0, 24, 20]
+    },
+    {
+      "part": "dome",
+      "id": "dome_top",
+      "texture": "dome_top.png",
+      "vertices_px": [
+        [-12, 120, 112],
+        [12, 120, 112],
+        [12, 120, 88],
+        [-12, 120, 88]
+      ],
+      "vertices_units": [
+        [-0.15, 1.5, 1.4],
+        [0.15, 1.5, 1.4],
+        [0.15, 1.5, 1.1],
+        [-0.15, 1.5, 1.1]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [24, 0, 24],
+      "extent_xyz_units": [0.3, 0.0, 0.3],
+      "edge_lengths_px": [24.0, 24.0, 24.0, 24.0],
+      "edge_lengths_units": [0.3, 0.3, 0.3, 0.3],
+      "texture_size_px": [24, 24],
+      "texture_rect_px": [0, 0, 24, 24]
+    },
+    {
+      "part": "dome",
+      "id": "dome_bottom",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-12, 100, 88],
+        [12, 100, 88],
+        [12, 100, 112],
+        [-12, 100, 112]
+      ],
+      "vertices_units": [
+        [-0.15, 1.25, 1.1],
+        [0.15, 1.25, 1.1],
+        [0.15, 1.25, 1.4],
+        [-0.15, 1.25, 1.4]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, -1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [24, 0, 24],
+      "extent_xyz_units": [0.3, 0.0, 0.3],
+      "edge_lengths_px": [24.0, 24.0, 24.0, 24.0],
+      "edge_lengths_units": [0.3, 0.3, 0.3, 0.3],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "chassis",
+      "id": "chassis_front",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-42, 32, 0],
+        [42, 32, 0],
+        [42, 22, 0],
+        [-42, 22, 0]
+      ],
+      "vertices_units": [
+        [-0.525, 0.4, 0.0],
+        [0.525, 0.4, 0.0],
+        [0.525, 0.275, 0.0],
+        [-0.525, 0.275, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, -1.0],
+      "solid": true,
+      "extent_xyz_px": [84, 10, 0],
+      "extent_xyz_units": [1.05, 0.125, 0.0],
+      "edge_lengths_px": [84.0, 10.0, 84.0, 10.0],
+      "edge_lengths_units": [1.05, 0.125, 1.05, 0.125],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "chassis",
+      "id": "chassis_back",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [42, 32, 204],
+        [-42, 32, 204],
+        [-42, 22, 204],
+        [42, 22, 204]
+      ],
+      "vertices_units": [
+        [0.525, 0.4, 2.55],
+        [-0.525, 0.4, 2.55],
+        [-0.525, 0.275, 2.55],
+        [0.525, 0.275, 2.55]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, 1.0],
+      "solid": true,
+      "extent_xyz_px": [84, 10, 0],
+      "extent_xyz_units": [1.05, 0.125, 0.0],
+      "edge_lengths_px": [84.0, 10.0, 84.0, 10.0],
+      "edge_lengths_units": [1.05, 0.125, 1.05, 0.125],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "chassis",
+      "id": "chassis_right",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [42, 32, 0],
+        [42, 32, 204],
+        [42, 22, 204],
+        [42, 22, 0]
+      ],
+      "vertices_units": [
+        [0.525, 0.4, 0.0],
+        [0.525, 0.4, 2.55],
+        [0.525, 0.275, 2.55],
+        [0.525, 0.275, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 10, 204],
+      "extent_xyz_units": [0.0, 0.125, 2.55],
+      "edge_lengths_px": [204.0, 10.0, 204.0, 10.0],
+      "edge_lengths_units": [2.55, 0.125, 2.55, 0.125],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "chassis",
+      "id": "chassis_left",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-42, 22, 0],
+        [-42, 22, 204],
+        [-42, 32, 204],
+        [-42, 32, 0]
+      ],
+      "vertices_units": [
+        [-0.525, 0.275, 0.0],
+        [-0.525, 0.275, 2.55],
+        [-0.525, 0.4, 2.55],
+        [-0.525, 0.4, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [-1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 10, 204],
+      "extent_xyz_units": [0.0, 0.125, 2.55],
+      "edge_lengths_px": [204.0, 10.0, 204.0, 10.0],
+      "edge_lengths_units": [2.55, 0.125, 2.55, 0.125],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "chassis",
+      "id": "chassis_top",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-42, 32, 204],
+        [42, 32, 204],
+        [42, 32, 0],
+        [-42, 32, 0]
+      ],
+      "vertices_units": [
+        [-0.525, 0.4, 2.55],
+        [0.525, 0.4, 2.55],
+        [0.525, 0.4, 0.0],
+        [-0.525, 0.4, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [84, 0, 204],
+      "extent_xyz_units": [1.05, 0.0, 2.55],
+      "edge_lengths_px": [84.0, 204.0, 84.0, 204.0],
+      "edge_lengths_units": [1.05, 2.55, 1.05, 2.55],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "chassis",
+      "id": "chassis_bottom",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-42, 22, 0],
+        [42, 22, 0],
+        [42, 22, 204],
+        [-42, 22, 204]
+      ],
+      "vertices_units": [
+        [-0.525, 0.275, 0.0],
+        [0.525, 0.275, 0.0],
+        [0.525, 0.275, 2.55],
+        [-0.525, 0.275, 2.55]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, -1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [84, 0, 204],
+      "extent_xyz_units": [1.05, 0.0, 2.55],
+      "edge_lengths_px": [84.0, 204.0, 84.0, 204.0],
+      "edge_lengths_units": [1.05, 2.55, 1.05, 2.55],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "tender",
+      "id": "tender_front",
+      "texture": "tender_end.png",
+      "vertices_px": [
+        [-40, 76, 212],
+        [40, 76, 212],
+        [40, 24, 212],
+        [-40, 24, 212]
+      ],
+      "vertices_units": [
+        [-0.5, 0.95, 2.65],
+        [0.5, 0.95, 2.65],
+        [0.5, 0.3, 2.65],
+        [-0.5, 0.3, 2.65]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, -1.0],
+      "solid": true,
+      "extent_xyz_px": [80, 52, 0],
+      "extent_xyz_units": [1.0, 0.65, 0.0],
+      "edge_lengths_px": [80.0, 52.0, 80.0, 52.0],
+      "edge_lengths_units": [1.0, 0.65, 1.0, 0.65],
+      "texture_size_px": [80, 52],
+      "texture_rect_px": [0, 0, 80, 52]
+    },
+    {
+      "part": "tender",
+      "id": "tender_back",
+      "texture": "tender_end.png",
+      "vertices_px": [
+        [40, 76, 292],
+        [-40, 76, 292],
+        [-40, 24, 292],
+        [40, 24, 292]
+      ],
+      "vertices_units": [
+        [0.5, 0.95, 3.65],
+        [-0.5, 0.95, 3.65],
+        [-0.5, 0.3, 3.65],
+        [0.5, 0.3, 3.65]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, 1.0],
+      "solid": true,
+      "extent_xyz_px": [80, 52, 0],
+      "extent_xyz_units": [1.0, 0.65, 0.0],
+      "edge_lengths_px": [80.0, 52.0, 80.0, 52.0],
+      "edge_lengths_units": [1.0, 0.65, 1.0, 0.65],
+      "texture_size_px": [80, 52],
+      "texture_rect_px": [0, 0, 80, 52]
+    },
+    {
+      "part": "tender",
+      "id": "tender_right",
+      "texture": "tender_side.png",
+      "vertices_px": [
+        [40, 76, 212],
+        [40, 76, 292],
+        [40, 24, 292],
+        [40, 24, 212]
+      ],
+      "vertices_units": [
+        [0.5, 0.95, 2.65],
+        [0.5, 0.95, 3.65],
+        [0.5, 0.3, 3.65],
+        [0.5, 0.3, 2.65]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 52, 80],
+      "extent_xyz_units": [0.0, 0.65, 1.0],
+      "edge_lengths_px": [80.0, 52.0, 80.0, 52.0],
+      "edge_lengths_units": [1.0, 0.65, 1.0, 0.65],
+      "texture_size_px": [80, 52],
+      "texture_rect_px": [0, 0, 80, 52]
+    },
+    {
+      "part": "tender",
+      "id": "tender_left",
+      "texture": "tender_side.png",
+      "vertices_px": [
+        [-40, 24, 212],
+        [-40, 24, 292],
+        [-40, 76, 292],
+        [-40, 76, 212]
+      ],
+      "vertices_units": [
+        [-0.5, 0.3, 2.65],
+        [-0.5, 0.3, 3.65],
+        [-0.5, 0.95, 3.65],
+        [-0.5, 0.95, 2.65]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [-1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 52, 80],
+      "extent_xyz_units": [0.0, 0.65, 1.0],
+      "edge_lengths_px": [80.0, 52.0, 80.0, 52.0],
+      "edge_lengths_units": [1.0, 0.65, 1.0, 0.65],
+      "texture_size_px": [80, 52],
+      "texture_rect_px": [0, 0, 80, 52]
+    },
+    {
+      "part": "tender",
+      "id": "tender_top",
+      "texture": "tender_top.png",
+      "vertices_px": [
+        [-40, 76, 292],
+        [40, 76, 292],
+        [40, 76, 212],
+        [-40, 76, 212]
+      ],
+      "vertices_units": [
+        [-0.5, 0.95, 3.65],
+        [0.5, 0.95, 3.65],
+        [0.5, 0.95, 2.65],
+        [-0.5, 0.95, 2.65]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [80, 0, 80],
+      "extent_xyz_units": [1.0, 0.0, 1.0],
+      "edge_lengths_px": [80.0, 80.0, 80.0, 80.0],
+      "edge_lengths_units": [1.0, 1.0, 1.0, 1.0],
+      "texture_size_px": [80, 80],
+      "texture_rect_px": [0, 0, 80, 80]
+    },
+    {
+      "part": "tender",
+      "id": "tender_bottom",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-40, 24, 212],
+        [40, 24, 212],
+        [40, 24, 292],
+        [-40, 24, 292]
+      ],
+      "vertices_units": [
+        [-0.5, 0.3, 2.65],
+        [0.5, 0.3, 2.65],
+        [0.5, 0.3, 3.65],
+        [-0.5, 0.3, 3.65]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, -1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [80, 0, 80],
+      "extent_xyz_units": [1.0, 0.0, 1.0],
+      "edge_lengths_px": [80.0, 80.0, 80.0, 80.0],
+      "edge_lengths_units": [1.0, 1.0, 1.0, 1.0],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "tender_chassis",
+      "id": "tender_chassis_front",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-42, 24, 212],
+        [42, 24, 212],
+        [42, 18, 212],
+        [-42, 18, 212]
+      ],
+      "vertices_units": [
+        [-0.525, 0.3, 2.65],
+        [0.525, 0.3, 2.65],
+        [0.525, 0.225, 2.65],
+        [-0.525, 0.225, 2.65]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, -1.0],
+      "solid": true,
+      "extent_xyz_px": [84, 6, 0],
+      "extent_xyz_units": [1.05, 0.075, 0.0],
+      "edge_lengths_px": [84.0, 6.0, 84.0, 6.0],
+      "edge_lengths_units": [1.05, 0.075, 1.05, 0.075],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "tender_chassis",
+      "id": "tender_chassis_back",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [42, 24, 292],
+        [-42, 24, 292],
+        [-42, 18, 292],
+        [42, 18, 292]
+      ],
+      "vertices_units": [
+        [0.525, 0.3, 3.65],
+        [-0.525, 0.3, 3.65],
+        [-0.525, 0.225, 3.65],
+        [0.525, 0.225, 3.65]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, 1.0],
+      "solid": true,
+      "extent_xyz_px": [84, 6, 0],
+      "extent_xyz_units": [1.05, 0.075, 0.0],
+      "edge_lengths_px": [84.0, 6.0, 84.0, 6.0],
+      "edge_lengths_units": [1.05, 0.075, 1.05, 0.075],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "tender_chassis",
+      "id": "tender_chassis_right",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [42, 24, 212],
+        [42, 24, 292],
+        [42, 18, 292],
+        [42, 18, 212]
+      ],
+      "vertices_units": [
+        [0.525, 0.3, 2.65],
+        [0.525, 0.3, 3.65],
+        [0.525, 0.225, 3.65],
+        [0.525, 0.225, 2.65]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 6, 80],
+      "extent_xyz_units": [0.0, 0.075, 1.0],
+      "edge_lengths_px": [80.0, 6.0, 80.0, 6.0],
+      "edge_lengths_units": [1.0, 0.075, 1.0, 0.075],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "tender_chassis",
+      "id": "tender_chassis_left",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-42, 18, 212],
+        [-42, 18, 292],
+        [-42, 24, 292],
+        [-42, 24, 212]
+      ],
+      "vertices_units": [
+        [-0.525, 0.225, 2.65],
+        [-0.525, 0.225, 3.65],
+        [-0.525, 0.3, 3.65],
+        [-0.525, 0.3, 2.65]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [-1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 6, 80],
+      "extent_xyz_units": [0.0, 0.075, 1.0],
+      "edge_lengths_px": [80.0, 6.0, 80.0, 6.0],
+      "edge_lengths_units": [1.0, 0.075, 1.0, 0.075],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "tender_chassis",
+      "id": "tender_chassis_top",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-42, 24, 292],
+        [42, 24, 292],
+        [42, 24, 212],
+        [-42, 24, 212]
+      ],
+      "vertices_units": [
+        [-0.525, 0.3, 3.65],
+        [0.525, 0.3, 3.65],
+        [0.525, 0.3, 2.65],
+        [-0.525, 0.3, 2.65]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [84, 0, 80],
+      "extent_xyz_units": [1.05, 0.0, 1.0],
+      "edge_lengths_px": [84.0, 80.0, 84.0, 80.0],
+      "edge_lengths_units": [1.05, 1.0, 1.05, 1.0],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "tender_chassis",
+      "id": "tender_chassis_bottom",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-42, 18, 212],
+        [42, 18, 212],
+        [42, 18, 292],
+        [-42, 18, 292]
+      ],
+      "vertices_units": [
+        [-0.525, 0.225, 2.65],
+        [0.525, 0.225, 2.65],
+        [0.525, 0.225, 3.65],
+        [-0.525, 0.225, 3.65]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, -1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [84, 0, 80],
+      "extent_xyz_units": [1.05, 0.0, 1.0],
+      "edge_lengths_px": [84.0, 80.0, 84.0, 80.0],
+      "edge_lengths_units": [1.05, 1.0, 1.05, 1.0],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "coupler",
+      "id": "coupler_front",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-5, 30, 200],
+        [5, 30, 200],
+        [5, 22, 200],
+        [-5, 22, 200]
+      ],
+      "vertices_units": [
+        [-0.0625, 0.375, 2.5],
+        [0.0625, 0.375, 2.5],
+        [0.0625, 0.275, 2.5],
+        [-0.0625, 0.275, 2.5]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, -1.0],
+      "solid": true,
+      "extent_xyz_px": [10, 8, 0],
+      "extent_xyz_units": [0.125, 0.1, 0.0],
+      "edge_lengths_px": [10.0, 8.0, 10.0, 8.0],
+      "edge_lengths_units": [0.125, 0.1, 0.125, 0.1],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "coupler",
+      "id": "coupler_back",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [5, 30, 216],
+        [-5, 30, 216],
+        [-5, 22, 216],
+        [5, 22, 216]
+      ],
+      "vertices_units": [
+        [0.0625, 0.375, 2.7],
+        [-0.0625, 0.375, 2.7],
+        [-0.0625, 0.275, 2.7],
+        [0.0625, 0.275, 2.7]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, 1.0],
+      "solid": true,
+      "extent_xyz_px": [10, 8, 0],
+      "extent_xyz_units": [0.125, 0.1, 0.0],
+      "edge_lengths_px": [10.0, 8.0, 10.0, 8.0],
+      "edge_lengths_units": [0.125, 0.1, 0.125, 0.1],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "coupler",
+      "id": "coupler_right",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [5, 30, 200],
+        [5, 30, 216],
+        [5, 22, 216],
+        [5, 22, 200]
+      ],
+      "vertices_units": [
+        [0.0625, 0.375, 2.5],
+        [0.0625, 0.375, 2.7],
+        [0.0625, 0.275, 2.7],
+        [0.0625, 0.275, 2.5]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 8, 16],
+      "extent_xyz_units": [0.0, 0.1, 0.2],
+      "edge_lengths_px": [16.0, 8.0, 16.0, 8.0],
+      "edge_lengths_units": [0.2, 0.1, 0.2, 0.1],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "coupler",
+      "id": "coupler_left",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-5, 22, 200],
+        [-5, 22, 216],
+        [-5, 30, 216],
+        [-5, 30, 200]
+      ],
+      "vertices_units": [
+        [-0.0625, 0.275, 2.5],
+        [-0.0625, 0.275, 2.7],
+        [-0.0625, 0.375, 2.7],
+        [-0.0625, 0.375, 2.5]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [-1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 8, 16],
+      "extent_xyz_units": [0.0, 0.1, 0.2],
+      "edge_lengths_px": [16.0, 8.0, 16.0, 8.0],
+      "edge_lengths_units": [0.2, 0.1, 0.2, 0.1],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "coupler",
+      "id": "coupler_top",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-5, 30, 216],
+        [5, 30, 216],
+        [5, 30, 200],
+        [-5, 30, 200]
+      ],
+      "vertices_units": [
+        [-0.0625, 0.375, 2.7],
+        [0.0625, 0.375, 2.7],
+        [0.0625, 0.375, 2.5],
+        [-0.0625, 0.375, 2.5]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [10, 0, 16],
+      "extent_xyz_units": [0.125, 0.0, 0.2],
+      "edge_lengths_px": [10.0, 16.0, 10.0, 16.0],
+      "edge_lengths_units": [0.125, 0.2, 0.125, 0.2],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "coupler",
+      "id": "coupler_bottom",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-5, 22, 200],
+        [5, 22, 200],
+        [5, 22, 216],
+        [-5, 22, 216]
+      ],
+      "vertices_units": [
+        [-0.0625, 0.275, 2.5],
+        [0.0625, 0.275, 2.5],
+        [0.0625, 0.275, 2.7],
+        [-0.0625, 0.275, 2.7]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, -1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [10, 0, 16],
+      "extent_xyz_units": [0.125, 0.0, 0.2],
+      "edge_lengths_px": [10.0, 16.0, 10.0, 16.0],
+      "edge_lengths_units": [0.125, 0.2, 0.125, 0.2],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "pilot",
+      "id": "pilot_front",
+      "texture": "pilot_front.png",
+      "vertices_px": [
+        [-46, 32, 0],
+        [46, 32, 0],
+        [46, 2, -16],
+        [-46, 2, -16]
+      ],
+      "vertices_units": [
+        [-0.575, 0.4, 0.0],
+        [0.575, 0.4, 0.0],
+        [0.575, 0.025, -0.2],
+        [-0.575, 0.025, -0.2]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.47058824, -0.88235294],
+      "solid": true,
+      "extent_xyz_px": [92, 30, 16],
+      "extent_xyz_units": [1.15, 0.375, 0.2],
+      "edge_lengths_px": [92.0, 34.0, 92.0, 34.0],
+      "edge_lengths_units": [1.15, 0.425, 1.15, 0.425],
+      "texture_size_px": [92, 30],
+      "texture_rect_px": [0, 0, 92, 30]
+    },
+    {
+      "part": "pilot",
+      "id": "pilot_back",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-46, 2, 0],
+        [46, 2, 0],
+        [46, 32, 0],
+        [-46, 32, 0]
+      ],
+      "vertices_units": [
+        [-0.575, 0.025, 0.0],
+        [0.575, 0.025, 0.0],
+        [0.575, 0.4, 0.0],
+        [-0.575, 0.4, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, 1.0],
+      "solid": true,
+      "extent_xyz_px": [92, 30, 0],
+      "extent_xyz_units": [1.15, 0.375, 0.0],
+      "edge_lengths_px": [92.0, 30.0, 92.0, 30.0],
+      "edge_lengths_units": [1.15, 0.375, 1.15, 0.375],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "pilot",
+      "id": "pilot_bottom",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-46, 2, -16],
+        [46, 2, -16],
+        [46, 2, 0],
+        [-46, 2, 0]
+      ],
+      "vertices_units": [
+        [-0.575, 0.025, -0.2],
+        [0.575, 0.025, -0.2],
+        [0.575, 0.025, 0.0],
+        [-0.575, 0.025, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, -1.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [92, 0, 16],
+      "extent_xyz_units": [1.15, 0.0, 0.2],
+      "edge_lengths_px": [92.0, 16.0, 92.0, 16.0],
+      "edge_lengths_units": [1.15, 0.2, 1.15, 0.2],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "pilot",
+      "id": "pilot_end_-1",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [-46, 32, 0],
+        [-46, 2, -16],
+        [-46, 2, 0]
+      ],
+      "vertices_units": [
+        [-0.575, 0.4, 0.0],
+        [-0.575, 0.025, -0.2],
+        [-0.575, 0.025, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2]
+      ],
+      "normal": [-1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 30, 16],
+      "extent_xyz_units": [0.0, 0.375, 0.2],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "pilot",
+      "id": "pilot_end_1",
+      "texture": "chassis.png",
+      "vertices_px": [
+        [46, 2, 0],
+        [46, 2, -16],
+        [46, 32, 0]
+      ],
+      "vertices_units": [
+        [0.575, 0.025, 0.0],
+        [0.575, 0.025, -0.2],
+        [0.575, 0.4, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 1],
+        [1, 1],
+        [0, 0]
+      ],
+      "triangles": [
+        [0, 1, 2]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": true,
+      "extent_xyz_px": [0, 30, 16],
+      "extent_xyz_units": [0.0, 0.375, 0.2],
+      "texture_size_px": [160, 12],
+      "texture_rect_px": [0, 0, 160, 12]
+    },
+    {
+      "part": "running",
+      "id": "wheel_-44_32",
+      "texture": "wheel_0.png",
+      "vertices_px": [
+        [-44, 40, 12],
+        [-44, 40, 52],
+        [-44, 0, 52],
+        [-44, 0, 12]
+      ],
+      "vertices_units": [
+        [-0.55, 0.5, 0.15],
+        [-0.55, 0.5, 0.65],
+        [-0.55, 0.0, 0.65],
+        [-0.55, 0.0, 0.15]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": false,
+      "extent_xyz_px": [0, 40, 40],
+      "extent_xyz_units": [0.0, 0.5, 0.5],
+      "edge_lengths_px": [40.0, 40.0, 40.0, 40.0],
+      "edge_lengths_units": [0.5, 0.5, 0.5, 0.5],
+      "texture_size_px": [40, 40],
+      "texture_rect_px": [0, 0, 40, 40],
+      "animation": "running",
+      "texture_sequence": [
+        "wheel_0.png",
+        "wheel_1.png",
+        "wheel_2.png",
+        "wheel_3.png"
+      ],
+      "phase_offset": 1
+    },
+    {
+      "part": "running",
+      "id": "wheel_-44_84",
+      "texture": "wheel_0.png",
+      "vertices_px": [
+        [-44, 40, 64],
+        [-44, 40, 104],
+        [-44, 0, 104],
+        [-44, 0, 64]
+      ],
+      "vertices_units": [
+        [-0.55, 0.5, 0.8],
+        [-0.55, 0.5, 1.3],
+        [-0.55, 0.0, 1.3],
+        [-0.55, 0.0, 0.8]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": false,
+      "extent_xyz_px": [0, 40, 40],
+      "extent_xyz_units": [0.0, 0.5, 0.5],
+      "edge_lengths_px": [40.0, 40.0, 40.0, 40.0],
+      "edge_lengths_units": [0.5, 0.5, 0.5, 0.5],
+      "texture_size_px": [40, 40],
+      "texture_rect_px": [0, 0, 40, 40],
+      "animation": "running",
+      "texture_sequence": [
+        "wheel_0.png",
+        "wheel_1.png",
+        "wheel_2.png",
+        "wheel_3.png"
+      ],
+      "phase_offset": 1
+    },
+    {
+      "part": "running",
+      "id": "wheel_-44_136",
+      "texture": "wheel_0.png",
+      "vertices_px": [
+        [-44, 40, 116],
+        [-44, 40, 156],
+        [-44, 0, 156],
+        [-44, 0, 116]
+      ],
+      "vertices_units": [
+        [-0.55, 0.5, 1.45],
+        [-0.55, 0.5, 1.95],
+        [-0.55, 0.0, 1.95],
+        [-0.55, 0.0, 1.45]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": false,
+      "extent_xyz_px": [0, 40, 40],
+      "extent_xyz_units": [0.0, 0.5, 0.5],
+      "edge_lengths_px": [40.0, 40.0, 40.0, 40.0],
+      "edge_lengths_units": [0.5, 0.5, 0.5, 0.5],
+      "texture_size_px": [40, 40],
+      "texture_rect_px": [0, 0, 40, 40],
+      "animation": "running",
+      "texture_sequence": [
+        "wheel_0.png",
+        "wheel_1.png",
+        "wheel_2.png",
+        "wheel_3.png"
+      ],
+      "phase_offset": 1
+    },
+    {
+      "part": "running",
+      "id": "rods_-44",
+      "texture": "rods_0.png",
+      "vertices_px": [
+        [-45, 42, 0],
+        [-45, 42, 160],
+        [-45, -2, 160],
+        [-45, -2, 0]
+      ],
+      "vertices_units": [
+        [-0.5625, 0.525, 0.0],
+        [-0.5625, 0.525, 2.0],
+        [-0.5625, -0.025, 2.0],
+        [-0.5625, -0.025, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": false,
+      "extent_xyz_px": [0, 44, 160],
+      "extent_xyz_units": [0.0, 0.55, 2.0],
+      "edge_lengths_px": [160.0, 44.0, 160.0, 44.0],
+      "edge_lengths_units": [2.0, 0.55, 2.0, 0.55],
+      "texture_size_px": [160, 44],
+      "texture_rect_px": [0, 0, 160, 44],
+      "animation": "running",
+      "texture_sequence": [
+        "rods_0.png",
+        "rods_1.png",
+        "rods_2.png",
+        "rods_3.png"
+      ],
+      "phase_offset": 1
+    },
+    {
+      "part": "tender_wheels",
+      "id": "tender_wheel_-44_232",
+      "texture": "tender_wheel.png",
+      "vertices_px": [
+        [-44, 24, 220],
+        [-44, 24, 244],
+        [-44, 0, 244],
+        [-44, 0, 220]
+      ],
+      "vertices_units": [
+        [-0.55, 0.3, 2.75],
+        [-0.55, 0.3, 3.05],
+        [-0.55, 0.0, 3.05],
+        [-0.55, 0.0, 2.75]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": false,
+      "extent_xyz_px": [0, 24, 24],
+      "extent_xyz_units": [0.0, 0.3, 0.3],
+      "edge_lengths_px": [24.0, 24.0, 24.0, 24.0],
+      "edge_lengths_units": [0.3, 0.3, 0.3, 0.3],
+      "texture_size_px": [24, 24],
+      "texture_rect_px": [0, 0, 24, 24]
+    },
+    {
+      "part": "tender_wheels",
+      "id": "tender_wheel_-44_272",
+      "texture": "tender_wheel.png",
+      "vertices_px": [
+        [-44, 24, 260],
+        [-44, 24, 284],
+        [-44, 0, 284],
+        [-44, 0, 260]
+      ],
+      "vertices_units": [
+        [-0.55, 0.3, 3.25],
+        [-0.55, 0.3, 3.55],
+        [-0.55, 0.0, 3.55],
+        [-0.55, 0.0, 3.25]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": false,
+      "extent_xyz_px": [0, 24, 24],
+      "extent_xyz_units": [0.0, 0.3, 0.3],
+      "edge_lengths_px": [24.0, 24.0, 24.0, 24.0],
+      "edge_lengths_units": [0.3, 0.3, 0.3, 0.3],
+      "texture_size_px": [24, 24],
+      "texture_rect_px": [0, 0, 24, 24]
+    },
+    {
+      "part": "running",
+      "id": "wheel_44_32",
+      "texture": "wheel_0.png",
+      "vertices_px": [
+        [44, 40, 12],
+        [44, 40, 52],
+        [44, 0, 52],
+        [44, 0, 12]
+      ],
+      "vertices_units": [
+        [0.55, 0.5, 0.15],
+        [0.55, 0.5, 0.65],
+        [0.55, 0.0, 0.65],
+        [0.55, 0.0, 0.15]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": false,
+      "extent_xyz_px": [0, 40, 40],
+      "extent_xyz_units": [0.0, 0.5, 0.5],
+      "edge_lengths_px": [40.0, 40.0, 40.0, 40.0],
+      "edge_lengths_units": [0.5, 0.5, 0.5, 0.5],
+      "texture_size_px": [40, 40],
+      "texture_rect_px": [0, 0, 40, 40],
+      "animation": "running",
+      "texture_sequence": [
+        "wheel_0.png",
+        "wheel_1.png",
+        "wheel_2.png",
+        "wheel_3.png"
+      ],
+      "phase_offset": 0
+    },
+    {
+      "part": "running",
+      "id": "wheel_44_84",
+      "texture": "wheel_0.png",
+      "vertices_px": [
+        [44, 40, 64],
+        [44, 40, 104],
+        [44, 0, 104],
+        [44, 0, 64]
+      ],
+      "vertices_units": [
+        [0.55, 0.5, 0.8],
+        [0.55, 0.5, 1.3],
+        [0.55, 0.0, 1.3],
+        [0.55, 0.0, 0.8]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": false,
+      "extent_xyz_px": [0, 40, 40],
+      "extent_xyz_units": [0.0, 0.5, 0.5],
+      "edge_lengths_px": [40.0, 40.0, 40.0, 40.0],
+      "edge_lengths_units": [0.5, 0.5, 0.5, 0.5],
+      "texture_size_px": [40, 40],
+      "texture_rect_px": [0, 0, 40, 40],
+      "animation": "running",
+      "texture_sequence": [
+        "wheel_0.png",
+        "wheel_1.png",
+        "wheel_2.png",
+        "wheel_3.png"
+      ],
+      "phase_offset": 0
+    },
+    {
+      "part": "running",
+      "id": "wheel_44_136",
+      "texture": "wheel_0.png",
+      "vertices_px": [
+        [44, 40, 116],
+        [44, 40, 156],
+        [44, 0, 156],
+        [44, 0, 116]
+      ],
+      "vertices_units": [
+        [0.55, 0.5, 1.45],
+        [0.55, 0.5, 1.95],
+        [0.55, 0.0, 1.95],
+        [0.55, 0.0, 1.45]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": false,
+      "extent_xyz_px": [0, 40, 40],
+      "extent_xyz_units": [0.0, 0.5, 0.5],
+      "edge_lengths_px": [40.0, 40.0, 40.0, 40.0],
+      "edge_lengths_units": [0.5, 0.5, 0.5, 0.5],
+      "texture_size_px": [40, 40],
+      "texture_rect_px": [0, 0, 40, 40],
+      "animation": "running",
+      "texture_sequence": [
+        "wheel_0.png",
+        "wheel_1.png",
+        "wheel_2.png",
+        "wheel_3.png"
+      ],
+      "phase_offset": 0
+    },
+    {
+      "part": "running",
+      "id": "rods_44",
+      "texture": "rods_0.png",
+      "vertices_px": [
+        [45, 42, 0],
+        [45, 42, 160],
+        [45, -2, 160],
+        [45, -2, 0]
+      ],
+      "vertices_units": [
+        [0.5625, 0.525, 0.0],
+        [0.5625, 0.525, 2.0],
+        [0.5625, -0.025, 2.0],
+        [0.5625, -0.025, 0.0]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": false,
+      "extent_xyz_px": [0, 44, 160],
+      "extent_xyz_units": [0.0, 0.55, 2.0],
+      "edge_lengths_px": [160.0, 44.0, 160.0, 44.0],
+      "edge_lengths_units": [2.0, 0.55, 2.0, 0.55],
+      "texture_size_px": [160, 44],
+      "texture_rect_px": [0, 0, 160, 44],
+      "animation": "running",
+      "texture_sequence": [
+        "rods_0.png",
+        "rods_1.png",
+        "rods_2.png",
+        "rods_3.png"
+      ],
+      "phase_offset": 0
+    },
+    {
+      "part": "tender_wheels",
+      "id": "tender_wheel_44_232",
+      "texture": "tender_wheel.png",
+      "vertices_px": [
+        [44, 24, 220],
+        [44, 24, 244],
+        [44, 0, 244],
+        [44, 0, 220]
+      ],
+      "vertices_units": [
+        [0.55, 0.3, 2.75],
+        [0.55, 0.3, 3.05],
+        [0.55, 0.0, 3.05],
+        [0.55, 0.0, 2.75]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": false,
+      "extent_xyz_px": [0, 24, 24],
+      "extent_xyz_units": [0.0, 0.3, 0.3],
+      "edge_lengths_px": [24.0, 24.0, 24.0, 24.0],
+      "edge_lengths_units": [0.3, 0.3, 0.3, 0.3],
+      "texture_size_px": [24, 24],
+      "texture_rect_px": [0, 0, 24, 24]
+    },
+    {
+      "part": "tender_wheels",
+      "id": "tender_wheel_44_272",
+      "texture": "tender_wheel.png",
+      "vertices_px": [
+        [44, 24, 260],
+        [44, 24, 284],
+        [44, 0, 284],
+        [44, 0, 260]
+      ],
+      "vertices_units": [
+        [0.55, 0.3, 3.25],
+        [0.55, 0.3, 3.55],
+        [0.55, 0.0, 3.55],
+        [0.55, 0.0, 3.25]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, 0.0],
+      "solid": false,
+      "extent_xyz_px": [0, 24, 24],
+      "extent_xyz_units": [0.0, 0.3, 0.3],
+      "edge_lengths_px": [24.0, 24.0, 24.0, 24.0],
+      "edge_lengths_units": [0.3, 0.3, 0.3, 0.3],
+      "texture_size_px": [24, 24],
+      "texture_rect_px": [0, 0, 24, 24]
+    },
+    {
+      "part": "emission",
+      "id": "headlamp",
+      "texture": "headlamp_emissive.png",
+      "vertices_px": [
+        [-40, 104, -0.125],
+        [40, 104, -0.125],
+        [40, 24, -0.125],
+        [-40, 24, -0.125]
+      ],
+      "vertices_units": [
+        [-0.5, 1.3, -0.0015625],
+        [0.5, 1.3, -0.0015625],
+        [0.5, 0.3, -0.0015625],
+        [-0.5, 0.3, -0.0015625]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, -1.0],
+      "solid": false,
+      "extent_xyz_px": [80, 80, 0.0],
+      "extent_xyz_units": [1.0, 1.0, 0.0],
+      "edge_lengths_px": [80.0, 80.0, 80.0, 80.0],
+      "edge_lengths_units": [1.0, 1.0, 1.0, 1.0],
+      "texture_size_px": [80, 80],
+      "texture_rect_px": [0, 0, 80, 80],
+      "emissive": true
+    },
+    {
+      "part": "emission",
+      "id": "firebox",
+      "texture": "firebox_emissive.png",
+      "vertices_px": [
+        [44, 124, 200.125],
+        [-44, 124, 200.125],
+        [-44, 24, 200.125],
+        [44, 24, 200.125]
+      ],
+      "vertices_units": [
+        [0.55, 1.55, 2.5015625],
+        [-0.55, 1.55, 2.5015625],
+        [-0.55, 0.3, 2.5015625],
+        [0.55, 0.3, 2.5015625]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [0.0, 0.0, 1.0],
+      "solid": false,
+      "extent_xyz_px": [88, 100, 0.0],
+      "extent_xyz_units": [1.1, 1.25, 0.0],
+      "edge_lengths_px": [88.0, 100.0, 88.0, 100.0],
+      "edge_lengths_units": [1.1, 1.25, 1.1, 1.25],
+      "texture_size_px": [88, 100],
+      "texture_rect_px": [0, 0, 88, 100],
+      "emissive": true
+    },
+    {
+      "part": "damage_decal",
+      "id": "soot_right",
+      "texture": "soot.png",
+      "vertices_px": [
+        [40.125, 80, 32],
+        [40.125, 80, 112],
+        [40.125, 48, 112],
+        [40.125, 48, 32]
+      ],
+      "vertices_units": [
+        [0.5015625, 1.0, 0.4],
+        [0.5015625, 1.0, 1.4],
+        [0.5015625, 0.6, 1.4],
+        [0.5015625, 0.6, 0.4]
+      ],
+      "uv_top_left": [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      "triangles": [
+        [0, 1, 2],
+        [0, 2, 3]
+      ],
+      "normal": [1.0, 0.0, -0.0],
+      "solid": false,
+      "extent_xyz_px": [0.0, 32, 80],
+      "extent_xyz_units": [0.0, 0.4, 1.0],
+      "edge_lengths_px": [80.0, 32.0, 80.0, 32.0],
+      "edge_lengths_units": [1.0, 0.4, 1.0, 0.4],
+      "texture_size_px": [80, 80],
+      "texture_rect_px": [0, 0, 80, 80],
+      "states": [
+        "broken"
+      ]
+    }
+  ],
+  "assembly": {
+    "boiler": "Closed octagonal prism, 80×80×160 px; eight strips and two caps. Never substitute a box.",
+    "intersections": "Cab overlaps boiler by 8 px; chimney embeds 1 px, dome 4 px, chassis intersects lower boiler. All solids individually closed.",
+    "moving": "Parent every face to the same train root; yaw that root around train_pivot_units.",
+    "atlas": "Each PNG standalone; uv_top_left coordinates refer to that full file, not a hidden atlas.",
+    "scale": "At maximum expected presentation use about one art texel per logical render pixel; preview scale 0.99.",
+    "wheel_alignment": "Wheel centers y=20; z=32,84,136. Rod centers in image are (32,22),(84,22),(136,22). Right side +90 degree phase per frame, left offset one frame."
+  },
+  "animation": {
+    "running": {
+      "frames": 4,
+      "durations_ms": [100, 100, 100, 100],
+      "loop": true,
+      "phases_degrees": [0, 90, 180, 270],
+      "crank_radius_px": 7,
+      "wheel_radius_px": 20,
+      "distance_per_cycle_units": 1.5707963267948966,
+      "time_note": "100 ms is preview cadence; gameplay phase = floor(distance / wheel circumference * 4) modulo 4. Both wheel and rods use same phase."
+    }
+  },
+  "states": {
+    "normal": "Base textures plus both emitters",
+    "broken": {
+      "replace": {
+        "boiler_face.png": "boiler_face_broken.png",
+        "boiler_side.png": "boiler_side_broken.png",
+        "cab_side.png": "cab_side_broken.png"
+      },
+      "emission": false,
+      "animation": "freeze at last phase",
+      "enable_parts": [
+        "damage_decal"
+      ]
+    }
+  }
+}

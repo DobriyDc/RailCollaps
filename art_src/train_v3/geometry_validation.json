@@ -1,0 +1,48 @@
+{
+  "parts": {
+    "boiler": {
+      "unique_edges": 24,
+      "open_or_nonmanifold_edges": 0
+    },
+    "cab": {
+      "unique_edges": 12,
+      "open_or_nonmanifold_edges": 0
+    },
+    "roof": {
+      "unique_edges": 12,
+      "open_or_nonmanifold_edges": 0
+    },
+    "chimney": {
+      "unique_edges": 12,
+      "open_or_nonmanifold_edges": 0
+    },
+    "dome": {
+      "unique_edges": 12,
+      "open_or_nonmanifold_edges": 0
+    },
+    "chassis": {
+      "unique_edges": 12,
+      "open_or_nonmanifold_edges": 0
+    },
+    "tender": {
+      "unique_edges": 12,
+      "open_or_nonmanifold_edges": 0
+    },
+    "tender_chassis": {
+      "unique_edges": 12,
+      "open_or_nonmanifold_edges": 0
+    },
+    "coupler": {
+      "unique_edges": 12,
+      "open_or_nonmanifold_edges": 0
+    },
+    "pilot": {
+      "unique_edges": 9,
+      "open_or_nonmanifold_edges": 0
+    }
+  },
+  "solid_parts": 10,
+  "open_edges_total": 0,
+  "view_yaw_degrees": [-32, 0, 32],
+  "preview": "previews/reference_three_views.png"
+}
