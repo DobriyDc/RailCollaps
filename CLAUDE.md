@@ -136,6 +136,7 @@ js/               код игры — классические скрипты:
   UI.js           интерфейс игры: DOM поверх холста по UI_LAYOUT; UI.get(id).setText/setValue/show/onClick,
                   якоря 9 точек, масштаб по UI_REF_HEIGHT
   Leaderboard.js  общая таблица: отправка конца забега и экран таблицы; без LEADERBOARD_URL и вне Telegram ни запроса, ни кнопки
+  CollapseStations.js станции бесконечного режима (только `?stations`): подклассы трассы и забега, лавка, вид станции
   Game.js         пример игры: место игровой логики (кнопка Run — клипы idle/run персонажа, шкала
                   энергии, шаги; персонаж берётся по тегу, не по имени)
   main.js         вход: World3D.init -> Location3D(LOCATION_OBJECTS) -> камера -> UI -> Game -> цикл кадров; window.app

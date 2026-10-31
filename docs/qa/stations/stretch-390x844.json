@@ -1,0 +1,36 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:59498/?stations",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp\\claude\\C--Users-dobri-orca-workspaces-collapse-dev-stations\\8b3ad1dc-cc0e-41c9-9c11-71b57465526b\\scratchpad\\shot-stretch.js",
+  "evalResult": {
+    "scene": "stretch",
+    "state": "run",
+    "reason": "",
+    "stage": 1,
+    "pos": 130.01078399357627,
+    "stationAt": 205,
+    "money": 40,
+    "ammo": 17,
+    "shield": 2,
+    "gap": 3.9645129709825966,
+    "toStation": 750,
+    "stations": [
+      100,
+      205
+    ],
+    "hudNext": "До станции 750 м",
+    "shop": false,
+    "lang": "ru"
+  },
+  "errors": [],
+  "ok": true
+}
