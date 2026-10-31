@@ -95,31 +95,20 @@ class CollapseScene {
 
         const cam = this.view.camera;
         const U = 'undefined';
-        cam.fov = (typeof COLLAPSE_CAM_FOV_DEG !== U ? COLLAPSE_CAM_FOV_DEG : 50) * Math.PI / 180;
         cam.minZ = 10;
-        cam.position.set(0, typeof COLLAPSE_CAM_Y !== U ? COLLAPSE_CAM_Y : 450, typeof COLLAPSE_CAM_Z !== U ? COLLAPSE_CAM_Z : 1467);
-        cam.setTarget(BABYLON.Vector3.Zero());
-        this.topGap = typeof COLLAPSE_CAM_TOP_GAP !== U ? COLLAPSE_CAM_TOP_GAP : 0.01;
-        // The camera follows the train sideways (GDD v3 §2): eye and look-at point shift together by a
-        // share of the train's offset, so the view direction never turns; camX eases toward that goal.
-        this.camFollow = typeof COLLAPSE_CAM_FOLLOW !== U ? COLLAPSE_CAM_FOLLOW : 0.5;
-        this.camRate = typeof COLLAPSE_CAM_FOLLOW_RATE !== U ? COLLAPSE_CAM_FOLLOW_RATE : 5;
-        this.camX = 0;
-        // Fog and the far plane are counted from the train, so a camera moved farther away keeps the
-        // same depth; the segment window reaches the camera, so the near track never pops in.
-        const camZ = cam.position.z, toTrain = cam.position.length();
         scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
         scene.fogColor = dark;
-        scene.fogStart = toTrain + (typeof COLLAPSE_FOG_START !== U ? COLLAPSE_FOG_START : 1200);
-        scene.fogEnd = toTrain + (typeof COLLAPSE_FOG_END !== U ? COLLAPSE_FOG_END : 5600);
+        this.applyCamera();
+        cam.setTarget(BABYLON.Vector3.Zero());
+        this.camX = 0;
+        // The segment window reaches the camera, so the near track never pops in.
+        const camZ = cam.position.z;
         // Brightness of the unlit pixel art (texture level): brick a bit above its file, lava glows.
         this.brickLevel = typeof COLLAPSE_BRICK_LEVEL !== U ? COLLAPSE_BRICK_LEVEL : 1.35;
         this.lavaLevel = typeof COLLAPSE_LAVA_LEVEL !== U ? COLLAPSE_LAVA_LEVEL : 1.5;
         // The collapse: where the front plate stands behind the edge, the crack zone ahead of it, how
         // bright the cracks glow, how far ahead of the edge the vault starts to shed blocks.
         this.frontBack = typeof COLLAPSE_FRONT_BEHIND !== U ? COLLAPSE_FRONT_BEHIND : 0.4;
-        this.signShift = typeof COLLAPSE_CAM_SIGN !== U ? COLLAPSE_CAM_SIGN : 0.3;        // where a fork sign stands between its two lanes
-        this.frontLift = typeof COLLAPSE_CAM_FRONT_Y !== U ? COLLAPSE_CAM_FRONT_Y : -350;  // the close camera sees little of the height: the arch comes down to it
         this.crackZone = typeof COLLAPSE_CRACK_ZONE !== U ? COLLAPSE_CRACK_ZONE : 3;
         this.crackLevel = typeof COLLAPSE_CRACK_LEVEL !== U ? COLLAPSE_CRACK_LEVEL : 1.6;
         this.debrisLead = typeof COLLAPSE_DEBRIS_LEAD !== U ? COLLAPSE_DEBRIS_LEAD : 1;
@@ -130,9 +119,7 @@ class CollapseScene {
         this.shakeSec = typeof COLLAPSE_FX_SHAKE_SEC !== U ? COLLAPSE_FX_SHAKE_SEC : 0.35;
         this.heatSec = typeof COLLAPSE_FX_HEAT_SEC !== U ? COLLAPSE_FX_HEAT_SEC : 0.5;
         this.fallTilt = (typeof COLLAPSE_FX_FALL_TILT_DEG !== U ? COLLAPSE_FX_FALL_TILT_DEG : 22) * Math.PI / 180;
-        this.camY = cam.position.y;
         this._shakeAt = this._heatAt = -1e9;
-        cam.maxZ = toTrain + CollapseScene.SEG * CollapseScene.BEHIND + 2000;
         this.ahead = Math.max(CollapseScene.AHEAD, Math.ceil(camZ / CollapseScene.SEG) + 1);
         this.slots = CollapseScene.BEHIND + this.ahead + 2;   // tunnel pieces: one per segment of the window
         this.renderHeight = typeof COLLAPSE_RENDER_HEIGHT !== U ? COLLAPSE_RENDER_HEIGHT : 360;
@@ -150,6 +137,31 @@ class CollapseScene {
         this.applyResolution();
         this._preload();
         this.ready = new Promise(resolve => scene.executeWhenReady(() => resolve(true)));
+    }
+
+    // Reads the COLLAPSE_CAM_* numbers into the camera: at construction and whenever they change
+    // live (_utils/tuner). The tilt is fitFrame's. The segment window (ahead) stays as built, so a
+    // camera moved farther than the one the scene was built with needs the larger one at construction.
+    applyCamera() {
+        const cam = this.view.camera, scene = this.scene, U = 'undefined';
+        const y = typeof COLLAPSE_CAM_Y !== U ? COLLAPSE_CAM_Y : 450, z = typeof COLLAPSE_CAM_Z !== U ? COLLAPSE_CAM_Z : 1467;
+        cam.fov = (typeof COLLAPSE_CAM_FOV_DEG !== U ? COLLAPSE_CAM_FOV_DEG : 50) * Math.PI / 180;
+        cam.position.set(this.camX || 0, y, z);
+        this.camY = y;
+        this.topGap = typeof COLLAPSE_CAM_TOP_GAP !== U ? COLLAPSE_CAM_TOP_GAP : 0.01;
+        // The camera follows the train sideways (GDD v3 §2): eye and look-at point shift together by a
+        // share of the train's offset, so the view direction never turns; camX eases toward that goal.
+        this.camFollow = typeof COLLAPSE_CAM_FOLLOW !== U ? COLLAPSE_CAM_FOLLOW : 0.5;
+        this.camRate = typeof COLLAPSE_CAM_FOLLOW_RATE !== U ? COLLAPSE_CAM_FOLLOW_RATE : 5;
+        this.signShift = typeof COLLAPSE_CAM_SIGN !== U ? COLLAPSE_CAM_SIGN : 0.3;        // where a fork sign stands between its two lanes
+        this.signScale = typeof COLLAPSE_CAM_SIGN_SCALE !== U ? COLLAPSE_CAM_SIGN_SCALE : 1;
+        this.frontLift = typeof COLLAPSE_CAM_FRONT_Y !== U ? COLLAPSE_CAM_FRONT_Y : -350;  // the close camera sees little of the height: the arch comes down to it
+        if (this.frontPlate) this.frontPlate.position.y = this.frontLift;
+        // Fog and the far plane are counted from the train, so a camera moved farther away keeps the same depth.
+        const toTrain = Math.sqrt(y * y + z * z);
+        scene.fogStart = toTrain + (typeof COLLAPSE_FOG_START !== U ? COLLAPSE_FOG_START : 1200);
+        scene.fogEnd = toTrain + (typeof COLLAPSE_FOG_END !== U ? COLLAPSE_FOG_END : 5600);
+        cam.maxZ = toTrain + CollapseScene.SEG * CollapseScene.BEHIND + 2000;
     }
 
     // Every frame a material swaps to later is loaded with the scene: a texture made on its first show
@@ -832,7 +844,7 @@ class CollapseScene {
                 const armed = run.armed && run.armed.at === md.at && run.armed.to === md.to;
                 const actionable = next && next.at === md.at;
                 sign.position.set(S.laneX(md.from) + (md.to - md.from) * S.LANE_W * this.signShift, armed ? 40 : 0, z);
-                sign.scaling.setAll(armed ? 1.15 : actionable ? 1 : 0.75);
+                sign.scaling.setAll((armed ? 1.15 : actionable ? 1 : 0.75) * this.signScale);
             }
             for (const c of v.crosses) {
                 const lane = c.metadata.lane;
@@ -840,7 +852,7 @@ class CollapseScene {
                 c.setEnabled(visible);
                 if (!visible) continue;
                 c.position.set(S.laneX(lane), 0, z);
-                c.scaling.setAll(next && next.at === i ? 1 : 0.75);   // the size of the arrows beside it
+                c.scaling.setAll((next && next.at === i ? 1 : 0.75) * this.signScale);   // the size of the arrows beside it
             }
             for (const p of v.pickups) {
                 const taken = run.isTaken(i) && p.metadata.lane === run.lane;
