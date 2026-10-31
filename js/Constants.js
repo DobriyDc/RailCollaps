@@ -60,6 +60,7 @@ const UI_REF_HEIGHT = 720;              // px: the screen height the UI layout (
 
 // --- SOUND (Sound3D.js): channel volumes; a sound with a place on the map is heard from where
 // the CAMERA is — its audible region is a sphere of AUDIO_FALLOFF_MAX around it ---
+const AUDIO_VOLUME_STEP = 0.1;        // settings buttons: one volume increment (0..1)
 const AUDIO_MASTER_VOLUME = 0.8;        // 0..1: everything (0 — silence)
 const AUDIO_MUSIC_VOLUME = 0.6;         // 0..1: the 'music' channel
 const AUDIO_SFX_VOLUME = 1;             // 0..1: the 'sfx' channel — effects and object sounds

@@ -1,0 +1,246 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:56562/",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp/menu-settings-qa.js",
+  "evalResult": {
+    "transitions": [
+      "main/modes/back/shop/back/settings/back/endless/pause/resume/end/menu",
+      "tutorial disabled",
+      "live RU/EN HUD and pause",
+      "iframe fresh page reload: language and music/sfx retained",
+      "real WebAudio channel gains checked",
+      "live leaderboard statuses and units RU/EN"
+    ],
+    "measurements": [
+      {
+        "lang": "ru",
+        "screen": "mainScreen",
+        "buttons": [
+          {
+            "id": "menuStart",
+            "width": 245.3333282470703,
+            "height": 49.777801513671875,
+            "textMargin": 102.06945419311523
+          },
+          {
+            "id": "menuSettings",
+            "width": 245.3333282470703,
+            "height": 49.77777099609375,
+            "textMargin": 81.97221755981445
+          },
+          {
+            "id": "menuShop",
+            "width": 245.3333282470703,
+            "height": 49.77777099609375,
+            "textMargin": 90.72222518920898
+          }
+        ]
+      },
+      {
+        "lang": "ru",
+        "screen": "modeScreen",
+        "buttons": [
+          {
+            "id": "modeTutorial",
+            "width": 245.3333282470703,
+            "height": 49.77777099609375,
+            "textMargin": 56.58333206176758
+          },
+          {
+            "id": "modeEndless",
+            "width": 245.3333282470703,
+            "height": 49.77777099609375,
+            "textMargin": 47.83333206176758
+          },
+          {
+            "id": "modeBack",
+            "width": 245.3333282470703,
+            "height": 49.777801513671875,
+            "textMargin": 100.09722518920898
+          }
+        ]
+      },
+      {
+        "lang": "ru",
+        "screen": "settingsScreen",
+        "buttons": [
+          {
+            "id": "musicMinus",
+            "width": 49.77778244018555,
+            "height": 49.77778625488281,
+            "textMargin": 19.333332061767578
+          },
+          {
+            "id": "musicPlus",
+            "width": 49.77777099609375,
+            "height": 49.77778625488281,
+            "textMargin": 19.33331298828125
+          },
+          {
+            "id": "sfxMinus",
+            "width": 49.77778244018555,
+            "height": 49.77777099609375,
+            "textMargin": 19.333332061767578
+          },
+          {
+            "id": "sfxPlus",
+            "width": 49.77777099609375,
+            "height": 49.77777099609375,
+            "textMargin": 19.33331298828125
+          },
+          {
+            "id": "languageRU",
+            "width": 117.33332824707031,
+            "height": 49.77777099609375,
+            "textMargin": 24.652782440185547
+          },
+          {
+            "id": "languageEN",
+            "width": 117.33332824707031,
+            "height": 49.77777099609375,
+            "textMargin": 18.90277099609375
+          },
+          {
+            "id": "settingsBack",
+            "width": 245.3333282470703,
+            "height": 49.77777099609375,
+            "textMargin": 100.09722518920898
+          }
+        ]
+      },
+      {
+        "lang": "ru",
+        "screen": "shopScreen",
+        "buttons": [
+          {
+            "id": "shopBack",
+            "width": 245.3333282470703,
+            "height": 49.777801513671875,
+            "textMargin": 100.09722518920898
+          }
+        ]
+      },
+      {
+        "lang": "en",
+        "screen": "mainScreen",
+        "buttons": [
+          {
+            "id": "menuStart",
+            "width": 245.3333282470703,
+            "height": 49.777801513671875,
+            "textMargin": 105.38887405395508
+          },
+          {
+            "id": "menuSettings",
+            "width": 245.3333282470703,
+            "height": 49.77777099609375,
+            "textMargin": 93.2499885559082
+          },
+          {
+            "id": "menuShop",
+            "width": 245.3333282470703,
+            "height": 49.77777099609375,
+            "textMargin": 104.05554580688477
+          }
+        ]
+      },
+      {
+        "lang": "en",
+        "screen": "modeScreen",
+        "buttons": [
+          {
+            "id": "modeTutorial",
+            "width": 245.3333282470703,
+            "height": 49.77777099609375,
+            "textMargin": 71.26389694213867
+          },
+          {
+            "id": "modeEndless",
+            "width": 245.3333282470703,
+            "height": 49.77777099609375,
+            "textMargin": 75.44443130493164
+          },
+          {
+            "id": "modeBack",
+            "width": 245.3333282470703,
+            "height": 49.777801513671875,
+            "textMargin": 105.69443130493164
+          }
+        ]
+      },
+      {
+        "lang": "en",
+        "screen": "settingsScreen",
+        "buttons": [
+          {
+            "id": "musicMinus",
+            "width": 49.77778244018555,
+            "height": 49.77778625488281,
+            "textMargin": 19.333332061767578
+          },
+          {
+            "id": "musicPlus",
+            "width": 49.77777099609375,
+            "height": 49.77778625488281,
+            "textMargin": 19.33331298828125
+          },
+          {
+            "id": "sfxMinus",
+            "width": 49.77778244018555,
+            "height": 49.77777099609375,
+            "textMargin": 19.333332061767578
+          },
+          {
+            "id": "sfxPlus",
+            "width": 49.77777099609375,
+            "height": 49.77777099609375,
+            "textMargin": 19.33331298828125
+          },
+          {
+            "id": "languageRU",
+            "width": 117.33332824707031,
+            "height": 49.77777099609375,
+            "textMargin": 34.23611068725586
+          },
+          {
+            "id": "languageEN",
+            "width": 117.33332824707031,
+            "height": 49.77777099609375,
+            "textMargin": 28.34722900390625
+          },
+          {
+            "id": "settingsBack",
+            "width": 245.3333282470703,
+            "height": 49.77777099609375,
+            "textMargin": 105.69443130493164
+          }
+        ]
+      },
+      {
+        "lang": "en",
+        "screen": "shopScreen",
+        "buttons": [
+          {
+            "id": "shopBack",
+            "width": 245.3333282470703,
+            "height": 49.777801513671875,
+            "textMargin": 105.69443130493164
+          }
+        ]
+      }
+    ],
+    "dictionaryKeys": 56,
+    "missing": 0
+  },
+  "errors": [],
+  "ok": true
+}

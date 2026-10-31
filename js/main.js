@@ -25,11 +25,14 @@ function showBootError(text) {
 function startGame() {
     if (window.app) return;                 // guard against a repeated start
     const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('world3d'));
+    Lang.apply();
+    const loading = document.querySelector('.loading-text');
+    if (loading) loading.textContent = Lang.t('loading');
     updateLoadingProgress(40);
     // Telegram first (skill telegram-miniapp, launch sequence): our loading screen replaces its
     // placeholder; minimizing the app pauses the run.
     TG.boot(() => { if (window.app && window.app.game) window.app.game.setPaused(true); });
-    if (!World3D.init(canvas)) { showBootError('3D недоступен: нет libs/babylon.js или WebGL'); return; }
+    if (!World3D.init(canvas)) { showBootError(Lang.t('bootError')); return; }
 
     const scene = new CollapseScene(canvas);
     UI.init(canvas);

@@ -224,9 +224,10 @@ class UIElement {
         this._value = prev ? prev._value : null;
         this._shown = prev ? prev._shown : null;
         this._click = prev ? prev._click : null;
+        this._enabled = prev ? prev._enabled : true;
         this._src = prev ? prev._src : null;
         this.el.addEventListener('click', (e) => {
-            if (UI.editing || this.def.kind !== 'button' || !this._click) return;
+            if (UI.editing || !this._enabled || this.def.kind !== 'button' || !this._click) return;
             e.stopPropagation();
             this._click(this);
         });
@@ -241,6 +242,8 @@ class UIElement {
     setSrc(src) { this._src = String(src); this.apply(); return this; }
 
     show(on) { this._shown = on !== false; this.apply(); return this; }
+
+    setEnabled(on) { this._enabled = on !== false; this.apply(); return this; }
 
     onClick(fn) { this._click = fn || null; return this; }
 
@@ -269,7 +272,8 @@ class UIElement {
         s.display = this.visible || UI.editing ? 'block' : 'none';
         if (UI.editing && !this.visible) s.opacity = String(Number(s.opacity) * 0.35);
         s.pointerEvents = UI.editing || d.kind === 'button' ? 'auto' : 'none';
-        s.cursor = UI.editing ? 'move' : d.kind === 'button' ? 'pointer' : '';
+        s.cursor = UI.editing ? 'move' : d.kind === 'button' ? (this._enabled ? 'pointer' : 'default') : '';
+        if (d.kind === 'button') this.el.setAttribute('aria-disabled', String(!this._enabled));
 
         if (sized) {
             s.background = d.fill || 'transparent';
