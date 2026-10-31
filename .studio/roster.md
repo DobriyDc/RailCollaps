@@ -6,8 +6,8 @@
 |---|---|---|---|
 | Producer / Coordinator | **Claude** (Claude Desktop, Orca CLI) | — | решения, спеки, ревью дифа, мерж в `main` |
 | Developer | **Claude** | — | правила забега `js/Collapse*.js`, сцена, ворота, архитектура |
-| Арт / UI | **GPT** через `codex` | `gpt-6.1-sol`, effort `medium` | растр (`image_gen`), нарезка, текстуры, интерфейс |
-| Арт-директор | **GPT** через `codex` | `gpt-6-astra`, effort `high` | ключевые концепты; дорого, только по задаче |
+| Художник и арт-директор | **GPT** через `codex` | `gpt-6-astra`, effort `high` | весь растр (`image_gen`), текстуры, спрайты, концепты; решение владельца 2026-10-31: рисует только Astra, более слабые модели к рисованию не допускать |
+| UI Developer | **GPT** через `codex` | `gpt-6.1-sol`, effort `medium` | интерфейс кодом, нарезка готового растра |
 | Writer / Researcher | **GPT** через `codex` | `gpt-6.1-sol`, effort `medium` | тексты, локализация, исследования |
 | QA / Tester | **GPT** через `codex` | `gpt-6.1-sol`, effort `low` | механика проверки: ворота, прогоны по сидам, кадры, консоль; отчёты о дефектах. Kimi (`--agent kimi`) — когда будет платный план Kimi Code |
 
