@@ -1,0 +1,10 @@
+{
+  "tool": "built-in image_gen",
+  "reference": "art_src/keyframes_v1/01_furnace_390x844.png",
+  "generations": [
+    {
+      "output": "drafts/perch.png",
+      "prompt": "Create one original game sprite on a genuinely transparent background, full body centered with generous empty margin. A brick-and-coal magma demon clinging/perching on an invisible RIGHT tunnel wall, knees bent, torso turned three-quarter toward viewer and to image left, watching a train coming toward camera. It must clearly have two arms, two bent legs, and three large hooked charcoal claws on each hand. Identity: broad squat furnace-brick head, exactly two swept backward broken masonry horns, two narrow orange eyes, heavy horizontal brick jaw, dark recessed mouth; blocky rust-brown brick shoulder plates, compact coal torso with a single angular orange Y-shaped magma fissure in sternum; thick forearms, chunky feet. No wings, no tail, no weapons, no clothing. Source style reference is the supplied furnace tunnel: handmade coarse pixel art, dark plum-black outlines, soot-covered brown brick planes, dark blue-grey coal, restrained orange magma accents, three flat value steps per material. Keep large quiet clusters, sparse chips, no cracks on every brick, no smooth rendering, no gradients, no bloom, no rim glow. Readable hard black silhouette against fire plus muted warm brick edge planes against darkness. Intended final native sprite about 112x128 pixels; deliberately draw coarse pixels and strong simple anatomy. The tunnel image is ONLY material/style reference, do not include scenery, UI, train, text, labels, grid, platform or ground. Character entirely isolated in RGBA transparency. Palette target hex: 0b0a10 17121b 241a24 33232b 47303a 3a1010 5c3a35 7a4a3a 96604a b07a58 cc9c74 e8d0a8 6a1410 9c1e10 d2340f f0601a f8902a fcc048 fff090 2a3038 465058 6c7880."
+    }
+  ]
+}
