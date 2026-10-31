@@ -53,8 +53,8 @@
 
 Проверки:
 
-- `node tools/check.mjs --tests` — итог в отчёте сдачи.
-- `node tools/build.mjs` — итог в отчёте сдачи.
+- `node tools/check.mjs --tests` — код 0, стена 7,82 с, 124/124 теста.
+- `node tools/build.mjs` — код 0, `dist/arcengine-0.1.0.zip`.
 - `timeout 120 node tools/qa-shots.mjs --sizes=360x640,390x844 --out=docs/qa/icons …` — 6 запусков, каждый код 0, 12 кадров, ошибок 0. После каждого процессы msedge с remote-debugging остановлены, осталось 0.
 - `timeout 120 node tools/qa-shots.mjs --sizes=1280x800 --url=… ` на редакторе — код 0.
 
