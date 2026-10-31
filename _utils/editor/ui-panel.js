@@ -27,7 +27,7 @@ const UIPanel = {
 
     // Editors of the record fields, in panel order. type: num | text | color | flag.
     FIELDS: [
-        ['x', 'num'], ['y', 'num'], ['w', 'num'], ['h', 'num'], ['text', 'text'], ['fontSize', 'num'], ['value', 'unit'],
+        ['x', 'num'], ['y', 'num'], ['w', 'num'], ['h', 'num'], ['src', 'text'], ['text', 'text'], ['fontSize', 'num'], ['value', 'unit'],
         ['color', 'color'], ['shadow', 'color'], ['fill', 'color'], ['border', 'color'], ['radius', 'num'], ['alpha', 'unit'], ['visible', 'flag'],
     ],
     OPTIONAL: ['parent', 'stretch'],   // fields with a row of their own; empty — absent from the record
@@ -37,6 +37,7 @@ const UIPanel = {
     init(canvas) {
         this.layout = JSON.parse(JSON.stringify(typeof UI_LAYOUT !== 'undefined' ? UI_LAYOUT : []));
         this.saved = JSON.stringify(this.layout);
+        UI.assetBase = '/';      // the page lives in /_utils/editor/: a relative assets/… would resolve there
         UI.init(canvas, this.layout);
 
         const box = this.box = document.createElement('div');

@@ -60,6 +60,7 @@ const CollapseRules = {
             reactSec: typeof COLLAPSE_REACT_SEC !== U ? COLLAPSE_REACT_SEC : 0.6,
             continueGap: typeof COLLAPSE_CONTINUE_GAP !== U ? COLLAPSE_CONTINUE_GAP : 8,
             continueGrace: typeof COLLAPSE_CONTINUE_GRACE_SEC !== U ? COLLAPSE_CONTINUE_GRACE_SEC : 1.5,
+            iconLead: typeof COLLAPSE_ICON_LEAD_SEC !== U ? COLLAPSE_ICON_LEAD_SEC : 1,
             // The generator's dice (the rest of a pattern roll is a detour for a pickup).
             difficultySegs: typeof COLLAPSE_DIFFICULTY_SEGS !== U ? COLLAPSE_DIFFICULTY_SEGS : 600,
             calmStart: typeof COLLAPSE_CALM_START !== U ? COLLAPSE_CALM_START : 4,
@@ -340,6 +341,37 @@ class CollapseRun {
             if (to.length) return { at: b, to, armed: false };
         }
         return null;
+    }
+
+    // What comes at the train from beyond the frame (card 21): the start of every hazard run, every
+    // pickup and every demon no more than `sec` seconds short of the frame, nearest first. Seconds
+    // count at the fastest the train may go there (maxSpeedAt, an accelerator included): an accelerator
+    // taken later cannot eat the lead. The frame belongs to the camera, so it comes as arguments, by
+    // body ('gap' | 'lava' | 'pickup') and lane, in segments ahead of the nose: enter — where the body
+    // is in the frame now, reach — the farthest that can get with the camera following the train.
+    // A demon needs no table: it is in the frame from its leap, when the nose enters its segment.
+    // { kind, lane, side, at, dist }: lane -1 for a demon, side 0 for the rest.
+    ahead(sec, enter, reach = enter) {
+        const R = CollapseRules, c = this.c, pos = this.pos, track = this.track;
+        const far = sec * R.maxSpeedAt(c, pos + sec * R.maxSpeedAt(c, pos));
+        /** @type {{ kind: string, lane: number, side: number, at: number, dist: number }[]} */
+        const out = [];
+        const add = (kind, body, lane, at, itemPos) => {
+            const dist = itemPos - pos;
+            if (dist > enter[body][lane] && dist <= reach[body][lane] + far) out.push({ kind, lane, side: 0, at, dist });
+        };
+        const end = Math.ceil(pos + far + Math.max(...['gap', 'lava', 'pickup'].flatMap(b => reach[b])));
+        for (let i = Math.max(1, Math.floor(pos)); i <= end; i++) {
+            const s = track.seg(i), before = track.seg(i - 1);
+            for (let l = 0; l < R.LANES; l++) {
+                if (s.gap[l] && !before.gap[l]) add('gap', 'gap', l, i, i);
+                if (s.lava[l] && !before.lava[l]) add('lava', 'lava', l, i, i + 0.5);
+                if (s.pickup[l]) add(s.pickup[l], 'pickup', l, i, i + 0.5);
+            }
+            const dist = i - pos;
+            if (dist > 0 && dist <= far) for (const d of s.demon || []) out.push({ kind: 'demon', lane: -1, side: d.side, at: i, dist });
+        }
+        return out.sort((a, b) => a.dist - b.dist);
     }
 
     // Is lane `to` safe after the fork at boundary `at`? Green or red sign (GDD v3 §4).

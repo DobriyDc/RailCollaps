@@ -43,6 +43,8 @@ const MODEL_PATH = /^assets\/(?:[A-Za-z0-9_.-]+\/)*[A-Za-z0-9_.-]+\.(?:fbx|glb)$
 export const isModelPath = p => MODEL_PATH.test(p) && !p.split('/').some(s => s === '.' || s === '..');
 // Sound path: the same rules, a .wav, .mp3 or .ogg.
 const SOUND_PATH = /^assets[/](?:[A-Za-z0-9_.-]+[/])*[A-Za-z0-9_.-]+[.](?:wav|mp3|ogg)$/i;
+const IMAGE_PATH = /^assets[/](?:[A-Za-z0-9_.-]+[/])*[A-Za-z0-9_.-]+[.](?:png|jpe?g|webp)$/i;
+export const isImagePath = p => IMAGE_PATH.test(p) && !p.split('/').some(s => s === '.' || s === '..');
 export const isSoundPath = p => SOUND_PATH.test(p) && !p.split('/').some(s => s === '.' || s === '..');
 
 // --- Backups -----------------------------------------------------------------
@@ -245,7 +247,7 @@ export async function saveObjects(root, objects) {
 export const UI_HEADER = `// UILayout.js — the game's UI layout: every HUD element, placed and styled in the editor (UI tab).
 // The editor rewrites the whole file (POST /api/save-ui) — keep the format. Drawn by js/UI.js;
 // game code takes an element by id: UI.get('score').setText('10') — and never positions HUD itself.
-//   kind — 'text' | 'panel' | 'bar' | 'button'; anchor — one of 9 screen points ('top-left' …
+//   kind — 'text' | 'panel' | 'bar' | 'button' | 'image'; anchor — one of 9 screen points ('top-left' …
 //   'bottom-right'): x, y go from it to the same point of the element (inward from an edge,
 //   signed from the center); w, h — px; numbers are px of a screen UI_REF_HEIGHT tall;
 //   parent (optional) — id of the element this one sits in: anchor, x, y then count from the
@@ -263,12 +265,13 @@ const UI_COLOR = /^#[0-9a-fA-F]{6}$/;
 
 // Fields of a record by kind, in file order — the same set as UI.DEFAULTS in js/UI.js
 // (tests/ui.test.mjs compares them). type: px — a number, size — a number ≥ 0, unit — 0..1,
-// color — '#rrggbb' or '', text — a string, flag — 0 | 1, id — an element id, stretch — an axis.
+// color — '#rrggbb' or '', text — a string, flag — 0 | 1, id — an element id, stretch — an axis,
+// image — a picture path in assets/ or ''.
 // An empty parent or stretch is not written: the screen and a fixed size are the defaults.
 const UI_TYPES = {
   x: 'px', y: 'px', w: 'size', h: 'size', radius: 'size', fontSize: 'size', value: 'unit', alpha: 'unit',
   color: 'color', fill: 'color', border: 'color', shadow: 'color', text: 'text', visible: 'flag',
-  parent: 'id', stretch: 'stretch',
+  parent: 'id', stretch: 'stretch', src: 'image',
 };
 const UI_OPTIONAL = ['parent', 'stretch'];
 const UI_STRETCH = ['h', 'v', 'both'];
@@ -277,12 +280,14 @@ export const UI_FIELDS = {
   panel: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'fill', 'border', 'radius', 'alpha', 'visible'],
   bar: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'value', 'color', 'fill', 'border', 'radius', 'alpha', 'visible'],
   button: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'text', 'fontSize', 'color', 'fill', 'border', 'radius', 'alpha', 'visible'],
+  image: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'src', 'fill', 'border', 'radius', 'alpha', 'visible'],
 };
 
 // A field value -> its literal in the file; invalid — null.
 function fmtUIField(type, v) {
   if (type === 'id') return UI_ID.test(String(v)) ? `'${v}'` : null;
   if (type === 'stretch') return UI_STRETCH.includes(v) ? `'${v}'` : null;
+  if (type === 'image') return v === '' || isImagePath(String(v)) ? `'${v}'` : null;
   if (type === 'text') return JSON.stringify(String(v == null ? '' : v).replace(/[\x00-\x09\x0b-\x1f]/g, '').slice(0, 200));
   if (type === 'color') return v === '' || v == null ? "''" : (UI_COLOR.test(v) ? `'${String(v).toLowerCase()}'` : null);
   if (type === 'flag') return v === 0 || v === false ? '0' : '1';
