@@ -1,0 +1,29 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:57990/",
+  "browser": "msedge.exe",
+  "waitMs": 2000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-default/b857e4bf-0000-4b07-81b3-63e1ad980537/scratchpad/m-sign.js",
+  "evalResult": {
+    "moment": "sign",
+    "pos": 11,
+    "lane": 1,
+    "info": {
+      "at": 13,
+      "from": 1,
+      "to": 2
+    },
+    "lit": [],
+    "targets": 1,
+    "pitch": 0.30675820031573586
+  },
+  "errors": [],
+  "ok": true
+}

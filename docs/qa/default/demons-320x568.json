@@ -1,0 +1,25 @@
+{
+  "ordered": {
+    "width": 320,
+    "height": 568
+  },
+  "innerWidth": 320,
+  "innerHeight": 568,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:54870/",
+  "browser": "msedge.exe",
+  "waitMs": 2000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-default/b857e4bf-0000-4b07-81b3-63e1ad980537/scratchpad/m-demons.js",
+  "evalResult": {
+    "moment": "demons",
+    "pos": 40,
+    "lane": 2,
+    "info": {},
+    "lit": [],
+    "targets": 2,
+    "pitch": 0.3067582031369649
+  },
+  "errors": [],
+  "ok": true
+}

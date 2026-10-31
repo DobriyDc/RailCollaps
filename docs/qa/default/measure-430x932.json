@@ -1,0 +1,166 @@
+{
+  "ordered": {
+    "width": 430,
+    "height": 932
+  },
+  "innerWidth": 430,
+  "innerHeight": 932,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:54978/",
+  "browser": "msedge.exe",
+  "waitMs": 2000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-default/b857e4bf-0000-4b07-81b3-63e1ad980537/scratchpad/qa.js",
+  "evalResult": {
+    "w": 430,
+    "h": 932,
+    "plateB": 85.43333435058594,
+    "plateT": 807.7333374023438,
+    "stripTop": 745.5999755859375,
+    "tapMid": 8,
+    "tapEdge": 8,
+    "tapDetail": [
+      {
+        "ok": true,
+        "hit": true,
+        "y": 684,
+        "inFrame": true
+      },
+      {
+        "ok": true,
+        "hit": true,
+        "y": 684,
+        "inFrame": true
+      },
+      {
+        "ok": true,
+        "hit": true,
+        "y": 684,
+        "inFrame": true
+      },
+      {
+        "ok": true,
+        "hit": true,
+        "y": 684,
+        "inFrame": true
+      },
+      {
+        "ok": true,
+        "hit": true,
+        "y": 684,
+        "inFrame": true
+      },
+      {
+        "ok": true,
+        "hit": true,
+        "y": 684,
+        "inFrame": true
+      },
+      {
+        "ok": true,
+        "hit": true,
+        "y": 684,
+        "inFrame": true
+      },
+      {
+        "ok": true,
+        "hit": true,
+        "y": 684,
+        "inFrame": true
+      }
+    ],
+    "kinds": [
+      "2>1",
+      "1>2",
+      "0>1",
+      "1>0"
+    ],
+    "demons": {
+      "seen": 18,
+      "hit": 18,
+      "bad": []
+    },
+    "entry": {
+      "agree": 27,
+      "total": 27,
+      "off": [],
+      "table": {
+        "gap": [
+          2.375,
+          2.625,
+          2.375
+        ],
+        "lava": [
+          0.875,
+          5.125,
+          0.875
+        ],
+        "pickup": [
+          0,
+          3.5,
+          0
+        ]
+      }
+    },
+    "nearest": "iconWallRight 1>2 a=2.99 p=376,774",
+    "icons": {
+      "pts": 96,
+      "inside": 0,
+      "minGap": 4.6,
+      "byId": {},
+      "rects": [
+        [
+          8,
+          756,
+          49,
+          797
+        ],
+        [
+          73,
+          753,
+          119,
+          800
+        ],
+        [
+          121,
+          760,
+          154,
+          793
+        ],
+        [
+          158,
+          753,
+          205,
+          800
+        ],
+        [
+          227,
+          760,
+          260,
+          793
+        ],
+        [
+          285,
+          753,
+          331,
+          800
+        ],
+        [
+          333,
+          760,
+          366,
+          793
+        ],
+        [
+          381,
+          756,
+          422,
+          797
+        ]
+      ]
+    },
+    "stripSeg": 0.234375
+  },
+  "errors": [],
+  "ok": true
+}

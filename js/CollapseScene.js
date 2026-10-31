@@ -1,6 +1,6 @@
 // CollapseScene.js — the tunnel of Rail Link: Collapse (GDD v3 §2), skill lowres-tunnel later:
 // a real 3D scene rendered small (COLLAPSE_RENDER_HEIGHT px tall) and scaled up without smoothing,
-// pixel textures WITHOUT lighting (emissive, nearest sampling) and linear fog for depth.
+// pixel textures (emissive, nearest sampling), the light and the palette of CollapseLook.js, linear fog for depth.
 // The train stands still at z = 0 facing the camera (+Z); the world scrolls toward the camera as
 // CollapseRun.pos grows: segment i is drawn at z = (i - pos) * SEG, the upcoming track is in the
 // lower part of the frame, the passed track and the collapse go up into the vanishing point.
@@ -16,7 +16,6 @@ const CollapseArt = {
         rib: 'assets/textures/tunnel/arch_rib_v2.png',
         track: 'assets/textures/tunnel/track.png',
         ballast: 'assets/textures/tunnel/floor_ballast.png',
-        glow: 'assets/textures/tunnel/torch_glow.png',
     },
     lava: ['assets/textures/tunnel/lava_0.png', 'assets/textures/tunnel/lava_1.png',
         'assets/textures/tunnel/lava_2.png', 'assets/textures/tunnel/lava_3.png'],
@@ -84,10 +83,7 @@ const CollapseArt = {
 class CollapseScene {
     constructor(canvas) {
         this.canvas = canvas;
-        // The temporary switches (CollapseLook.js): without them the rig is null and the camera is Constants.js'.
-        const pick = CollapseLook.current(), camVar = CollapseLook.camera(pick.cam);
-        /** @type {CollapseLookRig | null} */
-        this.rig = pick.look ? new CollapseLookRig(pick.look) : null;
+        this.rig = new CollapseLookRig();
         this.view = World3D.createView({});
         const scene = this.scene = this.view.scene;
         this.engine = this.view.engine;
@@ -101,8 +97,9 @@ class CollapseScene {
         const U = 'undefined';
         cam.fov = (typeof COLLAPSE_CAM_FOV_DEG !== U ? COLLAPSE_CAM_FOV_DEG : 50) * Math.PI / 180;
         cam.minZ = 10;
-        cam.position.set(0, camVar ? camVar.y : typeof COLLAPSE_CAM_Y !== U ? COLLAPSE_CAM_Y : 650, camVar ? camVar.z : typeof COLLAPSE_CAM_Z !== U ? COLLAPSE_CAM_Z : 3000);
-        cam.setTarget(new BABYLON.Vector3(0, 0, camVar ? camVar.lookZ : typeof COLLAPSE_CAM_LOOK_Z !== U ? COLLAPSE_CAM_LOOK_Z : 920));
+        cam.position.set(0, typeof COLLAPSE_CAM_Y !== U ? COLLAPSE_CAM_Y : 450, typeof COLLAPSE_CAM_Z !== U ? COLLAPSE_CAM_Z : 1467);
+        cam.setTarget(BABYLON.Vector3.Zero());
+        this.topGap = typeof COLLAPSE_CAM_TOP_GAP !== U ? COLLAPSE_CAM_TOP_GAP : 0.01;
         // The camera follows the train sideways (GDD v3 §2): eye and look-at point shift together by a
         // share of the train's offset, so the view direction never turns; camX eases toward that goal.
         this.camFollow = typeof COLLAPSE_CAM_FOLLOW !== U ? COLLAPSE_CAM_FOLLOW : 0.5;
@@ -121,8 +118,8 @@ class CollapseScene {
         // The collapse: where the front plate stands behind the edge, the crack zone ahead of it, how
         // bright the cracks glow, how far ahead of the edge the vault starts to shed blocks.
         this.frontBack = typeof COLLAPSE_FRONT_BEHIND !== U ? COLLAPSE_FRONT_BEHIND : 0.4;
-        this.signShift = camVar ? camVar.sign : 0.5;      // where a fork sign stands between its two lanes
-        this.frontLift = camVar ? camVar.frontY : 0;      // a closer camera sees less of the height: the arch comes down to it
+        this.signShift = typeof COLLAPSE_CAM_SIGN !== U ? COLLAPSE_CAM_SIGN : 0.3;        // where a fork sign stands between its two lanes
+        this.frontLift = typeof COLLAPSE_CAM_FRONT_Y !== U ? COLLAPSE_CAM_FRONT_Y : -350;  // the close camera sees little of the height: the arch comes down to it
         this.crackZone = typeof COLLAPSE_CRACK_ZONE !== U ? COLLAPSE_CRACK_ZONE : 3;
         this.crackLevel = typeof COLLAPSE_CRACK_LEVEL !== U ? COLLAPSE_CRACK_LEVEL : 1.6;
         this.debrisLead = typeof COLLAPSE_DEBRIS_LEAD !== U ? COLLAPSE_DEBRIS_LEAD : 1;
@@ -138,13 +135,14 @@ class CollapseScene {
         cam.maxZ = toTrain + CollapseScene.SEG * CollapseScene.BEHIND + 2000;
         this.ahead = Math.max(CollapseScene.AHEAD, Math.ceil(camZ / CollapseScene.SEG) + 1);
         this.slots = CollapseScene.BEHIND + this.ahead + 2;   // tunnel pieces: one per segment of the window
-        this.renderHeight = (this.rig && this.rig.renderHeight) || (typeof COLLAPSE_RENDER_HEIGHT !== U ? COLLAPSE_RENDER_HEIGHT : 640);
+        this.renderHeight = typeof COLLAPSE_RENDER_HEIGHT !== U ? COLLAPSE_RENDER_HEIGHT : 360;
 
         this._tex = new Map();
         this._mats = new Map();
         this._buildTunnel();
         this._buildTrain();
-        if (this.rig) this.rig.finish(this);
+        this.rig.finish(this);
+        this.fitFrame(1);
         /** @type {Map<number, any>} */
         this.segViews = new Map();
         /** @type {{ mesh: any, until: number }[]} */
@@ -198,7 +196,7 @@ class CollapseScene {
         m.emissiveTexture = t;
         m.diffuseColor = new BABYLON.Color3(0, 0, 0);
         m.specularColor = new BABYLON.Color3(0, 0, 0);
-        if (this.rig) m.metadata = { look: CollapseLook.kindOf(key) };
+        m.metadata = { look: CollapseLook.kindOf(key) };
         this._mats.set(key, m);
         return m;
     }
@@ -216,7 +214,7 @@ class CollapseScene {
         // Blend: art with half-transparent pixels (decals, steam, sparks) — straight alpha blending.
         m.transparencyMode = blend ? BABYLON.Material.MATERIAL_ALPHABLEND : BABYLON.Material.MATERIAL_ALPHATEST;
         m.alphaCutOff = 0.5;
-        if (this.rig) m.metadata = { look: CollapseLook.kindOf(key) };
+        m.metadata = { look: CollapseLook.kindOf(key) };
         this._mats.set(key, m);
         return m;
     }
@@ -318,11 +316,6 @@ class CollapseScene {
             const torch = this.sprite('torch', 'torch', CollapseArt.torch[0], 105, 210, false);
             torch.bakeTransformIntoVertices(BABYLON.Matrix.Translation(side * (W - 60), 250, 0));
             piece(torch, side, 'torch', [side * W, mid]);
-            if (this.rig) continue;     // the painted glow of a torch: a look has the real light instead
-            const glow = BABYLON.MeshBuilder.CreatePlane('glow', { width: 400, height: 400 }, scene);
-            glow.bakeTransformIntoVertices(BABYLON.Matrix.RotationY(side > 0 ? -Math.PI / 2 : Math.PI / 2).multiply(BABYLON.Matrix.Translation(side * (W - 4), 360, 0)));
-            glow.material = this.spriteMat('glow', CollapseArt.tex.glow);
-            piece(glow, side, 'torch', [side * W, mid]);
         }
 
         this._m = [0, 1, 2, 3, 4].map(() => new BABYLON.Matrix());
@@ -729,12 +722,12 @@ class CollapseScene {
         for (let l = 0; l < 3; l++) {
             const kind = seg.pickup[l];
             if (kind) {
-                const p = this.sprite('pickup', 'pickup-' + kind, CollapseArt.pickup[kind], 90, 135);
+                const p = this.sprite('pickup', 'pickup-' + kind, CollapseArt.pickup[kind], S.PICKUP.w, S.PICKUP.h);
                 p.metadata = { lane: l };
                 v.pickups.push(p);
             }
             if (seg.lava[l]) {
-                const flow = this.sprite('flow', 'flow', CollapseArt.flow[0], 170, 760, true);
+                const flow = this.sprite('flow', 'flow', CollapseArt.flow[0], S.FLOW.w, S.FLOW.h, true);
                 flow.metadata = { lane: l };
                 v.flows.push(flow);
             }
@@ -758,6 +751,19 @@ class CollapseScene {
         for (const fx of this.fx) fx.mesh.setEnabled(false);
         for (const side of [-1, 1]) { this.demonViews.get(side).setEnabled(false); this._ashUntil.set(side, -1); }
         this._camSnap = true;
+    }
+
+    // The tilt that puts height h at distance z just at clip height `edge`: the eye stays where it is, so
+    // the train keeps its size. Pure: the probes run it in node.
+    static fitPitch(camY, camZ, fov, h, edge) {
+        return Math.atan2(camY - h, camZ) + Math.atan(edge * Math.tan(fov / 2));
+    }
+
+    // The frame's top plate ends at clip height `edge`, safe area included: the camera tilts so the
+    // whole loco stands under it. Game asks this whenever the plates may have moved.
+    fitFrame(edge) {
+        const S = CollapseScene, cam = this.view.camera;
+        cam.rotation.x = -S.fitPitch(this.camY, cam.position.z, cam.fov, S.LOCO_TOP, edge - 2 * this.topGap);
     }
 
     // Sideways camera follow: dt = 0 (pause, the first frame) does not move it; a new run snaps it.
@@ -839,10 +845,10 @@ class CollapseScene {
             for (const p of v.pickups) {
                 const taken = run.isTaken(i) && p.metadata.lane === run.lane;
                 p.setEnabled(!taken && drop === 0);
-                p.position.set(S.laneX(p.metadata.lane), 6 + Math.sin(this.time * 4 + i) * 10, z + S.SEG / 2);
+                p.position.set(S.laneX(p.metadata.lane), S.PICKUP.y + Math.sin(this.time * 4 + i) * S.PICKUP.bob, z + S.SEG / 2);
             }
             for (const fl of v.flows) {
-                fl.position.set(S.laneX(fl.metadata.lane), 120, z + S.SEG / 2);
+                fl.position.set(S.laneX(fl.metadata.lane), S.FLOW.y, z + S.SEG / 2);
                 fl.setEnabled(drop === 0);
             }
         }
@@ -882,7 +888,7 @@ class CollapseScene {
 
         this._syncDemons(run, x);
         this._syncFx(x, this.train.position.y);
-        if (this.rig) this.rig.sync(run, pos, this.time, x, heat, this._shotUntil > this.time);
+        this.rig.sync(run, pos, this.time, x, heat, this._shotUntil > this.time);
     }
 
     // Demons leap out of their wall toward the cab: at the start the sprite is half inside the
@@ -978,6 +984,9 @@ CollapseScene.PERIOD = 560;       // the static tunnel repeats every two segment
 CollapseScene.TILE = 140;         // world units per texture tile along the tunnel: divides PERIOD
 CollapseScene.WALL_X = 640;       // half width of the tunnel
 CollapseScene.WALL_TOP = 430;     // where the walls meet the vault
+CollapseScene.LOCO_TOP = 414;     // world units: the top of the loco's art, its smoke included (loco_run_*.png: the sprite is 418 tall)
+CollapseScene.PICKUP = { w: 90, h: 135, y: 6, bob: 10 };   // a pickup's sprite, world units
+CollapseScene.FLOW = { w: 170, h: 760, y: 120 };           // a lava stream's sprite, world units
 CollapseScene.BEHIND = 16;        // segments drawn behind the train (into the vanishing point)
 CollapseScene.DEBRIS = 40;        // falling blocks and rail wreckage along the collapse edge (every 4th — a rail)
 CollapseScene.DELAY = { vault: 0, torch: 0.05, rib: 0.1, 'wall-hi': 0.15, 'wall-lo': 0.3, floor: 0 };   // segments a piece waits past the edge

@@ -1,23 +1,14 @@
-// CollapseLook.js — the temporary style and camera switches of Rail Link: Collapse (cards 18, 20):
-// ?look=pixel|lowpoly|ink and ?cam=1.3|1.6|2, which combine. Without them nothing here runs and the
-// game is drawn as it always was. The owner picks one look and one camera; the rest goes away.
-//
-// Every look relights the same tunnel with REAL light: lava and torches are positions and colors the
-// rig below moves every frame, and one material plugin turns them into light on the walls, the rails
-// and the train. The plugin keeps its own light list instead of Babylon's: nineteen moving lights would
-// not fit a material's light limit, and lowpoly needs them per vertex. The painted glow of a torch is gone.
-//   pixel   — a small render, then one palette of 32 colors with ordered dithering over the whole frame;
-//   lowpoly — light per vertex, a loco of real geometry, coarse texels, thick fog;
-//   ink     — light in a few flat tones, World3D's edge lines and an ink line on sprites, lava in flat patches.
-// The DOM interface lies over the canvas: no final pass reaches it.
+// CollapseLook.js — the look of Rail Link: Collapse (docs/STYLE.md): a small render, one palette of 32
+// colors with ordered dithering over the whole frame, and REAL light. Lava and torches are positions and
+// colors the rig below moves every frame, and one material plugin turns them into light on the walls,
+// the rails and the train. The plugin keeps its own light list instead of Babylon's: nineteen moving
+// lights would not fit a material's light limit. The DOM interface lies over the canvas: no pass reaches it.
 
 /** @satisfies {Record<string, any>} */
 const CollapseLook = {
-    LOOKS: ['pixel', 'lowpoly', 'ink'],
-    CAMS: ['1.3', '1.6', '2'],
     LIGHTS: 19,             // the light list of the shader: 10 torches, 2 streams, 3 gaps, the front, the headlamp, a shot, the heat
     GLOW: 0, SOLID: 1, SPRITE: 2, FIRE: 3,   // how a material takes the light: lookMat.x
-    // The one palette of the pixel look: the darks of the tunnel, brick, fire, iron, the signal colors.
+    // The one palette: the darks of the tunnel, brick, fire, iron, the signal colors.
     PALETTE: [0x0b0a10, 0x17121b, 0x241a24, 0x33232b, 0x47303a, 0x3a1010, 0x5c3a35, 0x7a4a3a,
         0x96604a, 0xb07a58, 0xcc9c74, 0xe8d0a8, 0x6a1410, 0x9c1e10, 0xd2340f, 0xf0601a,
         0xf8902a, 0xfcc048, 0xfff090, 0x2a3038, 0x465058, 0x6c7880, 0x9aa8ac, 0xd0d8d4,
@@ -31,54 +22,10 @@ const CollapseLook = {
     /** @type {CollapseLookRig | null} */
     rig: null,              // the rig of this page: the plugin reads the light list from it
 
-    // The page query -> { look, cam }: null where it is absent or unknown, so a stray value leaves the
-    // game as it is. The cam key is the variant's name in the constants.
-    parse(search) {
-        const out = { look: null, cam: null };
-        for (const pair of String(search || '').replace(/^\?/, '').split('&')) {
-            const [k, v] = pair.split('=');
-            if (k === 'look' && this.LOOKS.includes(v)) out.look = v;
-            if (k === 'cam' && this.CAMS.includes(v === '2.0' ? '2' : v)) out.cam = v === '2.0' ? '2' : v;
-        }
-        return out;
-    },
-
-    // What this page asked for.
-    current() {
-        return this.parse(typeof location !== 'undefined' ? location.search : '');
-    },
-
-    // The tunnel camera of a variant, or null for the camera of Constants.js.
-    camera(cam) {
-        const U = 'undefined';
-        if (cam === '1.3') return {
-            y: typeof COLLAPSE_CAM_V13_Y !== U ? COLLAPSE_CAM_V13_Y : 600,
-            z: typeof COLLAPSE_CAM_V13_Z !== U ? COLLAPSE_CAM_V13_Z : 2284,
-            lookZ: typeof COLLAPSE_CAM_V13_LOOK_Z !== U ? COLLAPSE_CAM_V13_LOOK_Z : 445,
-            frontY: typeof COLLAPSE_CAM_V13_FRONT_Y !== U ? COLLAPSE_CAM_V13_FRONT_Y : -120,
-            sign: typeof COLLAPSE_CAM_V13_SIGN !== U ? COLLAPSE_CAM_V13_SIGN : 0.5,
-        };
-        if (cam === '1.6') return {
-            y: typeof COLLAPSE_CAM_V16_Y !== U ? COLLAPSE_CAM_V16_Y : 520,
-            z: typeof COLLAPSE_CAM_V16_Z !== U ? COLLAPSE_CAM_V16_Z : 1847,
-            lookZ: typeof COLLAPSE_CAM_V16_LOOK_Z !== U ? COLLAPSE_CAM_V16_LOOK_Z : 344,
-            frontY: typeof COLLAPSE_CAM_V16_FRONT_Y !== U ? COLLAPSE_CAM_V16_FRONT_Y : -270,
-            sign: typeof COLLAPSE_CAM_V16_SIGN !== U ? COLLAPSE_CAM_V16_SIGN : 0.5,
-        };
-        if (cam === '2') return {
-            y: typeof COLLAPSE_CAM_V20_Y !== U ? COLLAPSE_CAM_V20_Y : 450,
-            z: typeof COLLAPSE_CAM_V20_Z !== U ? COLLAPSE_CAM_V20_Z : 1467,
-            lookZ: typeof COLLAPSE_CAM_V20_LOOK_Z !== U ? COLLAPSE_CAM_V20_LOOK_Z : 178,
-            frontY: typeof COLLAPSE_CAM_V20_FRONT_Y !== U ? COLLAPSE_CAM_V20_FRONT_Y : -350,
-            sign: typeof COLLAPSE_CAM_V20_SIGN !== U ? COLLAPSE_CAM_V20_SIGN : 0.3,
-        };
-        return null;
-    },
-
     // How a scene material takes the light, by the key it is made under (CollapseScene.surface,
     // spriteMat). Signs and pickups stay self-lit: the signal is never lost in the dark (GDD v3 §4).
     kindOf(key) {
-        if (/^(wall|vault|rib|ballast|track|sw:|loco3d)/.test(key)) return this.SOLID;
+        if (/^(wall|vault|rib|ballast|track|sw:)/.test(key)) return this.SOLID;
         if (/^(loco|demon|brick|rail-bit)/.test(key)) return this.SPRITE;
         if (/^(lava|flow|torch|collapse-front|crack)/.test(key)) return this.FIRE;
         return this.GLOW;
@@ -112,11 +59,12 @@ const CollapseLook = {
     cfg() {
         const U = 'undefined';
         return {
-            pixelHeight: typeof COLLAPSE_LOOK_PIXEL_HEIGHT !== U ? COLLAPSE_LOOK_PIXEL_HEIGHT : 360,
             dither: typeof COLLAPSE_LOOK_DITHER !== U ? COLLAPSE_LOOK_DITHER : 0.09,
             ambient: typeof COLLAPSE_LOOK_AMBIENT !== U ? COLLAPSE_LOOK_AMBIENT : 0.3,
             bounce: typeof COLLAPSE_LOOK_BOUNCE !== U ? COLLAPSE_LOOK_BOUNCE : 0.35,
             lampPower: typeof COLLAPSE_LOOK_LAMP_POWER !== U ? COLLAPSE_LOOK_LAMP_POWER : 1.2,
+            lampY: typeof COLLAPSE_LOOK_LAMP_Y !== U ? COLLAPSE_LOOK_LAMP_Y : 300,
+            lampZ: typeof COLLAPSE_LOOK_LAMP_Z !== U ? COLLAPSE_LOOK_LAMP_Z : 420,
             lampColor: typeof LOOK_LAMP_COLOR !== U ? LOOK_LAMP_COLOR : 0xfff2dc,
             lampRadius: typeof COLLAPSE_LOOK_LAMP_RADIUS !== U ? COLLAPSE_LOOK_LAMP_RADIUS : 2000,
             flicker: typeof COLLAPSE_LOOK_FLICKER !== U ? COLLAPSE_LOOK_FLICKER : 0.18,
@@ -132,15 +80,11 @@ const CollapseLook = {
             streamRadius: typeof COLLAPSE_LOOK_STREAM_RADIUS !== U ? COLLAPSE_LOOK_STREAM_RADIUS : 760,
             gapPower: typeof COLLAPSE_LOOK_GAP_POWER !== U ? COLLAPSE_LOOK_GAP_POWER : 1.1,
             gapRadius: typeof COLLAPSE_LOOK_GAP_RADIUS !== U ? COLLAPSE_LOOK_GAP_RADIUS : 560,
-            inkBands: typeof COLLAPSE_LOOK_INK_BANDS !== U ? COLLAPSE_LOOK_INK_BANDS : 4,
-            lowpolyTexel: typeof COLLAPSE_LOOK_LOWPOLY_TEXEL !== U ? COLLAPSE_LOOK_LOWPOLY_TEXEL : 4,
-            lowpolyFogStart: typeof COLLAPSE_LOOK_LOWPOLY_FOG_START !== U ? COLLAPSE_LOOK_LOWPOLY_FOG_START : 300,
-            lowpolyFogEnd: typeof COLLAPSE_LOOK_LOWPOLY_FOG_END !== U ? COLLAPSE_LOOK_LOWPOLY_FOG_END : 3000,
         };
     },
 };
 
-// The shaders of the looks. lookLight: the sum at point p with normal n (either side of a surface:
+// The shaders. lookLight: the sum at point p with normal n (either side of a surface:
 // the lights are all inside the tunnel, and the walls are double-sided). A point light is
 // lookPos = (x, y, z, 1 / radius²), lookCol = (r, g, b, 0); the two lava channels are lines along
 // the tunnel, lookLava = (x of the channels, y, 1 / radius², 0).
@@ -166,12 +110,13 @@ vec3 lookLight(vec3 p, vec3 n, float wrap) {
     return sum;
 }
 `,
-    // The material's own numbers: lookMat = (kind, coarse texels per UV or the ink line: u, v, the most
-    // light it takes, 0 — no limit: a sprite keeps the colors of its art, the loco stays out of its own lamp).
+    // The material's own numbers: lookMat = (kind, the most light it takes, 0 — no limit: a sprite keeps
+    // the colors of its art).
     lit: `
 float lookKind = lookMat.x + 0.5;
 if (lookKind >= 1.0 && lookKind < 3.0) {
-    LOOK_APPLY
+    vec3 lookL = lookLight(vPositionW, normalW, lookMat.x > 1.5 ? 1.0 : 0.0);
+    color.rgb *= lookMat.y > 0.0 ? min(lookL, vec3(lookMat.y)) : lookL;
 }
 `,
     pixel: `
@@ -216,12 +161,8 @@ CollapseLook.pluginClass = function () {
         bindForSubMesh(ubo, scene, engine, subMesh) {
             const fx = subMesh.effect, m = /** @type {any} */ (this._material);
             if (!fx) return;
-            const rig = CollapseLook.rig, tex = m.emissiveTexture, kind = m.metadata ? m.metadata.look || 0 : 0;
-            const size = tex && tex.getSize ? tex.getSize() : { width: 0, height: 0 };
-            // yz: coarse texels per UV on a lowpoly surface, the ink line in UV on an ink sprite.
-            const c = kind === CollapseLook.SOLID && !m.name.startsWith('sw:') ? rig.coarse : 0, ink = kind === CollapseLook.SPRITE && rig.look === 'ink' && size.width;
-            const cap = m.metadata && m.metadata.lookCap ? m.metadata.lookCap : kind === CollapseLook.SPRITE ? 1 : 0;
-            fx.setFloat4('lookMat', kind, ink ? rig.line / size.width : c ? size.width / c : 0, ink ? rig.line / size.height : c ? size.height / c : 0, cap);
+            const rig = CollapseLook.rig, kind = m.metadata ? m.metadata.look || 0 : 0;
+            fx.setFloat2('lookMat', kind, kind === CollapseLook.SPRITE ? 1 : 0);
             if (fx.lookFrame === rig.frame) return;
             fx.lookFrame = rig.frame;
             fx.setArray4('lookPos', rig.pos);
@@ -232,74 +173,25 @@ CollapseLook.pluginClass = function () {
         }
 
         getCustomCode(shaderType) {
-            const look = CollapseLook.rig.look, L = String(CollapseLook.rig.bands);
-            const decl = CollapseLook.SHADER.light.replace(/LOOK_N/g, String(CollapseLook.LIGHTS));
-            if (shaderType === 'vertex') {
-                if (look !== 'lowpoly') return null;
-                return { CUSTOM_VERTEX_DEFINITIONS: 'uniform vec4 lookMat;\nvarying vec3 vLookLight;\n' + decl, CUSTOM_VERTEX_MAIN_END: `
-#ifdef NORMAL
-vLookLight = lookLight(worldPos.xyz, normalize(mat3(finalWorld) * normalUpdated), lookMat.x > 1.5 ? 1.0 : 0.0);
-#else
-vLookLight = lookAir.rgb;
-#endif
-` };
-            }
-            let apply;
-            if (look === 'lowpoly') apply = 'color.rgb *= lookMat.w > 0.0 ? min(vLookLight, vec3(lookMat.w)) : vLookLight;';
-            else if (look === 'pixel') apply = 'vec3 lookL = lookLight(vPositionW, normalW, lookMat.x > 1.5 ? 1.0 : 0.0); color.rgb *= lookMat.w > 0.0 ? min(lookL, vec3(lookMat.w)) : lookL;';
-            else apply = `vec3 lookL = lookLight(vPositionW, normalW, lookMat.x > 1.5 ? 1.0 : 0.0);
-    float lookV = max(lookL.r, max(lookL.g, lookL.b));
-    float lookQ = (floor(min(lookV, 1.0) * ${L}.0) + 1.0) / ${L}.0;
-    color.rgb = floor(color.rgb * 5.0 + 0.5) / 5.0 * (lookV > 0.0001 ? lookL / lookV * lookQ : vec3(lookQ));
-#ifdef OPACITY
-    // The ink line of a sprite: a pixel beside the transparent part of its art.
-    if (lookMat.x > 1.5) {
-        float lookA = min(min(texture2D(opacitySampler, vOpacityUV + vec2(lookMat.y, 0.0)).a, texture2D(opacitySampler, vOpacityUV - vec2(lookMat.y, 0.0)).a),
-            min(texture2D(opacitySampler, vOpacityUV + vec2(0.0, lookMat.z)).a, texture2D(opacitySampler, vOpacityUV - vec2(0.0, lookMat.z)).a));
-        if (lookA < 0.5) color.rgb = lookInk;
-    }
-#endif`;
-            const code = {
-                CUSTOM_FRAGMENT_DEFINITIONS: 'uniform vec4 lookMat;\n' + (look === 'lowpoly' ? 'varying vec3 vLookLight;' : decl) +
-                    '\nconst vec3 lookInk = vec3(' + CollapseLook.rig.ink.join(',') + ');',
-                CUSTOM_FRAGMENT_BEFORE_FOG: CollapseLook.SHADER.lit.replace('LOOK_APPLY', apply),
+            if (shaderType === 'vertex') return null;
+            return {
+                CUSTOM_FRAGMENT_DEFINITIONS: 'uniform vec2 lookMat;\n' + CollapseLook.SHADER.light.replace(/LOOK_N/g, String(CollapseLook.LIGHTS)),
+                CUSTOM_FRAGMENT_BEFORE_FOG: CollapseLook.SHADER.lit,
             };
-            if (look === 'ink') {
-                // Lava in flat patches: the fire art reduced to three tones of one ramp.
-                code.CUSTOM_FRAGMENT_BEFORE_FOG += `
-if (lookKind >= 3.0) {
-    float lookF = dot(color.rgb, vec3(0.3, 0.59, 0.11));
-    color.rgb = lookF < 0.3 ? vec3(0.46, 0.07, 0.04) : lookF < 0.62 ? vec3(0.93, 0.3, 0.07) : vec3(1.0, 0.8, 0.28);
-}
-`;
-            }
-            if (look === 'lowpoly') {
-                // Coarse texels: the sample point snaps to a grid of texture pixels several times larger.
-                code['!emissiveColor\\+=TEXRD\\(emissiveSampler,vEmissiveUV\\+uvOffset\\)'] =
-                    'vec2 lookUV = vEmissiveUV + uvOffset;\nif (lookMat.y > 0.0) lookUV = (floor(lookUV * lookMat.yz) + 0.5) / lookMat.yz;\nemissiveColor += TEXRD(emissiveSampler, lookUV)';
-            }
-            return code;
         }
     };
 };
 
-// The look's light and final pass for one CollapseScene. Created before the scene's first material;
+// The light and the final pass for one CollapseScene. Created before the scene's first material;
 // finish() runs when the tunnel exists; sync() moves the lights every frame.
 class CollapseLookRig {
-    constructor(look) {
-        this.look = look;
+    constructor() {
         CollapseLook.rig = this;
         const c = this.c = CollapseLook.cfg();
         const n = CollapseLook.LIGHTS;
         this.pos = new Float32Array(4 * n);
         this.col = new Float32Array(4 * n);
         this.frame = 0;
-        this.bands = Math.max(2, Math.min(6, Math.round(c.inkBands)));
-        this.line = 3;                      // art pixels: the ink line of a sprite
-        const ink = World3D.hexColor3(World3D.cfg().inkColor);
-        this.ink = [ink.r, ink.g, ink.b].map(v => v.toFixed(3));
-        this.coarse = look === 'lowpoly' ? Math.max(1, c.lowpolyTexel) : 0;
-        this.renderHeight = look === 'pixel' ? c.pixelHeight : 0;
         const air = new BABYLON.Color3(0.8, 0.8, 0.95).scale(c.ambient);
         this.air = air;
         const hex = (v, k) => { const h = World3D.hexColor3(v); return [h.r * k, h.g * k, h.b * k]; };
@@ -318,19 +210,12 @@ class CollapseLookRig {
         });
     }
 
-    // The tunnel exists: the lava channels' place, and what the look adds over the scene.
+    // The tunnel exists: the lava channels' place, and the final pass: everything the camera sees goes
+    // through the palette.
     finish(host) {
-        const S = CollapseScene, edge = S.LANE_W * 1.5 + 40;
-        this.host = host;
-        this.lava[0] = (S.WALL_X + edge) / 2;
+        const Sc = CollapseScene, edge = Sc.LANE_W * 1.5 + 40;
+        this.lava[0] = (Sc.WALL_X + edge) / 2;
         this.lava[1] = -30;
-        if (this.look === 'pixel') this._finishPixel(host);
-        else if (this.look === 'lowpoly') this._finishLowpoly(host);
-        else this._finishInk(host);
-    }
-
-    // The final pass of the pixel look: everything the camera sees goes through the palette.
-    _finishPixel(host) {
         const S = BABYLON.Effect.ShadersStore, t = CollapseLook.lut();
         S.collapseLookPixelFragmentShader = CollapseLook.SHADER.pixel;
         const near = BABYLON.Texture.NEAREST_SAMPLINGMODE;
@@ -339,23 +224,6 @@ class CollapseLookRig {
         const pass = new BABYLON.PostProcess('collapse-look-pixel', 'collapseLookPixel', ['lookDither'], ['lookLut'], 1, host.view.camera, near, host.engine);
         pass.onApply = fx => { fx.setTexture('lookLut', lut); fx.setFloat('lookDither', this.c.dither); };
         this.pass = pass;
-    }
-
-    _finishLowpoly(host) {
-        const c = this.c, toTrain = host.view.camera.position.length();
-        host.scene.fogStart = toTrain + c.lowpolyFogStart;
-        host.scene.fogEnd = toTrain + c.lowpolyFogEnd;
-        const loco = this.loco = CollapseLoco3D.build(host);
-        loco.parent = host.train;
-        host.train.isVisible = false;
-    }
-
-    // World3D's edge lines on the tunnel pieces. Its silhouette outline does not read a sprite's alpha
-    // (it frames the whole plane), so the sprites draw their own line in the plugin, in the same color.
-    _finishInk(host) {
-        for (const p of host.pieces) {
-            if (p.kind !== 'torch') World3D.addObject(host.view, p.mesh, 'prop', { castShadow: false, receiveShadows: false, outline: false });
-        }
     }
 
     // Every light of the frame, in place. A torch fades in and out at the ends of the list, so a
@@ -392,80 +260,10 @@ class CollapseLookRig {
         while (streams++ < 2) put(0, 0, 0, 1, this.streamCol, 0);
         while (gaps++ < 3) put(0, 0, 0, 1, this.gapCol, 0);
         put(0, 160, (run.front - pos) * S.SEG + 60, c.frontRadius, this.frontCol, wave(time * 1.4, 5));
-        put(trainX, 300, 420, c.lampRadius, this.lampCol, 1);              // the headlamp on the track ahead
+        put(trainX, c.lampY, c.lampZ, c.lampRadius, this.lampCol, 1);      // the headlamp on the track ahead
         put(trainX, 360, 80, 900, this.torchCol, shot ? 1.6 : 0);          // the driver's shot
         put(trainX, 240, 120, 620, [1, 0.3, 0.1], heat * 1.5);             // the loco red-hot after lava
         const w = 1 + c.flicker * 0.6 * Math.sin(time * 3.1);
         this.lavaCol[0] = this.lavaBase[0] * w; this.lavaCol[1] = this.lavaBase[1] * w; this.lavaCol[2] = this.lavaBase[2] * w;
     }
 }
-
-// The lowpoly loco: real geometry made here, no files. Built facing -Z: the train's transform turns
-// it to the camera as it turns the sprite. World units match the sprite: 290 wide, 418 tall.
-/** @satisfies {Record<string, any>} */
-const CollapseLoco3D = {
-    IRON: 0x484e5a, STEEL: 0x7c848e, RED: 0xb43020, BRASS: 0xdca040, BLACK: 0x24242c, RUST: 0x8c4c30,
-
-    build(host) {
-        const B = BABYLON.MeshBuilder, scene = host.scene, K = this, parts = [];
-        const add = (m, color, x, y, z, rot) => {
-            if (rot) m.bakeTransformIntoVertices(BABYLON.Matrix.RotationYawPitchRoll(rot[1] || 0, rot[0] || 0, rot[2] || 0));
-            m.bakeTransformIntoVertices(BABYLON.Matrix.Translation(x, y, z));
-            const col = World3D.hexColor3(color), n = m.getTotalVertices(), rgba = [];
-            for (let i = 0; i < n; i++) rgba.push(col.r, col.g, col.b, 1);
-            m.setVerticesData(BABYLON.VertexBuffer.ColorKind, rgba);
-            parts.push(m);
-        };
-        const box = (w, h, d, color, x, y, z, rot) => add(B.CreateBox('loco3d-part', { width: w, height: h, depth: d }, scene), color, x, y, z, rot);
-        const drum = (d0, d1, len, sides, color, x, y, z, rot) => add(B.CreateCylinder('loco3d-part', { diameterTop: d0, diameterBottom: d1, height: len, tessellation: sides }, scene), color, x, y, z, rot);
-        const along = [Math.PI / 2, 0, 0], across = [0, 0, Math.PI / 2];
-        // Boiler and smokebox along the track; the nose is at -Z.
-        drum(216, 216, 470, 10, K.IRON, 0, 232, 40, along);
-        drum(228, 228, 26, 10, K.STEEL, 0, 232, -196, along);
-        drum(150, 150, 14, 10, K.RUST, 0, 232, -212, along);
-        drum(46, 46, 16, 6, K.BRASS, 0, 232, -222, along);
-        for (const z of [-90, 90]) drum(226, 226, 16, 10, K.BRASS, 0, 232, z, along);
-        // Chimney and dome.
-        drum(78, 56, 96, 8, K.BLACK, 0, 382, -130, null);
-        drum(96, 96, 16, 8, K.STEEL, 0, 412, -130, null);
-        drum(64, 96, 54, 8, K.BRASS, 0, 356, 40, null);
-        // Footplate, buffer beam, the plough.
-        box(290, 18, 520, K.STEEL, 0, 118, 30);
-        box(290, 52, 26, K.RED, 0, 120, -226);
-        for (const x of [-104, 104]) drum(26, 26, 40, 6, K.STEEL, x, 122, -250, along);
-        for (let i = 0; i < 5; i++) box(20, 92, 120, K.RED, (i - 2) * 60, 54, -286 + Math.abs(i - 2) * 26, [0.5, 0, 0]);
-        // Wheels with their guards.
-        for (const side of [-1, 1]) {
-            for (const z of [-140, 20, 180]) drum(140, 140, 26, 12, K.BLACK, side * 122, 70, z, across);
-            drum(40, 40, 30, 8, K.BRASS, side * 138, 70, -140, across);
-            box(16, 12, 400, K.STEEL, side * 142, 74, 20);
-        }
-        // Cab with its roof and windows.
-        box(280, 216, 190, K.RED, 0, 256, 290);
-        box(316, 18, 240, K.BLACK, 0, 372, 290);
-        for (const x of [-72, 72]) box(84, 74, 8, K.BLACK, x, 296, 192);
-        const body = BABYLON.Mesh.MergeMeshes(parts, true, true);
-        body.name = 'loco3d';
-        body.bakeTransformIntoVertices(BABYLON.Matrix.Translation(0, 0, 220));   // the nose where the sprite stands: closer, perspective swells it
-        body.convertToFlatShadedMesh();
-        const mat = new BABYLON.StandardMaterial('loco3d', scene);
-        mat.disableLighting = true;
-        mat.emissiveColor = new BABYLON.Color3(1, 1, 1);    // vertex colors with disableLighting (skill world3d)
-        mat.diffuseColor = new BABYLON.Color3(0, 0, 0);
-        mat.specularColor = new BABYLON.Color3(0, 0, 0);
-        mat.metadata = { look: CollapseLook.SOLID, lookCap: 0.8 };
-        body.material = mat;
-        body.isPickable = false;
-        // The headlamp burns on its own: not lit, it is a light.
-        const lamp = B.CreateCylinder('loco3d-lamp', { diameter: 64, height: 22, tessellation: 8 }, scene);
-        lamp.bakeTransformIntoVertices(BABYLON.Matrix.RotationX(Math.PI / 2).multiply(BABYLON.Matrix.Translation(0, 366, -180)));
-        const glow = new BABYLON.StandardMaterial('loco3d-glow', scene);
-        glow.disableLighting = true;
-        glow.emissiveColor = new BABYLON.Color3(1, 0.86, 0.5);
-        glow.metadata = { look: CollapseLook.GLOW };
-        lamp.material = glow;
-        lamp.isPickable = false;
-        lamp.parent = body;
-        return body;
-    },
-};

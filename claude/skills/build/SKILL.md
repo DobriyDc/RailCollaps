@@ -31,7 +31,7 @@ viewport (headless Edge on Windows will not shrink `--window-size` below ~496 px
 dev server on a free port unless `--url` is given. Writes `<name>-<W>x<H>.png` and a `.json` beside
 it: `innerWidth/innerHeight`, `devicePixelRatio`, console errors and exceptions, the value returned by
 `--eval-file` (an async function body run in the page before the shot — set up a state, stop the
-render loop, render frames by hand). `--query=look=pixel` is appended to the page address. Exit code 1
+render loop, render frames by hand). `--query=v=2` is appended to the page address. Exit code 1
 on any page error, a viewport not as ordered or `--timeout` (120000 ms for the whole run; a long soak
 passes its own). `--help` prints the options. The browser and the dev server end with the run:
 `Browser.close`, `taskkill /T`, then a sweep by the profile folder name, because a process whose

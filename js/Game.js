@@ -38,6 +38,7 @@ class Game {
         // The first frame shows the tunnel behind the intro dialog.
         this.run = new CollapseRun(Game.newSeed());
         this.scene.sync(this.run, 0);
+        this._frameNow();
         this._dialog('Rail Link: Collapse',
             'Тап по табличке развилки —\nмашинист стреляет по стрелке.\nКаждый выстрел стоит патрон.',
             ['Поехали', () => this.start()]);
@@ -249,7 +250,8 @@ class Game {
         }
     }
 
-    // The camera as Game.frameEntry reads it; the box between the plates, counted once per screen size.
+    // The camera as Game.frameEntry reads it, tilted to the top plate; the box between the plates,
+    // counted once per screen size and per run.
     _frameNow() {
         const scene = this.scene, cam = scene.view.camera, engine = scene.engine;
         const size = engine.getRenderWidth() + 'x' + engine.getRenderHeight();
@@ -257,8 +259,10 @@ class Game {
             const box = scene.canvas.getBoundingClientRect();
             const edge = (id, side, def) => { const e = UI.get(id); return e ? e.el.getBoundingClientRect()[side] : def; };
             const ndc = y => 1 - 2 * (y - box.top) / box.height;
+            const top = ndc(edge('frameTop', 'bottom', box.top));
+            scene.fitFrame(top);
             const view = { y: scene.camY, z: cam.position.z, pitch: Math.abs(cam.rotation.x), fov: cam.fov, aspect: engine.getAspectRatio(cam),
-                top: ndc(edge('frameTop', 'bottom', box.top)), bottom: ndc(edge('frameBottom', 'top', box.bottom)) };
+                top, bottom: ndc(edge('frameBottom', 'top', box.bottom)) };
             this._frame = { key: size + ':', cam: view, enter: null, reach: Game.frameTable(view, null, scene.camFollow) };
         }
         const f = this._frame, key = size + ':' + Math.round(scene.camX / 8);
@@ -305,13 +309,12 @@ Game.ICONS = {
 };
 Game.ICON_IDS = ['iconWallLeft', 'iconLane0', 'iconLane0Next', 'iconLane1', 'iconLane1Next', 'iconLane2', 'iconLane2Next', 'iconWallRight'];
 
-// What of each object the frame can catch: half width and top, world units. These are the sizes of
-// CollapseScene._segView: a hole as wide as its lane, the lava flow (170 x 760 from y 120), a pickup
-// (90 x 135 from y 6, its bob 10).
+// What of each object the frame can catch: half width and top, world units, by the sprites of
+// CollapseScene: a hole as wide as its lane, the lava flow, a pickup at the top of its bob.
 Game.BODIES = {
     gap: { hw: CollapseScene.LANE_W / 2, top: 0 },
-    lava: { hw: 85, top: 880 },
-    pickup: { hw: 45, top: 151 },
+    lava: { hw: CollapseScene.FLOW.w / 2, top: CollapseScene.FLOW.y + CollapseScene.FLOW.h },
+    pickup: { hw: CollapseScene.PICKUP.w / 2, top: CollapseScene.PICKUP.y + CollapseScene.PICKUP.h + CollapseScene.PICKUP.bob },
 };
 
 Game.REASONS = {

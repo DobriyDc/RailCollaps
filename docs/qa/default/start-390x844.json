@@ -1,0 +1,17 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:56477/",
+  "browser": "msedge.exe",
+  "waitMs": 2500,
+  "eval": null,
+  "evalResult": null,
+  "errors": [],
+  "ok": true
+}
