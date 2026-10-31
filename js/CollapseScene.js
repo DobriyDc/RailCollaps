@@ -987,6 +987,13 @@ CollapseScene.WALL_TOP = 430;     // where the walls meet the vault
 CollapseScene.LOCO_TOP = 414;     // world units: the top of the loco's art, its smoke included (loco_run_*.png: the sprite is 418 tall)
 CollapseScene.PICKUP = { w: 90, h: 135, y: 6, bob: 10 };   // a pickup's sprite, world units
 CollapseScene.FLOW = { w: 170, h: 760, y: 120 };           // a lava stream's sprite, world units
+// What of each object the frame can catch (Game.frameEntry): half width and top, world units: a hole
+// as wide as its lane, the lava flow, a pickup at the top of its bob.
+CollapseScene.BODIES = {
+    gap: { hw: CollapseScene.LANE_W / 2, top: 0 },
+    lava: { hw: CollapseScene.FLOW.w / 2, top: CollapseScene.FLOW.y + CollapseScene.FLOW.h },
+    pickup: { hw: CollapseScene.PICKUP.w / 2, top: CollapseScene.PICKUP.y + CollapseScene.PICKUP.h + CollapseScene.PICKUP.bob },
+};
 CollapseScene.BEHIND = 16;        // segments drawn behind the train (into the vanishing point)
 CollapseScene.DEBRIS = 40;        // falling blocks and rail wreckage along the collapse edge (every 4th — a rail)
 CollapseScene.DELAY = { vault: 0, torch: 0.05, rib: 0.1, 'wall-hi': 0.15, 'wall-lo': 0.3, floor: 0 };   // segments a piece waits past the edge

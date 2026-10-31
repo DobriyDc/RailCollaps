@@ -13,6 +13,7 @@ const Leaderboard = {
     _page: 0,
     _opened: 0,                   // counts openings: an answer to an earlier one is dropped
     _built: false,
+    _status: '',
 
     get url() { return typeof LEADERBOARD_URL !== 'undefined' ? LEADERBOARD_URL : ''; },
     get enabled() { return !!this.url && !!TG.initData; },
@@ -79,15 +80,17 @@ const Leaderboard = {
         this._build();
         const opened = ++this._opened;
         this._data = null;
-        this._render('Загрузка…');
+        this._render('loading');
         this._show('board', true);
         const data = await this.top();
         if (opened !== this._opened) return;
         this._data = data;
         const mine = data ? data.rows.findIndex(r => r.me) : -1;
         this._page = mine >= 0 ? Math.floor(mine / this.pageRows) : 0;
-        this._render(!data ? 'Таблица недоступна.\nПроверь связь.' : data.rows.length ? '' : 'Пока никого.\nПервый забег — твой.');
+        this._render(!data ? 'boardError' : data.rows.length ? '' : 'boardEmpty');
     },
+
+    refreshLanguage() { if (this._built) this._render(this._status); },
 
     close() {
         this._opened++;
@@ -103,7 +106,8 @@ const Leaderboard = {
     _render(status) {
         const data = this._data, rows = data ? data.rows : [], n = this.pageRows;
         const pages = Math.max(1, Math.ceil(rows.length / n));
-        this._text('boardStatus', status);
+        this._status = status;
+        this._text('boardStatus', status ? Lang.t(status) : '');
         this._show('boardStatus', !!status);
         for (let i = 0; i < n; i++) {
             const r = rows[this._page * n + i];
@@ -112,13 +116,13 @@ const Leaderboard = {
             this._show('boardRowMark' + i, !!r.me);
             this._text('boardRowPlace' + i, r.place);
             this._text('boardRowName' + i, r.name);
-            this._text('boardRowMeters' + i, r.meters + ' м');
+            this._text('boardRowMeters' + i, Lang.t('meters', { value: r.meters }));
         }
-        if (data) this._text('boardSeason', 'Сезон ' + data.season);
-        this._text('boardMe', !data ? '' : data.me ? 'Твоё место ' + data.me.place + ', ' + data.me.meters + ' м' : 'Тебя ещё нет в таблице');
+        if (data) this._text('boardSeason', Lang.t('season', { value: data.season }));
+        this._text('boardMe', !data ? '' : data.me ? Lang.t('boardMe', data.me) : Lang.t('boardAbsent'));
         this._show('boardPrev', this._page > 0);
         this._show('boardNext', this._page < pages - 1);
         this._show('boardPage', pages > 1);
-        this._text('boardPage', (this._page + 1) + ' / ' + pages);
+        this._text('boardPage', Lang.t('page', { value: this._page + 1, total: pages }));
     },
 };

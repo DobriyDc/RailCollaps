@@ -1,0 +1,33 @@
+{
+  "ordered": {
+    "width": 320,
+    "height": 568
+  },
+  "innerWidth": 320,
+  "innerHeight": 568,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:65403/",
+  "browser": "msedge.exe",
+  "waitMs": 2000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-default/b857e4bf-0000-4b07-81b3-63e1ad980537/scratchpad/strip.js",
+  "evalResult": {
+    "stripTop": 454,
+    "plateT": 492,
+    "ys": [
+      467,
+      467,
+      467,
+      467,
+      467,
+      467,
+      467,
+      467
+    ],
+    "inStrip": 8,
+    "canvasHit": 8,
+    "armed": 8
+  },
+  "errors": [],
+  "ok": true
+}

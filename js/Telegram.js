@@ -36,6 +36,8 @@ const TG = {
         if (this.at('8.0') && onPause) this._call(() => a.onEvent('deactivated', onPause));
     },
 
+    close() { if (this.inside && this.app.close) this._call(() => this.app.close()); },
+
     runStarted() { if (this.at('6.2')) this._call(() => this.app.enableClosingConfirmation()); },
     runEnded() { if (this.at('6.2')) this._call(() => this.app.disableClosingConfirmation()); },
 

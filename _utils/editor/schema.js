@@ -653,6 +653,9 @@ const KIT_SCHEMA = [
         tab: 'sound',
         label: { en: 'Mixer', ru: 'Микшер' },
         fields: [
+            { name: 'AUDIO_VOLUME_STEP', min: 0.01, max: 1, step: 0.01,
+              label: { en: 'Volume button step', ru: 'Шаг кнопок громкости' },
+              hint: { en: 'One press of minus or plus in game settings', ru: 'Одно нажатие минуса или плюса в настройках игры' } },
             { name: 'AUDIO_MASTER_VOLUME', min: 0, max: 1, step: 0.05,
               label: { en: 'Master volume', ru: 'Общая громкость' },
               hint: { en: 'Everything Sound3D plays. 0 — silence', ru: 'Всё, что играет Sound3D. 0 — тишина' } },

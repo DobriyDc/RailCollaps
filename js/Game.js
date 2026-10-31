@@ -4,8 +4,7 @@
 // taps, shows their state through UI.get(id) (records in UILayout.js) and turns their events into
 // effects, haptics and the record.
 //
-// One dialog (the `over` panel of UILayout.js) serves three moments: the intro, the pause and the
-// end of a run. `mode` says which one is up; its two buttons get the handlers of that moment.
+// Menu panels own navigation; the over panel serves pause and the end of a run.
 
 class Game {
     /** @param {{ scene: CollapseScene }} app */
@@ -14,7 +13,7 @@ class Game {
         this.scene = app.scene;
         /** @type {CollapseRun | null} */
         this.run = null;
-        this.mode = 'intro';          // 'intro' | 'play' | 'pause' | 'over'
+        this.mode = 'menu';           // 'menu' | 'play' | 'pause' | 'over'
         this.overIn = -1;             // s until the end dialog shows (the fall plays first)
         this.newRecord = false;
         this._chase = -1;             // the chase bar value shown
@@ -35,14 +34,77 @@ class Game {
         if (board) board.onClick(() => { if (!this.adPending) Leaderboard.open(); });
         this.scene.canvas.addEventListener('pointerdown', e => this.tap(e));
 
-        // The first frame shows the tunnel behind the intro dialog.
         this.run = new CollapseRun(Game.newSeed());
         this.scene.sync(this.run, 0);
-        this._frameNow();
-        this._dialog('Rail Link: Collapse',
-            'Тап по табличке развилки —\nмашинист стреляет по стрелке.\nКаждый выстрел стоит патрон.',
-            ['Поехали', () => this.start()]);
+        const on = (id, fn) => { const el = UI.get(id); if (el) el.onClick(fn); };
+        on('menuStart', () => this.openMenu('modeScreen'));
+        on('menuSettings', () => this.openMenu('settingsScreen'));
+        on('menuShop', () => this.openMenu('shopScreen'));
+        on('menuExit', () => TG.close());
+        on('modeEndless', () => this.start());
+        for (const id of ['modeBack', 'settingsBack', 'shopBack', 'overMenu']) on(id, () => this.openMenu());
+        this.volumes = {};
+        const audio = Sound3D.cfg();
+        for (const channel of Sound3D.CHANNELS) {
+            const saved = Store.get('collapse.volume.' + channel);
+            const value = saved === null ? audio[channel] : Number(saved);
+            this.volumes[channel] = Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : audio[channel];
+            Sound3D.setChannelVolume(channel, this.volumes[channel]);
+            on(channel + 'Minus', () => this.changeVolume(channel, -1));
+            on(channel + 'Plus', () => this.changeVolume(channel, 1));
+        }
+        on('languageRU', () => Lang.set('ru'));
+        on('languageEN', () => Lang.set('en'));
+        const tutorial = UI.get('modeTutorial');
+        if (tutorial) tutorial.setEnabled(false);
+        Lang.listeners.add(() => this.refreshLanguage());
+        this.refreshLanguage();
+        this.openMenu();
+    }
+
+    openMenu(screen = 'mainScreen') {
+        if (this.adPending) return;
+        this.mode = 'menu';
+        this.overIn = -1;
+        this.flashLeft = 0;
+        TG.runEnded();
+        Leaderboard.close();
+        this._show('over', false);
+        this._show('hitFlash', false);
+        this._show('menu', true);
+        for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen']) this._show(id, id === screen);
+        for (const id of ['frameTop', 'frameBottom', 'iconStrip']) this._show(id, false);
+        this._show('menuExit', TG.inside);
+    }
+
+    refreshLanguage() {
+        Lang.apply();
+        Leaderboard.refreshLanguage();
+        this._hudText.clear();
         this._hudBest();
+        if (this.run) this._hud(this.run);
+        if (this.mode === 'pause') this._pauseDialog();
+        else if (this.mode === 'over' && this.overIn < 0) this._showOver();
+        this._settingsView();
+    }
+
+    changeVolume(channel, direction) {
+        const step = typeof AUDIO_VOLUME_STEP !== 'undefined' ? AUDIO_VOLUME_STEP : 0.1;
+        this.volumes[channel] = Math.max(0, Math.min(1, this.volumes[channel] + direction * step));
+        Store.set('collapse.volume.' + channel, String(this.volumes[channel]));
+        Sound3D.setChannelVolume(channel, this.volumes[channel]);
+        this._settingsView();
+    }
+
+    _settingsView() {
+        for (const channel of Sound3D.CHANNELS) {
+            this._set(channel + 'Value', Lang.t('percent', { value: Math.round(this.volumes[channel] * 100) }));
+            const bar = UI.get(channel + 'Bar');
+            if (bar) bar.setValue(this.volumes[channel]);
+        }
+        for (const [id, code] of [['languageRU', 'ru'], ['languageEN', 'en']]) {
+            this._set(id, (Lang.code === code ? '✓ ' : '') + Lang.t(code));
+        }
     }
 
     // Segments ahead of the train where a body standing on the floor at x (half width hw, top at
@@ -69,7 +131,7 @@ class Game {
     // (`follow` — the share of the train's offset it takes), the farthest that lane's edge can get.
     static frameTable(cam, camX, follow = 0) {
         const S = CollapseScene, out = {};
-        for (const [body, b] of Object.entries(Game.BODIES)) {
+        for (const [body, b] of Object.entries(S.BODIES)) {
             out[body] = [0, 1, 2].map(l => {
                 const x = S.laneX(l);
                 return Game.frameEntry(Object.assign({}, cam, { x: camX === null ? x * follow : camX }), x, b.hw, b.top);
@@ -96,6 +158,9 @@ class Game {
     }
 
     start() {
+        this._show('menu', false);
+        for (const id of ['frameTop', 'frameBottom', 'iconStrip']) this._show(id, true);
+        this._set('pauseBtn', Lang.t('pauseIcon'));
         this.scene.reset();
         this.run = new CollapseRun(Game.newSeed());
         this.mode = 'play';
@@ -112,13 +177,19 @@ class Game {
     setPaused(on) {
         if (on && this.mode === 'play') {
             this.mode = 'pause';
-            this._dialog('Пауза', 'Забег стоит.\nОбвал тоже.', ['Дальше', () => this.setPaused(false)], ['Заново', () => this.start()]);
+            this._pauseDialog();
         } else if (!on && this.mode === 'pause') {
             this.mode = 'play';
             this._show('over', false);
         }
         const b = UI.get('pauseBtn');
-        if (b) b.setText(this.mode === 'pause' ? '▶' : 'II');
+        if (b) b.setText(Lang.t(this.mode === 'pause' ? 'resumeIcon' : 'pauseIcon'));
+    }
+
+    _pauseDialog() {
+        this._dialog(Lang.t('pause'), Lang.t('pauseText'), [Lang.t('resume'), () => this.setPaused(false)], [Lang.t('restart'), () => this.start()]);
+        this._show('overMenu', false);
+        this._set('pauseBtn', Lang.t('resumeIcon'));
     }
 
     // A tap on the canvas: the nearest fork sign or demon within reach; a demon is shot by its side.
@@ -154,7 +225,7 @@ class Game {
 
     update(dt) {
         const run = this.run;
-        if (!run) return;
+        if (!run || this.mode === 'menu') return;
         if (this.mode === 'play') run.update(dt);
         for (const ev of run.takeEvents()) this._onEvent(ev);
         if (this.overIn >= 0 && (this.overIn -= dt) < 0) this._showOver();
@@ -195,11 +266,12 @@ class Game {
     // The end of a run: reason, meters, record; a continue for an ad only once per run.
     _showOver() {
         const run = this.run;
-        const why = Game.REASONS[run.reason] || '';
-        this._dialog(this.newRecord ? 'Новый рекорд!' : 'Обвал',
-            why + '\nПройдено ' + run.meters + ' м. Рекорд ' + this.best + ' м.',
-            ['Заново', () => this.start()],
-            run.canContinue ? ['Продолжить за рекламу', () => this.continueForAd()] : null);
+        const why = run.reason ? Lang.t('reason.' + run.reason) : '';
+        this._dialog(Lang.t(this.newRecord ? 'recordTitle' : 'overTitle'),
+            why + '\n' + Lang.t('result', { meters: run.meters, best: this.best }),
+            [Lang.t('restart'), () => this.start()],
+            run.canContinue && !this.adPending ? [Lang.t('continue'), () => this.continueForAd()] : null);
+        this._show('overMenu', true);
     }
 
     // The dialog: title, text, the main button and an optional second one ([label, handler]).
@@ -273,15 +345,15 @@ class Game {
         return f;
     }
 
-    _hudBest() { this._set('best', 'Рекорд ' + this.best + ' м'); }
+    _hudBest() { this._set('best', Lang.t('best', { value: this.best })); }
 
     _hud(run) {
-        this._set('dist', run.meters + ' м');
-        this._set('ammo', 'Патроны ' + run.ammo);
-        this._set('rescue', 'Спасение ' + run.rescue);
-        this._set('shield', 'Щит ' + run.shield);
-        this._set('effect', run.boost > 0 ? 'Ускоритель ' + run.boost.toFixed(1) + ' с'
-            : run.slow > 0 ? 'Замедлитель ' + run.slow.toFixed(1) + ' с' : '');
+        this._set('dist', Lang.t('meters', { value: run.meters }));
+        this._set('ammo', Lang.t('ammo', { value: run.ammo }));
+        this._set('rescue', Lang.t('rescue', { value: run.rescue }));
+        this._set('shield', Lang.t('shield', { value: run.shield }));
+        this._set('effect', run.boost > 0 ? Lang.t('boost', { value: run.boost.toFixed(1) })
+            : run.slow > 0 ? Lang.t('slow', { value: run.slow.toFixed(1) }) : '');
         const gap = Math.round(Math.max(0, Math.min(1, (run.pos - run.front) / run.c.frontMaxGap)) * 100) / 100;
         if (this._chase !== gap) {
             this._chase = gap;
@@ -291,8 +363,8 @@ class Game {
         if (this.mode !== 'play') return;
         const next = run.nextFork();
         this._show('hint', true);
-        this._set('hint', run.ammo <= 0 ? 'Патроны кончились — ищи ящик с патронами'
-            : next && !next.armed ? 'Тап по табличке — выстрел по стрелке' : '');
+        this._set('hint', run.ammo <= 0 ? Lang.t('noAmmo')
+            : next && !next.armed ? Lang.t('hint') : '');
     }
 }
 
@@ -308,18 +380,3 @@ Game.ICONS = {
     rescue: 'assets/px/hud/rescue.png',
 };
 Game.ICON_IDS = ['iconWallLeft', 'iconLane0', 'iconLane0Next', 'iconLane1', 'iconLane1Next', 'iconLane2', 'iconLane2Next', 'iconWallRight'];
-
-// What of each object the frame can catch: half width and top, world units, by the sprites of
-// CollapseScene: a hole as wide as its lane, the lava flow, a pickup at the top of its bob.
-Game.BODIES = {
-    gap: { hw: CollapseScene.LANE_W / 2, top: 0 },
-    lava: { hw: CollapseScene.FLOW.w / 2, top: CollapseScene.FLOW.y + CollapseScene.FLOW.h },
-    pickup: { hw: CollapseScene.PICKUP.w / 2, top: CollapseScene.PICKUP.y + CollapseScene.PICKUP.h + CollapseScene.PICKUP.bob },
-};
-
-Game.REASONS = {
-    gap: 'Поезд ушёл в провал.',
-    lava: 'Поток лавы накрыл паровоз.',
-    demon: 'Демон добрался до кабины.',
-    caught: 'Обвал догнал поезд.',
-};
