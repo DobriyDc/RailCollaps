@@ -7,7 +7,7 @@
   "innerHeight": 844,
   "devicePixelRatio": 1,
   "title": "Rail Link: Collapse",
-  "url": "http://127.0.0.1:63068/",
+  "url": "http://127.0.0.1:61351/",
   "browser": "msedge.exe",
   "waitMs": 2200,
   "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-world/90e1ba18-60cb-4c37-a21e-6dfa2458b069/scratchpad/stage-run.js",
@@ -20,8 +20,8 @@
       "findings": [],
       "stats": {
         "meshes": 105,
-        "triangles": 4668,
-        "materials": 82,
+        "triangles": 4670,
+        "materials": 83,
         "lights": 2
       }
     }
