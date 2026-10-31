@@ -10,6 +10,34 @@
   ],
   "left_wall": "Mirror X; transform every anchor x to 159-x.",
   "durations": "Art playback suggestions only; gameplay timing belongs to task 36.",
+  "phases": {
+    "emerge": {
+      "count": 3,
+      "loop": false,
+      "next": "perch"
+    },
+    "perch": {
+      "count": 4,
+      "loop": true,
+      "next": "jump"
+    },
+    "jump": {
+      "count": 4,
+      "loop": false,
+      "next": "strike"
+    },
+    "strike": {
+      "count": 2,
+      "loop": false,
+      "next": "despawn"
+    },
+    "ash": {
+      "count": 4,
+      "loop": false,
+      "next": "despawn",
+      "trigger": "killed during emergence, perch or jump"
+    }
+  },
   "frames": [
     {
       "id": "perch_00",
@@ -118,6 +146,427 @@
         134
       ],
       "gaze": "toward camera and screen left"
+    },
+    {
+      "id": "emerge_00",
+      "phase": "emerge",
+      "index": 0,
+      "file": "assets/sprites/demon_v3/emerge_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        103,
+        134
+      ],
+      "duration_ms": 120,
+      "character": "furnace_mason_01",
+      "wall_contact": [
+        103,
+        134
+      ],
+      "occlusion_front_y": 76
+    },
+    {
+      "id": "emerge_01",
+      "phase": "emerge",
+      "index": 1,
+      "file": "assets/sprites/demon_v3/emerge_01.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        103,
+        134
+      ],
+      "duration_ms": 120,
+      "character": "furnace_mason_01",
+      "wall_contact": [
+        103,
+        134
+      ],
+      "occlusion_front_y": 107
+    },
+    {
+      "id": "emerge_02",
+      "phase": "emerge",
+      "index": 2,
+      "file": "assets/sprites/demon_v3/emerge_02.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        103,
+        134
+      ],
+      "duration_ms": 120,
+      "character": "furnace_mason_01",
+      "wall_contact": [
+        103,
+        134
+      ],
+      "occlusion_front_y": 141
+    },
+    {
+      "id": "jump_00",
+      "phase": "jump",
+      "index": 0,
+      "file": "assets/sprites/demon_v3/jump_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        80,
+        80
+      ],
+      "duration_ms": 120,
+      "character": "furnace_mason_01",
+      "source_rect": [
+        51,
+        39,
+        499,
+        500
+      ],
+      "source_top_left": [
+        26,
+        25
+      ],
+      "body_center": [
+        80,
+        80
+      ],
+      "visible_width": 108,
+      "root_motion": "External trajectory; approach growth is baked into the four jump frames."
+    },
+    {
+      "id": "jump_01",
+      "phase": "jump",
+      "index": 1,
+      "file": "assets/sprites/demon_v3/jump_01.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        80,
+        80
+      ],
+      "duration_ms": 120,
+      "character": "furnace_mason_01",
+      "source_rect": [
+        507,
+        35,
+        1022,
+        481
+      ],
+      "source_top_left": [
+        20,
+        28
+      ],
+      "body_center": [
+        80,
+        80
+      ],
+      "visible_width": 120,
+      "root_motion": "External trajectory; approach growth is baked into the four jump frames."
+    },
+    {
+      "id": "jump_02",
+      "phase": "jump",
+      "index": 2,
+      "file": "assets/sprites/demon_v3/jump_02.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        80,
+        80
+      ],
+      "duration_ms": 120,
+      "character": "furnace_mason_01",
+      "source_rect": [
+        1008,
+        44,
+        1524,
+        429
+      ],
+      "source_top_left": [
+        12,
+        30
+      ],
+      "body_center": [
+        80,
+        80
+      ],
+      "visible_width": 136,
+      "root_motion": "External trajectory; approach growth is baked into the four jump frames."
+    },
+    {
+      "id": "jump_03",
+      "phase": "jump",
+      "index": 3,
+      "file": "assets/sprites/demon_v3/jump_03.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        80,
+        80
+      ],
+      "duration_ms": 120,
+      "character": "furnace_mason_01",
+      "source_rect": [
+        11,
+        522,
+        577,
+        946
+      ],
+      "source_top_left": [
+        4,
+        23
+      ],
+      "body_center": [
+        80,
+        80
+      ],
+      "visible_width": 152,
+      "root_motion": "External trajectory; approach growth is baked into the four jump frames."
+    },
+    {
+      "id": "strike_00",
+      "phase": "strike",
+      "index": 0,
+      "file": "assets/sprites/demon_v3/strike_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        80,
+        80
+      ],
+      "duration_ms": 90,
+      "character": "furnace_mason_01",
+      "source_rect": [
+        609,
+        504,
+        1037,
+        973
+      ],
+      "source_top_left": [
+        10,
+        4
+      ],
+      "body_center": [
+        80,
+        80
+      ],
+      "visible_width": 140,
+      "root_motion": "External trajectory; approach growth is baked into the four jump frames."
+    },
+    {
+      "id": "strike_01",
+      "phase": "strike",
+      "index": 1,
+      "file": "assets/sprites/demon_v3/strike_01.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        80,
+        80
+      ],
+      "duration_ms": 90,
+      "character": "furnace_mason_01",
+      "source_rect": [
+        1065,
+        522,
+        1525,
+        974
+      ],
+      "source_top_left": [
+        10,
+        11
+      ],
+      "body_center": [
+        80,
+        80
+      ],
+      "visible_width": 140,
+      "root_motion": "External trajectory; approach growth is baked into the four jump frames."
+    },
+    {
+      "id": "ash_00",
+      "phase": "ash",
+      "index": 0,
+      "file": "assets/sprites/demon_v3/ash_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        80,
+        80
+      ],
+      "duration_ms": 90,
+      "character": "furnace_mason_01",
+      "body_center": [
+        80,
+        80
+      ],
+      "source_frame": "jump_02",
+      "opaque_survival_target": 1
+    },
+    {
+      "id": "ash_01",
+      "phase": "ash",
+      "index": 1,
+      "file": "assets/sprites/demon_v3/ash_01.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        80,
+        80
+      ],
+      "duration_ms": 100,
+      "character": "furnace_mason_01",
+      "body_center": [
+        80,
+        80
+      ],
+      "source_frame": "jump_02",
+      "opaque_survival_target": 0.72
+    },
+    {
+      "id": "ash_02",
+      "phase": "ash",
+      "index": 2,
+      "file": "assets/sprites/demon_v3/ash_02.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        80,
+        80
+      ],
+      "duration_ms": 120,
+      "character": "furnace_mason_01",
+      "body_center": [
+        80,
+        80
+      ],
+      "source_frame": "jump_02",
+      "opaque_survival_target": 0.36
+    },
+    {
+      "id": "ash_03",
+      "phase": "ash",
+      "index": 3,
+      "file": "assets/sprites/demon_v3/ash_03.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        80,
+        80
+      ],
+      "duration_ms": 160,
+      "character": "furnace_mason_01",
+      "body_center": [
+        80,
+        80
+      ],
+      "source_frame": "jump_02",
+      "opaque_survival_target": 0.13
     }
   ]
 }
