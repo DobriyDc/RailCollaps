@@ -25,9 +25,9 @@ const CollapseLook = {
     // How a scene material takes the light, by the key it is made under (CollapseScene.surface,
     // spriteMat). Signs and pickups stay self-lit: the signal is never lost in the dark (GDD v3 §4).
     kindOf(key) {
-        if (/^(wall|vault|rib|ballast|track|sw:)/.test(key)) return this.SOLID;
-        if (/^(loco|demon|brick|rail-bit)/.test(key)) return this.SPRITE;
-        if (/^(lava|flow|torch|collapse-front|crack)/.test(key)) return this.FIRE;
+        if (/^(wall|vault|rib|ballast|track|sw:|train:)/.test(key)) return this.SOLID;
+        if (/^(demon|brick|rail-bit|bg-(arches|column|rubble))/.test(key)) return this.SPRITE;
+        if (/^(lava|flow|torch|bg-void|crack)/.test(key)) return this.FIRE;
         return this.GLOW;
     },
 
@@ -95,27 +95,31 @@ uniform vec4 lookCol[LOOK_N];
 uniform vec4 lookAir;
 uniform vec4 lookLava;
 uniform vec4 lookLavaCol;
-vec3 lookLight(vec3 p, vec3 n, float wrap) {
+vec3 lookLight(vec3 p, vec3 n, float wrap, float side) {
     // lookAir.a: the lava's light thrown back from below, on what faces down or sideways.
     vec3 sum = lookAir.rgb + lookLavaCol.rgb * lookAir.a * (1.0 - wrap * 0.5 - (1.0 - wrap) * 0.5 * (1.0 + n.y));
     for (int i = 0; i < LOOK_N; i++) {
         vec3 d = lookPos[i].xyz - p;
         float k = 1.0 - dot(d, d) * lookPos[i].w;
         if (k <= 0.0) continue;
-        sum += lookCol[i].rgb * k * k * mix(abs(dot(n, normalize(d + vec3(0.0, 0.001, 0.0)))), 1.0, wrap);
+        float f = dot(n, normalize(d + vec3(0.0, 0.001, 0.0)));
+        sum += lookCol[i].rgb * k * k * mix(side > 0.5 ? max(f, 0.0) : abs(f), 1.0, wrap);
     }
     vec3 c = vec3(sign(p.x) * (lookLava.x - abs(p.x)), lookLava.y - p.y, 0.0);
     float k = 1.0 - dot(c, c) * lookLava.z;
-    if (k > 0.0) sum += lookLavaCol.rgb * k * k * mix(abs(dot(n, normalize(c + vec3(0.0, 0.001, 0.0)))), 1.0, wrap);
+    if (k > 0.0) {
+        float f = dot(n, normalize(c + vec3(0.0, 0.001, 0.0)));
+        sum += lookLavaCol.rgb * k * k * mix(side > 0.5 ? max(f, 0.0) : abs(f), 1.0, wrap);
+    }
     return sum;
 }
 `,
     // The material's own numbers: lookMat = (kind, the most light it takes, 0 — no limit: a sprite keeps
-    // the colors of its art).
+    // the colors of its art; 1 — a closed hull: light from behind it does not reach its faces).
     lit: `
 float lookKind = lookMat.x + 0.5;
 if (lookKind >= 1.0 && lookKind < 3.0) {
-    vec3 lookL = lookLight(vPositionW, normalW, lookMat.x > 1.5 ? 1.0 : 0.0);
+    vec3 lookL = lookLight(vPositionW, normalW, lookMat.x > 1.5 ? 1.0 : 0.0, lookMat.z);
     color.rgb *= lookMat.y > 0.0 ? min(lookL, vec3(lookMat.y)) : lookL;
 }
 `,
@@ -161,8 +165,8 @@ CollapseLook.pluginClass = function () {
         bindForSubMesh(ubo, scene, engine, subMesh) {
             const fx = subMesh.effect, m = /** @type {any} */ (this._material);
             if (!fx) return;
-            const rig = CollapseLook.rig, kind = m.metadata ? m.metadata.look || 0 : 0;
-            fx.setFloat2('lookMat', kind, kind === CollapseLook.SPRITE ? 1 : 0);
+            const rig = CollapseLook.rig, md = m.metadata || {}, kind = md.look || 0;
+            fx.setFloat3('lookMat', kind, md.cap || (kind === CollapseLook.SPRITE ? 1 : 0), md.hull ? 1 : 0);
             if (fx.lookFrame === rig.frame) return;
             fx.lookFrame = rig.frame;
             fx.setArray4('lookPos', rig.pos);
@@ -175,7 +179,7 @@ CollapseLook.pluginClass = function () {
         getCustomCode(shaderType) {
             if (shaderType === 'vertex') return null;
             return {
-                CUSTOM_FRAGMENT_DEFINITIONS: 'uniform vec2 lookMat;\n' + CollapseLook.SHADER.light.replace(/LOOK_N/g, String(CollapseLook.LIGHTS)),
+                CUSTOM_FRAGMENT_DEFINITIONS: 'uniform vec3 lookMat;\n' + CollapseLook.SHADER.light.replace(/LOOK_N/g, String(CollapseLook.LIGHTS)),
                 CUSTOM_FRAGMENT_BEFORE_FOG: CollapseLook.SHADER.lit,
             };
         }

@@ -98,10 +98,11 @@ test('поезд едет по нарисованному ответвлению
 });
 
 test('поезд целиком между плашками и рейками: шесть экранов, три полосы, безопасная зона 0, 48 и 92 px', () => {
-  const p = loadScripts(['js/Constants.js', 'js/UILayout.js', 'js/CollapseRules.js', 'js/CollapseScene.js']);
-  const S = p.get('CollapseScene'), share = id => p.get('UI_LAYOUT').find(d => d.id === id), ref = p.get('UI_REF_HEIGHT');
+  const p = loadScripts(['js/Constants.js', 'js/UILayout.js', 'js/CollapseRules.js', 'js/CollapseTrainMesh.js', 'js/CollapseScene.js']);
+  const S = p.get('CollapseScene'), M = p.get('CollapseTrainMesh'), share = id => p.get('UI_LAYOUT').find(d => d.id === id), ref = p.get('UI_REF_HEIGHT');
   const y = p.get('COLLAPSE_CAM_Y'), z = p.get('COLLAPSE_CAM_Z'), fov = p.get('COLLAPSE_CAM_FOV_DEG') * Math.PI / 180, t = Math.tan(fov / 2);
-  const HW = 122;  // the widest run frame of the loco art, world units
+  const HW = M.HALF_WIDTH_PX * p.get('COLLAPSE_TRAIN_SCALE');  // the widest part of the volume, world units
+  assert.ok(M.TOP_PX * p.get('COLLAPSE_TRAIN_SCALE') <= S.LOCO_TOP, 'труба выше LOCO_TOP: камера наклоняется не под тот верх');
   for (const [w, h] of [[320, 568], [360, 640], [360, 800], [390, 844], [412, 915], [430, 932]]) {
     for (const inset of [0, 48, 92]) {
       const top = 1 - 2 * (share('frameTop').h * h / ref + inset) / h, bottom = -1 + 2 * share('frameBottom').h / ref;
@@ -117,4 +118,33 @@ test('поезд целиком между плашками и рейками: �
       }
     }
   }
+});
+
+test('рыскание: ноль на прямой, вершина в середине кривой, знак — в сторону новой полосы, без рывка', () => {
+  const p = page(), S = p.get('CollapseScene'), R = p.get('CollapseRules'), run = new (p.get('CollapseRun'))(1);
+  run.pos = 40;
+  assert.equal(S.yawOf(run), 0);
+  run.prevLane = 1; run.lane = 2; run.switchAt = 40;
+  const at = t => { run.pos = 40 + t * R.SWITCH_LEN; return S.yawOf(run); };
+  assert.ok(Math.abs(at(0.5) - Math.atan(1.5 * S.LANE_W / (R.SWITCH_LEN * S.SEG))) < 1e-3, 'вершина по касательной кривой');
+  assert.ok(at(0.5) > 0.35, 'бок виден: рыскание больше 20°');
+  assert.ok(Math.abs(at(0.001)) < 0.01 && Math.abs(at(0.999)) < 0.02, 'концы кривой без рывка');
+  run.lane = 0;
+  assert.ok(at(0.5) < 0, 'влево — рыскание влево');
+  let last = at(0);
+  for (let t = 0.02; t < 1; t += 0.02) { const y = at(t); assert.ok(Math.abs(y - last) < 0.04, 'рывок на ' + t); last = y; }
+});
+
+test('края провала: первый сегмент дыры — front, последний — back, середина пуста, вне дыры ничего', () => {
+  const S = page().get('CollapseScene');
+  const track = { seg: i => ({ gap: [false, i >= 10 && i <= 13, false] }) };
+  assert.deepEqual([9, 10, 11, 12, 13, 14].map(i => S.gapEdge(track, i, 1)), [null, 'front', null, null, 'back', null]);
+  assert.equal(S.gapEdge(track, 10, 0), null);
+});
+
+test('пол под кромкой держится: падает только то, что уже за обломками', () => {
+  const S = page().get('CollapseScene');
+  assert.equal(S.floorDrop(-1), 0);
+  assert.equal(S.floorDrop(S.FLOOR_HOLD), 0, 'сегмент под откосом обломков на месте');
+  assert.ok(S.floorDrop(S.FLOOR_HOLD + 1) > 0);
 });
