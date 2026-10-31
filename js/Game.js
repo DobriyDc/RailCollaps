@@ -76,7 +76,7 @@ class Game {
         this._show('menu', true);
         this._show('tutorialBox', false);
         for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen']) this._show(id, id === screen);
-        for (const id of ['frameTop', 'frameBottom', 'iconStrip']) this._show(id, false);
+        for (const id of ['frameTop', 'frameBottom', 'iconStrip', 'stationShop']) this._show(id, false);
         this._show('menuExit', TG.inside);
     }
 
@@ -163,8 +163,16 @@ class Game {
         return (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
     }
 
+    // ?stations in the address: the endless run goes through stations (CollapseStations.js).
+    static stationsOn() { return typeof CollapseStations !== 'undefined' && CollapseStations.on; }
+
+    static newRun() { return Game.stationsOn() ? new CollapseStationRun(Game.newSeed()) : new CollapseRun(Game.newSeed()); }
+
+    /** @param {any} run */
+    static stationsLine(run) { return run.stations ? '\n' + Lang.t('stationsPassed', { value: run.stage }) : ''; }
+
     // A run: a new endless one unless given another (the tutorial, a retry of its step).
-    start(run = new CollapseRun(Game.newSeed())) {
+    start(run = Game.newRun()) {
         this._show('menu', false);
         for (const id of ['frameTop', 'frameBottom', 'iconStrip']) this._show(id, true);
         this._set('pauseBtn', '');
@@ -181,6 +189,7 @@ class Game {
         this._show('over', false);
         this._show('tutorialBox', run.tutorial);
         this._hudBest();
+        if (Game.stationsOn()) CollapseStations.dress(this, run);
         TG.runStarted();
     }
 
@@ -273,6 +282,7 @@ class Game {
             this.mode = 'over';
             this.overIn = typeof COLLAPSE_OVER_DELAY_SEC !== 'undefined' ? COLLAPSE_OVER_DELAY_SEC : 0.7;
             if (run.tutorial) return;     // neither the record nor the table: _showOver sends it back to its step
+            if (/** @type {any} */ (run).stations) return;     // a variant to compare: its runs stay out of the record and the table
             if (run.meters > this.best) {
                 this.best = run.meters;
                 this.newRecord = true;
@@ -301,7 +311,7 @@ class Game {
         if (run.tutorial) { this.start(run.retry()); return; }
         const why = run.reason ? Lang.t('reason.' + run.reason) : '';
         this._dialog(Lang.t(this.newRecord ? 'recordTitle' : 'overTitle'),
-            why + '\n' + Lang.t('result', { meters: run.meters, best: this.best }),
+            why + '\n' + Lang.t('result', { meters: run.meters, best: this.best }) + Game.stationsLine(run),
             [Lang.t('restart'), () => this.start()],
             run.canContinue && !this.adPending ? [Lang.t('continue'), () => this.continueForAd()] : null);
         this._show('overMenu', true);
@@ -430,6 +440,7 @@ class Game {
             this._set('tutorialText', (run.failed ? Lang.t('tutorial.retry') + ' ' : '') + Lang.t('tutorial.' + run.step.id));
             return;
         }
+        if (run.stations) { CollapseStations.hud(this, run); return; }
         const next = run.nextFork();
         this._show('hint', true);
         this._set('hint', run.ammo <= 0 ? Lang.t('noAmmo')

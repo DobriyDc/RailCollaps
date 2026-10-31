@@ -279,6 +279,42 @@ const Lang = {
     "percent": {
         "ru": "{value}%",
         "en": "{value}%"
+    },
+    "stationNext": {
+        "ru": "До станции {value} м",
+        "en": "Next station in {value} m"
+    },
+    "stationTitle": {
+        "ru": "Станция {value}",
+        "en": "Station {value}"
+    },
+    "stationGo": {
+        "ru": "Дальше · {value}",
+        "en": "Go on · {value}"
+    },
+    "stationsPassed": {
+        "ru": "Станций пройдено: {value}.",
+        "en": "Stations passed: {value}."
+    },
+    "station.ammo": {
+        "ru": "Патроны +{value} — {price}",
+        "en": "Ammo +{value} — {price}"
+    },
+    "station.shield": {
+        "ru": "Щит — {price}",
+        "en": "Shield — {price}"
+    },
+    "station.rescue": {
+        "ru": "Спасение — {price}",
+        "en": "Rescue — {price}"
+    },
+    "station.full.shield": {
+        "ru": "Щит — полон",
+        "en": "Shield — full"
+    },
+    "station.full.rescue": {
+        "ru": "Спасение — полно",
+        "en": "Rescue — full"
     }
 },
     bindings: {

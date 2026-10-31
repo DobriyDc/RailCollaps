@@ -1,0 +1,69 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:58653/?stations",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp\\claude\\C--Users-dobri-orca-workspaces-collapse-dev-stations\\8b3ad1dc-cc0e-41c9-9c11-71b57465526b\\scratchpad\\live-eval.js",
+  "evalResult": {
+    "state": "over",
+    "stage": 3,
+    "meters": 3089,
+    "money": 140,
+    "frames": 4173,
+    "shopSeen": 3,
+    "sec": 4,
+    "stops": [
+      {
+        "stage": 0,
+        "before": 85,
+        "after": 5,
+        "ammo": 18,
+        "shield": 1,
+        "rescue": 1
+      },
+      {
+        "stage": 1,
+        "before": 65,
+        "after": 65,
+        "ammo": 19,
+        "shield": 2,
+        "rescue": 1
+      },
+      {
+        "stage": 2,
+        "before": 140,
+        "after": 140,
+        "ammo": 15,
+        "shield": 1,
+        "rescue": 2
+      }
+    ],
+    "earned": [
+      85,
+      60,
+      75,
+      0
+    ],
+    "bought": 1,
+    "went": 3,
+    "plainBest": null,
+    "lint": {
+      "findings": [],
+      "stats": {
+        "meshes": 141,
+        "triangles": 4660,
+        "materials": 98,
+        "lights": 2
+      }
+    }
+  },
+  "errors": [],
+  "ok": true
+}
