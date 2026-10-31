@@ -84,6 +84,10 @@ const CollapseArt = {
 class CollapseScene {
     constructor(canvas) {
         this.canvas = canvas;
+        // The temporary switch (CollapseLook.js): without it the rig is null.
+        const pick = CollapseLook.current();
+        /** @type {CollapseLookRig | null} */
+        this.rig = pick.look ? new CollapseLookRig(pick.look) : null;
         this.view = World3D.createView({});
         const scene = this.scene = this.view.scene;
         this.engine = this.view.engine;
@@ -132,12 +136,13 @@ class CollapseScene {
         cam.maxZ = toTrain + CollapseScene.SEG * CollapseScene.BEHIND + 2000;
         this.ahead = Math.max(CollapseScene.AHEAD, Math.ceil(camZ / CollapseScene.SEG) + 1);
         this.slots = CollapseScene.BEHIND + this.ahead + 2;   // tunnel pieces: one per segment of the window
-        this.renderHeight = typeof COLLAPSE_RENDER_HEIGHT !== U ? COLLAPSE_RENDER_HEIGHT : 640;
+        this.renderHeight = (this.rig && this.rig.renderHeight) || (typeof COLLAPSE_RENDER_HEIGHT !== U ? COLLAPSE_RENDER_HEIGHT : 640);
 
         this._tex = new Map();
         this._mats = new Map();
         this._buildTunnel();
         this._buildTrain();
+        if (this.rig) this.rig.finish(this);
         /** @type {Map<number, any>} */
         this.segViews = new Map();
         /** @type {{ mesh: any, until: number }[]} */
@@ -191,6 +196,7 @@ class CollapseScene {
         m.emissiveTexture = t;
         m.diffuseColor = new BABYLON.Color3(0, 0, 0);
         m.specularColor = new BABYLON.Color3(0, 0, 0);
+        if (this.rig) m.metadata = { look: CollapseLook.kindOf(key) };
         this._mats.set(key, m);
         return m;
     }
@@ -208,6 +214,7 @@ class CollapseScene {
         // Blend: art with half-transparent pixels (decals, steam, sparks) — straight alpha blending.
         m.transparencyMode = blend ? BABYLON.Material.MATERIAL_ALPHABLEND : BABYLON.Material.MATERIAL_ALPHATEST;
         m.alphaCutOff = 0.5;
+        if (this.rig) m.metadata = { look: CollapseLook.kindOf(key) };
         this._mats.set(key, m);
         return m;
     }
@@ -309,6 +316,7 @@ class CollapseScene {
             const torch = this.sprite('torch', 'torch', CollapseArt.torch[0], 105, 210, false);
             torch.bakeTransformIntoVertices(BABYLON.Matrix.Translation(side * (W - 60), 250, 0));
             piece(torch, side, 'torch', [side * W, mid]);
+            if (this.rig) continue;     // the painted glow of a torch: a look has the real light instead
             const glow = BABYLON.MeshBuilder.CreatePlane('glow', { width: 400, height: 400 }, scene);
             glow.bakeTransformIntoVertices(BABYLON.Matrix.RotationY(side > 0 ? -Math.PI / 2 : Math.PI / 2).multiply(BABYLON.Matrix.Translation(side * (W - 4), 360, 0)));
             glow.material = this.spriteMat('glow', CollapseArt.tex.glow);
@@ -871,6 +879,7 @@ class CollapseScene {
 
         this._syncDemons(run, x);
         this._syncFx(x, this.train.position.y);
+        if (this.rig) this.rig.sync(run, pos, this.time, x, heat, this._shotUntil > this.time);
     }
 
     // Demons leap out of their wall toward the cab: at the start the sprite is half inside the
