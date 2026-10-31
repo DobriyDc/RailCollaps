@@ -1,0 +1,123 @@
+{
+  "version": 3,
+  "character": "furnace_mason_01",
+  "palette_source": "docs/STYLE.md",
+  "filter": "nearest",
+  "alpha": "0 or 255",
+  "canvas": [
+    160,
+    160
+  ],
+  "left_wall": "Mirror X; transform every anchor x to 159-x.",
+  "durations": "Art playback suggestions only; gameplay timing belongs to task 36.",
+  "frames": [
+    {
+      "id": "perch_00",
+      "phase": "perch",
+      "index": 0,
+      "file": "assets/sprites/demon_v3/perch_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        103,
+        134
+      ],
+      "duration_ms": 160,
+      "character": "furnace_mason_01",
+      "wall_contact": [
+        103,
+        134
+      ],
+      "gaze": "toward camera and screen left"
+    },
+    {
+      "id": "perch_01",
+      "phase": "perch",
+      "index": 1,
+      "file": "assets/sprites/demon_v3/perch_01.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        103,
+        134
+      ],
+      "duration_ms": 160,
+      "character": "furnace_mason_01",
+      "wall_contact": [
+        103,
+        134
+      ],
+      "gaze": "toward camera and screen left"
+    },
+    {
+      "id": "perch_02",
+      "phase": "perch",
+      "index": 2,
+      "file": "assets/sprites/demon_v3/perch_02.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        103,
+        134
+      ],
+      "duration_ms": 160,
+      "character": "furnace_mason_01",
+      "wall_contact": [
+        103,
+        134
+      ],
+      "gaze": "toward camera and screen left"
+    },
+    {
+      "id": "perch_03",
+      "phase": "perch",
+      "index": 3,
+      "file": "assets/sprites/demon_v3/perch_03.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        103,
+        134
+      ],
+      "duration_ms": 160,
+      "character": "furnace_mason_01",
+      "wall_contact": [
+        103,
+        134
+      ],
+      "gaze": "toward camera and screen left"
+    }
+  ]
+}
