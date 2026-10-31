@@ -107,6 +107,13 @@ Pitfalls:
 - `window.NAME` of a constant in the editor — `/** @type {any} */ (window).NAME`: the `Window`
   type has no constants.
 
+## World art (`tools/art/`)
+
+`node tools/art/check-art.mjs` — every PNG of the world_v3 and train_v3 manifests is on the palette of
+`docs/STYLE.md`, alpha 0/255, the manifest's size, not a scaled-up raster; `tests/art-gate.test.mjs` runs it in the
+gates. `node tools/art/make-train-mesh.mjs [--check]` writes `js/CollapseTrainMesh.js` from the train manifest: the
+manifest does not ship, the generated file does; do not edit it by hand.
+
 ## Tests (`tests/*.test.mjs`, `node --test`)
 
 Logic without 3D: `store` (Store with storage open and blocked), `terrain` (`heightAt` — nodes,

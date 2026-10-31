@@ -8,10 +8,11 @@ const look = () => loadScripts(['js/Constants.js', 'js/CollapseLook.js']).get('C
 
 test('сигнал не гаснет: таблички и подбираемое светятся сами, в темноте видно только освещаемое', () => {
   const L = look();
-  for (const key of ['sign-12-1-0', 'cross-sign', 'pickup-ammo', 'pickup-shield', 'shield']) assert.equal(L.kindOf(key), L.GLOW, key);
-  for (const key of ['wall-lo', 'vault-L', 'rib-R', 'ballast', 'track', 'sw:assets/x.png']) assert.equal(L.kindOf(key), L.SOLID, key);
-  for (const key of ['loco', 'demon-1', 'demon1', 'brick:a', 'rail-bit:b']) assert.equal(L.kindOf(key), L.SPRITE, key);
-  for (const key of ['lava', 'lava-channel', 'flow', 'torch', 'collapse-front', 'crack-wall:a']) assert.equal(L.kindOf(key), L.FIRE, key);
+  for (const key of ['sign-12-1-0', 'badge-cross', 'pickup-ammo', 'pickup-shield', 'shield']) assert.equal(L.kindOf(key), L.GLOW, key);
+  for (const key of ['wall', 'vault', 'rib', 'ballast', 'track', 'track-gap-front', 'sw:assets/x.png', 'train:0']) assert.equal(L.kindOf(key), L.SOLID, key);
+  for (const key of ['demon-1', 'demon1', 'brick:a', 'rail-bit:b', 'bg-arches', 'bg-column', 'bg-rubble']) assert.equal(L.kindOf(key), L.SPRITE, key);
+  for (const key of ['lava', 'lava-channel', 'flow', 'torch', 'bg-void', 'crack-wall:a']) assert.equal(L.kindOf(key), L.FIRE, key);
+  assert.equal(L.kindOf('lamp:21'), L.GLOW, 'фара и топка светятся сами');
 });
 
 test('палитра: 32 цвета, таблица не выводит ничего кроме них и сохраняет цвет палитры', () => {

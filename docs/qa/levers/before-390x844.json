@@ -1,0 +1,30 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:50645/",
+  "browser": "msedge.exe",
+  "waitMs": 2200,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-world/90e1ba18-60cb-4c37-a21e-6dfa2458b069/scratchpad/lever-before.js",
+  "evalResult": {
+    "at": 37,
+    "f": {
+      "from": 2,
+      "to": 1
+    },
+    "log": [
+      {
+        "t": "before",
+        "lever": "assets/px/switch/waiting.png",
+        "points": "sw:assets/textures/switches/switch_right_points_straight.png"
+      }
+    ]
+  },
+  "errors": [],
+  "ok": true
+}

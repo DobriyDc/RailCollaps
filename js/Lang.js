@@ -49,8 +49,8 @@ const Lang = {
         "en": "A shot costs a cartridge; no ammo, no switching. Shoot and grab the crate"
     },
     "tutorial.cross": {
-        "ru": "Красный крест: на этой полосе впереди опасность. Иконки внизу покажут какая",
-        "en": "A red cross: danger ahead on this lane. The icons below show what is coming"
+        "ru": "На этой полосе впереди опасность. Иконки внизу покажут какая",
+        "en": "Danger ahead on this lane. The icons below show what is coming"
     },
     "tutorial.gap": {
         "ru": "Провал: колеи нет. Сверни заранее, иначе поезд упадёт",
