@@ -1,0 +1,37 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:50957/",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-board/96105e62-1322-4539-911b-fe712f8afc56/scratchpad/board-full.js",
+  "evalResult": {
+    "box": [
+      43,
+      68,
+      317,
+      572
+    ],
+    "viewport": [
+      360,
+      640
+    ],
+    "inside": true,
+    "overRestartHits": "boardDim",
+    "overPauseHits": "boardDim",
+    "pageOfMe": 1,
+    "afterPrev": 0,
+    "firstName": "Константин Константинопо",
+    "clipRight": 244,
+    "metersLeft": 259,
+    "clipClearOfMeters": true
+  },
+  "errors": [],
+  "ok": true
+}

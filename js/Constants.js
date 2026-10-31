@@ -74,6 +74,7 @@ const GAME_STEP_SEC = 0.35;             // s: between footstep sounds while the 
 
 // --- RAIL LINK: COLLAPSE (CollapseRules.js — the run, CollapseScene.js — the tunnel). Distance is
 // counted in track SEGMENTS; the first numbers of the prototype, tuned in playtests (GDD v3 §8) ---
+const COLLAPSE_RULES_VERSION = 1;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
 const COLLAPSE_SEG_METERS = 10;         // m of distance shown per segment
 const COLLAPSE_SPEED = 2.2;             // segments/s: train speed at the start
 const COLLAPSE_SPEED_GROWTH = 0.0025;   // segments/s added per segment travelled
@@ -187,6 +188,21 @@ const COLLAPSE_CAM_V20_Z = 1467;
 const COLLAPSE_CAM_V20_LOOK_Z = 178;
 const COLLAPSE_CAM_V20_FRONT_Y = -350;
 const COLLAPSE_CAM_V20_SIGN = 0.3;
+
+// --- LEADERBOARD: the shared table on a Cloudflare Worker (js/Leaderboard.js — the game,
+// server/leaderboard — the function; tools/build-worker.mjs bakes these numbers into it, so a change
+// of a server number needs a new deploy). A season of the table is COLLAPSE_RULES_VERSION. ---
+const LEADERBOARD_URL = '';             // address of the function without a trailing slash; '' — no requests, no table button
+const LEADERBOARD_TIMEOUT_MS = 6000;    // ms: the game drops a request after this long
+const LEADERBOARD_PAGE_ROWS = 10;       // rows on one page of the table screen
+const LEADERBOARD_TOP = 100;            // rows the function returns
+const LEADERBOARD_AUTH_MAX_SEC = 86400; // s: oldest initData the function accepts; Telegram signs it once when the app opens, so this outlives a session
+const LEADERBOARD_RATE_MAX = 20;        // requests of one player per window
+const LEADERBOARD_RATE_WINDOW_SEC = 60; // s: the window of that limit
+const LEADERBOARD_MAX_STEPS = 36000;    // fixed steps a replay may take (10 min of run): the bound of the function's CPU
+const LEADERBOARD_MAX_LOG = 4000;       // actions in one journal
+const LEADERBOARD_MAX_BODY = 65536;     // bytes of one score request
+const LEADERBOARD_NAME_MAX = 24;        // characters of a shown name
 
 // --- CAMERA (CameraControl.js): target on the map, azimuth, pitch and zoom. Zoom is
 // screen px per world px at the look-at point; distance is derived from it. Flight

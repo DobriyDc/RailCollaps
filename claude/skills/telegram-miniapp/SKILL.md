@@ -149,9 +149,10 @@ or unavailable ad resolves `false` and the run ends normally — never block the
 - Before Telegram, the game is checked in the Claude Desktop browser pane (skill
   `claude/skills/verify/SKILL.md`) with `TG.inside === false`.
 
-## Validating initData on a server (later: leaderboard, purchases)
+## Validating initData on a server
 
-The MVP has no server and trusts nothing from Telegram. When one appears:
+The leaderboard function does this (`server/leaderboard/src/index.js`, `Authorization: tma <initData>`);
+`TG.initData` is the only way the game reads the string. Purchases, when they come, follow the same rules:
 
 - **Bot token (HMAC).** `secret_key = HMAC_SHA256(key = "WebAppData", message = bot_token)`;
   `data_check_string` = every received field except `hash`, URL-decoded, sorted by key,
@@ -163,7 +164,9 @@ The MVP has no server and trusts nothing from Telegram. When one appears:
   `signature` with Telegram's public key (production
   `e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d`, test
   `40055058a4ee38156a06562e52eece92a771bcd8346a8c4615cb7376eddf72ec`).
-- Check `auth_date` freshness with a window we choose (minutes for a score submit).
+- Check `auth_date` freshness with a window we choose. Telegram signs initData once, when the app
+  opens, and never refreshes it: a window shorter than a session rejects honest runs. The leaderboard
+  uses `LEADERBOARD_AUTH_MAX_SEC` (a day).
 - Never accept a score as a bare number: the client sends the run seed and its input log, the
   server replays the deterministic rules and computes the score itself.
 

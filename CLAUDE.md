@@ -135,6 +135,7 @@ js/               код игры — классические скрипты:
                   hold(pose)/release() — вид мимо контроллера камеры, frames(n), bench()/benchToggle(), setMode()
   UI.js           интерфейс игры: DOM поверх холста по UI_LAYOUT; UI.get(id).setText/setValue/show/onClick,
                   якоря 9 точек, масштаб по UI_REF_HEIGHT
+  Leaderboard.js  общая таблица: отправка конца забега и экран таблицы; без LEADERBOARD_URL и вне Telegram ни запроса, ни кнопки
   Game.js         пример игры: место игровой логики (кнопка Run — клипы idle/run персонажа, шкала
                   энергии, шаги; персонаж берётся по тегу, не по имени)
   main.js         вход: World3D.init -> Location3D(LOCATION_OBJECTS) -> камера -> UI -> Game -> цикл кадров; window.app
@@ -144,10 +145,12 @@ assets/           ground_texture_{g,d,s}.jpg — трава, песок, сне�
                   (character.glb — персонаж с клипами idle/run, генерируется tools/make-character.mjs);
                   sounds/*.wav, *.mp3 — звуки (step.wav генерируется tools/make-sounds.mjs)
 tools/            dev-server.mjs, build.mjs, asset-scan.mjs, zip.mjs, check.mjs (типы + тесты),
+                  build-worker.mjs (функция таблицы одним файлом из js/ и server/),
                   make-character.mjs, make-sounds.mjs, export-unity.mjs (перенос в Unity)
 tsconfig.json     проверка типов игры; globals.d.ts — window.app, material.arcToon, записи объектов
 tests/            *.test.mjs (node --test): Store, heightAt, сканер ассетов, запись редактора, звук,
                   экспорт в Unity, связка скиллов; browser-scripts.mjs — скрипты игры в node:vm + пустышка Babylon
+server/           leaderboard — функция Cloudflare Worker + схема D1 (в билд игры не едет), деплой — README там же
 unity/            com.arcengine.runtime — пакет Unity (C#-двойник API набора и импорт сцены; в билд игры
                   не едет); export-unity.mjs копирует его в Unity-проект, скилл unity-port
 _utils/editor/    редактор (в билд не едет): server.mjs (HTTP), save.mjs (запись Constants.js,

@@ -310,6 +310,11 @@ class CollapseRun {
         this.continued = false;
         this.invuln = 0;              // s of grace after a continue
         this.time = 0;
+        this.steps = 0;               // fixed steps done: the journal's clock
+        // The player's actions, for the replay on the server: [step, 'f', at, to] a fork, [step, 'd', side]
+        // a demon, [step, 'c'] the continue. The rules write it and never read it.
+        /** @type {any[][]} */
+        this.log = [];
         this._acc = 0;
         this._seg = 0;                // the last segment the nose entered
         this._taken = new Set();      // segment indexes whose pickup is taken
@@ -388,6 +393,7 @@ class CollapseRun {
         if (this.ammo <= 0) { this.events.push({ type: 'no-ammo' }); return 'no-ammo'; }
         this.ammo--;
         this.armed = { at, from: this.lane, to };
+        this.log.push([this.steps, 'f', at, to]);
         this.events.push({ type: 'shot', at, to });
         return 'ok';
     }
@@ -405,6 +411,7 @@ class CollapseRun {
         const d = ds.reduce((a, b) => (b.t < a.t ? b : a));
         this.ammo--;
         this.demons.splice(this.demons.indexOf(d), 1);
+        this.log.push([this.steps, 'd', d.side]);
         this.events.push({ type: 'demon-killed', at: d.at, side: d.side });
         return 'ok';
     }
@@ -427,6 +434,7 @@ class CollapseRun {
     }
 
     _step(h) {
+        this.steps++;
         this.time += h;
         this.boost = Math.max(0, this.boost - h);
         this.slow = Math.max(0, this.slow - h);
@@ -453,7 +461,7 @@ class CollapseRun {
         this.front = Math.max(this.front + this.frontSpeed() * h, this.pos - this.c.frontMaxGap);
         if (this.pos - this.front <= CollapseRules.TRAIN_LEN) this._hit('caught');
 
-        for (const d of [...this.demons]) {
+        if (this.demons.length) for (const d of [...this.demons]) {    // no copy per step: the server replays them all
             if (this.state !== 'run') break;
             if (d.wait > 0) {
                 d.wait -= h;
@@ -533,6 +541,7 @@ class CollapseRun {
     continueRun() {
         if (!this.canContinue) return false;
         this.continued = true;
+        this.log.push([this.steps, 'c']);
         this.state = 'run';
         this.invuln = this.c.continueGrace;
         this.front = Math.min(this.front, this.pos - this.c.continueGap);
@@ -547,5 +556,29 @@ class CollapseRun {
         const e = this.events;
         this.events = [];
         return e;
+    }
+
+    // The run again from its seed and journal (run.log), on the server: the ended run, or null when
+    // no run could have written that journal — an entry out of order or after the end, an action the
+    // rules refuse, a run that has not ended by maxSteps.
+    static replay(seed, log, maxSteps) {
+        const run = new CollapseRun(seed);
+        const advance = to => {
+            while (run.state === 'run' && run.steps < to) {
+                run._step(CollapseRules.STEP);
+                run.events.length = 0;
+            }
+        };
+        for (const [step, act, a, b] of log) {
+            if (!Number.isInteger(step) || step < run.steps || step > maxSteps) return null;
+            advance(step);
+            if (run.steps !== step) return null;
+            const done = act === 'f' ? run.shoot(a, b) === 'ok'
+                : act === 'd' ? run.shootDemon(a) === 'ok'
+                : act === 'c' && run.continueRun();
+            if (!done) return null;
+        }
+        advance(maxSteps);
+        return run.state === 'over' ? run : null;
     }
 }

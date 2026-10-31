@@ -5,6 +5,8 @@
 /_utils/.backups/
 /build/
 /dist/
+/server/leaderboard/dist/
+/server/leaderboard/.wrangler/
 
 # Студия: журналы приборов и снимки — локальные.
 /.studio/health.jsonl

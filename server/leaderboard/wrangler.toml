@@ -1,0 +1,14 @@
+# The leaderboard function of Rail Link: Collapse. Steps of a deploy: README.md next to this file.
+# No secrets here: the bot token is set with `wrangler secret put BOT_TOKEN`.
+name = "collapse-leaderboard"
+main = "dist/worker.js"
+compatibility_date = "2026-10-01"
+
+# dist/worker.js is not in the repository: it is built from js/ on every deploy.
+[build]
+command = "node ../../tools/build-worker.mjs"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "collapse-leaderboard"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"

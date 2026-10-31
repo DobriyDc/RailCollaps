@@ -31,6 +31,8 @@ class Game {
 
         const pause = UI.get('pauseBtn');
         if (pause) pause.onClick(() => this.setPaused(this.mode !== 'pause'));
+        const board = UI.get('boardBtn');
+        if (board) board.onClick(() => { if (!this.adPending) Leaderboard.open(); });
         this.scene.canvas.addEventListener('pointerdown', e => this.tap(e));
 
         // The first frame shows the tunnel behind the intro dialog.
@@ -185,6 +187,7 @@ class Game {
                 TG.haptic('record');
             } else this.newRecord = false;
             this._hudBest();
+            Leaderboard.submit(run);
         }
     }
 
@@ -210,6 +213,7 @@ class Game {
             if (second) c.setText(second[0]).onClick(second[1]);
             c.show(!!second);
         }
+        this._show('boardBtn', Leaderboard.enabled);
         this._show('hint', false);
         this._show('over', true);
     }
