@@ -34,6 +34,7 @@ const EDITOR_API_VERSION = 21;
 const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
 const MODELS_DIR = path.join(ROOT, 'assets', 'models');
 const EDITOR_URL_PATH = '/_utils/editor/';
+const TUNER_URL_PATH = '/_utils/tuner/';
 
 const argPort = process.argv.find(a => /^--port=\d+$/.test(a));
 const PORT_BASE = argPort ? Number(argPort.split('=')[1]) : 8090;
@@ -243,6 +244,9 @@ const server = http.createServer(async (req, res) => {
   }
   if (pathname === EDITOR_URL_PATH || pathname === EDITOR_URL_PATH.slice(0, -1)) {
     pathname = EDITOR_URL_PATH + 'index.html';
+  }
+  if (pathname === TUNER_URL_PATH || pathname === TUNER_URL_PATH.slice(0, -1)) {
+    pathname = TUNER_URL_PATH + 'index.html';
   }
 
   const filePath = path.join(ROOT, pathname);

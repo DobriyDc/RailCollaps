@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Настройщик Collapse</title>
+    <link rel="icon" href="data:,">
+    <style>
+        :root {
+            --bg: #181419; --panel: #211c24; --line: #5b4a42; --text: #f7eed2; --dim: #b5b9b4;
+            --accent: #ff7f22; --bad: #ff5a4a; --chip: #2a2224;
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.35 system-ui, "Segoe UI", Roboto, sans-serif; }
+        body { display: flex; height: 100dvh; overflow: hidden; }
+        #stage { flex: 1; min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 0; }
+        #phone { position: relative; overflow: hidden; background: #000; outline: 1px solid var(--line); flex: none; }
+        #game { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; display: block; }
+        #panel { width: 400px; flex: none; display: flex; flex-direction: column; background: var(--panel); border-left: 1px solid var(--line); min-height: 0; }
+        #sheet { display: none; }
+        #fixed { padding: 10px 12px; border-bottom: 1px solid var(--line); }
+        #numbers { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 14px; min-height: 96px; }
+        .num { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; color: var(--dim); }
+        .num b { color: var(--text); font-weight: 600; white-space: nowrap; }
+        .num.bad, .num.bad b { color: var(--bad); }
+        #latency { font-size: 11px; color: var(--dim); margin-top: 4px; min-height: 15px; }
+        #scroll { flex: 1; overflow-y: auto; min-height: 0; padding: 8px 12px 12px; overscroll-behavior: contain; }
+        .row { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+        button { font: inherit; color: var(--text); background: var(--chip); border: 1px solid #5b6569; border-radius: 4px; padding: 7px 10px; min-height: 36px; cursor: pointer; }
+        button.on, button.main { background: var(--accent); border-color: var(--accent); color: #181419; font-weight: 600; }
+        button[hidden], textarea[hidden] { display: none; }
+        details { border-top: 1px solid #3a3034; padding: 6px 0; }
+        summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+        .slider { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; margin: 8px 0; font-size: 12px; color: var(--dim); overflow-wrap: anywhere; }
+        .slider output { color: var(--text); font-weight: 600; }
+        .slider input { grid-column: 1 / -1; width: 100%; height: 26px; margin: 0; accent-color: var(--accent); }
+        #copybox { width: 100%; height: 110px; margin-top: 6px; background: var(--bg); color: var(--text); border: 1px solid var(--line); font: 12px/1.3 ui-monospace, Consolas, monospace; }
+        #toast { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); background: #000; color: var(--text); border: 1px solid var(--accent); padding: 6px 12px; border-radius: 4px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 5; max-width: 90vw; }
+        #toast.on { opacity: 1; }
+        @media (max-width: 760px) {
+            body { flex-direction: column; }
+            #stage { flex: 1 1 0; }
+            #panel { width: 100%; height: 46dvh; border-left: 0; border-top: 1px solid var(--line); }
+            body.folded #panel { height: 150px; }
+            body.folded #scroll { display: none; }
+            #sheet { display: block; width: 100%; min-height: 26px; padding: 2px; border: 0; border-radius: 0; color: var(--dim); background: var(--chip); font-size: 12px; }
+            #fixed { padding: 6px 12px; }
+            #numbers { min-height: 0; gap: 0 10px; }
+            .num { font-size: 11px; }
+            .num span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        }
+    </style>
+</head>
+<body>
+    <main id="stage"><div id="phone"><iframe id="game" title="Игра"></iframe></div></main>
+    <aside id="panel">
+        <button id="sheet" type="button">Панель: свернуть или открыть</button>
+        <div id="fixed">
+            <div id="numbers"></div>
+            <div id="latency">Загрузка игры…</div>
+        </div>
+        <div id="scroll">
+            <div class="row">
+                <button id="pause" type="button">Пауза</button>
+                <button id="left" type="button" aria-label="Полоса влево">←</button>
+                <button id="right" type="button" aria-label="Полоса вправо">→</button>
+                <button id="demon" type="button">Показать демона</button>
+            </div>
+            <div id="master"></div>
+            <details open>
+                <summary>Экран</summary>
+                <div class="row" id="sizes"></div>
+                <div class="row" id="insets"></div>
+            </details>
+            <details open><summary>Интерфейс</summary><div id="interface"></div></details>
+            <details><summary>Камера</summary><div id="camera"></div></details>
+            <div class="row">
+                <button id="copy" class="main" type="button">Скопировать настройки</button>
+                <button id="save" class="main" type="button" hidden>Сохранить в код</button>
+                <button id="reset" type="button">Сброс к коду</button>
+            </div>
+            <textarea id="copybox" readonly hidden></textarea>
+        </div>
+    </aside>
+    <div id="toast" role="status"></div>
+
+    <script src="../editor/schema.js"></script>
+    <script src="tuner-core.js"></script>
+    <script src="tuner.js"></script>
+</body>
+</html>
