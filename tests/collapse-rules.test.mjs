@@ -61,6 +61,38 @@ test('уклонист с честными патронами доезжает �
   assert.ok(dodger.every(r => r.over) && t <= 240, `медиана уклониста ${t.toFixed(0)} с, живых ${dodger.filter(r => !r.over).length}`);
 });
 
+// Card 28: the shop sells accelerators and rescues. Pickups on 20 seeds × 3000 segments before it.
+const PICKUPS_BEFORE = { ammo: 905, boost: 506, slow: 443, shield: 402, rescue: 401 }, DODGER_BEFORE = 4759.5;
+
+test('ускорители и спасения в 2,5–3 раза реже, остальное на тех же местах, забег проходим (20 зёрен × 3000)', () => {
+  const p = page(), CollapseTrack = p.get('CollapseTrack');
+  const count = { ammo: 0, boost: 0, slow: 0, shield: 0, rescue: 0 };
+  for (let seed = 1; seed <= 20; seed++) {
+    const t = new CollapseTrack(seed);
+    for (let i = 0; i < 3000; i++) for (const kind of t.seg(i).pickup) if (kind) count[kind]++;
+  }
+  for (const kind of ['ammo', 'slow', 'shield']) assert.equal(count[kind], PICKUPS_BEFORE[kind], kind);
+  for (const kind of ['boost', 'rescue']) {
+    const rarer = PICKUPS_BEFORE[kind] / count[kind];
+    assert.ok(rarer >= 2.5 && rarer <= 3, `${kind}: реже в ${rarer.toFixed(2)} раза`);
+  }
+  const m = median(series(p, dodgeBot).map(r => r.m));
+  assert.ok(m >= 0.8 * DODGER_BEFORE, `медиана уклониста ${m} м, было ${DODGER_BEFORE}`);
+});
+
+test('объезд без ресурса — тихий участок без стрелок: табличка не ведёт в никуда', () => {
+  const p = page(), t = new (p.get('CollapseTrack'))(1);
+  let lanes = 0, trips = 0;
+  for (let i = 0; i < 3000; i++) {
+    const s = t.seg(i);
+    if (s.kind !== 'detour') continue;
+    lanes += s.pickup.filter(Boolean).length;
+    trips += s.forks.length / 2;
+  }
+  assert.ok(lanes > 10, `объездов ${lanes}`);
+  assert.equal(trips, lanes, 'на объезд две стрелки и один ресурс');
+});
+
 test('замедлитель на поздней дистанции подпускает обвал до поезда, в начале — нет', () => {
   const p = page();
   const CollapseRun = p.get('CollapseRun');

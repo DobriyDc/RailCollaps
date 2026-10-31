@@ -22,6 +22,7 @@ const CollapseRules = {
     TRAIN_LEN: 0.35,       // segments: the collapse behind catches the train at this gap
     FORK_RANGE: 6,         // segments: how far ahead the next fork can be armed
     PICKUPS: ['ammo', 'boost', 'slow', 'shield', 'rescue'],
+    PICKUP_DICE: ['ammo', 'boost', null, 'slow', 'shield', 'rescue', null],   // the faces of cfg().pickupOdds; null — nothing
 
     // All run numbers (Constants.js, GDD v3 §8) with defaults: Constants.js may be older than the code.
     cfg() {
@@ -72,10 +73,12 @@ const CollapseRules = {
             hazardReward: typeof COLLAPSE_HAZARD_REWARD !== U ? COLLAPSE_HAZARD_REWARD : 0.5,
             pickupOdds: [
                 typeof COLLAPSE_ODDS_AMMO !== U ? COLLAPSE_ODDS_AMMO : 0.34,
-                typeof COLLAPSE_ODDS_BOOST !== U ? COLLAPSE_ODDS_BOOST : 0.2,
+                typeof COLLAPSE_ODDS_BOOST !== U ? COLLAPSE_ODDS_BOOST : 0.07,
+                typeof COLLAPSE_ODDS_BOOST_EMPTY !== U ? COLLAPSE_ODDS_BOOST_EMPTY : 0.13,
                 typeof COLLAPSE_ODDS_SLOW !== U ? COLLAPSE_ODDS_SLOW : 0.16,
                 typeof COLLAPSE_ODDS_SHIELD !== U ? COLLAPSE_ODDS_SHIELD : 0.15,
-                typeof COLLAPSE_ODDS_RESCUE !== U ? COLLAPSE_ODDS_RESCUE : 0.15,
+                typeof COLLAPSE_ODDS_RESCUE !== U ? COLLAPSE_ODDS_RESCUE : 0.05,
+                typeof COLLAPSE_ODDS_RESCUE_EMPTY !== U ? COLLAPSE_ODDS_RESCUE_EMPTY : 0.1,
             ],
         };
     },
@@ -171,13 +174,14 @@ class CollapseTrack {
         for (let i = 0; i < n; i++) this._push(collapseSegment('calm'));
     }
 
+    // A pickup kind, or null: the dice left this place empty.
     _pickupKind() {
         const w = this.cfg.pickupOdds;
         let r = this.rand() * w.reduce((a, b) => a + b, 0);
         for (let i = 0; i < w.length; i++) {
-            if ((r -= w[i]) < 0) return CollapseRules.PICKUPS[i];
+            if ((r -= w[i]) < 0) return CollapseRules.PICKUP_DICE[i];
         }
-        return 'ammo';
+        return null;
     }
 
     _pattern() {
@@ -254,17 +258,24 @@ class CollapseTrack {
         return lane;
     }
 
-    // A side trip for a pickup on a calm stretch: fork out, the crossing, pickup, fork back.
+    // A side trip for a pickup on a calm stretch: fork out, the crossing, pickup, fork back. No pickup —
+    // the same stretch without forks: a sign that leads to nothing is a dishonest signal.
     _detour() {
         const a = this._int(CollapseRules.LANES);
         const side = CollapseRules.neighbors(a);
         const b = side[this._int(side.length)];
+        const kind = this._pickupKind();
+        if (!kind) {
+            this._calm(CollapseRules.SWITCH_LEAD + 2);
+            this.lastFork = this.segs.length - 1;    // the rest of the track as if the detour stood here
+            return;
+        }
         const out = collapseSegment('detour');
         out.forks.push({ from: a, to: b });
         this._push(out);
         for (let i = 1; i < CollapseRules.SWITCH_LEAD; i++) this._push(collapseSegment('detour'));
         const mid = collapseSegment('detour');
-        mid.pickup[b] = this._pickupKind();
+        mid.pickup[b] = kind;
         this._push(mid);
         const back = collapseSegment('detour');
         back.forks.push({ from: b, to: a });

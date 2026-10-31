@@ -75,7 +75,7 @@ const GAME_STEP_SEC = 0.35;             // s: between footstep sounds while the 
 
 // --- RAIL LINK: COLLAPSE (CollapseRules.js — the run, CollapseScene.js — the tunnel). Distance is
 // counted in track SEGMENTS; the first numbers of the prototype, tuned in playtests (GDD v3 §8) ---
-const COLLAPSE_RULES_VERSION = 1;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
+const COLLAPSE_RULES_VERSION = 2;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
 const COLLAPSE_SEG_METERS = 10;         // m of distance shown per segment
 const COLLAPSE_SPEED = 2.2;             // segments/s: train speed at the start
 const COLLAPSE_SPEED_GROWTH = 0.0025;   // segments/s added per segment travelled
@@ -119,10 +119,12 @@ const COLLAPSE_LAVA_GROWTH = 0.1;       // lava share added at full difficulty; 
 const COLLAPSE_HAZARD_MID = 0.5;        // share of hazards on the middle lane (1/3 — every lane alike); a train without taps stays there
 const COLLAPSE_HAZARD_REWARD = 0.5;     // chance of a pickup on a safe lane beside a gap of 2+ segments
 const COLLAPSE_ODDS_AMMO = 0.34;        // relative odds of each pickup kind
-const COLLAPSE_ODDS_BOOST = 0.2;
+const COLLAPSE_ODDS_BOOST = 0.07;       // the shop sells accelerators and rescues (card 28): on the track 2.5–3 times rarer than before
+const COLLAPSE_ODDS_BOOST_EMPTY = 0.13; // odds of nothing where an accelerator used to fall: the other kinds keep their places and their rate per km
 const COLLAPSE_ODDS_SLOW = 0.16;
 const COLLAPSE_ODDS_SHIELD = 0.15;
-const COLLAPSE_ODDS_RESCUE = 0.15;
+const COLLAPSE_ODDS_RESCUE = 0.05;
+const COLLAPSE_ODDS_RESCUE_EMPTY = 0.1; // the same where a rescue used to fall
 const COLLAPSE_OVER_DELAY_SEC = 0.7;    // s: the fall plays before the end-of-run dialog
 const COLLAPSE_ICON_LEAD_SEC = 1;       // s: an icon over the bottom plate lights at least this long before its object enters the frame
 const COLLAPSE_RENDER_HEIGHT = 360;     // px: the tunnel is rendered this tall and scaled up without smoothing (docs/STYLE.md)
