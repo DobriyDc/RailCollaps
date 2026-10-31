@@ -387,8 +387,14 @@ class Game {
         return '';
     }
 
+    // The next fork is the way out of a hazard on the train's lane and is not armed yet.
+    _forkDanger(run) {
+        const f = run.nextFork();
+        return !!f && !f.armed && !run.forkSafe(f.at, run.lane);
+    }
+
     _portrait(run) {
-        const urgent = run.ammo <= 0 || run.pos - run.front < run.c.frontMaxGap * (typeof UI_PORTRAIT_TENSE_GAP !== 'undefined' ? UI_PORTRAIT_TENSE_GAP : 0.5) || run.demons.some(d => d.wait <= 0) || !!(run.nextFork() && !run.nextFork().armed);
+        const urgent = run.ammo <= 0 || run.pos - run.front < run.c.frontMaxGap * (typeof UI_PORTRAIT_TENSE_GAP !== 'undefined' ? UI_PORTRAIT_TENSE_GAP : 0.5) || run.demons.some(d => d.wait <= 0) || this._forkDanger(run);
         const state = this.portraitLeft > 0 || run.state !== 'run' ? this.portrait : urgent ? 'tense' : 'calm';
         const el = UI.get('portrait');
         if (el && this._hudText.get('portrait') !== state) {

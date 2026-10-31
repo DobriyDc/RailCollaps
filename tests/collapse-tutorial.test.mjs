@@ -201,6 +201,7 @@ test('портрет: все шесть кадров приходят из со�
   const states = ['calm', 'tense', 'joy', 'hit', 'fire', 'fall'];
   for (const state of states) {
     g.start();
+    if (state === 'calm') g.run.nextFork = () => null;   // the seed is random: no fork in reach
     if (state === 'tense') g.run.ammo = 0;
     if (state === 'joy') {
       let at = 1;
