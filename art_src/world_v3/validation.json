@@ -1,5 +1,5 @@
 {
-  "game_png_count": 13,
+  "game_png_count": 23,
   "outside_palette_colours": 0,
   "files": [
     {
@@ -18,6 +18,7 @@
         "X": 0,
         "Y": 0
       },
+      "attachment_mismatches": null,
       "sha256": "04d7cf515978410953ac8f3e3190672271ab12eb5722ab8df07dacb1c84f1e7b"
     },
     {
@@ -36,6 +37,7 @@
         "X": 0,
         "Y": 0
       },
+      "attachment_mismatches": null,
       "sha256": "fee758e439fd568aa5f0eaea9884a2d1ed96624a235f1a8281e3747e60a1d3af"
     },
     {
@@ -53,6 +55,7 @@
       "edge_mismatches": {
         "Y": 0
       },
+      "attachment_mismatches": null,
       "sha256": "7e876018e1c60ba373dd650bec2c9100fc1cbb564ec25e623b35fe8cebc0d6c7"
     },
     {
@@ -71,6 +74,7 @@
         "X": 0,
         "Y": 0
       },
+      "attachment_mismatches": null,
       "sha256": "d7ae3b01ce9d2881563d1f39567f14012a54449379bfe17778512ef1e1f292d4"
     },
     {
@@ -88,6 +92,7 @@
       "edge_mismatches": {
         "Y": 0
       },
+      "attachment_mismatches": null,
       "sha256": "d91c5996c21792399c507774b14a14c8d5e407732a9fc7ef2d3537f999e0d19e"
     },
     {
@@ -106,6 +111,7 @@
         "X": 0,
         "Y": 0
       },
+      "attachment_mismatches": null,
       "sha256": "a1feaa89a33c9132be7e881a61bd8eb0e099e82e64c61254bc697327f51e4b61"
     },
     {
@@ -121,6 +127,7 @@
         255
       ],
       "edge_mismatches": {},
+      "attachment_mismatches": null,
       "sha256": "8f0dac15b34b29c9d4a27471601852a7a338adf09cdfe01470ef2a984bd8397f"
     },
     {
@@ -136,6 +143,7 @@
         255
       ],
       "edge_mismatches": {},
+      "attachment_mismatches": null,
       "sha256": "a973bce1e6f779fce1175c65c861dd3907a3e5c52cbfce38772a3290453e839f"
     },
     {
@@ -151,6 +159,7 @@
         255
       ],
       "edge_mismatches": {},
+      "attachment_mismatches": null,
       "sha256": "cf045489ac3232fba358b238feffcf2d821a7eb88a86543b47530359bff09988"
     },
     {
@@ -167,6 +176,7 @@
         255
       ],
       "edge_mismatches": {},
+      "attachment_mismatches": null,
       "sha256": "4a28a7401ee24f2fbf33d5667384cc4d7bb7025fcc6b9429c04a5c7b4d1d039b"
     },
     {
@@ -183,6 +193,7 @@
         255
       ],
       "edge_mismatches": {},
+      "attachment_mismatches": null,
       "sha256": "c3cfbd26bcb0dbf424a6adac634ac4517d02a32eba8e3483d82d751529a1c1ce"
     },
     {
@@ -199,6 +210,7 @@
         255
       ],
       "edge_mismatches": {},
+      "attachment_mismatches": null,
       "sha256": "af89dc1f3ac3e1ff248c42839b026a998e69e17cce707c18908b6bca882f07c5"
     },
     {
@@ -215,7 +227,178 @@
         255
       ],
       "edge_mismatches": {},
+      "attachment_mismatches": null,
       "sha256": "ebe7ecc002279aef0126b461d60963d7fa83b93875b6e8f47db0f71fa5e7390e"
+    },
+    {
+      "file": "assets/sprites/world/gap_front.png",
+      "size": [
+        128,
+        128
+      ],
+      "colours": 8,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "attachment_mismatches": 0,
+      "sha256": "64744d6350813526ced965965e786a06217ec342504b0f851d0a8c064fdb9262"
+    },
+    {
+      "file": "assets/sprites/world/gap_back.png",
+      "size": [
+        128,
+        128
+      ],
+      "colours": 8,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "attachment_mismatches": 0,
+      "sha256": "e513a90db8fb2504076d26aebb65c80c55d46a0f7e55cdc17a9f0e5dcfec3805"
+    },
+    {
+      "file": "assets/sprites/world/chunk_brick_01.png",
+      "size": [
+        64,
+        64
+      ],
+      "colours": 6,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "attachment_mismatches": null,
+      "sha256": "82f43d5c58f798d8af519d723df5f2e377c4f66c95131cd1deccd23c922e61af"
+    },
+    {
+      "file": "assets/sprites/world/chunk_brick_02.png",
+      "size": [
+        64,
+        64
+      ],
+      "colours": 5,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "attachment_mismatches": null,
+      "sha256": "86ae0c753f0afe81409ba5fc58fbb73067e621dc19fdd6348a9c46c0f75eff33"
+    },
+    {
+      "file": "assets/sprites/world/chunk_brick_03.png",
+      "size": [
+        64,
+        64
+      ],
+      "colours": 6,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "attachment_mismatches": null,
+      "sha256": "c36aaecf909ef1d540f9f34574a1c66a2816172be4345b7d7ed102fdcc498fc9"
+    },
+    {
+      "file": "assets/sprites/world/chunk_brick_04.png",
+      "size": [
+        64,
+        64
+      ],
+      "colours": 5,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "attachment_mismatches": null,
+      "sha256": "1c1e5cce23dfa32c42deef39af25ba641d3baf03bb35b1c76bc39c68fc7f0c84"
+    },
+    {
+      "file": "assets/sprites/world/chunk_brick_05.png",
+      "size": [
+        64,
+        64
+      ],
+      "colours": 5,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "attachment_mismatches": null,
+      "sha256": "9f872db74cb6d4816d42822755ac9f86594f5f44e69bd889832fdeb33bbde427"
+    },
+    {
+      "file": "assets/sprites/world/chunk_brick_06.png",
+      "size": [
+        64,
+        64
+      ],
+      "colours": 5,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "attachment_mismatches": null,
+      "sha256": "dda8b4a80456f26a04f3ce8c89358da79ee55e7bb60ad2ff0b9d54f6e96e7b6b"
+    },
+    {
+      "file": "assets/sprites/world/chunk_vault_01.png",
+      "size": [
+        96,
+        96
+      ],
+      "colours": 7,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "attachment_mismatches": null,
+      "sha256": "9c0cb328591c1b14b97f635f4f29265383fa68664b31c2f0d6263befb519cca3"
+    },
+    {
+      "file": "assets/sprites/world/chunk_rail_sleepers.png",
+      "size": [
+        96,
+        96
+      ],
+      "colours": 8,
+      "outside_palette_colours": 0,
+      "outside_palette_pixels": 0,
+      "alpha_levels": [
+        0,
+        255
+      ],
+      "edge_mismatches": {},
+      "attachment_mismatches": null,
+      "sha256": "fcc370deb912010dce762eda5016a28caebc3a7816d704a9a57ea367d42b6276"
     }
   ],
   "lava_loop_exact": true

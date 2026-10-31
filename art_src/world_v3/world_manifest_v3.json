@@ -281,6 +281,229 @@
       "wrap": "clamp",
       "alpha_mode": "test >= 0.5",
       "recommended_render_width_px": 384
+    },
+    {
+      "file": "assets/sprites/world/gap_front.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        1.0
+      ],
+      "purpose": "Передний край провала",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "surface": "horizontal floor plane, overhead UV; no billboard",
+      "solid_edge": "bottom",
+      "attachment_exact_band_px": 28,
+      "rail_centers_u_px": [
+        32,
+        96
+      ],
+      "wrap": "clamp"
+    },
+    {
+      "file": "assets/sprites/world/gap_back.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.0
+      ],
+      "purpose": "Задний край провала",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "surface": "horizontal floor plane, overhead UV; no billboard",
+      "solid_edge": "top",
+      "attachment_exact_band_px": 28,
+      "rail_centers_u_px": [
+        32,
+        96
+      ],
+      "wrap": "clamp"
+    },
+    {
+      "file": "assets/sprites/world/chunk_brick_01.png",
+      "size": [
+        64,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Отдельный падающий кирпичный блок",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "source": "drafts/bg_03_column.png",
+      "source_crop_logical": [
+        100,
+        82,
+        135,
+        114
+      ],
+      "wrap": "clamp"
+    },
+    {
+      "file": "assets/sprites/world/chunk_brick_02.png",
+      "size": [
+        64,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Отдельный падающий кирпичный блок",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "source": "drafts/bg_03_column.png",
+      "source_crop_logical": [
+        76,
+        128,
+        102,
+        157
+      ],
+      "wrap": "clamp"
+    },
+    {
+      "file": "assets/sprites/world/chunk_brick_03.png",
+      "size": [
+        64,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Отдельный падающий кирпичный блок",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "source": "drafts/bg_03_column.png",
+      "source_crop_logical": [
+        144,
+        117,
+        176,
+        157
+      ],
+      "wrap": "clamp"
+    },
+    {
+      "file": "assets/sprites/world/chunk_brick_04.png",
+      "size": [
+        64,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Отдельный падающий кирпичный блок",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "source": "drafts/bg_03_column.png",
+      "source_crop_logical": [
+        119,
+        168,
+        143,
+        192
+      ],
+      "wrap": "clamp"
+    },
+    {
+      "file": "assets/sprites/world/chunk_brick_05.png",
+      "size": [
+        64,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Отдельный падающий кирпичный блок",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "source": "drafts/bg_03_column.png",
+      "source_crop_logical": [
+        154,
+        184,
+        185,
+        220
+      ],
+      "wrap": "clamp"
+    },
+    {
+      "file": "assets/sprites/world/chunk_brick_06.png",
+      "size": [
+        64,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Отдельный падающий кирпичный блок",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "source": "drafts/bg_03_column.png",
+      "source_crop_logical": [
+        156,
+        65,
+        174,
+        83
+      ],
+      "wrap": "clamp"
+    },
+    {
+      "file": "assets/sprites/world/chunk_vault_01.png",
+      "size": [
+        96,
+        96
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Отделившийся клин кирпичного свода с каменным ребром",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "source": "drafts/bg_02_arches.png",
+      "source_crop_logical": [
+        292,
+        12,
+        365,
+        90
+      ],
+      "wrap": "clamp"
+    },
+    {
+      "file": "assets/sprites/world/chunk_rail_sleepers.png",
+      "size": [
+        96,
+        96
+      ],
+      "frames": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "purpose": "Обломок рельса с двумя сломанными шпалами",
+      "seamless_axes": [],
+      "mode": "RGBA",
+      "wrap": "clamp"
     }
   ]
 }

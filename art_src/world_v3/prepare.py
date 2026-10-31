@@ -108,12 +108,69 @@ def backgrounds():
         board.paste(Image.open(TEX/f'{name}.png'),(414+i*128,708))
     board.save(SRC/'previews/reference_and_layers.png')
 
+def collapse_parts():
+    material=[2,3,4,6,7,19,20,21]
+    track=Image.open(TEX/'track.png').convert('RGBA')
+    edges=[]
+    for name,solid in [('gap_front','bottom'),('gap_back','top')]:
+        raw=draft(name)
+        if solid=='top':
+            # Align generated 51px rail gauge to the established 64px gauge.
+            raw=raw.resize((160,128),Image.Resampling.NEAREST).crop((16,0,144,128))
+        im=quant(raw,material)
+        # Attach with exact existing tile pixels; irregular material boundary stays inside intact floor.
+        for x in range(128):
+            threshold=32+(x//7%5-2) if solid=='top' else 96+(x//7%5-2)
+            for y in range(128):
+                if (solid=='top' and y<threshold) or (solid=='bottom' and y>threshold):
+                    im.putpixel((x,y),track.getpixel((x,y)))
+        save(im,name,SPR,'Передний край провала' if solid=='bottom' else 'Задний край провала',pivot=[.5,1.0 if solid=='bottom' else 0.0],surface='horizontal floor plane, overhead UV; no billboard',solid_edge=solid,attachment_exact_band_px=28,rail_centers_u_px=[32,96],wrap='clamp')
+        edges.append(im)
+    # Isolated components from the same column draft: no repainting or invented geometry.
+    column=quant(draft('bg_03_column',(384,256)),material)
+    boxes=[(100,82,135,114),(76,128,102,157),(144,117,176,157),(119,168,143,192),(154,184,185,220),(156,65,174,83)]
+    chunks=[]
+    for i,box in enumerate(boxes):
+        cut=column.crop(box); im=Image.new('RGBA',(64,64),(*PAL[0],0)); im.paste(cut,((64-cut.width)//2,(64-cut.height)//2))
+        save(im,f'chunk_brick_{i+1:02d}',SPR,'Отдельный падающий кирпичный блок',source='drafts/bg_03_column.png',source_crop_logical=list(box),wrap='clamp')
+        chunks.append(im)
+    # Large detached keystone wedge, mask only its original connected component.
+    arches=quant(draft('bg_02_arches',(384,256)),material)
+    cut=arches.crop((292,12,365,90)); mask=cut.getchannel('A'); candidates={(x,y) for y in range(cut.height) for x in range(cut.width) if mask.getpixel((x,y))}
+    groups=[]
+    while candidates:
+        p=candidates.pop(); todo=[p]; group=[p]
+        while todo:
+            x,y=todo.pop()
+            for p in [(x-1,y),(x+1,y),(x,y-1),(x,y+1)]:
+                if p in candidates:candidates.remove(p);todo.append(p);group.append(p)
+        groups.append(group)
+    keep=set(max(groups,key=len))
+    for y in range(cut.height):
+        for x in range(cut.width):
+            if (x,y) not in keep:cut.putpixel((x,y),(*PAL[0],0))
+    im=Image.new('RGBA',(96,96),(*PAL[0],0)); im.paste(cut,(11,9))
+    save(im,'chunk_vault_01',SPR,'Отделившийся клин кирпичного свода с каменным ребром',source='drafts/bg_02_arches.png',source_crop_logical=[292,12,365,90],wrap='clamp');chunks.append(im)
+    im=quant(draft('chunk_rail',(96,96)),material)
+    save(im,'chunk_rail_sleepers',SPR,'Обломок рельса с двумя сломанными шпалами',wrap='clamp');chunks.append(im)
+    board=Image.new('RGB',(768,448),PAL[0])
+    for i,im in enumerate(edges):
+        board.paste(im.resize((256,256),Image.Resampling.NEAREST),(i*384,0),im.resize((256,256),Image.Resampling.NEAREST))
+        # Adjacent intact texture shows how the attachment row joins its material.
+        patch=track.resize((128,128),Image.Resampling.NEAREST)
+        board.paste(patch,(i*384+256,0))
+    for i,im in enumerate(chunks):
+        small=Image.new('RGBA',(96,96),(*PAL[0],0));small.paste(im,((96-im.width)//2,(96-im.height)//2))
+        board.paste(small,(i*96,288),small)
+    board.save(SRC/'previews/edges_and_chunks.png')
+
 def finish():
     sheet=Image.new('RGB',(1152,1152))
     for i,name in enumerate(NAMES):sheet.paste(Image.open(SRC/'previews'/f'{name}_3x3.png'),((i%3)*384,(i//3)*384))
     sheet.save(SRC/'previews/all_tiles_3x3.png')
+    Image.open(TEX/'track.png').resize((512,512),Image.Resampling.NEAREST).save(SRC/'previews/track_detail.png')
     m=dict(version=3,reference='art_src/keyframes_v1/01_furnace_390x844.png',sampling='nearest; binary alpha; no bloom; no baked scene lighting',pixel_grid='1 authored pixel = 1 logical render pixel at largest intended screen size',uv_axes={'X':'U / width','Y':'V / height / along track'},assets=ENTRIES)
-    (SRC/'world_manifest_v3.json').write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    (SRC/'world_manifest_v3.json').write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     check()
 
 def check():
@@ -124,6 +181,12 @@ def check():
         assert not outside,(p,outside)
         assert set(rgba.getchannel('A').getdata()) <= {0,255},p
         assert list(im.size)==e['size'],p
+        attachment_mismatches=None
+        if 'solid_edge' in e:
+            track=Image.open(TEX/'track.png').convert('RGBA')
+            ys=range(28) if e['solid_edge']=='top' else range(100,128)
+            attachment_mismatches=sum(rgba.getpixel((x,y))!=track.getpixel((x,y)) for y in ys for x in range(128))
+            assert attachment_mismatches==0,(p,attachment_mismatches)
         seam={}
         for axis in e['seamless_axes']:
             # Only unshifted magma has equal first/last samples; shifted frames retain the same periodic field.
@@ -132,10 +195,10 @@ def check():
             b=im.crop((im.width-1,0,im.width,im.height)) if axis=='X' else im.crop((0,im.height-1,im.width,im.height))
             seam[axis]=sum(x!=y for x,y in zip(a.getdata(),b.getdata()))
             assert seam[axis]==0,(p,seam)
-        rows.append(dict(file=e['file'],size=list(im.size),colours=len({c[:3] for c in colors if c[3]}),outside_palette_colours=len(outside),outside_palette_pixels=sum(c[:3] not in PAL for c in rgba.getdata()),alpha_levels=sorted(set(rgba.getchannel('A').getdata())),edge_mismatches=seam,sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
+        rows.append(dict(file=e['file'],size=list(im.size),colours=len({c[:3] for c in colors if c[3]}),outside_palette_colours=len(outside),outside_palette_pixels=sum(c[:3] not in PAL for c in rgba.getdata()),alpha_levels=sorted(set(rgba.getchannel('A').getdata())),edge_mismatches=seam,attachment_mismatches=attachment_mismatches,sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
     frames=[Image.open(TEX/f'lava_{i}.png') for i in range(4)]
     assert all(ImageChops.difference(ImageChops.offset(frames[i],0,32),frames[(i+1)%4]).getbbox() is None for i in range(4))
-    (SRC/'validation.json').write_text(json.dumps(dict(game_png_count=len(rows),outside_palette_colours=0,files=rows,lava_loop_exact=True),ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    (SRC/'validation.json').write_text(json.dumps(dict(game_png_count=len(rows),outside_palette_colours=0,files=rows,lava_loop_exact=True),ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print(f'{len(rows)} game PNGs; outside palette: 0; binary alpha; lava loop exact')
 
 if __name__=='__main__':
@@ -143,4 +206,5 @@ if __name__=='__main__':
     else:
         tiles()
         if (SRC/'drafts/bg_04_rubble.png').exists():backgrounds()
+        if (SRC/'drafts/chunk_rail.png').exists():collapse_parts()
         finish()
