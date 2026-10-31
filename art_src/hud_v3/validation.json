@@ -1,0 +1,219 @@
+{
+  "files": 16,
+  "outside_palette_colors": 0,
+  "bottom_panel_css_height": 144,
+  "viewport": [
+    390,
+    844
+  ],
+  "files_checked": [
+    {
+      "file": "assets/ui/hud_v3/bar_bottom.png",
+      "size": [
+        195,
+        72
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "e307e67dc96fe20a5d750296aa877a7e4cdf5f0aebbc3febf625a8e24cdf2da8"
+    },
+    {
+      "file": "assets/ui/hud_v3/bar_top.png",
+      "size": [
+        195,
+        30
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "c9bf8727c5e6d4572cc6f0dd7a7fa8f2ae2df25f2c52ba629e115ce928c00439"
+    },
+    {
+      "file": "assets/ui/hud_v3/counter_socket.png",
+      "size": [
+        46,
+        24
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "090944082b41fea525cd1297d72020e2b3c2af3699fff1a1cc29a793e6e83cc2"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_0.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "9c714d624fffbc2ba719523b357a258e44451754c6baa7d6ef04716c322e5168"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_1.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "d8d8e753a9a04652f5a6ae4481f0933f6d654a2af8c8946791008a862370f1b8"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_2.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "77dffb5a526370fbfb85a0f452568f651c44a97f7ef4f8ae85aac8b062930a51"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_3.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "35e1509a7740527094eac40e0341280e29220c345b6d76bf37016274f0a2c301"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_4.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "da1f6c04ccfea5c5b2faba9a81b284a513ace53d33a27c8a41f33942a9c07140"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_5.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "8a8a1f4c5089c0ba5d9d748356a98904bc1ec7048f3fd82fb3b94d063378b888"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_6.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "95d8f50609c24b66167dd44ab8af32609e02b0d0eda1b625e7651cbba6d779f2"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_7.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "7ddfcb2036046a6d2c96485e34951f5d1d20f3c2bba682c33a2ba5f3e682c1d5"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_8.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "a97357b4b485b7c5753652651996d3c4087cae3b383324acae58510164ccf786"
+    },
+    {
+      "file": "assets/ui/hud_v3/digit_9.png",
+      "size": [
+        12,
+        18
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "317bfc298a26c776a120e3d936b41195a41e8b540c5281805008c30f1c8ad746"
+    },
+    {
+      "file": "assets/ui/hud_v3/gauge_face.png",
+      "size": [
+        58,
+        58
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "ef1bd3b4457b73de24b3b5bffbabe3f00a9780ffc491e65de5609d21f0b5278a"
+    },
+    {
+      "file": "assets/ui/hud_v3/gauge_needle.png",
+      "size": [
+        10,
+        36
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "6c5ec59a7f09863723177870c05c23c32d05b21277a14d4244e4db77af188dad"
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_frame.png",
+      "size": [
+        58,
+        58
+      ],
+      "outside_palette_colors": 0,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "sha256": "f645fae8455e02dc27c3903e6d301af26247260ffdfdfca367e50441a2d58db0"
+    }
+  ]
+}

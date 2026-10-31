@@ -1,0 +1,11 @@
+{
+  "tool": "built-in image_gen",
+  "reference": "art_src/keyframes_v1/01_furnace_390x844.png",
+  "drafts": [
+    {
+      "file": "drafts/hardware.png",
+      "prompt": "Use case: stylized-concept. Create one original production sprite sheet of modular steam locomotive HUD hardware, closely matching the cast iron and tarnished brass dashboard in the provided reference (reference is style only; no train scenery). Landscape canvas 1536x1024, transparent background. Crisp low resolution pixel art, heavy near-black outlines, stepped edges, matte soot iron, restrained rust, brass highlights, NO soft glow or gradients, NO words or logos. Flat front view. Strict layout with generous empty gutters: top row y=40..220 contains ONE long shallow blank riveted top HUD bar x=64..1472; second row y=280..500 contains ONE long blank riveted lower HUD bar x=64..1472. Both panels have 4 chunky corner bolts, dark quiet empty uninterrupted centers, straight top and bottom rails, symmetrical industrial gothic bevels, no controls baked inside. Bottom row y=580..960: at x=80..440 ONE circular brass pressure gauge face, black dial and radial tick marks, no needle and no numerals; at x=560..920 ONE empty circular brass portrait frame with transparent hole, NOT a second gauge; at x=1060..1240 ONE separate long brass gauge needle pointing straight UP with circular hub near its lower end; at x=1300..1450 ONE small rectangular riveted counter socket. NO human face yet. Palette inspiration: 0b0a10 17121b 241a24 33232b 47303a 5c3a35 7a4a3a 96604a b07a58 cc9c74 e8d0a8 2a3038 465058 6c7880. Keep the brass aged and the iron nearly black; large simple silhouettes with just a few nicks."
+    }
+  ],
+  "postprocess": "Python 3.12 / Pillow: explicit masks, nearest grid, exact palette, hand-drawn original 5x7 numeral skeletons with brass faces and iron shadows; no runtime code."
+}
