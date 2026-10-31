@@ -1,0 +1,246 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:56562/",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp/menu-settings-qa.js",
+  "evalResult": {
+    "transitions": [
+      "main/modes/back/shop/back/settings/back/endless/pause/resume/end/menu",
+      "tutorial disabled",
+      "live RU/EN HUD and pause",
+      "iframe fresh page reload: language and music/sfx retained",
+      "real WebAudio channel gains checked",
+      "live leaderboard statuses and units RU/EN"
+    ],
+    "measurements": [
+      {
+        "lang": "ru",
+        "screen": "mainScreen",
+        "buttons": [
+          {
+            "id": "menuStart",
+            "width": 323.5333251953125,
+            "height": 65.64443969726562,
+            "textMargin": 134.6040802001953
+          },
+          {
+            "id": "menuSettings",
+            "width": 323.5333251953125,
+            "height": 65.64443969726562,
+            "textMargin": 108.10084533691406
+          },
+          {
+            "id": "menuShop",
+            "width": 323.5333251953125,
+            "height": 65.64447021484375,
+            "textMargin": 119.63993835449219
+          }
+        ]
+      },
+      {
+        "lang": "ru",
+        "screen": "modeScreen",
+        "buttons": [
+          {
+            "id": "modeTutorial",
+            "width": 323.5333251953125,
+            "height": 65.64443969726562,
+            "textMargin": 74.61925506591797
+          },
+          {
+            "id": "modeEndless",
+            "width": 323.5333251953125,
+            "height": 65.64443969726562,
+            "textMargin": 63.08019256591797
+          },
+          {
+            "id": "modeBack",
+            "width": 323.5333251953125,
+            "height": 65.6444091796875,
+            "textMargin": 132.0032196044922
+          }
+        ]
+      },
+      {
+        "lang": "ru",
+        "screen": "settingsScreen",
+        "buttons": [
+          {
+            "id": "musicMinus",
+            "width": 65.64444732666016,
+            "height": 65.64443969726562,
+            "textMargin": 25.495834350585938
+          },
+          {
+            "id": "musicPlus",
+            "width": 65.64443969726562,
+            "height": 65.64443969726562,
+            "textMargin": 25.495819091796875
+          },
+          {
+            "id": "sfxMinus",
+            "width": 65.64444732666016,
+            "height": 65.64443969726562,
+            "textMargin": 25.495834350585938
+          },
+          {
+            "id": "sfxPlus",
+            "width": 65.64443969726562,
+            "height": 65.64443969726562,
+            "textMargin": 25.495819091796875
+          },
+          {
+            "id": "languageRU",
+            "width": 154.73333740234375,
+            "height": 65.6444091796875,
+            "textMargin": 32.51084899902344
+          },
+          {
+            "id": "languageEN",
+            "width": 154.7333221435547,
+            "height": 65.6444091796875,
+            "textMargin": 24.92803955078125
+          },
+          {
+            "id": "settingsBack",
+            "width": 323.5333251953125,
+            "height": 65.64447021484375,
+            "textMargin": 132.0032196044922
+          }
+        ]
+      },
+      {
+        "lang": "ru",
+        "screen": "shopScreen",
+        "buttons": [
+          {
+            "id": "shopBack",
+            "width": 323.5333251953125,
+            "height": 65.6444091796875,
+            "textMargin": 132.0032196044922
+          }
+        ]
+      },
+      {
+        "lang": "en",
+        "screen": "mainScreen",
+        "buttons": [
+          {
+            "id": "menuStart",
+            "width": 323.5333251953125,
+            "height": 65.64443969726562,
+            "textMargin": 138.98158264160156
+          },
+          {
+            "id": "menuSettings",
+            "width": 323.5333251953125,
+            "height": 65.64443969726562,
+            "textMargin": 122.97341918945312
+          },
+          {
+            "id": "menuShop",
+            "width": 323.5333251953125,
+            "height": 65.64447021484375,
+            "textMargin": 137.22325134277344
+          }
+        ]
+      },
+      {
+        "lang": "en",
+        "screen": "modeScreen",
+        "buttons": [
+          {
+            "id": "modeTutorial",
+            "width": 323.5333251953125,
+            "height": 65.64443969726562,
+            "textMargin": 93.97925567626953
+          },
+          {
+            "id": "modeEndless",
+            "width": 323.5333251953125,
+            "height": 65.64443969726562,
+            "textMargin": 99.49235534667969
+          },
+          {
+            "id": "modeBack",
+            "width": 323.5333251953125,
+            "height": 65.6444091796875,
+            "textMargin": 139.38453674316406
+          }
+        ]
+      },
+      {
+        "lang": "en",
+        "screen": "settingsScreen",
+        "buttons": [
+          {
+            "id": "musicMinus",
+            "width": 65.64444732666016,
+            "height": 65.64443969726562,
+            "textMargin": 25.495834350585938
+          },
+          {
+            "id": "musicPlus",
+            "width": 65.64443969726562,
+            "height": 65.64443969726562,
+            "textMargin": 25.495819091796875
+          },
+          {
+            "id": "sfxMinus",
+            "width": 65.64444732666016,
+            "height": 65.64443969726562,
+            "textMargin": 25.495834350585938
+          },
+          {
+            "id": "sfxPlus",
+            "width": 65.64443969726562,
+            "height": 65.64443969726562,
+            "textMargin": 25.495819091796875
+          },
+          {
+            "id": "languageRU",
+            "width": 154.73333740234375,
+            "height": 65.6444091796875,
+            "textMargin": 45.14887237548828
+          },
+          {
+            "id": "languageEN",
+            "width": 154.7333221435547,
+            "height": 65.6444091796875,
+            "textMargin": 37.38288879394531
+          },
+          {
+            "id": "settingsBack",
+            "width": 323.5333251953125,
+            "height": 65.64447021484375,
+            "textMargin": 139.38453674316406
+          }
+        ]
+      },
+      {
+        "lang": "en",
+        "screen": "shopScreen",
+        "buttons": [
+          {
+            "id": "shopBack",
+            "width": 323.5333251953125,
+            "height": 65.6444091796875,
+            "textMargin": 139.38453674316406
+          }
+        ]
+      }
+    ],
+    "dictionaryKeys": 56,
+    "missing": 0
+  },
+  "errors": [],
+  "ok": true
+}

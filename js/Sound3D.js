@@ -59,6 +59,8 @@ const Sound3D = {
     /** @type {{ x: number, y: number, h: number, azimuth: number } | null} */
     listener: null,          // where sounds are heard from; null — no camera yet: no fading
     muted: false,
+    /** @type {Record<string, number>} */
+    channelVolumes: {},
     /** @type {SoundHandle | null} */
     _music: null,
     _warned: false,
@@ -114,8 +116,15 @@ const Sound3D = {
         if (!this.ctx) return;
         const c = this.cfg(), unit = (v) => Math.max(0, Math.min(1, Number(v) || 0));
         this.master.gain.value = this.muted ? 0 : unit(c.master);
-        this.buses.music.gain.value = unit(c.music);
-        this.buses.sfx.gain.value = unit(c.sfx);
+        this.buses.music.gain.value = unit(this.channelVolumes.music ?? c.music);
+        this.buses.sfx.gain.value = unit(this.channelVolumes.sfx ?? c.sfx);
+    },
+
+    // User settings override only the selected channel; they survive deferred audio init and mute.
+    setChannelVolume(channel, value) {
+        if (!this.CHANNELS.includes(channel)) return;
+        this.channelVolumes[channel] = Math.max(0, Math.min(1, Number(value) || 0));
+        this.applyConstants();
     },
 
     setMuted(on) {
