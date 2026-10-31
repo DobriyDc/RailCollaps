@@ -13,7 +13,50 @@
       144
     ],
     "max_css_height": 150,
-    "headroom_css": 6
+    "headroom_css": 6,
+    "placements_art_px": {
+      "gauge_face": [
+        7,
+        7
+      ],
+      "gauge_needle": [
+        31,
+        7
+      ],
+      "portrait": [
+        74,
+        13
+      ],
+      "portrait_frame": [
+        69,
+        7
+      ],
+      "shield_socket": [
+        139,
+        10
+      ],
+      "rescue_socket": [
+        139,
+        39
+      ]
+    }
+  },
+  "camera2_preview": {
+    "file": "previews/hud_camera2_390x844.png",
+    "scene_source": "docs/qa/default/play-390x844.png",
+    "scene_preserved_rect": [
+      0,
+      78,
+      390,
+      622
+    ],
+    "top_css_rect": [
+      0,
+      0,
+      390,
+      78
+    ],
+    "live_integration": false
   },
   "assets": [
     {
@@ -169,14 +212,10 @@
         }
       ],
       "pivot": [
-        5.0,
-        18.0
-      ],
-      "purpose": "Separate upward needle; place hub at gauge [29,30]",
-      "rotation_pivot": [
         5,
         30
       ],
+      "purpose": "Separate upward needle; place hub at gauge [29,30]",
       "angle_degrees": [
         -130,
         130
@@ -669,6 +708,807 @@
         5,
         6
       ]
+    },
+    {
+      "id": "icon_ammo",
+      "file": "assets/ui/hud_v3/icon_ammo.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "HUD symbol: ammo",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ]
+    },
+    {
+      "id": "icon_shield",
+      "file": "assets/ui/hud_v3/icon_shield.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "HUD symbol: shield",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ]
+    },
+    {
+      "id": "icon_rescue",
+      "file": "assets/ui/hud_v3/icon_rescue.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "HUD symbol: rescue",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ]
+    },
+    {
+      "id": "icon_record",
+      "file": "assets/ui/hud_v3/icon_record.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "HUD symbol: record",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ]
+    },
+    {
+      "id": "icon_distance",
+      "file": "assets/ui/hud_v3/icon_distance.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "HUD symbol: distance",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ]
+    },
+    {
+      "id": "icon_gap",
+      "file": "assets/ui/hud_v3/icon_gap.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "HUD symbol: gap",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ]
+    },
+    {
+      "id": "icon_lava",
+      "file": "assets/ui/hud_v3/icon_lava.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "HUD symbol: lava",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ]
+    },
+    {
+      "id": "icon_demon",
+      "file": "assets/ui/hud_v3/icon_demon.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "HUD symbol: demon",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ]
+    },
+    {
+      "id": "icon_boost",
+      "file": "assets/ui/hud_v3/icon_boost.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "HUD symbol: boost",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ]
+    },
+    {
+      "id": "icon_slow",
+      "file": "assets/ui/hud_v3/icon_slow.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "HUD symbol: slow",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ]
+    },
+    {
+      "id": "icon_pause",
+      "file": "assets/ui/hud_v3/icon_pause.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "HUD symbol: pause",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ]
+    },
+    {
+      "id": "icon_settings",
+      "file": "assets/ui/hud_v3/icon_settings.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "HUD symbol: settings",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ]
+    },
+    {
+      "id": "pickup_boost",
+      "file": "assets/ui/hud_v3/pickup_boost.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "Incoming pickup: boost",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ],
+      "symbol": "icon_boost"
+    },
+    {
+      "id": "pickup_slow",
+      "file": "assets/ui/hud_v3/pickup_slow.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "Incoming pickup: slow",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ],
+      "symbol": "icon_slow"
+    },
+    {
+      "id": "pickup_shield",
+      "file": "assets/ui/hud_v3/pickup_shield.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "Incoming pickup: shield",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ],
+      "symbol": "icon_shield"
+    },
+    {
+      "id": "pickup_ammo",
+      "file": "assets/ui/hud_v3/pickup_ammo.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "Incoming pickup: ammo",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ],
+      "symbol": "icon_ammo"
+    },
+    {
+      "id": "pickup_rescue",
+      "file": "assets/ui/hud_v3/pickup_rescue.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            24,
+            24
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        12.0,
+        12.0
+      ],
+      "purpose": "Incoming pickup: rescue",
+      "css_size": [
+        48,
+        48
+      ],
+      "minimum_verified_css": [
+        48,
+        48
+      ],
+      "symbol": "icon_rescue"
+    },
+    {
+      "id": "menu_panel_normal",
+      "file": "assets/ui/hud_v3/menu_panel_normal.png",
+      "size": [
+        160,
+        220
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            160,
+            220
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        80.0,
+        110.0
+      ],
+      "purpose": "Menu panel: normal",
+      "nine_slice": [
+        14,
+        9,
+        14,
+        9
+      ],
+      "content_insets": [
+        14,
+        9,
+        14,
+        9
+      ],
+      "css_size": [
+        320,
+        440
+      ],
+      "text_layer": "DOM, localized, not baked",
+      "state": "normal"
+    },
+    {
+      "id": "menu_button_normal",
+      "file": "assets/ui/hud_v3/menu_button_normal.png",
+      "size": [
+        138,
+        28
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            138,
+            28
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        69.0,
+        14.0
+      ],
+      "purpose": "Menu button: normal",
+      "nine_slice": [
+        14,
+        9,
+        14,
+        9
+      ],
+      "content_insets": [
+        14,
+        9,
+        14,
+        9
+      ],
+      "css_size": [
+        276,
+        56
+      ],
+      "text_layer": "DOM, localized, not baked",
+      "state": "normal"
+    },
+    {
+      "id": "menu_panel_pressed",
+      "file": "assets/ui/hud_v3/menu_panel_pressed.png",
+      "size": [
+        160,
+        220
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            160,
+            220
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        80.0,
+        110.0
+      ],
+      "purpose": "Menu panel: pressed",
+      "nine_slice": [
+        14,
+        9,
+        14,
+        9
+      ],
+      "content_insets": [
+        14,
+        9,
+        14,
+        9
+      ],
+      "css_size": [
+        320,
+        440
+      ],
+      "text_layer": "DOM, localized, not baked",
+      "state": "pressed"
+    },
+    {
+      "id": "menu_button_pressed",
+      "file": "assets/ui/hud_v3/menu_button_pressed.png",
+      "size": [
+        138,
+        28
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            138,
+            28
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        69.0,
+        14.0
+      ],
+      "purpose": "Menu button: pressed",
+      "nine_slice": [
+        14,
+        9,
+        14,
+        9
+      ],
+      "content_insets": [
+        14,
+        9,
+        14,
+        9
+      ],
+      "css_size": [
+        276,
+        56
+      ],
+      "text_layer": "DOM, localized, not baked",
+      "state": "pressed"
+    },
+    {
+      "id": "menu_panel_disabled",
+      "file": "assets/ui/hud_v3/menu_panel_disabled.png",
+      "size": [
+        160,
+        220
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            160,
+            220
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        80.0,
+        110.0
+      ],
+      "purpose": "Menu panel: disabled",
+      "nine_slice": [
+        14,
+        9,
+        14,
+        9
+      ],
+      "content_insets": [
+        14,
+        9,
+        14,
+        9
+      ],
+      "css_size": [
+        320,
+        440
+      ],
+      "text_layer": "DOM, localized, not baked",
+      "state": "disabled"
+    },
+    {
+      "id": "menu_button_disabled",
+      "file": "assets/ui/hud_v3/menu_button_disabled.png",
+      "size": [
+        138,
+        28
+      ],
+      "frames": [
+        {
+          "rect": [
+            0,
+            0,
+            138,
+            28
+          ],
+          "duration_ms": null
+        }
+      ],
+      "pivot": [
+        69.0,
+        14.0
+      ],
+      "purpose": "Menu button: disabled",
+      "nine_slice": [
+        14,
+        9,
+        14,
+        9
+      ],
+      "content_insets": [
+        14,
+        9,
+        14,
+        9
+      ],
+      "css_size": [
+        276,
+        56
+      ],
+      "text_layer": "DOM, localized, not baked",
+      "state": "disabled"
     }
   ]
 }
