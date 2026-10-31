@@ -1,0 +1,193 @@
+{
+  "files": [
+    {
+      "file": "assets/sprites/demon_v3/ash_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 6522,
+      "sha256": "e8085cb85a976bd4334c63796bc21bbcdc46a988f4299e482dc9fd1ea8af6d89"
+    },
+    {
+      "file": "assets/sprites/demon_v3/ash_01.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 3267,
+      "sha256": "b0b3ee64ee3c327aa1fecfc4d9483173e1bcb9c22cf658f310c234436171030a"
+    },
+    {
+      "file": "assets/sprites/demon_v3/ash_02.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 1033,
+      "sha256": "cc732b2c8ef189e12e41383606b16832ca172d71c03352233b2ffd35fe666536"
+    },
+    {
+      "file": "assets/sprites/demon_v3/ash_03.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 126,
+      "sha256": "64a1635011b3204423233c2a6f57d6b8fc9a38f6d69aee73c93d343ea1494fa5"
+    },
+    {
+      "file": "assets/sprites/demon_v3/emerge_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 10922,
+      "sha256": "8fa43ec1d71069dd2c7699c7f57de226e77433cafbc08a8a1ba77dab90aa1a77"
+    },
+    {
+      "file": "assets/sprites/demon_v3/emerge_01.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 10922,
+      "sha256": "866e7a626beb4a1384e86ba21855202c97697de8687e02cfcdd5f2baec6b622c"
+    },
+    {
+      "file": "assets/sprites/demon_v3/emerge_02.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 11153,
+      "sha256": "44be0f66943a4db01aa08ef95dfb00cc822574f8d0c3cb35301bc594453059b9"
+    },
+    {
+      "file": "assets/sprites/demon_v3/jump_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 5099,
+      "sha256": "bbb81a99d6f6742a22dfc94ee044affa1670934e2a4889dcdfa38d161b2c5c7f"
+    },
+    {
+      "file": "assets/sprites/demon_v3/jump_01.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 5337,
+      "sha256": "84748f2f9b4ba58e0fd702ee65da3d934766dfef174c6161f6ceb0c374ee8212"
+    },
+    {
+      "file": "assets/sprites/demon_v3/jump_02.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 6932,
+      "sha256": "9bd4391baafe520e197a8ac1b04573531f50f4013b93552727a0bff9a7ec1e89"
+    },
+    {
+      "file": "assets/sprites/demon_v3/jump_03.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 9611,
+      "sha256": "9f652871b4a8aeeaaffbfd6199fd4ebe456d28172824de964245b2f9e4ecc287"
+    },
+    {
+      "file": "assets/sprites/demon_v3/perch_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 6165,
+      "sha256": "c790400ae1f30bcc725f464e48c3230aa81829d80332fd7027b83f46d41f1769"
+    },
+    {
+      "file": "assets/sprites/demon_v3/perch_01.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 6239,
+      "sha256": "6a2a84ff517e014ac510b8cf576f3f2ac6a0888978c7350d0bb7021cac094de5"
+    },
+    {
+      "file": "assets/sprites/demon_v3/perch_02.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 6274,
+      "sha256": "de9bc5b950a4c1e64e6a0c84c0abf476877fc7090cae4b4cde466c8204629997"
+    },
+    {
+      "file": "assets/sprites/demon_v3/perch_03.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 6239,
+      "sha256": "6a2a84ff517e014ac510b8cf576f3f2ac6a0888978c7350d0bb7021cac094de5"
+    },
+    {
+      "file": "assets/sprites/demon_v3/strike_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 11435,
+      "sha256": "2fadb2582a3b051305a864487c99ee13ba76a64efaade4f8155e67cf8aa972d7"
+    },
+    {
+      "file": "assets/sprites/demon_v3/strike_01.png",
+      "size": [
+        160,
+        160
+      ],
+      "colors_outside_palette": 0,
+      "nonbinary_alpha": 0,
+      "opaque_pixels": 8678,
+      "sha256": "bae2ff48f0ee1fcc3debe282a9eec17bdeea70d1922f7534bc6ef8c6bec58775"
+    }
+  ],
+  "frame_count": 17,
+  "colors_outside_palette": 0
+}
