@@ -24,10 +24,10 @@ function escapeBot(run, CollapseRules) {
 }
 
 // The dodger of the balance table: real ammo, leaves its lane only when it is unsafe ahead, shoots
-// every leaping demon, does not seek pickups.
+// every demon in the frame, does not seek pickups.
 function dodgeBot(run, CollapseRules) {
   escapeBot(run, CollapseRules);
-  for (const d of run.leaping()) run.shootDemon(d.side);
+  for (const d of run.shootable()) run.shootDemon(d.side);
 }
 
 // 20 seeds of one bot without a continue: distances (m) and times (s).
@@ -262,7 +262,7 @@ test('бот, уходящий от опасностей, проезжает 250
     run.ammo = 999;
     for (let f = 0; f < 60 * 300 && run.state === 'run' && run.pos < 250; f++) {
       escapeBot(run, CollapseRules);
-      if (run.leaping().length) run.shootDemon();
+      if (run.shootable().length) run.shootDemon();
       run.update(1 / 60);
     }
     assert.equal(run.state, 'run', `зерно ${seed}: упал (${run.reason}) на ${run.pos.toFixed(1)}`);
@@ -376,17 +376,17 @@ test('обвал позади сам догоняет медленный пое�
   for (let f = 0; f < 60 * 120 && run.state === 'run'; f++) {
     run.slow = 1;                                   // the decelerator never wears off
     escapeBot(run, CollapseRules);
-    if (run.leaping().length) run.shootDemon();
+    if (run.shootable().length) run.shootDemon();
     run.update(1 / 60);
   }
   assert.equal(run.state, 'over');
   assert.equal(run.reason, 'caught');
 });
 
-// Drive a run to its first leaping demon, invulnerable on the way (lava and gaps do not matter here).
+// Drive a run to its first demon in the frame, invulnerable on the way (lava and gaps do not matter here).
 function toDemon(run) {
   run.invuln = 1e9;
-  runFrames(run, 60 * 900, r => r.leaping().length > 0);
+  runFrames(run, 60 * 900, r => r.shootable().length > 0);
   run.invuln = 0;
 }
 
@@ -397,8 +397,8 @@ test('выстрел по демону стоит патрон; без патр�
   const run = new CollapseRun(4);
   run.ammo = 999;
   toDemon(run);
-  const d = run.leaping()[0];
-  assert.ok(d, 'демон прыгнул');
+  const d = run.shootable()[0];
+  assert.ok(d, 'демон в кадре');
   const ammo = run.ammo;
   assert.equal(run.shootDemon(d.side), 'ok');
   assert.equal(run.ammo, ammo - 1);
@@ -464,6 +464,66 @@ test('двойные демоны — не раньше COLLAPSE_DEMON_PAIR_FROM
   assert.ok(nearShare < farShare / 3, `пары не учащаются: ${nearShare.toFixed(2)} -> ${farShare.toFixed(2)}`);
 });
 
+// A run with demons on the next segment, stepped to the moment the nose enters it.
+function demonRun(p, demons) {
+  const run = new (p.get('CollapseRun'))(9);
+  run.ammo = 9;
+  run.track.seg(2).demon = demons;
+  while (!run.demons.length) run._step(p.get('CollapseRules').STEP);
+  return run;
+}
+const stepUntil = (p, run, done) => { let n = 0; while (!done(run) && n++ < 600) run._step(p.get('CollapseRules').STEP); return n; };
+
+test('демон: предупреждение, появление, прыжок; с первого кадра появления сбит, до него нет, без выстрела удар', () => {
+  const p = page(), R = p.get('CollapseRules');
+  const hidden = demonRun(p, [{ side: -1, lag: 0 }]);
+  const none = { gap: [9, 9, 9], lava: [9, 9, 9], pickup: [9, 9, 9] };
+  assert.deepEqual([...hidden.ahead(1, none)].map(i => [i.kind, i.side]), [['demon', -1]], 'предупреждение со своей стены');
+  assert.equal(hidden.shootDemon(-1), 'invalid', 'до появления тап не сбивает');
+  assert.equal(hidden.ammo, 9, 'и не тратит патрон');
+  const warned = stepUntil(p, hidden, r => r.shootable().length > 0);
+  assert.ok(warned * R.STEP >= hidden.c.demonWarn - 2 * R.STEP, `предупреждение ${warned} шагов`);
+  assert.deepEqual([...hidden.ahead(1, none)], [], 'в кадре предупреждения уже нет');
+  assert.ok(hidden.events.some(e => e.type === 'demon' && e.side === -1));
+  assert.equal(hidden.shootDemon(-1), 'ok', 'первый кадр появления');
+  assert.equal(hidden.demons.length, 0);
+
+  const idle = demonRun(p, [{ side: 1, lag: 0 }]);
+  idle.shield = 0;
+  stepUntil(p, idle, r => r.shootable().length > 0);
+  const perched = stepUntil(p, idle, r => r.shootable()[0].t <= r.c.demonSec);
+  const shown = perched + stepUntil(p, idle, r => r.state !== 'run');
+  assert.equal(idle.reason, 'demon');
+  assert.ok(perched * R.STEP >= idle.c.demonPerch - R.STEP, `стоит ${perched} шагов`);
+  assert.ok(shown * R.STEP >= 1.6 - 1e-9, `от появления до удара ${shown} шагов`);
+});
+
+test('пара: обе стены горят вместе, у второй появление со своим сдвигом, журнал не примет выстрела до появления', () => {
+  const p = page(), R = p.get('CollapseRules'), Run = p.get('CollapseRun');
+  const none = { gap: [9, 9, 9], lava: [9, 9, 9], pickup: [9, 9, 9] };
+  const run = demonRun(p, [{ side: -1, lag: 0 }, { side: 1, lag: 0.35 }]);
+  assert.deepEqual([...run.ahead(1, none)].map(i => i.side).sort(), [-1, 1], 'пара видна как пара');
+  stepUntil(p, run, r => r.shootable().length > 0);
+  assert.deepEqual([...run.shootable()].map(d => d.side), [-1]);
+  assert.deepEqual([...run.ahead(1, none)].map(i => i.side), [1], 'вторая стена горит до своего появления');
+  const lag = stepUntil(p, run, r => r.shootable().length > 1);
+  assert.ok(Math.abs(lag * R.STEP - 0.35) <= 2 * R.STEP, `сдвиг ${lag} шагов`);
+
+  // The journal of a run that shoots a demon in its first frame replays; the same shot a step before
+  // the demon shows was never possible.
+  const seed = 3, live = new Run(seed), max = 60 * 900;
+  let shot = null;
+  while (live.state === 'run' && live.steps < max) {
+    escapeBot(live, R);
+    if (!shot && live.shootable().length) { live.shootDemon(); shot = live.log.at(-1); }
+    live._step(R.STEP);
+  }
+  assert.ok(shot, 'бот дошёл до демона');
+  assert.equal(Run.replay(seed, [...live.log], max).meters, live.meters);
+  const moved = [...live.log].map(e => e === shot ? [e[0] - 1, ...e.slice(1)] : e);
+  assert.equal(Run.replay(seed, moved, max), null);
+});
+
 test('пару демонов сбивают два выстрела в окно; два несбитых без щита — падение, щит прощает один', () => {
   const p = page();
   const CollapseRun = p.get('CollapseRun');
@@ -474,11 +534,11 @@ test('пару демонов сбивают два выстрела в окно
     run.ammo = 99;
     const at = Math.floor(run.pos) + 2;
     run.track.seg(at).demon = [{ side: -1, lag: 0 }, { side: 1, lag: run.c.pairLag }];
-    runFrames(run, 600, r => r.demons.length > 0);
+    runFrames(run, 600, r => r.shootable().length > 0);
     return run;
   };
 
-  // The first tap 0.2 s into the leap (the right one is still in its wall), the second 0.4 s later:
+  // The first tap 0.2 s after it shows (the right one is not in the frame yet), the second 0.4 s later:
   // both demons fall, the run goes on.
   const shot = pairRun();
   const tap = 0.4;
@@ -490,8 +550,8 @@ test('пару демонов сбивают два выстрела в окно
   assert.equal(shot.demons.length, 0);
   runFrames(shot, 60 * 3);
   assert.equal(shot.state, 'run');
-  // The window for the second shot ends demonSec + pairLag after the first leap: two taps fit.
-  assert.ok(shot.c.demonSec + shot.c.pairLag >= 2 * tap + R.STEP, 'окно пары вмещает два тапа');
+  // The window for the second shot ends perch + leap + pairLag after the first shows: two taps fit.
+  assert.ok(shot.c.demonPerch + shot.c.demonSec + shot.c.pairLag >= 2 * tap + R.STEP, 'окно пары вмещает два тапа');
 
   const dry = pairRun();
   dry.shield = 0;
