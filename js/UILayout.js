@@ -1,7 +1,7 @@
 // UILayout.js — the game's UI layout: every HUD element, placed and styled in the editor (UI tab).
 // The editor rewrites the whole file (POST /api/save-ui) — keep the format. Drawn by js/UI.js;
 // game code takes an element by id: UI.get('score').setText('10') — and never positions HUD itself.
-//   kind — 'text' | 'panel' | 'bar' | 'button'; anchor — one of 9 screen points ('top-left' …
+//   kind — 'text' | 'panel' | 'bar' | 'button' | 'image'; anchor — one of 9 screen points ('top-left' …
 //   'bottom-right'): x, y go from it to the same point of the element (inward from an edge,
 //   signed from the center); w, h — px; numbers are px of a screen UI_REF_HEIGHT tall;
 //   parent (optional) — id of the element this one sits in: anchor, x, y then count from the
@@ -11,15 +11,30 @@
 //   colors — '#rrggbb', '' — none; visible: 0 — hidden until the game calls show().
 //   Records go in drawing order: later — on top.
 const UI_LAYOUT = [
-    { id: 'dist', kind: 'text', anchor: 'top-left', x: 12, y: 8, text: "0 м", fontSize: 24, color: '#f7eed2', shadow: '#0b0809', alpha: 1, visible: 1 },
-    { id: 'best', kind: 'text', anchor: 'top-left', x: 12, y: 38, text: "Рекорд 0 м", fontSize: 13, color: '#b5b9b4', shadow: '#0b0809', alpha: 1, visible: 1 },
-    { id: 'ammo', kind: 'text', anchor: 'top-left', x: 12, y: 60, text: "Патроны 8", fontSize: 14, color: '#ffd965', shadow: '#0b0809', alpha: 1, visible: 1 },
-    { id: 'rescue', kind: 'text', anchor: 'top-center', x: 4, y: 60, text: "Спасение 0", fontSize: 14, color: '#ff7f22', shadow: '#0b0809', alpha: 1, visible: 1 },
-    { id: 'shield', kind: 'text', anchor: 'top-right', x: 12, y: 60, text: "Щит 0", fontSize: 14, color: '#3ddeef', shadow: '#0b0809', alpha: 1, visible: 1 },
-    { id: 'effect', kind: 'text', anchor: 'top-right', x: 12, y: 80, text: "", fontSize: 13, color: '#ffd965', shadow: '#0b0809', alpha: 1, visible: 1 },
-    { id: 'pauseBtn', kind: 'button', anchor: 'top-right', x: 12, y: 8, w: 50, h: 50, text: "II", fontSize: 20, color: '#f7eed2', fill: '#2a2224', border: '#5b6569', radius: 6, alpha: 0.85, visible: 1 },
-    { id: 'hint', kind: 'text', anchor: 'bottom-center', x: 0, y: 22, text: "Тап по табличке — выстрел по стрелке", fontSize: 14, color: '#f7eed2', shadow: '#0b0809', alpha: 0.85, visible: 1 },
     { id: 'hitFlash', kind: 'panel', anchor: 'top-left', x: 0, y: 0, w: 240, h: 80, stretch: 'both', fill: '#ff1e12', border: '', radius: 0, alpha: 0.38, visible: 0 },
+    { id: 'frameLeft', kind: 'panel', anchor: 'top-left', x: 0, y: 0, w: 4, h: 80, stretch: 'v', fill: '#5b4a42', border: '', radius: 0, alpha: 1, visible: 1 },
+    { id: 'frameRight', kind: 'panel', anchor: 'top-right', x: 0, y: 0, w: 4, h: 80, stretch: 'v', fill: '#5b4a42', border: '', radius: 0, alpha: 1, visible: 1 },
+    { id: 'frameTop', kind: 'panel', anchor: 'top-left', x: 0, y: 0, w: 240, h: 66, stretch: 'h', fill: '#211c24', border: '', radius: 0, alpha: 1, visible: 1 },
+    { id: 'frameTopEdge', kind: 'panel', anchor: 'bottom-left', parent: 'frameTop', x: 0, y: 0, w: 240, h: 2, stretch: 'h', fill: '#5b4a42', border: '', radius: 0, alpha: 1, visible: 1 },
+    { id: 'frameBottom', kind: 'panel', anchor: 'bottom-left', x: 0, y: 0, w: 240, h: 96, stretch: 'h', fill: '#211c24', border: '', radius: 0, alpha: 1, visible: 1 },
+    { id: 'frameBottomEdge', kind: 'panel', anchor: 'top-left', parent: 'frameBottom', x: 0, y: 0, w: 240, h: 2, stretch: 'h', fill: '#5b4a42', border: '', radius: 0, alpha: 1, visible: 1 },
+    { id: 'dist', kind: 'text', anchor: 'top-left', parent: 'frameTop', x: 12, y: 8, text: "0 м", fontSize: 24, color: '#f7eed2', shadow: '#0b0809', alpha: 1, visible: 1 },
+    { id: 'best', kind: 'text', anchor: 'top-left', parent: 'frameTop', x: 12, y: 38, text: "Рекорд 0 м", fontSize: 13, color: '#b5b9b4', shadow: '#0b0809', alpha: 1, visible: 1 },
+    { id: 'ammo', kind: 'text', anchor: 'top-left', parent: 'frameBottom', x: 12, y: 14, text: "Патроны 8", fontSize: 14, color: '#ffd965', shadow: '#0b0809', alpha: 1, visible: 1 },
+    { id: 'rescue', kind: 'text', anchor: 'top-right', parent: 'frameBottom', x: 12, y: 14, text: "Спасение 0", fontSize: 14, color: '#ff7f22', shadow: '#0b0809', alpha: 1, visible: 1 },
+    { id: 'shield', kind: 'text', anchor: 'top-center', parent: 'frameBottom', x: 0, y: 14, text: "Щит 0", fontSize: 14, color: '#3ddeef', shadow: '#0b0809', alpha: 1, visible: 1 },
+    { id: 'effect', kind: 'text', anchor: 'top-center', parent: 'frameBottom', x: 0, y: 40, text: "", fontSize: 13, color: '#ffd965', shadow: '#0b0809', alpha: 1, visible: 1 },
+    { id: 'pauseBtn', kind: 'button', anchor: 'top-right', parent: 'frameTop', x: 12, y: 8, w: 50, h: 50, text: "II", fontSize: 20, color: '#f7eed2', fill: '#2a2224', border: '#5b6569', radius: 2, alpha: 1, visible: 1 },
+    { id: 'hint', kind: 'text', anchor: 'top-center', parent: 'frameBottom', x: 0, y: 67, text: "Тап по табличке — выстрел по стрелке", fontSize: 14, color: '#f7eed2', shadow: '', alpha: 1, visible: 1 },
+    { id: 'iconStrip', kind: 'panel', anchor: 'bottom-left', x: 4, y: 96, w: 240, h: 48, stretch: 'h', fill: '', border: '', radius: 0, alpha: 1, visible: 1 },
+    { id: 'iconWallLeft', kind: 'image', anchor: 'middle-left', parent: 'iconStrip', x: 2, y: 0, w: 32, h: 32, src: 'assets/px/demon/jump_1.png', fill: '#211c24', border: '#5b4a42', radius: 4, alpha: 1, visible: 0 },
+    { id: 'iconLane0', kind: 'image', anchor: 'middle-center', parent: 'iconStrip', x: -78, y: 0, w: 36, h: 36, src: 'assets/px/ui/hazard.png', fill: '#211c24', border: '#5b4a42', radius: 4, alpha: 1, visible: 0 },
+    { id: 'iconLane0Next', kind: 'image', anchor: 'middle-center', parent: 'iconStrip', x: -46, y: 0, w: 26, h: 26, src: 'assets/px/ui/hazard.png', fill: '#211c24', border: '#5b4a42', radius: 4, alpha: 1, visible: 0 },
+    { id: 'iconLane1', kind: 'image', anchor: 'middle-center', parent: 'iconStrip', x: 0, y: 0, w: 36, h: 36, src: 'assets/px/ui/hazard.png', fill: '#211c24', border: '#5b4a42', radius: 4, alpha: 1, visible: 0 },
+    { id: 'iconLane1Next', kind: 'image', anchor: 'middle-center', parent: 'iconStrip', x: 32, y: 0, w: 26, h: 26, src: 'assets/px/ui/hazard.png', fill: '#211c24', border: '#5b4a42', radius: 4, alpha: 1, visible: 0 },
+    { id: 'iconLane2', kind: 'image', anchor: 'middle-center', parent: 'iconStrip', x: 78, y: 0, w: 36, h: 36, src: 'assets/px/ui/hazard.png', fill: '#211c24', border: '#5b4a42', radius: 4, alpha: 1, visible: 0 },
+    { id: 'iconLane2Next', kind: 'image', anchor: 'middle-center', parent: 'iconStrip', x: 110, y: 0, w: 26, h: 26, src: 'assets/px/ui/hazard.png', fill: '#211c24', border: '#5b4a42', radius: 4, alpha: 1, visible: 0 },
+    { id: 'iconWallRight', kind: 'image', anchor: 'middle-right', parent: 'iconStrip', x: 2, y: 0, w: 32, h: 32, src: 'assets/px/demon/jump_1.png', fill: '#211c24', border: '#5b4a42', radius: 4, alpha: 1, visible: 0 },
     { id: 'over', kind: 'panel', anchor: 'top-left', x: 0, y: 0, w: 240, h: 80, stretch: 'both', fill: '', border: '', radius: 0, alpha: 1, visible: 0 },
     { id: 'overDim', kind: 'panel', anchor: 'top-left', parent: 'over', x: 0, y: 0, w: 240, h: 80, stretch: 'both', fill: '#000000', border: '', radius: 0, alpha: 0.55, visible: 1 },
     { id: 'overBox', kind: 'panel', anchor: 'middle-center', parent: 'over', x: 0, y: 0, w: 300, h: 270, fill: '#211c24', border: '#ff7f22', radius: 10, alpha: 0.96, visible: 1 },

@@ -4,12 +4,12 @@
 // editor's UI tab. Game code does not create, position or style HUD DOM itself — it takes an
 // element by id and feeds it data:
 //     UI.get('score').setText('10');  UI.get('hp').setValue(0.7);
-//     UI.get('start').onClick(() => …);  UI.get('hint').show(false);
+//     UI.get('start').onClick(() => …);  UI.get('hint').show(false);  UI.get('icon').setSrc(url);
 // Many elements of one kind (inventory slots): a template record in UILayout.js +
 //     UI.add(Object.assign({}, UI.def('slot'), { id: 'slot2', x: 140 }));
 //
 // Record: { id, kind, anchor, x, y, w, h, … } (the full field list — UI.DEFAULTS).
-//   kind   — 'text' | 'panel' | 'bar' | 'button'.
+//   kind   — 'text' | 'panel' | 'bar' | 'button' | 'image' (src — a picture fitted into w × h).
 //   anchor — one of 9 screen points ('top-left' … 'bottom-right'): x and y go from it to THE
 //            SAME point of the element — inward from a screen edge, signed from the center.
 //            A 'bottom-right' element at x 20, y 20 keeps its bottom right corner 20 px from
@@ -28,7 +28,7 @@
 const UI = {
     ANCHORS: ['top-left', 'top-center', 'top-right', 'middle-left', 'middle-center', 'middle-right',
         'bottom-left', 'bottom-center', 'bottom-right'],
-    KINDS: ['text', 'panel', 'bar', 'button'],
+    KINDS: ['text', 'panel', 'bar', 'button', 'image'],
     FONT: 'system-ui, "Segoe UI", Roboto, sans-serif',
 
     // Fields of a record by kind and their defaults — a new element in the editor starts from them.
@@ -37,6 +37,7 @@ const UI = {
         panel: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 80, stretch: '', fill: '#10202c', border: '', radius: 10, alpha: 0.7, visible: 1 },
         bar: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 18, stretch: '', value: 0.6, color: '#5ad05a', fill: '#10202c', border: '#ffffff', radius: 9, alpha: 1, visible: 1 },
         button: { parent: '', anchor: 'bottom-center', x: 0, y: 40, w: 180, h: 48, stretch: '', text: 'Button', fontSize: 20, color: '#ffffff', fill: '#2a6fb0', border: '', radius: 10, alpha: 1, visible: 1 },
+        image: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 64, h: 64, stretch: '', src: '', fill: '', border: '', radius: 0, alpha: 1, visible: 1 },
     },
 
     /** @type {HTMLElement | null} */
@@ -48,6 +49,7 @@ const UI = {
     /** @type {Map<string, UIElement>} */
     elements: new Map(),
     editing: false,          // the editor's UI tab: every element catches the pointer, buttons do not fire
+    assetBase: '',           // prefix of an image src: '' — game (paths from index.html) | '/' — editor (from the server root)
     /** @type {ResizeObserver | null} */
     _observer: null,
 
@@ -217,11 +219,12 @@ class UIElement {
         this.el = document.createElement('div');
         this.el.dataset.ui = def.id;
         /** @type {HTMLElement | null} */
-        this.inner = null;       // bar: the filled part; text and button: the label
+        this.inner = null;       // bar: the filled part; text and button: the label; image: the picture
         this._text = prev ? prev._text : null;
         this._value = prev ? prev._value : null;
         this._shown = prev ? prev._shown : null;
         this._click = prev ? prev._click : null;
+        this._src = prev ? prev._src : null;
         this.el.addEventListener('click', (e) => {
             if (UI.editing || this.def.kind !== 'button' || !this._click) return;
             e.stopPropagation();
@@ -233,6 +236,9 @@ class UIElement {
 
     // Bar fill 0..1.
     setValue(v) { this._value = Math.max(0, Math.min(1, Number(v) || 0)); this.apply(); return this; }
+
+    // Image file: a literal path, so the builder's scanner sees it.
+    setSrc(src) { this._src = String(src); this.apply(); return this; }
 
     show(on) { this._shown = on !== false; this.apply(); return this; }
 
@@ -272,9 +278,9 @@ class UIElement {
             s.overflow = 'hidden';
         }
         const label = d.kind === 'text' || d.kind === 'button';
-        if (label || d.kind === 'bar') {
+        if (label || d.kind === 'bar' || d.kind === 'image') {
             if (!this.inner) {
-                this.inner = document.createElement('div');
+                this.inner = document.createElement(d.kind === 'image' ? 'img' : 'div');
                 this.el.appendChild(this.inner);
             }
         } else if (this.inner) {
@@ -303,6 +309,15 @@ class UIElement {
             const v = this._value != null ? this._value : Math.max(0, Math.min(1, Number(d.value) || 0));
             this.inner.textContent = '';
             this.inner.style.cssText = 'height: 100%; width: ' + (v * 100) + '%; background: ' + (d.color || '#5ad05a') + ';';
+        } else if (d.kind === 'image') {
+            const src = this._src != null ? this._src : d.src || '';
+            // Only on a change: setting src again restarts the load and blinks the picture.
+            if (this.inner.dataset.src !== src) {
+                this.inner.dataset.src = src;
+                if (src) this.inner.setAttribute('src', UI.assetBase + src);
+                else this.inner.removeAttribute('src');
+            }
+            this.inner.style.cssText = 'display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; pointer-events: none;';
         }
     }
 }

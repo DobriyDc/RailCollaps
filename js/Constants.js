@@ -122,6 +122,7 @@ const COLLAPSE_ODDS_SLOW = 0.16;
 const COLLAPSE_ODDS_SHIELD = 0.15;
 const COLLAPSE_ODDS_RESCUE = 0.15;
 const COLLAPSE_OVER_DELAY_SEC = 0.7;    // s: the fall plays before the end-of-run dialog
+const COLLAPSE_ICON_LEAD_SEC = 1;       // s: an icon over the bottom plate lights at least this long before its object enters the frame
 const COLLAPSE_RENDER_HEIGHT = 640;     // px: the tunnel is rendered this tall and scaled up without smoothing
 const COLLAPSE_CAM_Y = 650;             // world units: camera height above the rails
 const COLLAPSE_CAM_Z = 3000;            // world units: camera distance in front of the train

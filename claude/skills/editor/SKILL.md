@@ -66,7 +66,7 @@ Checks: `model` — `assets/….fbx` or `….glb` in Latin characters without sp
 `falloffMin` and `falloffMax` ≥ 0 (0 — the common AUDIO_FALLOFF_* value, not written),
 numbers finite, scale > 0, `anim.axis` from `x -x y -y z -z`, `anim.speed` ≥ 0 (`bad_value`);
 object name, `anim.part`, `clip` and `tag` without quotes and control characters (`cleanName`); precision:
-position, angles and speed 0.1, scale 0.001, sound volume 0.01. An old server process silently drops new fields and rejects `.glb` with the old "must be ….fbx" text — restart `editor.bat` (the client warns when `api` < `EDITOR_API_VERSION`, now 20).
+position, angles and speed 0.1, scale 0.001, sound volume 0.01. An old server process silently drops new fields and rejects `.glb` with the old "must be ….fbx" text — restart `editor.bat` (the client warns when `api` < `EDITOR_API_VERSION`, now 21).
 
 ## Objects tab
 

@@ -17,6 +17,7 @@ UI.get('score').setText('10');          // text, button label
 UI.get('hp').setValue(0.7);             // bar fill 0..1
 UI.get('start').onClick(() => …);       // button
 UI.get('hint').show(false);             // visibility; `visible: 0` in the record — hidden until show()
+UI.get('icon').setSrc('assets/px/hud/ammo.png'); // image: another file, a literal path
 ```
 
 Why: the user tunes the whole interface by dragging it in the editor, on the real scene, and
@@ -46,6 +47,7 @@ for (let i = 0; i < 5; i++) UI.add(Object.assign({}, t, { id: 'slot' + i, x: t.x
 | `panel` | `w, h, fill, border, radius` |
 | `bar` | `w, h, value, color` (the filled part), `fill, border, radius` |
 | `button` | `w, h, text, fontSize, color, fill, border, radius` — the only kind that catches the pointer |
+| `image` | `w, h, src, fill, border, radius` — a picture fitted into `w × h` with crisp pixels; `src` — a literal path in `assets/` or `''`, checked on save |
 
 Every kind also takes `parent` and, except `text`, `stretch` — see §Nesting.
 
@@ -118,6 +120,9 @@ editor's UI tab: every element catches the pointer, hidden ones show at 35%, but
 World-anchored interface (a label over a character) is not covered yet: it is a new element
 kind whose position comes from `view.projectToScreen` (skill `world3d`) every frame, styled by
 its record like the rest — not DOM positioned by hand in game code.
+
+An image `src` is relative to the page: the game loads it as written, the editor sets
+`UI.assetBase = '/'` because its page lives in `/_utils/editor/`.
 
 ## Editor: the UI tab (`_utils/editor/ui-panel.js`)
 

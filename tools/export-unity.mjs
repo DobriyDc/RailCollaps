@@ -157,11 +157,11 @@ export function normalizeObject(d) {
 // The kind's defaults under the record — the same merge the editor starts a new element from.
 export function normalizeUI(rec, DEFAULTS) {
   const base = DEFAULTS[rec.kind] || DEFAULTS.panel;
-  const all = { id: '', kind: 'panel', parent: '', anchor: 'top-left', x: 0, y: 0, w: 0, h: 0, stretch: '', text: '',
+  const all = { id: '', kind: 'panel', parent: '', anchor: 'top-left', x: 0, y: 0, w: 0, h: 0, stretch: '', text: '', src: '',
     fontSize: 20, color: '', shadow: '', fill: '', border: '', radius: 0, value: 0, alpha: 1, visible: 1 };
   const r = { ...all, ...base, ...rec };
   for (const k of ['x', 'y', 'w', 'h', 'fontSize', 'radius', 'value', 'alpha', 'visible']) r[k] = num(r[k], all[k]);
-  for (const k of ['id', 'kind', 'parent', 'anchor', 'stretch', 'text', 'color', 'shadow', 'fill', 'border']) r[k] = String(r[k] == null ? '' : r[k]);
+  for (const k of ['id', 'kind', 'parent', 'anchor', 'stretch', 'text', 'src', 'color', 'shadow', 'fill', 'border']) r[k] = String(r[k] == null ? '' : r[k]);
   return r;
 }
 

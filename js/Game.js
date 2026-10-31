@@ -23,6 +23,10 @@ class Game {
         this.best = parseInt(Store.get('collapse.best') || '0', 10) || 0;
         /** @type {Map<string, string>} */
         this._hudText = new Map();    // what the HUD shows: a DOM write only on change
+        /** @type {{ cam: any, enter: any, reach: any, key: string } | null} */
+        this._frame = null;           // the frame in segments ahead, by body and lane (frameTable)
+        // Loaded ahead: an icon that fetches its file when it lights shows empty for its first moments.
+        this._iconFiles = Object.values(Game.ICONS).map(url => { const img = new Image(); img.src = url; return img; });
         TG.loadBest(m => { if (m > this.best) { this.best = m; Store.set('collapse.best', String(m)); this._hudBest(); } });
 
         const pause = UI.get('pauseBtn');
@@ -38,6 +42,52 @@ class Game {
         this._hudBest();
     }
 
+    // Segments ahead of the train where a body standing on the floor at x (half width hw, top at
+    // height `top`, world units) first shows between the frame's plates, 0 — only beside the train.
+    // Pure pinhole math over numbers read from the real camera: cam { x, y, z, pitch, fov, aspect,
+    // top, bottom } — top and bottom are the plates' edges in clip space (-1..1). No Babylon: the
+    // probes run the same function in node on the numbers of Constants.js.
+    static frameEntry(cam, x, hw, top) {
+        const S = CollapseScene, cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch), t = Math.tan(cam.fov / 2);
+        const shows = (d, y) => {
+            const drop = cam.y - y, depth = d * cp + drop * sp;
+            if (depth < 10) return false;
+            const v = (d * sp - drop * cp) / (depth * t);
+            return v <= cam.top && v >= cam.bottom && Math.abs(x - cam.x) - hw <= depth * t * cam.aspect;
+        };
+        // From the lens toward the train: a tall body shows in the frame before its foot does.
+        for (let seg = Math.ceil(cam.z / S.SEG * 8) / 8; seg > 0; seg -= 0.125) {
+            for (let k = 0; k <= 8; k++) if (shows(cam.z - seg * S.SEG, top * k / 8)) return seg;
+        }
+        return 0;
+    }
+
+    // frameEntry by body and lane for a camera at camX; camX null — the camera nearest each lane
+    // (`follow` — the share of the train's offset it takes), the farthest that lane's edge can get.
+    static frameTable(cam, camX, follow = 0) {
+        const S = CollapseScene, out = {};
+        for (const [body, b] of Object.entries(Game.BODIES)) {
+            out[body] = [0, 1, 2].map(l => {
+                const x = S.laneX(l);
+                return Game.frameEntry(Object.assign({}, cam, { x: camX === null ? x * follow : camX }), x, b.hw, b.top);
+            });
+        }
+        return out;
+    }
+
+    // Items of CollapseRun.ahead (nearest first) -> Map of icon id -> item: a demon to the slot of its
+    // wall, the rest to their lane, the nearest big and the next one small. The window never holds a
+    // third one on a lane at the default lead (the probe counts it); with a longer one it waits.
+    static iconSlots(items) {
+        const slots = new Map();
+        for (const item of items) {
+            const ids = item.lane < 0 ? [item.side < 0 ? 'iconWallLeft' : 'iconWallRight'] : ['iconLane' + item.lane, 'iconLane' + item.lane + 'Next'];
+            const id = ids.find(i => !slots.has(i));
+            if (id) slots.set(id, item);
+        }
+        return slots;
+    }
+
     static newSeed() {
         return (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
     }
@@ -49,6 +99,7 @@ class Game {
         this.overIn = -1;
         this.adPending = false;
         this.flashLeft = 0;
+        this._frame = null;           // the safe area may have changed since the last run
         this._show('hitFlash', false);
         this._show('over', false);
         TG.runStarted();
@@ -107,6 +158,7 @@ class Game {
         if (this.flashLeft > 0 && (this.flashLeft -= dt) <= 0) this._show('hitFlash', false);
         this.scene.sync(run, this.mode === 'pause' ? 0 : dt);
         this._hud(run);
+        this._icons(run);
     }
 
     _onEvent(ev) {
@@ -174,6 +226,45 @@ class Game {
         if (el) el.setText(text);
     }
 
+    // The icons over the bottom plate: rules say what comes (CollapseRun.ahead), the frame says where
+    // its edge is, the records of UILayout.js say how an icon looks. Only during a run.
+    _icons(run) {
+        const lit = new Map();
+        if (this.mode === 'play') {
+            const f = this._frameNow();
+            for (const [id, item] of Game.iconSlots(run.ahead(run.c.iconLead, f.enter, f.reach))) lit.set(id, Game.ICONS[item.kind]);
+        }
+        for (const id of Game.ICON_IDS) {
+            const url = lit.get(id) || '';
+            if (url && this._hudText.get(id) !== url) {
+                this._hudText.set(id, url);
+                const el = UI.get(id);
+                if (el) el.setSrc(url);
+            }
+            this._show(id, !!url);
+        }
+    }
+
+    // The camera as Game.frameEntry reads it; the box between the plates, counted once per screen size.
+    _frameNow() {
+        const scene = this.scene, cam = scene.view.camera, engine = scene.engine;
+        const size = engine.getRenderWidth() + 'x' + engine.getRenderHeight();
+        if (!this._frame || this._frame.key.split(':')[0] !== size) {
+            const box = scene.canvas.getBoundingClientRect();
+            const edge = (id, side, def) => { const e = UI.get(id); return e ? e.el.getBoundingClientRect()[side] : def; };
+            const ndc = y => 1 - 2 * (y - box.top) / box.height;
+            const view = { y: scene.camY, z: cam.position.z, pitch: Math.abs(cam.rotation.x), fov: cam.fov, aspect: engine.getAspectRatio(cam),
+                top: ndc(edge('frameTop', 'bottom', box.top)), bottom: ndc(edge('frameBottom', 'top', box.bottom)) };
+            this._frame = { key: size + ':', cam: view, enter: null, reach: Game.frameTable(view, null, scene.camFollow) };
+        }
+        const f = this._frame, key = size + ':' + Math.round(scene.camX / 8);
+        if (f.key !== key) {
+            f.key = key;
+            f.enter = Game.frameTable(f.cam, scene.camX);
+        }
+        return f;
+    }
+
     _hudBest() { this._set('best', 'Рекорд ' + this.best + ' м'); }
 
     _hud(run) {
@@ -196,6 +287,28 @@ class Game {
             : next && !next.armed ? 'Тап по табличке — выстрел по стрелке' : '');
     }
 }
+
+// Temporary icons from the sprites in the game (card 21); the final ones are card 22.
+Game.ICONS = {
+    gap: 'assets/px/ui/hazard.png',
+    lava: 'assets/px/fx/lava_burst.png',
+    demon: 'assets/px/demon/jump_1.png',
+    ammo: 'assets/px/hud/ammo.png',
+    boost: 'assets/px/hud/boost.png',
+    slow: 'assets/px/hud/slow.png',
+    shield: 'assets/px/hud/shield.png',
+    rescue: 'assets/px/hud/rescue.png',
+};
+Game.ICON_IDS = ['iconWallLeft', 'iconLane0', 'iconLane0Next', 'iconLane1', 'iconLane1Next', 'iconLane2', 'iconLane2Next', 'iconWallRight'];
+
+// What of each object the frame can catch: half width and top, world units. These are the sizes of
+// CollapseScene._segView: a hole as wide as its lane, the lava flow (170 x 760 from y 120), a pickup
+// (90 x 135 from y 6, its bob 10).
+Game.BODIES = {
+    gap: { hw: CollapseScene.LANE_W / 2, top: 0 },
+    lava: { hw: 85, top: 880 },
+    pickup: { hw: 45, top: 151 },
+};
 
 Game.REASONS = {
     gap: 'Поезд ушёл в провал.',

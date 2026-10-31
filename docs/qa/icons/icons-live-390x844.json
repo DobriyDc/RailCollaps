@@ -1,0 +1,103 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:57504/",
+  "browser": "msedge.exe",
+  "waitMs": 2500,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-icons/a6d55347-a537-44d3-b7bf-66c77e471b53/scratchpad/qa-live.js",
+  "evalResult": {
+    "state": "live",
+    "at": {
+      "seed": 1,
+      "pos": 12.5,
+      "lane": 1
+    },
+    "lit": [
+      "iconLane0=assets/px/hud/ammo.png",
+      "iconLane1=assets/px/ui/hazard.png"
+    ],
+    "broken": [],
+    "plates": {
+      "plateLow": 77.36666870117188,
+      "plateTop": 731.4666748046875,
+      "canvas": [
+        390,
+        844
+      ]
+    },
+    "cam": {
+      "pitch": -0.30288486917177976,
+      "expected": 0.3028848683749714,
+      "fov": 0.6981317007977318,
+      "y": 650,
+      "z": 3000,
+      "x": 0
+    },
+    "tables": {
+      "enter": {
+        "gap": [
+          7,
+          7,
+          7
+        ],
+        "lava": [
+          6.625,
+          10.125,
+          6.625
+        ],
+        "pickup": [
+          5.75,
+          7.875,
+          5.75
+        ]
+      },
+      "reach": {
+        "gap": [
+          7,
+          7,
+          7
+        ],
+        "lava": [
+          9.375,
+          10.125,
+          9.375
+        ],
+        "pickup": [
+          7.875,
+          7.875,
+          7.875
+        ]
+      },
+      "frameCam": {
+        "y": 650,
+        "z": 3000,
+        "pitch": 0.30288486917177976,
+        "fov": 0.6981317007977318,
+        "aspect": 0.4609375,
+        "top": 0.8166666618455642,
+        "bottom": -0.7333333526177428
+      }
+    },
+    "lane0Left": true,
+    "live": {
+      "frames": 3600,
+      "mismatch": 0,
+      "litFrames": 1473,
+      "srcs": 6
+    },
+    "lifecycle": {
+      "before": 2,
+      "paused": 0,
+      "resumed": 2,
+      "over": 0
+    }
+  },
+  "errors": [],
+  "ok": true
+}
