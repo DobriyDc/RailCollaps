@@ -309,6 +309,19 @@ function demonHang() {
   return effect(drive(x, 1.5), 0.8);
 }
 
+// The train goes through a pile of brick: a heavy crunch and stones rattling off the iron.
+function rubble() {
+  const x = buffer(0.7, RATE), rnd = noise(96);
+  thump(x, 0, 110, 45, 16, 7, 1.3);
+  burst(x, 0, 0.5, { seed: 97, low: 200, high: 2600, attack: 0.01, decay: 5.5, gain: 3.4 });
+  for (let i = 0; i < 7; i++) {              // the stones
+    const at = 0.06 + 0.5 * (i / 7) ** 1.3, f = 180 + 120 * (rnd() + 1);
+    thump(x, at, f, f * 0.6, 44, 30, 0.35);
+    strike(x, at, 300 + 160 * (rnd() + 1), 0.14);
+  }
+  return effect(drive(x, 1.7), 0.84);
+}
+
 function continued() {
   const x = buffer(0.85, RATE);
   burst(x, 0, 0.85, { seed: 22, low: 500, high: t => 1000 + 6000 * t, attack: 0.25, decay: 2.2, gain: 3.4 });
@@ -478,6 +491,7 @@ function buildSounds() {
     'sfx_lava.wav': writeWav(lava()),
     'sfx_fall.wav': writeWav(fall()),
     'sfx_caught.wav': writeWav(caught()),
+    'sfx_rubble.wav': writeWav(rubble()),
     'sfx_collapse.wav': writeWav(collapseStart()),
     'sfx_continue.wav': writeWav(continued()),
     'sfx_station.wav': writeWav(station()),

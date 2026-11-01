@@ -23,6 +23,7 @@ const UI_LAYOUT = [
     { id: 'effect', kind: 'text', anchor: 'bottom-center', parent: 'frameBottom', x: 0, y: 2, fontSize: 10, color: '#fff8ec', shadow: '', alpha: 1, visible: 1 },
     { id: 'pauseBtn', kind: 'button', anchor: 'top-right', parent: 'frameTop', x: 8, y: 5, w: 56, h: 56, fontSize: 20, color: '#f7eed2', fill: '', border: '', radius: 2, alpha: 1, visible: 1 },
     { id: 'hint', kind: 'text', anchor: 'bottom-center', parent: 'frameTop', x: 0, y: 2, text: "Тап по рычагу — выстрел по стрелке", fontSize: 10, color: '#fff8ec', shadow: '', alpha: 1, visible: 1 },
+    { id: 'runTime', kind: 'text', anchor: 'top-right', x: 12, y: 78, text: "0:00", fontSize: 18, color: '#fff8ec', shadow: '#181419', alpha: 1, visible: 0 },
     { id: 'tutorialBox', kind: 'image', anchor: 'top-left', x: 0, y: 66, w: 240, h: 58, stretch: 'h', src: 'assets/ui/hud_v3/bar_top.png', slice: '14,9,14,9', sliceScale: 1.7, fill: '', border: '', radius: 0, alpha: 1, visible: 0 },
     { id: 'tutorialText', kind: 'text', anchor: 'middle-center', parent: 'tutorialBox', x: 0, y: 0, fontSize: 15, color: '#fff8ec', shadow: '', alpha: 1, visible: 1 },
     { id: 'collapseNote', kind: 'text', anchor: 'top-center', x: 0, y: 84, text: "Обвал сзади!", fontSize: 22, color: '#ff7f22', shadow: '#181419', alpha: 1, visible: 0 },

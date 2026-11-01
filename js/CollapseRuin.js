@@ -123,6 +123,20 @@ class CollapseRuin {
         }
     }
 
+    // A pile on the track goes under the train: its stones fly up and out, and the train leaves them
+    // where they fell.
+    smash(pos, x, time) {
+        const S = CollapseRuin, SEG = CollapseScene.SEG, n = this.blows++, H = (k, a) => S.hash(n * 19 + k, a + 60);
+        for (let k = 0; k < S.SMASH_CHUNKS; k++) {
+            this._chunk({ x: x + (H(k, 0) - 0.5) * 220, y: 40 + H(k, 1) * 60, z: (pos + 0.1 + H(k, 2) * 0.5) * SEG, vx: (H(k, 3) - 0.5) * 1100, vy: 500 + H(k, 4) * 650,
+                g: 3600, floor: 14, size: 44 + H(k, 5) * 60, kind: Math.floor(H(k, 6) * 7), t: time + H(k, 7) * 0.06, n: n * 23 + k + 900 });
+        }
+        for (let k = 0; k < S.EDGE_DUST; k++) {
+            this.dust.push({ kind: 'dust', x: x + (H(k, 8) - 0.5) * 220, y: 30 + H(k, 9) * 90, z: (pos + 0.3) * SEG, vy: 140, size: 300 + H(k, 10) * 180, t: time + H(k, 11) * 0.08, dur: 0.45 });
+        }
+        this.jolts.push({ at: time, amp: this.c.jolt * 0.4 });
+    }
+
     _chunk(c) {
         c.until = c.t + (c.vy + Math.sqrt(c.vy * c.vy + 2 * c.g * (c.y - c.floor))) / c.g;
         if (this.chunks.length < CollapseRuin.CHUNKS) this.chunks.push(c);
@@ -188,3 +202,4 @@ CollapseRuin.CHUNKS = 64;                  // falling pieces at once
 CollapseRuin.EDGE_CHUNKS = 8;              // pieces of one blow along the edge, every 4th a rail
 CollapseRuin.EDGE_DUST = 4;
 CollapseRuin.EDGE_SPARKS = 2;
+CollapseRuin.SMASH_CHUNKS = 12;            // stones of a pile the train smashes

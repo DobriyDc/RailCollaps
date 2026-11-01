@@ -16,6 +16,10 @@ const Lang = {
         "ru": "Поверни телефон горизонтально",
         "en": "Turn the phone sideways"
     },
+    "runTime": {
+        "ru": "Время {value}",
+        "en": "Time {value}"
+    },
     "rotateBack": {
         "ru": "Оставить вертикаль",
         "en": "Keep it upright"
@@ -85,8 +89,8 @@ const Lang = {
         "en": "Lava pours from above and blocks this lane. Switch"
     },
     "tutorial.slow": {
-        "ru": "Замедлитель: больше времени на решение, но обвал подходит ближе",
-        "en": "Decelerator: more time to decide, but the collapse gets closer"
+        "ru": "Завал: поезд разобьёт его и сбавит ход. Решать проще, но обвал ближе",
+        "en": "Rubble: the train smashes through and slows down, the collapse gets closer"
     },
     "tutorial.shield": {
         "ru": "Щит прощает один удар: поезд пройдёт сквозь лаву",
@@ -221,8 +225,8 @@ const Lang = {
         "en": "Speed boost {value} s"
     },
     "slow": {
-        "ru": "Замедлитель {value} с",
-        "en": "Slowdown {value} s"
+        "ru": "Завал: ход сбит {value} с",
+        "en": "Rubble: slowed {value} s"
     },
     "noAmmo": {
         "ru": "Патроны кончились — ищи ящик с патронами",

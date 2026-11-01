@@ -70,6 +70,20 @@ test('слой не едет: поезд ушёл на 8 сегментов, м�
   assert.deepEqual(layersInWorld(p, r, t, front + 6), layersInWorld(p, r, t, front + 14));
 });
 
+test('завал разбивается: камни разлетаются из-под поезда и остаются в мире, камера вздрагивает слабее удара обвала', () => {
+  const p = page(), Ruin = p.get('CollapseRuin'), r = new Ruin(), S = p.get('CollapseScene');
+  r.begin(-1e9);
+  r.smash(50, 300, 2);
+  assert.equal(r.chunks.length, Ruin.SMASH_CHUNKS);
+  assert.ok(r.chunks.every(c => c.z >= 50 * S.SEG && c.z <= 51 * S.SEG), 'у носа поезда');
+  assert.ok(r.chunks.some(c => c.vx < 0) && r.chunks.some(c => c.vx > 0), 'в обе стороны');
+  assert.ok(r.dust.length > 0);
+  assert.ok(r.jolt(2) > 0 && r.jolt(2) < r.c.jolt);
+  const place = r.chunks.map(c => r.chunkAt(c, 2.3));
+  r.update(-1e9, 60, 2.1);
+  assert.deepEqual(r.chunks.map(c => r.chunkAt(c, 2.3)), place.slice(0, r.chunks.length), 'поезд их не тянет');
+});
+
 test('новый обвал начинается в темноте: старт не играется, завал светит только вблизи', () => {
   const p = page(), S = p.get('CollapseScene'), Ruin = p.get('CollapseRuin'), r = new Ruin(), c = p.get('CollapseRules').cfg();
   assert.ok(c.eventGap < S.BEHIND, 'обвал стартует внутри окна сегментов');

@@ -85,7 +85,7 @@ class Game {
         this._show('menu', true);
         this._show('tutorialBox', false);
         for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen']) this._show(id, id === screen);
-        for (const id of ['frameTop', 'frameBottom', 'iconStrip', 'stationShop', 'collapseNote']) this._show(id, false);
+        for (const id of ['frameTop', 'frameBottom', 'iconStrip', 'stationShop', 'collapseNote', 'runTime']) this._show(id, false);
         this._show('menuExit', TG.inside);
     }
 
@@ -188,7 +188,7 @@ class Game {
     static iconLook(id, item, own) {
         const here = item.lane === own, small = 'iconLane' + item.lane + 'Next';
         const hazard = item.kind === 'gap' || item.kind === 'lava';
-        return { frame: hazard ? (here ? 'iconLookHot' : 'iconLookNear') : 'iconLookPickup', size: here ? id : small, pulse: here && hazard && id !== small };
+        return { frame: hazard ? (here ? 'iconLookHot' : 'iconLookNear') : item.kind === 'slow' ? 'iconLookNear' : 'iconLookPickup', size: here ? id : small, pulse: here && hazard && id !== small };
     }
 
     // Where the lanes' icons stand on the row, layout px from its center. xs — each lane's projection;
@@ -214,6 +214,12 @@ class Game {
     // World z of the floor at clip height v of the frame, over the numbers of Game.frameEntry.
     static floorZ(cam, v) {
         return cam.z - cam.y / Math.tan(cam.pitch - Math.atan(v * Math.tan(cam.fov / 2)));
+    }
+
+    // Seconds of a run as the HUD shows them: 1:05.
+    static clock(sec) {
+        const s = Math.floor(sec);
+        return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
     }
 
     static newSeed() {
@@ -246,6 +252,7 @@ class Game {
         this._show('over', false);
         this._show('tutorialBox', run.tutorial);
         this._show('hpRow', !run.tutorial);
+        this._show('runTime', !run.tutorial);
         this._hudBest();
         if (Game.stationsOn()) CollapseStations.dress(this, run);
         TG.runStarted();
@@ -348,7 +355,7 @@ class Game {
             this._show('hitFlash', true);
         }
         if (ev.type === 'shot') TG.haptic('shot');
-        else if (ev.type === 'pickup') TG.haptic('pickup');
+        else if (ev.type === 'pickup') TG.haptic(ev.kind === 'slow' ? 'shield' : 'pickup');
         else if (['shielded', 'rescued', 'collapse', 'hurt'].includes(ev.type)) TG.haptic('shield');
         else if (ev.type === 'crash') {
             TG.haptic('crash');
@@ -459,7 +466,7 @@ class Game {
         if (run.tutorial) { this.start(run.retry()); return; }
         const why = run.reason ? Lang.t('reason.' + run.reason) : '';
         this._dialog(Lang.t(this.newRecord ? 'recordTitle' : 'overTitle'),
-            why + '\n' + Lang.t('result', { meters: run.meters, best: this.best }) + Game.stationsLine(run),
+            why + '\n' + Lang.t('result', { meters: run.meters, best: this.best }) + '\n' + Lang.t('runTime', { value: Game.clock(run.time) }) + Game.stationsLine(run),
             [Lang.t('restart'), () => this.start()],
             run.canContinue && !this.adPending ? [Lang.t('continue'), () => this.continueForAd()] : null);
         this._show('overMenu', true);
@@ -583,7 +590,7 @@ class Game {
             case 'shot': return [S.shot];
             case 'no-ammo': return [S.dry];
             case 'switched': return [S.switch];
-            case 'pickup': return [S.pickup];
+            case 'pickup': return [ev.kind === 'slow' ? S.rubble : S.pickup];
             case 'shielded': return [S.shield];
             case 'rescued': return [S.rescue];
             case 'demon': return [S.demonShow];
@@ -603,6 +610,7 @@ class Game {
 
     static portraitEvent(ev) {
         if (ev.type === 'crash' || ev.type === 'shielded' || ev.type === 'hurt') return ev.reason === 'gap' ? 'fall' : ev.reason === 'lava' ? 'fire' : 'hit';
+        if (ev.type === 'pickup' && ev.kind === 'slow') return 'tense';
         if (['pickup', 'demon-killed', 'rescued', 'continued'].includes(ev.type)) return 'joy';
         if (['demon', 'demon-on', 'no-ammo', 'collapse'].includes(ev.type)) return 'tense';
         return '';
@@ -644,6 +652,7 @@ class Game {
         this._portrait(run);
         this._hpView(run);
         this._set('dist', String(run.meters));
+        this._set('runTime', Game.clock(run.time));
         this._set('ammo', String(run.ammo));
         this._set('rescue', String(run.rescue));
         this._set('shield', String(run.shield));
@@ -678,7 +687,7 @@ Game.ICONS = {
     demon: 'assets/ui/hud_v3/icon_demon.png',
     ammo: 'assets/ui/hud_v3/pickup_ammo.png',
     boost: 'assets/ui/hud_v3/pickup_boost.png',
-    slow: 'assets/ui/hud_v3/pickup_slow.png',
+    slow: 'assets/ui/hud_v3/icon_rubble.png',
     shield: 'assets/ui/hud_v3/pickup_shield.png',
     rescue: 'assets/ui/hud_v3/pickup_rescue.png',
 };
@@ -719,6 +728,7 @@ Game.SOUNDS = {
     lava: 'assets/sounds/sfx_lava.wav',
     fall: 'assets/sounds/sfx_fall.wav',
     caught: 'assets/sounds/sfx_caught.wav',
+    rubble: 'assets/sounds/sfx_rubble.wav',
     collapse: 'assets/sounds/sfx_collapse.wav',
     continue: 'assets/sounds/sfx_continue.wav',
     station: 'assets/sounds/sfx_station.wav',

@@ -82,7 +82,7 @@ const CollapseArt = {
         shieldBreak: ['assets/sprites/fx/shield_break_00_v1.png', 'assets/sprites/fx/shield_break_01_v1.png', 'assets/sprites/fx/shield_break_02_v1.png', 'assets/sprites/fx/shield_break_03_v1.png'],
         rail: ['assets/sprites/fx/rail_debris_00_v1.png', 'assets/sprites/fx/rail_debris_01_v1.png', 'assets/sprites/fx/rail_debris_02_v1.png', 'assets/sprites/fx/rail_debris_03_v1.png'],
     },
-    pickup: { ammo: 'assets/px/pickups/ammo.png', boost: 'assets/px/pickups/boost.png', slow: 'assets/px/pickups/slow.png',
+    pickup: { ammo: 'assets/px/pickups/ammo.png', boost: 'assets/px/pickups/boost.png', slow: 'assets/px/pickups/rubble.png',
         shield: 'assets/px/pickups/shield.png', rescue: 'assets/px/pickups/rescue.png' },
 };
 
@@ -1040,8 +1040,10 @@ class CollapseScene {
         for (let l = 0; l < 3; l++) {
             const kind = seg.pickup[l];
             if (kind) {
-                const p = this.sprite('pickup', 'pickup-' + kind, CollapseArt.pickup[kind], S.PICKUP.w, S.PICKUP.h);
-                p.metadata = { lane: l };
+                // The decelerator is a pile on the track: it lies on the rails, wide and still.
+                const pile = kind === 'slow', size = pile ? S.RUBBLE : S.PICKUP;
+                const p = this.sprite('pickup', 'pickup-' + kind, CollapseArt.pickup[kind], size.w, size.h);
+                p.metadata = { lane: l, pile };
                 v.pickups.push(p);
             }
             if (seg.lava[l]) {
@@ -1177,7 +1179,7 @@ class CollapseScene {
             for (const p of v.pickups) {
                 const taken = run.isTaken(i) && p.metadata.lane === run.lane;
                 p.setEnabled(!taken && drop === 0);
-                p.position.set(S.laneX(p.metadata.lane), S.PICKUP.y + Math.sin(this.time * 4 + i) * S.PICKUP.bob, z + S.SEG / 2);
+                p.position.set(S.laneX(p.metadata.lane), p.metadata.pile ? S.RUBBLE.y : S.PICKUP.y + Math.sin(this.time * 4 + i) * S.PICKUP.bob, z + S.SEG / 2);
             }
             for (const fl of v.flows) {
                 const near = z + S.SEG / 2;
@@ -1337,6 +1339,8 @@ class CollapseScene {
             this._fxPlay(this.fxSmoke, [0, 380, 10], { flip: dir > 0, v: [-dir * 420, 140, 0] });
         } else if (e.type === 'hurt') {
             this._hitFx(e.reason, run);
+        } else if (e.type === 'pickup' && e.kind === 'slow') {
+            this.ruin.smash(run.pos, CollapseScene.laneX(run.laneX()), this.time);
         } else if (e.type === 'shielded') {
             this._shieldHitUntil = this.time + 0.3;
             this._fxPlay(this.fxShield, [0, 200, 90]);
@@ -1386,6 +1390,7 @@ CollapseScene.LOCO_TOP = 414;     // world units: the top of the loco's art, its
 // as shares of that file, on the disc at height y.
 CollapseScene.LEVER = { w: 150, h: 198, badge: { w: 84, y: 160, crop: [0.16, 0.13, 0.68, 0.56] } };
 CollapseScene.PICKUP = { w: 90, h: 135, y: 6, bob: 10 };   // a pickup's sprite, world units
+CollapseScene.RUBBLE = { w: 250, h: 150, y: 2 };   // a pile on the track (the decelerator), world units
 CollapseScene.FLOW = { w: 170, h: 760, y: 120 };           // a lava stream's sprite, world units
 // What of each object the frame can catch (Game.frameEntry): half width and top, world units: a hole
 // as wide as its lane, the lava flow, a pickup at the top of its bob.

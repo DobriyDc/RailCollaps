@@ -176,8 +176,9 @@ test('вид иконки: опасность на своей полосе кр�
   assert.deepEqual(look('iconLane1', 'gap', 1, 1), { frame: 'iconLookHot', size: 'iconLane1', pulse: true });
   assert.deepEqual(look('iconLane1Next', 'lava', 1, 1), { frame: 'iconLookHot', size: 'iconLane1Next', pulse: false });
   assert.deepEqual(look('iconLane2', 'gap', 2, 1), { frame: 'iconLookNear', size: 'iconLane2Next', pulse: false });
-  for (const kind of ['ammo', 'boost', 'slow', 'shield', 'rescue']) {
+  for (const kind of ['ammo', 'boost', 'shield', 'rescue']) {
     assert.equal(look('iconLane1', kind, 1, 1).frame, 'iconLookPickup');
     assert.equal(look('iconLane1', kind, 1, 1).pulse, false);
   }
+  assert.deepEqual(look('iconLane1', 'slow', 1, 1), { frame: 'iconLookNear', size: 'iconLane1', pulse: false }, 'завал не подарок и не смерть');
 });

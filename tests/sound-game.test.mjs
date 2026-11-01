@@ -67,6 +67,13 @@ test('каждое событие забега даёт свой звук: ти�
   for (const f of [...Object.values(Game.SOUNDS), ...Object.values(Game.LOOPS), Game.MUSIC]) assert.ok(made[path.basename(f)], f);
 });
 
+test('завал звучит иначе, чем подбор ящика; часы забега считают минуты', () => {
+  const Game = page().Game;
+  assert.notEqual(Game.soundsOf({ type: 'pickup', kind: 'slow' })[0], Game.soundsOf({ type: 'pickup', kind: 'ammo' })[0]);
+  assert.equal(Game.portraitEvent({ type: 'pickup', kind: 'slow' }), 'tense');
+  assert.deepEqual([0, 9.9, 65, 600].map(Game.clock), ['0:00', '0:09', '1:05', '10:00']);
+});
+
 test('рокот слышен только пока обвал идёт и растёт с его приближением', () => {
   const Game = page().Game, mix = gap => Game.loopMix(3, 4.5, gap, 15).rumble;
   assert.equal(mix(Infinity), 0);
