@@ -1,0 +1,190 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:18752/",
+  "browser": "msedge.exe",
+  "waitMs": 5000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-robust/98127d53-b56c-41d9-8414-683ba7b6f146/scratchpad/probe.js",
+  "evalResult": {
+    "mode": "play",
+    "state": "run",
+    "advanced": 5.59,
+    "flat": 6,
+    "textures": 128,
+    "notReady": 0,
+    "floorTop": [
+      [
+        "7a4a3a",
+        13474
+      ],
+      [
+        "5c3a35",
+        7442
+      ]
+    ],
+    "size": [
+      166,
+      360
+    ],
+    "digitImgs": 0,
+    "digitSpans": 7,
+    "missed": [
+      "0",
+      "8",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "9",
+      "1"
+    ],
+    "fallbackFlag": false
+  },
+  "errors": [
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/textures/world/brick_wall.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/textures/world/floor_ballast.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_0.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_1.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_2.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_3.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_4.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_5.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_6.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_7.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_8.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_9.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/textures/world/track.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/textures/world/brick_wall.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/textures/world/floor_ballast.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_0.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_8.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/textures/world/track.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_2.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_2.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_3.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_3.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_4.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_4.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_5.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_5.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_6.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_6.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_7.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_7.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_9.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_9.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_1.png"
+    },
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18752/assets/ui/hud_v3/digit_1.png"
+    }
+  ],
+  "ok": false
+}

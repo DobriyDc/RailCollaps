@@ -141,6 +141,10 @@ the real function bundle over SQLite in memory with `schema.sql`), `claude`
 servers, there is no `.claude/skills/` folder — GitHub web upload skips dot-prefixed names, so
 skills from there would never reach users).
 
+`collapse-smoke` starts the game without a browser: the scripts of `index.html` in their order, the
+`CollapseScene` constructor on the stub, every `CollapseArt` address and preload list on disk, the texture
+fallback. A new art list goes into `CollapseScene.preloadUrls`, or the probe does not see it.
+
 `browser-scripts.mjs`: `loadScripts(files, globals)` runs classic scripts in one `node:vm`
 context (like `<script>`), `get('Name')` fetches a top-level `const`/`class`; `stub()` — a
 stub for `BABYLON`/`World3D` when a constructor builds meshes along the way. Objects from the
