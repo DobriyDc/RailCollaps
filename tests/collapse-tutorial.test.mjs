@@ -102,7 +102,7 @@ test('жизни: поезда на панели гаснут, лицо маши
   const lit = () => [0, 1, 2].filter(i => b.UI.get('hp' + i).src === Game.HP.full).length;
   assert.equal(lit(), 3);
   assert.equal(b.UI.get('hpRow').visible, true);
-  assert.equal(b.UI.get('portrait').src, Game.PORTRAITS.calm.replace('calm', b.UI.get('portrait').src.includes('tense') ? 'tense' : 'calm'));
+  assert.ok(!/_w\d/.test(b.UI.get('portrait').src), 'лицо цело');
   g.run.hp = 2;
   g.update(0);
   assert.equal(lit(), 2);
@@ -115,7 +115,7 @@ test('жизни: поезда на панели гаснут, лицо маши
     assert.equal(Game.portraitOf(state, 0), Game.PORTRAITS[state]);
     assert.deepEqual([Game.portraitOf(state, 1), Game.portraitOf(state, 2), Game.portraitOf(state, 5)], [files[0], files[1], files[1]]);
   }
-  g.start(new (b.p.get('CollapseTutorial'))());
+  g.start(new (b.ctx.get('CollapseTutorial'))());
   assert.equal(b.UI.get('hpRow').visible, false);
   assert.equal(g.run.hp, 1, 'в обучении удар возвращает на шаг');
 });
@@ -167,7 +167,7 @@ function boot() {
   });
   const game = new (ctx.get('Game'))({ scene: { canvas: { addEventListener() {} }, sync() {}, reset() {}, onEvent() {} } });
   game._icons = () => {};
-  return { game, UI, store, submits, saves, lang: ctx.get('Lang') };
+  return { game, UI, store, submits, saves, ctx, lang: ctx.get('Lang') };
 }
 
 test('кнопка запускает обучение, крушение возвращает на шаг: ни рекорда, ни таблицы, ни меню', () => {

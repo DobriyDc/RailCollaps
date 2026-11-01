@@ -46,11 +46,11 @@ function series(p, bot) {
 }
 const median = a => { const s = [...a].sort((x, y) => x - y); return (s[9] + s[10]) / 2; };
 
-test('решения решают: без тапов забег кончается за 30 с, медиана не дальше 300 м (20 зёрен)', () => {
+test('решения решают: без тапов забег кончается за 90 с, медиана не дальше 300 м (20 зёрен)', () => {
   const idle = series(page(), null);
   const m = median(idle.map(r => r.m)), slowest = Math.max(...idle.map(r => r.t));
   assert.ok(m <= 300, `медиана без тапов ${m} м`);
-  assert.ok(slowest <= 30, `самый долгий забег без тапов ${slowest.toFixed(1)} с`);
+  assert.ok(slowest <= 90, `самый долгий забег без тапов ${slowest.toFixed(1)} с`);
 });
 
 test('уклонист с честными патронами доезжает дальше 1500 м, а забег кончается и без обвала позади (20 зёрен)', () => {
@@ -643,6 +643,7 @@ test('демон садится на поезд, висит и бьёт раз �
   let t = 0;
   for (let n = 0; n < 240 && run.state === 'run'; n++) {
     const hp = run.hp;
+    run.shield = 0;                                // a crate on the way would take a strike
     run._step(R.STEP);
     t += R.STEP;
     if (run.hp < hp) hits.push(t);

@@ -47,7 +47,7 @@ const CollapseRules = {
         { id: 'slow', lane: 2, len: 6, pickups: [[3, 2, 'slow']] },
         { id: 'shield', lane: 2, len: 8, pickups: [[2, 2, 'shield']], lava: [[6, 2]] },
         { id: 'rescue', lane: 2, len: 8, pickups: [[2, 2, 'rescue']], gaps: [[6, 2, 1]] },
-        { id: 'demon', lane: 1, len: 12, demons: [[4, -1]] },
+        { id: 'demon', lane: 1, len: 16, demons: [[4, -1]] },
         { id: 'collapse', lane: 1, len: 15, forks: [[4, 1, 2]], pickups: [[8, 2, 'boost']], rush: true },
         { id: 'done', lane: 2, len: 8 },
     ],
