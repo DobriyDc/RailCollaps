@@ -41,7 +41,7 @@ function ride(p, seed, shop = true, stopAt = Infinity) {
         if (!shop || !k || run.buy(k) !== 'ok') break;
       }
       run.leave();
-    } else dodge(run, R);
+    } else if (f < 60 * 300) dodge(run, R);     // the bot never tires: a run has to end
     run.update(1 / 60);
   }
   return run;
@@ -65,6 +65,12 @@ test('станция стоит на покое, обвал отстаёт, а �
     }
     assert.ok(at >= (k + 1) * s.stretch && at < (k + 1) * (s.stretch + 15), `станция ${k}: ${at}`);
   }
+  // A collapse past its rush when the approach begins.
+  for (let f = 0; f < 60 * 120 && run.pos < run.stationAt - s.approach - 1; f++) { dodge(run, R); run.update(1 / 60); }
+  run.startCollapse();
+  run.collapseEnd = 1e9;
+  run.collapseFrom = -99;
+  run.front = run.pos - run.gapBase;
   arrive(run, R);
   const gap = run.pos - run.front, left = run.stopLeft;
   assert.ok(gap > run.gapBase + s.approach * 0.8, `зазор на станции ${gap}`);

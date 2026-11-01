@@ -41,8 +41,8 @@ const TG = {
         }
     },
 
-    // ?land: lockOrientation holds the orientation the phone is in, no call asks for landscape: the
-    // lock comes after the turn, a tall screen lets go so the player can turn the phone.
+    // lockOrientation holds the orientation the phone is in, no call asks for another: the lock comes
+    // after the turn, the wrong orientation lets go so the player can turn the phone.
     holdOrientation(wide) {
         if (!this.at('8.0')) return;
         this._call(() => { if (wide) this.app.lockOrientation(); else this.app.unlockOrientation(); });

@@ -1,4 +1,4 @@
-// UILand.js — the HUD of the wide-screen prototype (?land, card 45): fields laid over the records of
+// UILand.js — the HUD of the wide screen (IS_LAND, card 45): fields laid over the records of
 // UILayout.js by id (UI.overlay), numbers in px of a screen UI_REF_HEIGHT_LAND tall. The top plate
 // becomes the left one, the bottom plate the right one, the middle of the screen stays the game's.
 // Not in the editor: its UI tab shows the portrait layout, this table is edited by hand.
@@ -12,9 +12,7 @@ const UI_LAND = {
     best: { x: 40, y: 70, w: 98 },
     stationMoneyIcon: { x: 14, y: 74 },
     stationMoney: { x: 40, y: 70, w: 98 },
-    gauge: { parent: 'frameTop', x: 29, y: 138 },
-    ammoIcon: { parent: 'frameTop', x: 44, y: 262 },
-    ammo: { parent: 'frameTop', x: 70, y: 262 },
+    ammoSocket: { parent: 'frameTop', anchor: 'top-center', x: 0, y: 138 },
     pauseBtn: { parent: 'frameBottom', anchor: 'top-center', x: 0, y: 18, w: 72, h: 72 },
     portraitFrame: { y: 106 },
     portrait: { y: 116 },
@@ -23,6 +21,7 @@ const UI_LAND = {
     hint: { parent: '', anchor: 'top-center', x: 0, y: 8, fontSize: 15 },
     stationNext: { parent: '', anchor: 'top-center', x: 0, y: 8, fontSize: 15 },
     effect: { parent: '', anchor: 'top-center', x: 0, y: 30, fontSize: 15 },
+    collapseNote: { y: 52 },
     tutorialBox: { x: UI_LAND_PLATE, y: 0, h: 72 },
     iconStrip: { x: UI_LAND_PLATE, y: 0 },
     stationShop: { y: 100 },
@@ -30,4 +29,21 @@ const UI_LAND = {
     boardList: { h: 310 },
     boardRow: { h: 30 },
     boardMe: { y: 378 },
+    // The settings in two columns: the low screen has no room for the portrait's five rows.
+    settingsScreen: { w: 640, h: 338 },
+    musicLabel: { x: -158 },
+    musicValue: { x: -158 },
+    musicBar: { x: -158 },
+    musicPlus: { anchor: 'top-left', x: 252 },
+    sfxLabel: { x: -158 },
+    sfxValue: { x: -158 },
+    sfxBar: { x: -158 },
+    sfxPlus: { anchor: 'top-left', x: 252 },
+    languageLabel: { x: 158, y: 62 },
+    languageRU: { x: 332, y: 96 },
+    languageEN: { y: 96 },
+    orientationLabel: { x: 158, y: 160 },
+    orientationPortrait: { x: 332, y: 194 },
+    orientationLand: { y: 194 },
+    settingsBack: { y: 266 },
 };

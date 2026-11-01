@@ -29,7 +29,7 @@ function layersInWorld(p, r, time, pos) {
   scene.ruin = r;
   scene.time = time;
   scene.bgLayers = r.stands.map((_, k) => ({ back: k * 1000, buf: new Float32Array(16 * p.get('CollapseRuin').STANDS),
-    mesh: { thinInstanceBufferUpdated() {} } }));
+    mesh: { thinInstanceBufferUpdated() {}, setEnabled() {}, material: { emissiveTexture: {} } } }));
   scene._syncLayers(pos);
   return scene.bgLayers.map(l => r.stands[scene.bgLayers.indexOf(l)].map((_, n) => l.buf[n * 16 + 14] + pos * S.SEG + l.back));
 }
@@ -65,9 +65,30 @@ test('рухнувшие куски и слои стоят в мире: пози
   assert.deepEqual(layersInWorld(p, a.r, a.t, a.front + 6), layersInWorld(p, b.r, b.t, b.front + 9));
 });
 
-test('слой не едет: поезд ушёл на 10 сегментов, мировое место слоя то же', () => {
+test('слой не едет: поезд ушёл на 8 сегментов, мировое место слоя то же', () => {
   const p = page(), { r, front, t } = ride(p, 6, 20);
-  assert.deepEqual(layersInWorld(p, r, t, front + 6), layersInWorld(p, r, t, front + 16));
+  assert.deepEqual(layersInWorld(p, r, t, front + 6), layersInWorld(p, r, t, front + 14));
+});
+
+test('новый обвал начинается в темноте: старт не играется, завал светит только вблизи', () => {
+  const p = page(), S = p.get('CollapseScene'), Ruin = p.get('CollapseRuin'), r = new Ruin(), c = p.get('CollapseRules').cfg();
+  assert.ok(c.eventGap < S.BEHIND, 'обвал стартует внутри окна сегментов');
+  r.begin(-1e9);
+  assert.equal(r.fallen(100, 5), -1, 'до обвала туннель цел');
+  r.update(100 - c.eventGap, 100, 5);
+  assert.equal(r.blows, 0, 'скачок к новому месту не удар');
+  assert.equal(r.struck.size, 0);
+  assert.ok(r.fallen(100 - c.eventGap - 1, 5) > 0, 'позади него пусто');
+  const level = gap => {
+    const mesh = { thinInstanceBufferUpdated() {}, setEnabled(on) { this.on = on; }, material: { emissiveTexture: {} } };
+    const scene = Object.create(S.prototype);
+    Object.assign(scene, { ruin: r, time: 5, bgLayers: [{ back: 0, buf: new Float32Array(16 * Ruin.STANDS), mesh }] });
+    scene._syncLayers(r.edge + gap);
+    return mesh.on ? mesh.material.emissiveTexture.level : 0;
+  };
+  assert.equal(level(c.frontMaxGap), 1);
+  assert.ok(level(12) > 0 && level(12) < 1);
+  assert.equal(level(S.BEHIND), 0);
 });
 
 test('кусок рядом с поездом выбран у поезда, но дальше поезд его не тянет', () => {

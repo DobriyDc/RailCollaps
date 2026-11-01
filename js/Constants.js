@@ -42,8 +42,9 @@ const IS_MOBILE = (() => {
     return userAgentMobile || isiPad || (hasTouchScreen && isSmallScreen);
 })();
 
-// ?land in the address: the wide-screen prototype (card 45): camera COLLAPSE_LAND_*, plates at the sides (UILand.js).
-const IS_LAND = typeof location !== 'undefined' && new URLSearchParams(location.search).has('land');
+// The wide screen: the player's choice in the settings, or ?land in the address. Read once at load: camera
+// COLLAPSE_LAND_*, plates at the sides (UILand.js).
+const IS_LAND = Store.get('collapse.orientation') === 'land' || (typeof location !== 'undefined' && new URLSearchParams(location.search).has('land'));
 
 // --- LOCATION (Location3D.js, Terrain3D.js). World units are px: x to the right, y down
 // the map, height up (skill world3d, §Coordinates). ---
@@ -86,7 +87,7 @@ const GAME_STEP_SEC = 0.35;             // s: between footstep sounds while the 
 
 // --- RAIL LINK: COLLAPSE (CollapseRules.js — the run, CollapseScene.js — the tunnel). Distance is
 // counted in track SEGMENTS; the first numbers of the prototype, tuned in playtests (GDD v3 §8) ---
-const COLLAPSE_RULES_VERSION = 3;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
+const COLLAPSE_RULES_VERSION = 4;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
 const COLLAPSE_SEG_METERS = 10;         // m of distance shown per segment
 const COLLAPSE_SPEED = 2.2;             // segments/s: train speed at the start
 const COLLAPSE_SPEED_GROWTH = 0.0025;   // segments/s added per segment travelled
@@ -94,8 +95,14 @@ const COLLAPSE_SPEED_MAX = 4.5;         // segments/s: the train never goes fast
 const COLLAPSE_FRONT_SPEED = 1.8;       // segments/s: the collapse behind the train at the start
 const COLLAPSE_FRONT_GROWTH = 0.004;    // segments/s added to the collapse per segment travelled (overtakes the train at ~2.7 km)
 const COLLAPSE_FRONT_MAX = 4.8;         // segments/s: collapse speed cap (above the train's cap: boosts are needed late)
-const COLLAPSE_FRONT_START_GAP = 5;     // segments between the collapse and the train at the start
-const COLLAPSE_FRONT_MAX_GAP = 6;       // segments: the collapse never falls farther behind than this (a late decelerator lets it reach the train)
+const COLLAPSE_FRONT_MAX_GAP = 6;       // segments: while it runs, the collapse never falls farther behind than this (a decelerator lets it reach the train)
+const COLLAPSE_EVENT_FROM = 150;        // segments: no collapse before this point (1500 m), from here on it is a random event
+const COLLAPSE_EVENT_EVERY = 50;        // segments: one roll per this stretch of the way (500 m)
+const COLLAPSE_EVENT_CHANCE = 0.12;     // 0..1: chance that a stretch has a collapse
+const COLLAPSE_EVENT_LEN = 50;          // segments the collapse runs before it stops (500 m)
+const COLLAPSE_EVENT_GAP = 15;          // segments behind the train it starts at: out of the dark, under CollapseScene.BEHIND
+const COLLAPSE_EVENT_RUSH_SEC = 4;      // s it takes to come in from that gap to COLLAPSE_FRONT_MAX_GAP: the player's warning
+const COLLAPSE_EVENT_PACE = 1.12;       // at least this share of the train's own speed: a plain ride ends the event about 1.5 segments ahead of it
 const COLLAPSE_BOOST_MULT = 1.5;        // accelerator: speed multiplier
 const COLLAPSE_BOOST_SEC = 4;           // s: accelerator duration
 const COLLAPSE_SLOW_MULT = 0.65;        // decelerator: speed multiplier
@@ -325,6 +332,4 @@ const WORLD3D_TOON_OUTLINE_PROP_WIDTH = 1;  // screen px: environment outline (t
 
 // Dashboard reaction hold, in seconds of active run time.
 const UI_PORTRAIT_SEC = 0.9;
-const UI_GAUGE_MIN_DEG = -120;
-const UI_GAUGE_MAX_DEG = 120;
 const UI_PORTRAIT_TENSE_GAP = 0.5;

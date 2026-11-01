@@ -53,12 +53,71 @@ test('решения решают: без тапов забег кончаетс
   assert.ok(slowest <= 30, `самый долгий забег без тапов ${slowest.toFixed(1)} с`);
 });
 
-test('уклонист с честными патронами доезжает дальше 1500 м, но обвал без ускорителей его настигает (20 зёрен)', () => {
+test('уклонист с честными патронами доезжает дальше 1500 м, а забег кончается и без обвала позади (20 зёрен)', () => {
   const dodger = series(page(), dodgeBot);
   const m = median(dodger.map(r => r.m)), t = median(dodger.map(r => r.t));
   assert.ok(m >= 1500, `медиана уклониста ${m} м`);
-  // A short run (GDD v3: a session of 2–4 minutes): the gap melts without boosts.
-  assert.ok(dodger.every(r => r.over) && t <= 240, `медиана уклониста ${t.toFixed(0)} с, живых ${dodger.filter(r => !r.over).length}`);
+  // The bot never tires, a player does: most runs end on the hazards in minutes.
+  assert.ok(dodger.filter(r => r.over).length >= 16 && t <= 420, `медиана уклониста ${t.toFixed(0)} с, живых ${dodger.filter(r => !r.over).length}`);
+});
+
+// Every collapse of a seed over `n` stretches, without a ride: the rolls alone.
+function rolls(p, seed, n) {
+  const run = new (p.get('CollapseRun'))(seed), c = run.c, out = [];
+  run.invuln = 1e9;
+  for (let i = 1; i < c.eventFrom + n * c.eventEvery; i++) {
+    const was = run.collapseAt;
+    run._enter(i);
+    if (run.collapseAt !== was) out.push(run.collapseAt);
+  }
+  return out;
+}
+
+test('обвал — случайное событие: до 1500 м его нет, потом 12 % на 500 м пути, место случайно', () => {
+  const p = page(), c = p.get('CollapseRules').cfg();
+  assert.deepEqual([c.eventFrom * c.segMeters, c.eventEvery * c.segMeters, c.eventChance], [1500, 500, 0.12]);
+  const hits = [];
+  for (let seed = 1; seed <= 2000; seed++) hits.push(...rolls(p, seed, 10));
+  const share = hits.length / (2000 * 10);
+  assert.ok(share > 0.11 && share < 0.13, `доля участков с обвалом ${share}`);
+  assert.ok(hits.every(at => at >= c.eventFrom), 'раньше 1500 м');
+  const places = new Set(hits.map(at => (at - c.eventFrom) % c.eventEvery));
+  assert.ok(places.size >= 45, `мест внутри участка ${places.size}`);
+});
+
+test('зерно задаёт обвалы и не меняет трассу', () => {
+  const p = page(), run = new (p.get('CollapseRun'))(5), other = new (p.get('CollapseTrack'))(5);
+  assert.deepEqual(rolls(p, 5, 60), rolls(p, 5, 60));
+  assert.notDeepEqual(rolls(p, 5, 60), rolls(p, 6, 60));
+  rolls(p, 5, 60);
+  for (let i = 0; i < 400; i++) assert.equal(JSON.stringify(run.track.seg(i)), JSON.stringify(other.seg(i)), `сегмент ${i}`);
+});
+
+test('обвал выходит из темноты, идёт свою длину и останавливается; поезд уходит от него', () => {
+  const p = page(), CollapseRun = p.get('CollapseRun');
+  const clear = { kind: 'calm', gap: [false, false, false], lava: [false, false, false], pickup: [null, null, null], forks: [], demon: null };
+  const run = new CollapseRun(1), c = run.c;
+  run.track.seg = () => clear;
+  run.pos = run._seg = 100;
+  runFrames(run, 60);
+  assert.ok(run.pos - run.front > 1e8, 'до события обвала нет');
+  assert.equal(run.collapsing, false);
+  run.events.length = 0;
+  run.startCollapse();
+  assert.deepEqual([...run.events].map(e => e.type), ['collapse']);
+  assert.ok(Math.abs(run.pos - run.front - c.eventGap) < 1e-9);
+  assert.equal(run.collapseRush, true);
+  runFrames(run, Math.ceil(60 * c.eventRushSec) + 1);
+  assert.equal(run.collapseRush, false);
+  assert.ok(run.pos - run.front <= c.frontMaxGap + 1e-9, 'подошёл к зазору погони');
+  const end = run.collapseEnd;
+  runFrames(run, 60 * 60, r => r.pos >= end);
+  assert.equal(run.state, 'run', 'на чистом ходу поезд уходит');
+  const stood = run.front, gap = run.pos - run.front;
+  assert.ok(gap > 1, `зазор в конце ${gap}`);
+  runFrames(run, 60);
+  assert.equal(run.front, stood, 'остановился');
+  assert.ok(run.pos - run.front > gap);
 });
 
 // Card 28: the shop sells accelerators and rescues. Pickups on 20 seeds × 3000 segments before it.
@@ -93,26 +152,27 @@ test('объезд без ресурса — тихий участок без с
   assert.equal(trips, lanes, 'на объезд две стрелки и один ресурс');
 });
 
-test('замедлитель на поздней дистанции подпускает обвал до поезда, в начале — нет', () => {
+test('замедлитель подпускает обвал до поезда, пока тот идёт, а без обвала ничем не грозит', () => {
   const p = page();
   const CollapseRun = p.get('CollapseRun');
   const clear = { kind: 'calm', gap: [false, false, false], lava: [false, false, false], pickup: [null, null, null], forks: [], demon: null };
-  // The collapse at its natural distance after 20 s on a clear track from segment `from`, then a
-  // decelerator: the gap before and the smallest gap while slowed.
-  const slowAt = from => {
+  // Past the rush of a collapse on a clear track, then a decelerator: the gap before and the
+  // smallest gap while slowed.
+  const slowAt = (from, on) => {
     const run = new CollapseRun(1);
     run.track.seg = () => clear;
-    run.pos = from; run._seg = from; run.front = from - run.c.frontMaxGap; run.invuln = 1e9;
-    runFrames(run, 60 * 20);
+    run.pos = from; run._seg = from; run.invuln = 1e9;
+    if (on) run.startCollapse();
+    runFrames(run, 60 * 5);
     const before = run.pos - run.front;
     run.slow = run.c.slowSec;
     let min = before;
     runFrames(run, Math.round(60 * run.c.slowSec), r => { min = Math.min(min, r.pos - r.front); return false; });
     return { before, min, km: run.pos * run.c.segMeters / 1000 };
   };
-  const early = slowAt(0), late = slowAt(300);
-  assert.ok(early.min >= 2, `в начале замедлитель губит: зазор ${early.before.toFixed(1)} -> ${early.min.toFixed(1)}`);
-  assert.ok(late.min <= 1, `на ${late.km.toFixed(1)} км зазор ${late.before.toFixed(1)} -> ${late.min.toFixed(1)} сегм.: обвал не подходит`);
+  const quiet = slowAt(0, false), chased = slowAt(300, true);
+  assert.ok(quiet.min > 100, `без обвала зазор ${quiet.min.toFixed(1)}`);
+  assert.ok(chased.min <= 1.5, `на ${chased.km.toFixed(1)} км зазор ${chased.before.toFixed(1)} -> ${chased.min.toFixed(1)} сегм.: обвал не подходит`);
 });
 
 test('трасса детерминирована по зерну: одно зерно — одна трасса, другое зерно — другая', () => {
@@ -288,6 +348,7 @@ test('без действий поезд падает; спасение выта
 test('обвал позади догоняет медленный поезд; одно продолжение за забег', () => {
   const p = page();
   const run = new (p.get('CollapseRun'))(21);
+  run.startCollapse();
   run.front = run.pos - 0.2;
   run.update(1 / 60);
   assert.equal(run.state, 'over');
@@ -373,6 +434,7 @@ test('обвал позади сам догоняет медленный пое�
   const CollapseRules = p.get('CollapseRules');
   const run = new (p.get('CollapseRun'))(3);
   run.ammo = 999;
+  run.startCollapse();
   for (let f = 0; f < 60 * 120 && run.state === 'run'; f++) {
     run.slow = 1;                                   // the decelerator never wears off
     escapeBot(run, CollapseRules);
@@ -579,6 +641,7 @@ test('щит прощает поток лавы и касание обвала; 
 
   const caught = new CollapseRun(1);
   caught.shield = 1;
+  caught.startCollapse();
   caught.front = caught.pos - 0.2;
   caught.update(1 / 60);
   assert.equal(caught.state, 'run');

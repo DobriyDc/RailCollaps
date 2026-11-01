@@ -1,5 +1,5 @@
-// CollapseRuin.js — what the collapse has done to the world (card 46). CollapseRun.front moves smoothly
-// and stays near the train, so a picture tied to it rides behind the train. This class turns it into
+// CollapseRuin.js — what the collapse has done to the world (card 46). While it runs, CollapseRun.front
+// moves smoothly and stays near the train, so a picture tied to it rides behind the train. This class turns it into
 // blows: whole sections go at once, with pauses between, and from then on everything is written down
 // in world coordinates and never looks at the train again. The scene takes `pos * SEG` off at the end.
 // The view only: the rules do not read it. Pure: the probes run it in node.
@@ -25,8 +25,8 @@ class CollapseRuin {
         this.begin(0);
     }
 
-    // A new run: what lies behind `front` fell long ago, nothing of it is played.
-    begin(front) {
+    // A new run or a new collapse: what lies behind `front` fell long ago, nothing of it is played.
+    begin(front, time = -1e9) {
         this.edge = this.nextBreak(Math.ceil(front));
         this.front = front;
         /** @type {Map<number, number>} */
@@ -34,7 +34,7 @@ class CollapseRuin {
         this.blows = 0;
         // Stands of each layer, from the far one to the rubble: a place in the world, once and for all.
         /** @type {{ at: number, t: number }[][]} */
-        this.stands = CollapseRuin.LAYER_EVERY.map(() => [{ at: this.edge, t: -1e9 }]);
+        this.stands = CollapseRuin.LAYER_EVERY.map(() => [{ at: this.edge, t: time }]);
         /** @type {any[]} */
         this.chunks = [];
         /** @type {any[]} */
@@ -59,6 +59,7 @@ class CollapseRuin {
     // room than the run has, and stops short of the train's tail. It never goes back: a shield or a
     // continue pushes the front back, and what has fallen stays down until the front is here again.
     update(front, pos, time, trainX = 0) {
+        if (front > this.edge + CollapseRuin.JUMP) this.begin(front, time);
         this.front = front;
         const to = Math.min(this.nextBreak(Math.ceil(front)), Math.max(Math.ceil(front), Math.ceil(pos - CollapseRuin.TAIL)));
         if (to > this.edge) this._blow(to, pos, time, trainX);
@@ -179,6 +180,7 @@ class CollapseRuin {
 }
 
 CollapseRuin.TAIL = 1.6;                   // segments behind the train's position the edge stops
+CollapseRuin.JUMP = 12;                    // segments: a front this far past the edge is a new collapse, not a blow
 CollapseRuin.LAYER_EVERY = [5, 4, 3, 0];   // sections between stands of each layer; 0 — every blow
 CollapseRuin.STANDS = 3;                   // stands of one layer kept in the world
 CollapseRuin.STAND_FALL = 1100;            // world units a new stand comes down from

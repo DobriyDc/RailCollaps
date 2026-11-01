@@ -610,7 +610,12 @@ class CollapseScene {
     // straight into the instance buffer. The train's position only turns the world into the view.
     _syncLayers(pos) {
         const S = CollapseScene, ruin = this.ruin;
+        // The wreck glows only near: it comes up out of the dark and goes back into it as the train leaves.
+        const lit = 1 - Math.max(0, Math.min(1, (pos - ruin.edge - S.WRECK_LIT) / (S.BEHIND - S.WRECK_LIT)));
         this.bgLayers.forEach((l, k) => {
+            l.mesh.setEnabled(lit > 0);
+            if (lit <= 0) return;
+            l.mesh.material.emissiveTexture.level = lit;
             const stands = ruin.stands[k];
             stands.forEach((s, n) => {
                 const o = n * 16;
@@ -630,7 +635,7 @@ class CollapseScene {
 
         // Cracks: segments from the edge to crackZone ahead of the front; they grow as it comes and
         // ride the wall or vault piece they sit on when it starts to fall.
-        const from = edge - 1, to = Math.ceil(edge + this.crackZone);
+        const from = Math.max(edge - 1, Math.floor(pos) - S.BEHIND), to = Math.ceil(edge + this.crackZone);
         for (let i = from; i <= to; i++) {
             const near = ruin.crack(i);
             if (near <= 0) continue;
@@ -1359,6 +1364,7 @@ CollapseScene.BODIES = {
     pickup: { hw: CollapseScene.PICKUP.w / 2, top: CollapseScene.PICKUP.y + CollapseScene.PICKUP.h + CollapseScene.PICKUP.bob },
 };
 CollapseScene.BEHIND = 16;        // segments drawn behind the train (into the vanishing point)
+CollapseScene.WRECK_LIT = 7;      // segments behind the train the wreck of the collapse glows in full, gone by BEHIND
 CollapseScene.DEBRIS = 40;        // instances of one chunk or dust frame at once
 CollapseScene.DELAY = { vault: 0, torch: 0.05, rib: 0.1, 'wall-hi': 0.15, 'wall-lo': 0.3, floor: 1 };   // segments a piece waits past the edge
 CollapseScene.LEAN = { vault: 0.75, torch: 0.45, rib: 0.55, 'wall-hi': 0.45, 'wall-lo': 0.25, floor: 0 };  // how far it leans in as it falls

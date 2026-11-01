@@ -64,6 +64,9 @@ class Game {
         }
         on('languageRU', () => Lang.set('ru'));
         on('languageEN', () => Lang.set('en'));
+        on('orientationPortrait', () => this.setOrientation(false));
+        on('orientationLand', () => this.setOrientation(true));
+        on('rotateBack', () => this.setOrientation(false));
         this.tutorialPassed = Store.get('collapse.tutorial') === '1';
         Lang.listeners.add(() => this.refreshLanguage());
         this.refreshLanguage();
@@ -82,7 +85,7 @@ class Game {
         this._show('menu', true);
         this._show('tutorialBox', false);
         for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen']) this._show(id, id === screen);
-        for (const id of ['frameTop', 'frameBottom', 'iconStrip', 'stationShop']) this._show(id, false);
+        for (const id of ['frameTop', 'frameBottom', 'iconStrip', 'stationShop', 'collapseNote']) this._show(id, false);
         this._show('menuExit', TG.inside);
     }
 
@@ -117,6 +120,20 @@ class Game {
         for (const [id, code] of [['languageRU', 'ru'], ['languageEN', 'en']]) {
             this._set(id, (Lang.code === code ? '✓ ' : '') + Lang.t(code));
         }
+        for (const [id, land, key] of [['orientationPortrait', false, 'portrait'], ['orientationLand', true, 'landscape']]) {
+            this._set(id, (IS_LAND === land ? '✓ ' : '') + Lang.t(key));
+        }
+    }
+
+    // The camera, the plates and the scale of the layout hang on IS_LAND, read once at load: the choice
+    // reloads the page. ?land in the address would overrule it, so it goes too.
+    setOrientation(land) {
+        if (land === IS_LAND) return;
+        Store.set('collapse.orientation', land ? 'land' : 'portrait');
+        const url = new URL(location.href);
+        url.searchParams.delete('land');
+        history.replaceState(null, '', url.href);
+        location.reload();
     }
 
     // Segments ahead of the train where a body standing on the floor at x (half width hw, top at
@@ -233,14 +250,16 @@ class Game {
         TG.runStarted();
     }
 
-    // ?land on a tall screen: the game waits behind the request to turn the phone, and a run pauses.
-    // Telegram locks only the orientation the phone is already in, so the lock follows the turn.
+    // The wide game on a tall screen waits behind the request to turn the phone, and a run pauses; a
+    // phone that cannot turn leaves by rotateBack. Telegram locks only the orientation the phone is
+    // already in, so the lock follows the turn, both ways: the choice may come with the phone held wrong.
     fitOrientation() {
-        if (!IS_LAND) return;
         const c = this.scene.canvas, tall = c.clientHeight > c.clientWidth;
+        TG.holdOrientation(tall !== IS_LAND);
+        if (!IS_LAND) return;
         this._show('rotateNote', tall);
+        this._show('rotateBack', tall);
         if (tall) this.setPaused(true);
-        TG.holdOrientation(!tall);
     }
 
     // Pause by the button or when the app is minimized; resuming is always the player's tap.
@@ -329,7 +348,7 @@ class Game {
         }
         if (ev.type === 'shot') TG.haptic('shot');
         else if (ev.type === 'pickup') TG.haptic('pickup');
-        else if (ev.type === 'shielded' || ev.type === 'rescued') TG.haptic('shield');
+        else if (ev.type === 'shielded' || ev.type === 'rescued' || ev.type === 'collapse') TG.haptic('shield');
         else if (ev.type === 'crash') {
             TG.haptic('crash');
             TG.runEnded();
@@ -401,7 +420,7 @@ class Game {
             rate: rateMin + (rateMax - rateMin) * pace,
             wheels: going * (typeof AUDIO_WHEELS_VOLUME !== U ? AUDIO_WHEELS_VOLUME : 0.5),
             steam: going * (typeof AUDIO_STEAM_VOLUME !== U ? AUDIO_STEAM_VOLUME : 0.3),
-            rumble: (rumbleFar + (1 - rumbleFar) * near ** curve) * (typeof AUDIO_RUMBLE_VOLUME !== U ? AUDIO_RUMBLE_VOLUME : 0.9),
+            rumble: gap === Infinity ? 0 : (rumbleFar + (1 - rumbleFar) * near ** curve) * (typeof AUDIO_RUMBLE_VOLUME !== U ? AUDIO_RUMBLE_VOLUME : 0.9),
         };
     }
 
@@ -415,7 +434,7 @@ class Game {
             this._loops = {};
             return;
         }
-        const mix = Game.loopMix(run.speed(), run.c.speedMax, run.pos - run.front, run.c.frontMaxGap);
+        const mix = Game.loopMix(run.speed(), run.c.speedMax, run.collapsing ? run.pos - run.front : Infinity, run.c.eventGap);
         for (const [name, src] of Object.entries(Game.LOOPS)) {
             const train = name !== 'rumble', volume = mix[name], rate = train ? mix.rate : 1;
             if (!this._loops[name]) this._loops[name] = Sound3D.play(src, { loop: true, volume, rate });
@@ -567,6 +586,7 @@ class Game {
             case 'shielded': return [S.shield];
             case 'rescued': return [S.rescue];
             case 'demon': return [S.demonShow];
+            case 'collapse': return [S.collapse];
             case 'demon-killed': return [S.shot, S.demonDown];
             case 'crash': return [ev.reason === 'gap' ? S.fall : ev.reason === 'lava' ? S.lava : ev.reason === 'caught' ? S.caught : S.hit];
             case 'continued': return [S.continue];
@@ -581,7 +601,7 @@ class Game {
     static portraitEvent(ev) {
         if (ev.type === 'crash' || ev.type === 'shielded') return ev.reason === 'gap' ? 'fall' : ev.reason === 'lava' ? 'fire' : 'hit';
         if (['pickup', 'demon-killed', 'rescued', 'continued'].includes(ev.type)) return 'joy';
-        if (['demon', 'no-ammo'].includes(ev.type)) return 'tense';
+        if (['demon', 'no-ammo', 'collapse'].includes(ev.type)) return 'tense';
         return '';
     }
 
@@ -602,12 +622,6 @@ class Game {
     }
 
     _hud(run) {
-        const needle = UI.get('needle');
-        if (needle) {
-            const min = typeof UI_GAUGE_MIN_DEG !== 'undefined' ? UI_GAUGE_MIN_DEG : -120;
-            const max = typeof UI_GAUGE_MAX_DEG !== 'undefined' ? UI_GAUGE_MAX_DEG : 120;
-            needle.setAngle(min + Math.min(1, run.speed() / (run.c.speedMax * Math.max(1, run.c.boostMult))) * (max - min));
-        }
         this._portrait(run);
         this._set('dist', String(run.meters));
         this._set('ammo', String(run.ammo));
@@ -621,6 +635,7 @@ class Game {
             const chase = UI.get('chase');
             if (chase) chase.setValue(gap);
         }
+        this._show('collapseNote', this.mode === 'play' && !run.tutorial && run.collapseRush);
         if (this.mode !== 'play') return;
         if (run.tutorial) {
             this._show('hint', false);
@@ -674,6 +689,7 @@ Game.SOUNDS = {
     lava: 'assets/sounds/sfx_lava.wav',
     fall: 'assets/sounds/sfx_fall.wav',
     caught: 'assets/sounds/sfx_caught.wav',
+    collapse: 'assets/sounds/sfx_collapse.wav',
     continue: 'assets/sounds/sfx_continue.wav',
     station: 'assets/sounds/sfx_station.wav',
     depart: 'assets/sounds/sfx_depart.wav',

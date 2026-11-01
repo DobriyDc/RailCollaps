@@ -67,6 +67,12 @@ test('каждое событие забега даёт свой звук: ти�
   for (const f of [...Object.values(Game.SOUNDS), ...Object.values(Game.LOOPS), Game.MUSIC]) assert.ok(made[path.basename(f)], f);
 });
 
+test('рокот слышен только пока обвал идёт и растёт с его приближением', () => {
+  const Game = page().Game, mix = gap => Game.loopMix(3, 4.5, gap, 15).rumble;
+  assert.equal(mix(Infinity), 0);
+  assert.ok(mix(15) > 0 && mix(15) < mix(6) && mix(6) < mix(1));
+});
+
 test('файлы — те, что делает генератор; не пустые и не клипуют; музыка 40–60 с', () => {
   const made = MADE;
   for (const [name, bytes] of Object.entries(made)) {
@@ -143,6 +149,7 @@ test('пауза, конец забега и меню глушат циклы; �
   assert.equal(loops().length, 3, 'продолжение');
   assert.equal(game._music.volume, 1);
 
+  game.run.startCollapse();
   game.run.front = game.run.pos;      // caught
   game.update(0.05);
   game.update(0.016);

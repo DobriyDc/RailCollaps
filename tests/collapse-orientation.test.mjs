@@ -64,6 +64,15 @@ test('?land: таблица плашек ложится на записи рас
   // Every panel that shows in a menu fits the low screen.
   const H = p.get('UI_REF_HEIGHT_LAND');
   for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen', 'overBox', 'boardBox']) assert.ok(land.find(d => d.id === id).h <= H, id);
+  // Both layouts keep the settings inside their panel, the portrait one on a low screen under Telegram's inset.
+  for (const [rows, name] of [[layout, 'вертикаль'], [land, 'горизонталь']]) {
+    const panel = rows.find(d => d.id === 'settingsScreen');
+    for (const d of rows.filter(r => r.parent === 'settingsScreen')) {
+      const size = d.kind === 'text' ? { w: 0, h: 24 } : d, box = UI.resolve(d, size.w, size.h, panel.w, panel.h);
+      assert.ok(box.left >= 0 && box.left + size.w <= panel.w && box.top >= 0 && box.top + size.h <= panel.h, `${name}: ${d.id}`);
+    }
+  }
+  assert.ok(layout.find(d => d.id === 'settingsScreen').h <= (568 - 92) / 568 * p.get('UI_REF_HEIGHT'), 'настройки на низком экране');
   const plate = p.get('UI_LAND_PLATE');
   for (const d of land) if (d.parent === 'frameTop' || d.parent === 'frameBottom') if (d.w) assert.ok(d.w <= plate, d.id);
 });
@@ -76,6 +85,14 @@ function client(p, version) {
     setHeaderColor() {}, setBackgroundColor() {}, onEvent() {} };
   return { TG, calls };
 }
+
+test('выбор в настройках включает широкий экран без адреса, другой выбор его не включает', () => {
+  const load = value => loadScripts(['js/Constants.js'], { location: { search: '' }, URLSearchParams,
+    localStorage: { getItem: k => (k === 'collapse.orientation' ? value : null), setItem() {}, removeItem() {} } }).get('IS_LAND');
+  assert.equal(load('land'), true);
+  assert.equal(load('portrait'), false);
+  assert.equal(load(null), false);
+});
 
 test('Telegram: вертикаль запирается при запуске, ?land только после поворота; старый клиент молчит', () => {
   const tall = client(page(), 8);

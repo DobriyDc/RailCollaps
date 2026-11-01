@@ -288,6 +288,18 @@ function caught() {
   return effect(drive(x, 2.2), 0.9);
 }
 
+// The collapse starts far behind: a heavy blow in the dark, then stone going on and on.
+function collapseStart() {
+  const x = buffer(2.2, RATE), rnd = noise(90);
+  thump(x, 0, 80, 26, 7, 1.8, 1.5);
+  burst(x, 0, 2.2, { seed: 91, low: 50, high: 520, attack: 0.05, decay: 1.5, gain: 4.2 });
+  for (let i = 0; i < 9; i++) {              // the blocks, farther and farther apart
+    const at = 0.25 + 1.7 * (i / 9) ** 1.5, f = 55 + 40 * (rnd() + 1);
+    thump(x, at, f, f * 0.55, 26, 14, 0.5 * (1 - i / 14));
+  }
+  return effect(drive(x, 1.8), 0.82, 0.01);
+}
+
 function continued() {
   const x = buffer(0.85, RATE);
   burst(x, 0, 0.85, { seed: 22, low: 500, high: t => 1000 + 6000 * t, attack: 0.25, decay: 2.2, gain: 3.4 });
@@ -456,6 +468,7 @@ function buildSounds() {
     'sfx_lava.wav': writeWav(lava()),
     'sfx_fall.wav': writeWav(fall()),
     'sfx_caught.wav': writeWav(caught()),
+    'sfx_collapse.wav': writeWav(collapseStart()),
     'sfx_continue.wav': writeWav(continued()),
     'sfx_station.wav': writeWav(station()),
     'sfx_depart.wav': writeWav(depart()),

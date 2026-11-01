@@ -69,8 +69,14 @@ const CollapseRules = {
             frontSpeed: typeof COLLAPSE_FRONT_SPEED !== U ? COLLAPSE_FRONT_SPEED : 1.8,
             frontGrowth: typeof COLLAPSE_FRONT_GROWTH !== U ? COLLAPSE_FRONT_GROWTH : 0.004,
             frontMax: typeof COLLAPSE_FRONT_MAX !== U ? COLLAPSE_FRONT_MAX : 4.8,
-            frontStartGap: typeof COLLAPSE_FRONT_START_GAP !== U ? COLLAPSE_FRONT_START_GAP : 5,
             frontMaxGap: typeof COLLAPSE_FRONT_MAX_GAP !== U ? COLLAPSE_FRONT_MAX_GAP : 6,
+            eventFrom: typeof COLLAPSE_EVENT_FROM !== U ? COLLAPSE_EVENT_FROM : 150,
+            eventEvery: typeof COLLAPSE_EVENT_EVERY !== U ? COLLAPSE_EVENT_EVERY : 50,
+            eventChance: typeof COLLAPSE_EVENT_CHANCE !== U ? COLLAPSE_EVENT_CHANCE : 0.12,
+            eventLen: typeof COLLAPSE_EVENT_LEN !== U ? COLLAPSE_EVENT_LEN : 50,
+            eventGap: typeof COLLAPSE_EVENT_GAP !== U ? COLLAPSE_EVENT_GAP : 15,
+            eventRushSec: typeof COLLAPSE_EVENT_RUSH_SEC !== U ? COLLAPSE_EVENT_RUSH_SEC : 4,
+            eventPace: typeof COLLAPSE_EVENT_PACE !== U ? COLLAPSE_EVENT_PACE : 1.12,
             boostMult: typeof COLLAPSE_BOOST_MULT !== U ? COLLAPSE_BOOST_MULT : 1.5,
             boostSec: typeof COLLAPSE_BOOST_SEC !== U ? COLLAPSE_BOOST_SEC : 4,
             slowMult: typeof COLLAPSE_SLOW_MULT !== U ? COLLAPSE_SLOW_MULT : 0.65,
@@ -332,6 +338,10 @@ class CollapseTrack {
 CollapseTrack.BEHIND = collapseSegment('behind');
 
 // The run: position, lane, resources, the collapse behind, events for the scene and the HUD.
+// The collapse is an event (the owner, 2026-11-01): past eventFrom every stretch of eventEvery segments
+// rolls eventChance once, and a hit starts it at a random place of that stretch. It comes out of the
+// dark behind the train and runs for eventLen segments; then `front` stands where it stopped. Its dice
+// are its own: a seed keeps its track.
 class CollapseRun {
     constructor(seed, track = new CollapseTrack(seed)) {
         this.c = CollapseRules.cfg();
@@ -342,7 +352,11 @@ class CollapseRun {
         this.lane = 1;
         this.prevLane = 1;
         this.switchAt = -1e9;         // boundary of the last lane change (for the crossing animation)
-        this.front = -this.c.frontStartGap;
+        this.front = -1e9;            // where the collapse stands: far behind until the first one starts
+        this.collapseEnd = -1e9;      // the segment the running collapse stops at
+        this.collapseAt = -1;         // the segment the next one starts at
+        this.collapseFrom = 0;        // run time it started
+        this.collapseDice = CollapseRules.rng(this.seed ^ 0x9E3779B9);
         this.ammo = this.c.startAmmo;
         this.shield = 0;
         this.rescue = 0;
@@ -373,9 +387,15 @@ class CollapseRun {
 
     get meters() { return Math.floor(this.pos * this.c.segMeters); }
 
+    // The train's own speed, without an accelerator or a decelerator.
+    baseSpeed() {
+        const c = this.c;
+        return Math.min(c.speedMax, c.speed + c.speedGrowth * this.pos);
+    }
+
     speed() {
         const c = this.c;
-        let v = Math.min(c.speedMax, c.speed + c.speedGrowth * this.pos);
+        let v = this.baseSpeed();
         if (this.boost > 0) v *= c.boostMult;
         if (this.slow > 0) v *= c.slowMult;
         return v;
@@ -383,7 +403,22 @@ class CollapseRun {
 
     frontSpeed() {
         const c = this.c;
-        return Math.min(c.frontMax, c.frontSpeed + c.frontGrowth * this.pos);
+        return Math.max(this.baseSpeed() * c.eventPace, Math.min(c.frontMax, c.frontSpeed + c.frontGrowth * this.pos));
+    }
+
+    get collapsing() { return this.pos < this.collapseEnd; }
+
+    // The first seconds of a collapse, while it comes in out of the dark: the HUD warns of it.
+    get collapseRush() { return this.collapsing && this.time - this.collapseFrom < this.c.eventRushSec; }
+
+    startCollapse() {
+        const c = this.c;
+        if (!this.collapsing) {
+            this.front = Math.max(this.front, this.pos - c.eventGap);
+            this.collapseFrom = this.time;
+            this.events.push({ type: 'collapse' });
+        }
+        this.collapseEnd = this.pos + c.eventLen;
     }
 
     // The next fork the train can take from its lane: { at, to: [lanes], armed } or null within `range`.
@@ -507,8 +542,11 @@ class CollapseRun {
         const mid = this._seg + 0.5;
         if (prev < mid && this.pos >= mid) this._collect(this._seg);
 
-        this.front = Math.max(this.front + this.frontSpeed() * h, this.pos - this.c.frontMaxGap);
-        if (this.pos - this.front <= CollapseRules.TRAIN_LEN) this._hit('caught');
+        if (this.collapsing) {
+            const c = this.c, rush = Math.max(0, 1 - (this.time - this.collapseFrom) / c.eventRushSec);
+            this.front = Math.max(this.front + this.frontSpeed() * h, this.pos - c.frontMaxGap - (c.eventGap - c.frontMaxGap) * rush);
+            if (this.pos - this.front <= CollapseRules.TRAIN_LEN) this._hit('caught');
+        }
 
         if (this.demons.length) for (const d of [...this.demons]) {    // no copy per step: the server replays them all
             if (this.state !== 'run') break;
@@ -523,7 +561,12 @@ class CollapseRun {
     }
 
     _enter(i) {
-        const s = this.track.seg(i);
+        const c = this.c, s = this.track.seg(i);
+        if (i >= c.eventFrom && (i - c.eventFrom) % c.eventEvery === 0) {
+            const hit = this.collapseDice() < c.eventChance, place = this.collapseDice();
+            if (hit) this.collapseAt = i + Math.floor(place * c.eventEvery);
+        }
+        if (i === this.collapseAt) this.startCollapse();
         for (const d of s.demon || []) {
             this.demons.push({ at: i, side: d.side, wait: this.c.demonWarn + d.lag, t: this.c.demonPerch + this.c.demonSec });
             if (this.c.demonWarn + d.lag <= 0) this.events.push({ type: 'demon', at: i, side: d.side });
@@ -661,7 +704,8 @@ class CollapseTutorial extends CollapseRun {
     constructor(index = 0, kit = null, failed = false) {
         super(0, new CollapseTutorialTrack());
         const t = CollapseRules.tutorialCfg(), c = this.c;
-        this.c = Object.assign({}, c, { frontSpeed: c.frontSpeed * t.frontMult, frontGrowth: c.frontGrowth * t.frontMult, frontMaxGap: t.frontGap });
+        this.c = Object.assign({}, c, { frontSpeed: c.frontSpeed * t.frontMult, frontGrowth: c.frontGrowth * t.frontMult, frontMaxGap: t.frontGap,
+            eventChance: 0, eventPace: 0, eventGap: t.frontGap });
         this.tutorial = true;
         this.rush = t.rush;
         this.index = index;
@@ -684,6 +728,9 @@ class CollapseTutorial extends CollapseRun {
         return (this.step.pickups || []).every(([at]) => this._taken.has(from + at));
     }
 
+    // Here the collapse is the step's: it runs on the rush step and nowhere else.
+    get collapsing() { return !!this.step.rush; }
+
     frontSpeed() { return this.step.rush && !this._goalTaken() ? this.rush : super.frontSpeed(); }
 
     _step(h) {
@@ -697,6 +744,10 @@ class CollapseTutorial extends CollapseRun {
             this.index++;
             this.failed = false;
             this._kit = this._takeKit();
+            if (this.step.rush) {
+                this.front = this.pos - this.c.frontMaxGap;
+                this.events.push({ type: 'collapse' });
+            }
         }
     }
 

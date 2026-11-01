@@ -84,6 +84,58 @@ test('настройки: громкость обоих каналов пере�
   assert.equal(second.game.mode, 'menu');
 });
 
+test('ориентация: выбор в настройках хранится, перезагружает страницу и снимает ?land; телефон без поворота не застревает', () => {
+  const localStorage = storage(), reloads = [], urls = [], holds = [];
+  const boot = (search = '', size = [390, 844]) => {
+    const elements = new Map();
+    const UI = { get(id) {
+      if (!elements.has(id)) elements.set(id, {
+        setText(v) { this.text = v; return this; }, setValue() { return this; }, setSrc() { return this; },
+        onClick(fn) { this.click = fn; return this; }, show(v) { this.visible = v; return this; },
+      });
+      return elements.get(id);
+    }};
+    const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/Game.js'], {
+      localStorage, UI, Image: class {}, CollapseScene: { LANE_W: 180 }, URL, URLSearchParams,
+      TG: { inside: false, loadBest() {}, runEnded() {}, runStarted() {}, holdOrientation: v => holds.push(v) },
+      Leaderboard: { close() {}, refreshLanguage() {} },
+      location: { search, href: 'https://game.test/' + search + '#tgWebAppData=1', reload: () => reloads.push(1) },
+      history: { replaceState: (a, b, url) => urls.push(url) },
+    });
+    const Game = ctx.get('Game');
+    const game = new Game({ scene: { canvas: { addEventListener() {}, clientWidth: size[0], clientHeight: size[1] }, sync() {}, reset() {} } });
+    game.fitOrientation();
+    return { game, UI };
+  };
+  const first = boot();
+  assert.equal(first.UI.get('orientationPortrait').text, '✓ Вертикаль');
+  assert.equal(first.UI.get('orientationLand').text, 'Горизонталь');
+  first.UI.get('orientationPortrait').click();
+  assert.equal(reloads.length, 0, 'тот же выбор не перезагружает');
+  first.UI.get('orientationLand').click();
+  assert.equal(localStorage.getItem('collapse.orientation'), 'land');
+  assert.equal(reloads.length, 1);
+
+  const tall = boot();
+  assert.equal(tall.UI.get('orientationLand').text, '✓ Горизонталь');
+  assert.equal(tall.UI.get('rotateNote').visible, true);
+  assert.equal(tall.UI.get('rotateBack').visible, true, 'выход для телефона без поворота');
+  assert.equal(holds.at(-1), false, 'держать нечего, пока телефон не повёрнут');
+  tall.UI.get('rotateBack').click();
+  assert.equal(localStorage.getItem('collapse.orientation'), 'portrait');
+  assert.equal(reloads.length, 2);
+
+  const wide = boot('?land', [844, 390]);
+  assert.equal(wide.UI.get('rotateNote').visible, false);
+  assert.equal(holds.at(-1), true);
+  wide.UI.get('orientationPortrait').click();
+  assert.equal(urls.at(-1), 'https://game.test/#tgWebAppData=1', 'адрес не вернёт ширину после перезагрузки');
+  assert.equal(reloads.length, 3);
+
+  boot('', [844, 390]);
+  assert.equal(holds.at(-1), false, 'вертикальная игра на лежащем телефоне не запирается');
+});
+
 test('микшер: настройки применяются после отложенной инициализации и после mute', () => {
   const audio = loadScripts(['js/Constants.js', 'js/Sound3D.js']).get('Sound3D');
   audio.setChannelVolume('music', 0);

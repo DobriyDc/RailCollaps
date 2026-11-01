@@ -16,6 +16,26 @@ const Lang = {
         "ru": "Поверни телефон горизонтально",
         "en": "Turn the phone sideways"
     },
+    "rotateBack": {
+        "ru": "Оставить вертикаль",
+        "en": "Keep it upright"
+    },
+    "collapseNow": {
+        "ru": "Обвал сзади!",
+        "en": "Collapse behind you!"
+    },
+    "orientation": {
+        "ru": "Ориентация",
+        "en": "Orientation"
+    },
+    "portrait": {
+        "ru": "Вертикаль",
+        "en": "Portrait"
+    },
+    "landscape": {
+        "ru": "Горизонталь",
+        "en": "Landscape"
+    },
     "settings": {
         "ru": "Настройки",
         "en": "Settings"
@@ -325,6 +345,9 @@ const Lang = {
     "menuTitle": "title",
     "menuStart": "start",
     "rotateNote": "rotate",
+    "rotateBack": "rotateBack",
+    "collapseNote": "collapseNow",
+    "orientationLabel": "orientation",
     "menuSettings": "settings",
     "menuShop": "shop",
     "menuExit": "exit",

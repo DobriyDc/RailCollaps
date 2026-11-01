@@ -74,7 +74,7 @@ Run from `main.js` as soon as the loading screen is visible, before the 3D scene
 2. `expand()`.
 3. `at('7.7')` → `disableVerticalSwipes()`. Without it a downward swipe minimizes the game mid-run.
 4. `at('8.0') && mobile` → `requestFullscreen()`; on `fullscreenFailed` stay expanded, no retry loop.
-5. `at('8.0')` → `lockOrientation()` for the portrait game. With `?land` the lock waits for the turn (`TG.holdOrientation`, `Game.fitOrientation`): locked early it would hold portrait.
+5. `at('8.0')` → `lockOrientation()` for the portrait game. On the wide screen (the setting or `?land`) the lock waits for the turn (`TG.holdOrientation`, `Game.fitOrientation`): locked early it would hold portrait.
 6. `at('6.1')` → `setHeaderColor` / `setBackgroundColor` to the game's background color.
 7. On run start `enableClosingConfirmation()`, on run end `disableClosingConfirmation()`.
 

@@ -95,18 +95,23 @@ test('трасса той же модели: стрелки ведут на по
   assert.equal(t.seg(end + 20).kind, 'calm', 'за обучением тихая колея');
 });
 
-test('обвал мягче обычного: дальше и медленнее, а догоняет только на своём шаге', () => {
+test('обвал мягче обычного и идёт только на своём шаге', () => {
   const p = page(), run = new (p.get('CollapseTutorial'))(), usual = new (p.get('CollapseRun'))(1);
   assert.ok(run.frontSpeed() < usual.frontSpeed());
-  assert.ok(run.pos - run.front > usual.pos - usual.front);
   const collapse = p.get('CollapseRules').TUTORIAL.findIndex(s => s.id === 'collapse');
-  let least = 1e9;
+  const stood = run.front;
   for (let f = 0; f < LIMIT && run.index < collapse; f++) {
+    assert.equal(run.collapsing, false, 'обвал раньше своего шага');
     play(run);
     run.update(1 / 60);
-    least = Math.min(least, run.pos - run.front);
+    if (run.index < collapse) assert.equal(run.front, stood);
   }
-  assert.ok(least >= 4, `обвал подошёл на ${least.toFixed(1)} сегм. раньше своего шага`);
+  assert.equal(run.index, collapse);
+  assert.equal(run.collapsing, true);
+  assert.ok(Math.abs(run.pos - run.front - run.c.frontMaxGap) < 0.1, 'вышел на своём зазоре');
+  assert.ok(run.events.some(e => e.type === 'collapse'));
+  for (let f = 0; f < LIMIT && run.index === collapse; f++) { play(run); run.update(1 / 60); }
+  assert.equal(run.collapsing, false, 'за своим шагом он стоит');
 });
 
 test('у каждого шага подсказка на обоих языках, не длиннее 90 знаков', () => {
@@ -196,7 +201,7 @@ test('конец обучения: пройдено в Store, новый заб�
 });
 
 
-test('портрет: все шесть кадров приходят из состояния и событий правил, манометр читает скорость', () => {
+test('портрет: все шесть кадров приходят из состояния и событий правил', () => {
   const b = boot(), g = b.game;
   const states = ['calm', 'tense', 'joy', 'hit', 'fire', 'fall'];
   for (const state of states) {
@@ -214,11 +219,4 @@ test('портрет: все шесть кадров приходят из со�
     g.update(0);
     assert.equal(b.UI.get('portrait').src, g.constructor.PORTRAITS[state], state);
   }
-  g.start(); g._hud(g.run);
-  const start = b.UI.get('needle').angle;
-  g.run.pos = 10000; g._hud(g.run);
-  const fast = b.UI.get('needle').angle;
-  g.run.boost = g.run.c.boostSec; g._hud(g.run);
-  assert.ok(start < fast && fast < b.UI.get('needle').angle);
-  assert.equal(b.UI.get('needle').angle, 120);
 });

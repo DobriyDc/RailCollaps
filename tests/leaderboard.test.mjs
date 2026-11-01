@@ -62,7 +62,7 @@ function live(p, seed) {
   const run = new CollapseRun(seed), dice = R.rng(seed ^ 0x51ed);
   for (let f = 0; f < 60 * 900; f++) {
     if (run.state === 'over') { if (!run.continueRun()) break; }
-    const next = run.nextFork();
+    const next = run.time < 120 ? run.nextFork() : null;      // the bot never tires: a run has to end
     if (next && !next.armed && !run.track.laneSafe(run.lane, next.at, R.LOOK)) {
       const to = next.to.find(l => run.forkSafe(next.at, l));
       if (to !== undefined) run.shoot(next.at, to);
@@ -214,7 +214,7 @@ test('таблица: лучший результат игрока за сезо
 // The rules of a version do not change: the fingerprint of the numbers and of what they do. A new
 // fingerprint without a new version would make the function refuse honest runs of older clients.
 test('правила изменились — подними COLLAPSE_RULES_VERSION и добавь отпечаток сюда', () => {
-  const FINGERPRINTS = { 1: '630a834b', 2: 'ba60d729', 3: '0f2242e0' };
+  const FINGERPRINTS = { 1: '630a834b', 2: 'ba60d729', 3: '0f2242e0', 4: '5a5ecf1d' };
   const p = page(), R = p.get('CollapseRules');
   const { iconLead, ...numbers } = R.cfg();
   const walk = SEEDS.slice(0, 5).map(seed => { const r = live(p, seed); return [r.meters, r.steps, r.pos]; });
