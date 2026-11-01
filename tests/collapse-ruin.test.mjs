@@ -136,11 +136,15 @@ test('обвал вплотную: край не заходит под поез�
   }
 });
 
-test('арка за поездом опущена в кадр, над поездом поднята, рухнувшая не зависит от поезда', () => {
+test('арка опускается только под обвалом: без него стоит, над поездом поднята, рухнувшая не зависит от поезда', () => {
   const p = page(), Ruin = p.get('CollapseRuin'), r = new Ruin();
+  r.begin(-1e9);
+  r.update(-1e9, 36, 1);
+  assert.equal(r.sag(34, 36), 0, 'без обвала арка стоит');
   r.begin(20);
   r.update(30, 36, 1);
   assert.equal(r.sag(40, 36), 0);
-  assert.equal(r.sag(34, 36), r.c.sag);
+  assert.ok(r.sag(r.edge + 1, 36) > r.sag(r.edge + 3, 36), 'чем ближе обвал, тем ниже');
+  assert.ok(r.sag(r.edge + 1, 36) > 0, 'трещины опускают её');
   assert.equal(r.sag(r.edge - 1, r.edge - 1), r.c.sag);
 });
