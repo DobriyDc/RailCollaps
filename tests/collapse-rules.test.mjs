@@ -559,7 +559,7 @@ test('демон: предупреждение, появление, прыжок
   const shown = perched + stepUntil(p, idle, r => r.state !== 'run');
   assert.equal(idle.reason, 'demon');
   assert.ok(perched * R.STEP >= idle.c.demonPerch - R.STEP, `стоит ${perched} шагов`);
-  assert.ok(shown * R.STEP >= 1.6 - 1e-9, `от появления до удара ${shown} шагов`);
+  assert.ok(shown * R.STEP >= 0.95, `от появления до посадки и ударов ${shown} шагов`);
 });
 
 test('пара: обе стены горят вместе, у второй появление со своим сдвигом, журнал не примет выстрела до появления', () => {

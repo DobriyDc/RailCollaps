@@ -62,6 +62,15 @@ test('остряки: прямо, пока стрелка не взведена;
   assert.equal(S.pointsState(into, { at: 5, from: 0, to: 1 }), 'left');
 });
 
+test('демон запрыгивает, почти не уменьшаясь: на кабине на экране 85 % размера со стены, в горизонтали 60 %', () => {
+  const p = page(), S = p.get('CollapseScene');
+  const screen = (D, cam, z, scale) => D.art * scale * cam / (cam - z);
+  for (const [land, cam, share] of [[false, p.get('COLLAPSE_CAM_Z'), 0.85], [true, p.get('COLLAPSE_LAND_CAM_Z'), 0.6]]) {
+    const D = S.demonLook(land), wall = screen(D, cam, D.z, 1), cab = screen(D, cam, S.CAB_SIDE[2], S.hangScale(D, cam));
+    assert.ok(Math.abs(cab / wall - share) < 1e-9, `${land}: ${cab / wall}`);
+  }
+});
+
 test('поезд на стрелке стоит на рельсах: нос ровно на кривой, куда бы ни смотрел кадр', async () => {
   const fs = await import('node:fs');
   const path = await import('node:path');

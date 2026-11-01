@@ -87,7 +87,7 @@ const GAME_STEP_SEC = 0.35;             // s: between footstep sounds while the 
 
 // --- RAIL LINK: COLLAPSE (CollapseRules.js — the run, CollapseScene.js — the tunnel). Distance is
 // counted in track SEGMENTS; the first numbers of the prototype, tuned in playtests (GDD v3 §8) ---
-const COLLAPSE_RULES_VERSION = 5;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
+const COLLAPSE_RULES_VERSION = 6;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
 const COLLAPSE_SEG_METERS = 10;         // m of distance shown per segment
 const COLLAPSE_SPEED = 2.2;             // segments/s: train speed at the start
 const COLLAPSE_SPEED_GROWTH = 0.0025;   // segments/s added per segment travelled
@@ -111,7 +111,7 @@ const COLLAPSE_START_AMMO = 8;          // cartridges at the start: one shot swi
 const COLLAPSE_AMMO_PICKUP = 4;         // cartridges per ammo pickup
 const COLLAPSE_DEMON_WARN_SEC = 1;      // s: the wall icons warn of a demon before it shows on its wall
 const COLLAPSE_DEMON_BLINK_HZ = 3;      // the wall icon of a demon in its warning blinks this many times a second
-const COLLAPSE_DEMON_PERCH_SEC = 1;     // s a demon stands on its wall in the frame; it can be shot from its first frame
+const COLLAPSE_DEMON_PERCH_SEC = 0.36;  // s a demon breaks out of its wall before it leaps (its three emerge frames); it can be shot from its first frame
 const COLLAPSE_HP = 3;                  // lives of the train: lava and a demon's strike take one, a gap and the collapse end the run
 const COLLAPSE_DEMON_STRIKE_SEC = 0.7;  // s between the strikes of a demon hanging on the train
 const COLLAPSE_DEMON_SEC = 0.6;         // s of the leap: a demon not shot by its end lands on the train and hangs there
