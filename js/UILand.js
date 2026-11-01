@@ -13,6 +13,7 @@ const UI_LAND = {
     stationMoneyIcon: { x: 14, y: 74 },
     stationMoney: { x: 40, y: 70, w: 98 },
     ammoSocket: { parent: 'frameTop', anchor: 'top-center', x: 0, y: 138 },
+    hpRow: { parent: 'frameTop', anchor: 'top-center', x: 0, y: 208 },
     pauseBtn: { parent: 'frameBottom', anchor: 'top-center', x: 0, y: 18, w: 72, h: 72 },
     portraitFrame: { y: 106 },
     portrait: { y: 116 },

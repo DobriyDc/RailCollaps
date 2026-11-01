@@ -471,9 +471,11 @@ test('выстрел по демону стоит патрон; без патр�
   dry.ammo = 0;
   assert.equal(dry.shootDemon(), 'no-ammo');
   dry.shield = 1;
-  runFrames(dry, 60 * 3, r => r.demons.length === 0);
+  runFrames(dry, 60 * 4, r => r.shield === 0);
   assert.equal(dry.state, 'run', 'щит принял удар демона');
   assert.equal(dry.shield, 0);
+  assert.equal(dry.hp, dry.c.hpMax, 'жизнь цела');
+  assert.equal(dry.demons.length, 1, 'демон остался висеть');
 });
 
 // Every demon segment of a track up to `n` segments: { at, sides: [-1|1, …] }.
@@ -624,9 +626,63 @@ test('пару демонов сбивают два выстрела в окно
   const one = pairRun();
   one.shield = 1;
   runFrames(one, 60 * 4);
-  assert.equal(one.state, 'over', 'щит прощает только одного демона из пары');
+  assert.equal(one.state, 'over', 'щит принимает только один удар');
   assert.equal(one.reason, 'demon');
   assert.ok(one.events.some(e => e.type === 'shielded' && e.reason === 'demon'));
+});
+
+test('демон садится на поезд, висит и бьёт раз в 0,7 с, каждый удар снимает жизнь, выстрел снимает демона', () => {
+  const p = page(), R = p.get('CollapseRules');
+  const run = demonRun(p, [{ side: 1, lag: 0 }]), c = run.c;
+  assert.deepEqual([c.hpMax, c.demonStrikeSec], [3, 0.7]);
+  stepUntil(p, run, r => r.events.some(e => e.type === 'demon-on'));
+  const d = run.demons[0];
+  assert.equal(d.on, true, 'висит на поезде');
+  assert.equal(run.hp, 3, 'посадка не удар');
+  const hits = [];
+  let t = 0;
+  for (let n = 0; n < 240 && run.state === 'run'; n++) {
+    const hp = run.hp;
+    run._step(R.STEP);
+    t += R.STEP;
+    if (run.hp < hp) hits.push(t);
+  }
+  assert.equal(run.state, 'over');
+  assert.equal(run.reason, 'demon');
+  assert.equal(hits.length, 3);
+  hits.forEach((at, k) => assert.ok(Math.abs(at - 0.7 * (k + 1)) < 2 * R.STEP, `удар ${k + 1} на ${at.toFixed(2)} с`));
+  assert.equal(run.events.filter(e => e.type === 'hurt' && e.reason === 'demon').length, 2);
+
+  const saved = demonRun(p, [{ side: -1, lag: 0 }]);
+  stepUntil(p, saved, r => r.hp === 2);
+  assert.equal(saved.shootDemon(-1), 'ok', 'висящего можно сбить');
+  assert.equal(saved.demons.length, 0);
+  for (let n = 0; n < 180; n++) saved._step(R.STEP);
+  assert.equal(saved.hp, 2, 'сбитый больше не бьёт');
+});
+
+test('жизни: лава снимает одну, последняя кончает забег; провал и обвал бьют сразу; щит вместо жизни; продолжение возвращает все', () => {
+  const p = page(), CollapseRun = p.get('CollapseRun');
+  const run = new CollapseRun(1);
+  assert.equal(run.hp, 3);
+  run._hit('lava');
+  assert.deepEqual([run.state, run.hp], ['run', 2]);
+  assert.ok(run.events.some(e => e.type === 'hurt' && e.reason === 'lava'));
+  run.shield = 1;
+  run._hit('lava');
+  assert.deepEqual([run.hp, run.shield], [2, 0], 'щит принял');
+  run._hit('lava');
+  run._hit('lava');
+  assert.deepEqual([run.state, run.reason, run.hp], ['over', 'lava', 0]);
+  assert.equal(run.continueRun(), true);
+  assert.equal(run.hp, 3);
+
+  const fall = new CollapseRun(1);
+  fall._fall(3);
+  assert.deepEqual([fall.state, fall.reason, fall.hp], ['over', 'gap', 3]);
+  const caught = new CollapseRun(1);
+  caught._hit('caught');
+  assert.deepEqual([caught.state, caught.reason, caught.hp], ['over', 'caught', 3]);
 });
 
 test('щит прощает поток лавы и касание обвала; спасение ставит поезд на целую полосу', () => {

@@ -149,12 +149,12 @@ class CollapseRuin {
         return Math.max(0, Math.min(1, 1 - (i + 0.5 - this.front) / this.c.crackZone));
     }
 
-    // The arch ribs behind the train come down into the frame: the camera sees no higher than the
-    // loco's top, and a rib at its true height would never be seen. A rib under or ahead of the train
-    // stays up, it has to clear the loco; what has gone keeps the full sag whatever the train does.
+    // An arch comes down only under the collapse: the cracks bring it down into the frame (the camera
+    // sees no higher than the loco's top), and a rib under or ahead of the train stays up, it has to
+    // clear the loco. What has gone keeps the full sag whatever the train does.
     sag(i, pos) {
         if (i < this.edge) return this.c.sag;
-        return this.c.sag * Math.max(0, Math.min(1, (pos - i - 0.1) / 0.5));
+        return this.c.sag * this.crack(i) * Math.max(0, Math.min(1, (pos - i - 0.1) / 0.5));
     }
 
     // How high above its place stand s still is: a layer comes down from above and stays.

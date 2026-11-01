@@ -52,6 +52,7 @@ const CollapseArt = {
         perch: ['assets/sprites/demon_v3/perch_00.png', 'assets/sprites/demon_v3/perch_01.png', 'assets/sprites/demon_v3/perch_02.png', 'assets/sprites/demon_v3/perch_03.png'],
         jump: ['assets/sprites/demon_v3/jump_00.png', 'assets/sprites/demon_v3/jump_01.png', 'assets/sprites/demon_v3/jump_02.png', 'assets/sprites/demon_v3/jump_03.png'],
         strike: ['assets/sprites/demon_v3/strike_00.png', 'assets/sprites/demon_v3/strike_01.png'],
+        hang: ['assets/sprites/demon_v3/hang_00.png', 'assets/sprites/demon_v3/hang_01.png', 'assets/sprites/demon_v3/hang_02.png', 'assets/sprites/demon_v3/hang_03.png'],
         ash: ['assets/sprites/demon_v3/ash_00.png', 'assets/sprites/demon_v3/ash_01.png', 'assets/sprites/demon_v3/ash_02.png', 'assets/sprites/demon_v3/ash_03.png'],
     },
     sign: { left: 'assets/px/ui/sign_left.png', right: 'assets/px/ui/sign_right.png', cross: 'assets/px/ui/sign_cross.png' },
@@ -857,6 +858,7 @@ class CollapseScene {
         /** @type {Map<number, number>} */
         this._ashUntil = new Map();
         const S = this.demon, size = S.px * S.art;
+        this._hangAt = new BABYLON.Vector3();
         for (const side of [-1, 1]) {
             const d = this.sprite('demon', 'demon' + side, CollapseArt.demon.perch[0], size, size);
             d.renderingGroupId = 2;
@@ -1225,8 +1227,8 @@ class CollapseScene {
     }
 
     // A demon stands on its wall from its first frame in the rules, the sprite follows the phases: it
-    // breaks out of the brick, stands, leaps at the train; at the end of the leap (the hit) it is in
-    // front of the train on its side. Shot, it turns to ash where it was.
+    // breaks out of the brick, stands, leaps at the train, then hangs on the side of the cab and rides
+    // with it, striking. Shot, it turns to ash where it was.
     _syncDemons(run, trainX) {
         const S = CollapseScene, D = this.demon, A = CollapseArt.demon;
         for (const [side, view] of this.demonViews) {
@@ -1236,7 +1238,13 @@ class CollapseScene {
                 const x = this._inFrameX(side * (S.WALL_X - D.wallGap - (D.contact[0] - D.px / 2) * D.art), D.z, D.frameShare);
                 const y = D.footY + (D.contact[1] - D.px) * D.art;
                 view.setEnabled(true);
-                if (d.t > run.c.demonSec) {
+                const scale = d.on ? D.hangSize / (D.px * D.art) : 1, art = D.art * scale;
+                view.scaling.setAll(scale);
+                if (d.on) {
+                    const at = this._onTrain([side * S.CAB_SIDE[0], S.CAB_SIDE[1], S.CAB_SIDE[2]], this._hangAt);
+                    view.position.set(at.x - side * (D.hold[0] - D.px / 2) * art, at.y - (D.px - D.hold[1]) * art, at.z);
+                    this._demonTex(view, S.demonHangFrame(A, d.strike, this.time));
+                } else if (d.t > run.c.demonSec) {
                     view.position.set(x, y, D.z);
                     this._demonTex(view, S.demonFrame(A, run.c.demonPerch + run.c.demonSec - d.t));
                 } else {
@@ -1268,6 +1276,14 @@ class CollapseScene {
         const D = CollapseScene.DEMON;
         const n = Math.floor(e * 1000 / D.emergeMs);
         return n < A.emerge.length ? A.emerge[Math.max(0, n)] : A.perch[Math.floor((e - A.emerge.length * D.emergeMs / 1000) * 1000 / D.perchMs) % A.perch.length];
+    }
+
+    // A demon on the train: it breathes, raises its claw and strikes as `strike` s run out.
+    static demonHangFrame(A, strike, time) {
+        const D = CollapseScene.DEMON;
+        if (strike < D.blowSec) return A.hang[3];
+        if (strike < D.blowSec + D.raiseSec) return A.hang[2];
+        return A.hang[Math.floor(time * 3) % 2];
     }
 
     static demonLeapFrame(A, k) {
@@ -1307,6 +1323,8 @@ class CollapseScene {
             this._fxPlay(this.fxSparks[0], [-95, 0, 40], { flip: dir < 0 });
             this._fxPlay(this.fxSparks[1], [95, 0, 40], { flip: dir < 0 });
             this._fxPlay(this.fxSmoke, [0, 380, 10], { flip: dir > 0, v: [-dir * 420, 140, 0] });
+        } else if (e.type === 'hurt') {
+            this._hitFx(e.reason, run);
         } else if (e.type === 'shielded') {
             this._shieldHitUntil = this.time + 0.3;
             this._fxPlay(this.fxShield, [0, 200, 90]);
@@ -1384,7 +1402,8 @@ CollapseScene.FLOOR_HOLD = 1;     // segments behind the edge where the floor st
 // The demon's art (art_src/demon_v3/demon_manifest_v3.json): canvas, px; the wall contact on it; ms per
 // frame. World: units per art px, the gap of the contact to the wall, the height of the feet, the height
 // of the sprite's foot at the hit, the share of the half frame a demon stays in, z of the perch, s of the ash, the size of the dark shape under it.
-CollapseScene.DEMON = { px: 160, contact: [103, 134], emergeMs: 120, perchMs: 160, art: 1.2, wallGap: 20, footY: 30, hitY: 40, frameShare: 0.55, z: 500, ashSec: 0.47, outline: 1.09 };
+CollapseScene.DEMON = { px: 160, contact: [103, 134], emergeMs: 120, perchMs: 160, art: 1.2, wallGap: 20, footY: 30, hitY: 40, frameShare: 0.55, z: 500, ashSec: 0.47, outline: 1.09, hold: [40, 70], hangSize: 170, blowSec: 0.08, raiseSec: 0.2 };   // hold — where hang_* grips the cab, art px; hangSize — its canvas on the train, world units
+CollapseScene.CAB_SIDE = [125, 270, 30];   // the point of the cab a demon hangs on, from the sprite's bottom center, its right side
 CollapseScene.DEMON_LAND = { art: 2.2, frameShare: 0.9, z: 620 };   // the same in the wide frame (?land): the wall is in the frame there
 CollapseScene.FX_ART = 2.1;       // world units per art pixel of the effects (the loco: 290 / 139 px)
 // Effect art (art_src/fx_v1/fx_manifest_v1.json): frame size, px; pivot from the top left, 0..1;

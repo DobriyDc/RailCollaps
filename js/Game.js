@@ -27,7 +27,7 @@ class Game {
         /** @type {{ cam: any, enter: any, reach: any, key: string, floor: number, row: { center: number, scale: number, width: number } } | null} */
         this._frame = null;           // the frame in segments ahead, by body and lane (frameTable)
         // Loaded ahead: an icon that fetches its file when it lights shows empty for its first moments.
-        this._iconFiles = [...Object.values(Game.ICONS), ...Object.values(Game.PORTRAITS), ...(UI.DIGITS || [])].map(url => { const img = new Image(); img.src = url; return img; });
+        this._iconFiles = [...Object.values(Game.ICONS), ...Object.values(Game.PORTRAITS), ...Object.values(Game.PORTRAITS_HURT).flat(), ...Object.values(Game.HP), ...(UI.DIGITS || [])].map(url => { const img = new Image(); img.src = url; return img; });
         TG.loadBest(m => { if (m > this.best) { this.best = m; Store.set('collapse.best', String(m)); this._hudBest(); } });
 
         this.soundOn = false;         // the first tap came: nothing plays or loads before it
@@ -245,6 +245,7 @@ class Game {
         this._show('hitFlash', false);
         this._show('over', false);
         this._show('tutorialBox', run.tutorial);
+        this._show('hpRow', !run.tutorial);
         this._hudBest();
         if (Game.stationsOn()) CollapseStations.dress(this, run);
         TG.runStarted();
@@ -341,14 +342,14 @@ class Game {
             this.portrait = reaction;
             this.portraitLeft = typeof UI_PORTRAIT_SEC !== 'undefined' ? UI_PORTRAIT_SEC : 0.9;
         }
-        // A demon reached the cab (the shield took it or not): a short red flash over the screen.
-        if ((ev.type === 'crash' || ev.type === 'shielded') && ev.reason === 'demon') {
+        // A demon struck the cab (the shield took it or not): a short red flash over the screen.
+        if ((ev.type === 'crash' || ev.type === 'shielded' || ev.type === 'hurt') && ev.reason === 'demon') {
             this.flashLeft = typeof COLLAPSE_FX_FLASH_SEC !== 'undefined' ? COLLAPSE_FX_FLASH_SEC : 0.15;
             this._show('hitFlash', true);
         }
         if (ev.type === 'shot') TG.haptic('shot');
         else if (ev.type === 'pickup') TG.haptic('pickup');
-        else if (ev.type === 'shielded' || ev.type === 'rescued' || ev.type === 'collapse') TG.haptic('shield');
+        else if (['shielded', 'rescued', 'collapse', 'hurt'].includes(ev.type)) TG.haptic('shield');
         else if (ev.type === 'crash') {
             TG.haptic('crash');
             TG.runEnded();
@@ -586,6 +587,8 @@ class Game {
             case 'shielded': return [S.shield];
             case 'rescued': return [S.rescue];
             case 'demon': return [S.demonShow];
+            case 'demon-on': return [S.demonHang];
+            case 'hurt': return [ev.reason === 'lava' ? S.lava : S.hit];
             case 'collapse': return [S.collapse];
             case 'demon-killed': return [S.shot, S.demonDown];
             case 'crash': return [ev.reason === 'gap' ? S.fall : ev.reason === 'lava' ? S.lava : ev.reason === 'caught' ? S.caught : S.hit];
@@ -599,9 +602,9 @@ class Game {
     }
 
     static portraitEvent(ev) {
-        if (ev.type === 'crash' || ev.type === 'shielded') return ev.reason === 'gap' ? 'fall' : ev.reason === 'lava' ? 'fire' : 'hit';
+        if (ev.type === 'crash' || ev.type === 'shielded' || ev.type === 'hurt') return ev.reason === 'gap' ? 'fall' : ev.reason === 'lava' ? 'fire' : 'hit';
         if (['pickup', 'demon-killed', 'rescued', 'continued'].includes(ev.type)) return 'joy';
-        if (['demon', 'no-ammo', 'collapse'].includes(ev.type)) return 'tense';
+        if (['demon', 'demon-on', 'no-ammo', 'collapse'].includes(ev.type)) return 'tense';
         return '';
     }
 
@@ -614,15 +617,32 @@ class Game {
     _portrait(run) {
         const urgent = run.ammo <= 0 || run.pos - run.front < run.c.frontMaxGap * (typeof UI_PORTRAIT_TENSE_GAP !== 'undefined' ? UI_PORTRAIT_TENSE_GAP : 0.5) || run.demons.length > 0 || this._forkDanger(run);
         const state = this.portraitLeft > 0 || run.state !== 'run' ? this.portrait : urgent ? 'tense' : 'calm';
-        const el = UI.get('portrait');
-        if (el && this._hudText.get('portrait') !== state) {
-            this._hudText.set('portrait', state);
-            el.setSrc(Game.PORTRAITS[state]);
+        const el = UI.get('portrait'), src = Game.portraitOf(state, run.c.hpMax - Math.max(1, run.hp));
+        if (el && this._hudText.get('portrait') !== src) {
+            this._hudText.set('portrait', src);
+            el.setSrc(src);
+        }
+    }
+
+    // The face for a state: the more lives are lost, the worse it looks.
+    static portraitOf(state, lost) {
+        return lost > 0 ? Game.PORTRAITS_HURT[state][Math.min(lost, 2) - 1] : Game.PORTRAITS[state];
+    }
+
+    // The trains of the HUD: lit while the lives last.
+    _hpView(run) {
+        const key = String(run.hp);
+        if (this._hudText.get('hp') === key) return;
+        this._hudText.set('hp', key);
+        for (let i = 0; i < 3; i++) {
+            const el = UI.get('hp' + i);
+            if (el) el.setSrc(i < run.hp ? Game.HP.full : Game.HP.empty);
         }
     }
 
     _hud(run) {
         this._portrait(run);
+        this._hpView(run);
         this._set('dist', String(run.meters));
         this._set('ammo', String(run.ammo));
         this._set('rescue', String(run.rescue));
@@ -672,7 +692,16 @@ Game.PORTRAITS = {
     fire: 'assets/ui/hud_v3/portrait_fire.png',
     fall: 'assets/ui/hud_v3/portrait_fall.png',
 };
+Game.PORTRAITS_HURT = {
+    calm: ['assets/ui/hud_v3/portrait_calm_w1.png', 'assets/ui/hud_v3/portrait_calm_w2.png'],
+    tense: ['assets/ui/hud_v3/portrait_tense_w1.png', 'assets/ui/hud_v3/portrait_tense_w2.png'],
+    joy: ['assets/ui/hud_v3/portrait_joy_w1.png', 'assets/ui/hud_v3/portrait_joy_w2.png'],
+    hit: ['assets/ui/hud_v3/portrait_hit_w1.png', 'assets/ui/hud_v3/portrait_hit_w2.png'],
+    fire: ['assets/ui/hud_v3/portrait_fire_w1.png', 'assets/ui/hud_v3/portrait_fire_w2.png'],
+    fall: ['assets/ui/hud_v3/portrait_fall_w1.png', 'assets/ui/hud_v3/portrait_fall_w2.png'],
+};
 Game.PORTRAIT_PRIORITY = ['calm', 'tense', 'joy', 'hit', 'fire', 'fall'];
+Game.HP = { full: 'assets/ui/hud_v3/icon_hp_full.png', empty: 'assets/ui/hud_v3/icon_hp_empty.png' };
 
 // Generated by tools/make-sounds.mjs. Literal paths: the builder's scanner reads them.
 Game.SOUNDS = {
@@ -684,6 +713,7 @@ Game.SOUNDS = {
     rescue: 'assets/sounds/sfx_rescue.wav',
     demonShow: 'assets/sounds/sfx_demon_show.wav',
     demonLeap: 'assets/sounds/sfx_demon_leap.wav',
+    demonHang: 'assets/sounds/sfx_demon_hang.wav',
     demonDown: 'assets/sounds/sfx_demon_down.wav',
     hit: 'assets/sounds/sfx_hit.wav',
     lava: 'assets/sounds/sfx_lava.wav',

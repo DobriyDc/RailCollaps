@@ -7,9 +7,13 @@
 // `to`; the player arms it with a shot (one cartridge) and the train changes lane when it passes i.
 // Hazards sit on one lane of one segment: `gap` (the track is gone) or `lava` (a stream from the
 // vault). A pickup stands in the middle of a segment and is taken by the train on its lane.
-// A demon segment releases one or two demons from the tunnel walls (side -1 left, +1 right), three
-// phases each: a warning, the demon standing on its wall, the leap at the train. It can be shot from
-// its first frame on the wall to the end of the leap; each one needs its own shot.
+// A demon segment releases one or two demons from the tunnel walls (side -1 left, +1 right), four
+// phases each: a warning, the demon standing on its wall, the leap at the train, then it hangs on the
+// train and strikes until it is shot. It can be shot from its first frame on the wall on; each one
+// needs its own shot.
+//
+// The train has hpMax lives: lava and a demon's strike take one each. A gap and the collapse end the
+// run at once.
 //
 // The tutorial (end of the file) is a run on a scripted track of the same segments: its steps are
 // data, CollapseRules.TUTORIAL. It never reaches the record or the table: Game owns that.
@@ -89,6 +93,8 @@ const CollapseRules = {
             demonWarn: typeof COLLAPSE_DEMON_WARN_SEC !== U ? COLLAPSE_DEMON_WARN_SEC : 1,
             demonPerch: typeof COLLAPSE_DEMON_PERCH_SEC !== U ? COLLAPSE_DEMON_PERCH_SEC : 1,
             demonSec: typeof COLLAPSE_DEMON_SEC !== U ? COLLAPSE_DEMON_SEC : 0.6,
+            demonStrikeSec: typeof COLLAPSE_DEMON_STRIKE_SEC !== U ? COLLAPSE_DEMON_STRIKE_SEC : 0.7,
+            hpMax: typeof COLLAPSE_HP !== U ? COLLAPSE_HP : 3,
             demonEvery: typeof COLLAPSE_DEMON_EVERY !== U ? COLLAPSE_DEMON_EVERY : 30,
             demonChance: typeof COLLAPSE_DEMON_CHANCE !== U ? COLLAPSE_DEMON_CHANCE : 0.2,
             demonStart: typeof COLLAPSE_DEMON_START !== U ? COLLAPSE_DEMON_START : 60,
@@ -358,6 +364,7 @@ class CollapseRun {
         this.collapseFrom = 0;        // run time it started
         this.collapseDice = CollapseRules.rng(this.seed ^ 0x9E3779B9);
         this.ammo = this.c.startAmmo;
+        this.hp = this.c.hpMax;
         this.shield = 0;
         this.rescue = 0;
         this.boost = 0;               // s left
@@ -365,8 +372,8 @@ class CollapseRun {
         /** @type {{ at: number, from: number, to: number } | null} */
         this.armed = null;
         // Demons of a segment the nose entered: `wait` s until one shows on its wall, then `t` s until
-        // it hits the train, the last demonSec of them in the leap.
-        /** @type {{ at: number, side: number, wait: number, t: number }[]} */
+        // it lands on the train, the last demonSec of them in the leap, then `strike` s to each blow.
+        /** @type {{ at: number, side: number, wait: number, t: number, strike: number, on: boolean }[]} */
         this.demons = [];
         this.state = 'run';           // 'run' | 'over'
         this.reason = '';             // why the run ended: gap | lava | demon | caught
@@ -555,8 +562,19 @@ class CollapseRun {
                 if (d.wait <= 0) this.events.push({ type: 'demon', at: d.at, side: d.side });
                 continue;
             }
-            d.t -= h;
-            if (d.t <= 0) { this.demons.splice(this.demons.indexOf(d), 1); this._hit('demon'); }
+            if (!d.on) {
+                d.t -= h;
+                if (d.t <= 0) {
+                    d.on = true;
+                    this.events.push({ type: 'demon-on', at: d.at, side: d.side });
+                }
+                continue;
+            }
+            d.strike -= h;
+            if (d.strike <= 0) {
+                d.strike += this.c.demonStrikeSec;
+                this._hit('demon');
+            }
         }
     }
 
@@ -568,7 +586,7 @@ class CollapseRun {
         }
         if (i === this.collapseAt) this.startCollapse();
         for (const d of s.demon || []) {
-            this.demons.push({ at: i, side: d.side, wait: this.c.demonWarn + d.lag, t: this.c.demonPerch + this.c.demonSec });
+            this.demons.push({ at: i, side: d.side, wait: this.c.demonWarn + d.lag, t: this.c.demonPerch + this.c.demonSec, strike: this.c.demonStrikeSec, on: false });
             if (this.c.demonWarn + d.lag <= 0) this.events.push({ type: 'demon', at: i, side: d.side });
         }
         if (s.gap[this.lane]) this._fall(i);
@@ -618,6 +636,10 @@ class CollapseRun {
             this.events.push({ type: 'shielded', reason });
             return;
         }
+        if (reason !== 'caught' && --this.hp > 0) {
+            this.events.push({ type: 'hurt', reason });
+            return;
+        }
         this._crash(reason);
     }
 
@@ -636,6 +658,7 @@ class CollapseRun {
         this.log.push([this.steps, 'c']);
         this.state = 'run';
         this.invuln = this.c.continueGrace;
+        this.hp = this.c.hpMax;
         this.front = Math.min(this.front, this.pos - this.c.continueGap);
         this.demons = [];
         this.armed = null;
@@ -705,7 +728,8 @@ class CollapseTutorial extends CollapseRun {
         super(0, new CollapseTutorialTrack());
         const t = CollapseRules.tutorialCfg(), c = this.c;
         this.c = Object.assign({}, c, { frontSpeed: c.frontSpeed * t.frontMult, frontGrowth: c.frontGrowth * t.frontMult, frontMaxGap: t.frontGap,
-            eventChance: 0, eventPace: 0, eventGap: t.frontGap });
+            eventChance: 0, eventPace: 0, eventGap: t.frontGap, hpMax: 1 });
+        this.hp = 1;                  // a hit sends the player back to the step
         this.tutorial = true;
         this.rush = t.rush;
         this.index = index;
