@@ -1,0 +1,45 @@
+{
+  "base_sha256": "76b40bceb77c457fb30259a465ee2e4a5d588a3547b92754152cf99046b35b38",
+  "frames": {
+    "loco_shot_left.png": {
+      "size": [
+        139,
+        200
+      ],
+      "changed_pixels": 522,
+      "changed_outside_overlay": 0,
+      "changed_bbox": [
+        3,
+        54,
+        54,
+        78
+      ],
+      "off_palette_colors": 10041,
+      "overlay_off_palette_colors": 0,
+      "inherited_soft_alpha_pixels": 13619,
+      "first_row_25_percent_alpha128": 41,
+      "opaque_bottom_threshold_128": 197,
+      "sha256": "7ad93683daa9741c56a20ff41d37848d0050df829a003e02dfbcf8e8fea044f1"
+    },
+    "loco_shot_right.png": {
+      "size": [
+        139,
+        200
+      ],
+      "changed_pixels": 522,
+      "changed_outside_overlay": 0,
+      "changed_bbox": [
+        85,
+        54,
+        136,
+        78
+      ],
+      "off_palette_colors": 10027,
+      "overlay_off_palette_colors": 0,
+      "inherited_soft_alpha_pixels": 13605,
+      "first_row_25_percent_alpha128": 41,
+      "opaque_bottom_threshold_128": 197,
+      "sha256": "ee14ddad83d88e62a843501058c48ad4f9553d30b1081a03ead1e1251fd0d0ce"
+    }
+  }
+}
