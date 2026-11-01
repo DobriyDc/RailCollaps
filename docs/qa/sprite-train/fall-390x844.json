@@ -1,0 +1,27 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:58094/",
+  "browser": "msedge.exe",
+  "waitMs": 2000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-train/50b309fd-9f84-4e41-989e-e53445094565/scratchpad/fall.js",
+  "evalResult": {
+    "crashAt": 0.7499999999999997,
+    "time": 1.0669999999999995,
+    "mode": "over",
+    "state": "over",
+    "reason": "gap",
+    "lane": 2,
+    "y": -131.87199999999993,
+    "rzDeg": -11.158399999999993,
+    "frame": "assets/px/train/loco_fall_right.png"
+  },
+  "errors": [],
+  "ok": true
+}

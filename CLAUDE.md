@@ -148,7 +148,7 @@ assets/           ground_texture_{g,d,s}.jpg — трава, песок, сне�
 tools/            dev-server.mjs, build.mjs, asset-scan.mjs, zip.mjs, check.mjs (типы + тесты),
                   build-worker.mjs (функция таблицы одним файлом из js/ и server/),
                   make-character.mjs, make-sounds.mjs, export-unity.mjs (перенос в Unity);
-                  art/ — check-art.mjs (палитра и сетка арта мира, в воротах), make-train-mesh.mjs (js/CollapseTrainMesh.js из манифеста)
+                  art/ — check-art.mjs (палитра и сетка арта мира, в воротах)
 tsconfig.json     проверка типов игры; globals.d.ts — window.app, material.arcToon, записи объектов
 tests/            *.test.mjs (node --test): Store, heightAt, сканер ассетов, запись редактора, звук,
                   экспорт в Unity, связка скиллов; browser-scripts.mjs — скрипты игры в node:vm + пустышка Babylon
