@@ -117,6 +117,90 @@ def portraits():
             sheet.alpha_composite(im.resize((192,192),N),(col*192,row*192))
     sheet.save(HERE/'portraits_preview.png')
 
+GRIP = [43,56]
+
+def hanging():
+    src=Image.open(HERE/'drafts/hang.png').convert('RGBA')
+    poses=[]
+    # Identical sampling scale and vertical origin, measured from the draft.
+    # Each source's leftmost supporting claw is aligned before resampling.
+    for col,left in enumerate((45,13,10)):
+        cut=src.crop((col*564+left,156,col*564+left+520,786))
+        pose=blank((160,160))
+        pose.alpha_composite(cut.resize((78,126),N),(40,20))
+        poses.append(finish(pose))
+    # One shared support arm: it cannot slide on the cabin during the strike.
+    support=poses[0].crop((40,50,70,74))
+    idle=poses[0]
+    breathing=blank((160,160))
+    breathing.alpha_composite(idle,(0,-1))
+    frames=[idle,breathing,poses[1],poses[2]]
+    records=[]
+    for index,im in enumerate(frames):
+        im.paste((*PAL[0],0),(40,49,70,75))
+        im.alpha_composite(support,(40,50))
+        im=finish(im)
+        im.save(DEMON/f'hang_{index:02d}.png')
+        bbox=im.getchannel('A').getbbox()
+        records.append(dict(file=f'assets/sprites/demon_v3/hang_{index:02d}.png',size=[160,160],frames=1,pivot=GRIP,grip=GRIP,character='furnace_mason_01',purpose=['hang','breathe','windup','claw strike'][index],duration_ms=[180,180,150,100][index],opaque_bbox=list(bbox),opaque_width_world=round((bbox[2]-bbox[0])*1.2,1)))
+    write_json('demon_manifest_v1.json',dict(palette='docs/STYLE.md',alpha=[0,255],side='right',mirror_left='x -> 159-x; mirrored grip [116,56]',world_units_per_pixel=1.2,locomotive_width_world=290,max_allowed_width_world=290/3,grip_note='Permanent support hand remains fixed; the other hand winds up and strikes.',files=records))
+    preview=Image.new('RGBA',(1280,320),(*PAL[1],255))
+    for i,im in enumerate(frames): preview.alpha_composite(im.resize((320,320),N),(i*320,0))
+    preview.save(HERE/'demon_preview.png')
+
+def comparison():
+    sheet=Image.new('RGBA',(1440,1120),(*PAL[1],255))
+    sheet.alpha_composite(Image.open(HERE/'portraits_preview.png'),(144,0))
+    for i,state in enumerate(('full','empty')):
+        im=Image.open(HUD/f'icon_hp_{state}.png')
+        sheet.alpha_composite(im.resize((96,96),N),(560+i*128,600))
+        sheet.alpha_composite(im.resize((30,30),N),(825+i*40,630))
+    train=Image.open(ROOT/'assets/px/train/loco_run_0.png').convert('RGBA')
+    # 290 world units / 1.2 world units per sprite pixel = 241.6667 px.
+    train=train.resize((242,round(train.height*242/train.width)),N)
+    for i in range(4):
+        x=i*360
+        sheet.alpha_composite(train,(x+15,744))
+        sheet.alpha_composite(Image.open(DEMON/f'hang_{i:02d}.png'),(x+155,792))
+    finish(sheet).save(HERE/'compare.png')
+
+def validate():
+    records=[]
+    for filename in ('icons_manifest_v1.json','portraits_manifest_v1.json','demon_manifest_v1.json'):
+        records.extend(json.loads((HERE/filename).read_text(encoding='utf-8'))['files'])
+    bad_colors=set()
+    for record in records:
+        im=Image.open(ROOT/record['file']).convert('RGBA')
+        assert list(im.size)==record['size'], record['file']
+        assert set(im.getchannel('A').getdata()) <= {0,255}, record['file']
+        bad_colors.update(tuple(p[:3]) for p in im.getdata() if tuple(p[:3]) not in PAL)
+    assert not bad_colors, bad_colors
+    assert Image.open(HUD/'icon_hp_full.png').getchannel('A').tobytes()==Image.open(HUD/'icon_hp_empty.png').getchannel('A').tobytes()
+    hands=[]
+    widths=[]
+    for i in range(4):
+        im=Image.open(DEMON/f'hang_{i:02d}.png')
+        hands.append(im.crop((40,50,70,74)).tobytes())
+        assert im.getpixel(tuple(GRIP))[3]==255
+        bbox=im.getchannel('A').getbbox()
+        width=(bbox[2]-bbox[0])*1.2
+        assert width <= 290/3
+        widths.append(round(width,1))
+    assert len(set(hands))==1
+    # All delivered source/preview PNGs also obey the palette and binary alpha.
+    for p in HERE.rglob('*.png'):
+        im=Image.open(p).convert('RGBA')
+        assert set(im.getchannel('A').getdata()) <= {0,255}, p
+        assert all(tuple(c[:3]) in PAL for c in im.getdata()), p
+    result=dict(groups=[2,12,4],outside_palette_colors=0,alpha=[0,255],grip=GRIP,demon_widths_world=widths,max_allowed_width_world=290/3,assets_checked=len(records),all_package_pngs_checked=True)
+    write_json('validation_v1.json',result)
+    print(json.dumps(result))
+
 if __name__ == '__main__':
     if sys.argv[1] == 'icons': icons()
     if sys.argv[1] == 'portraits': portraits()
+    if sys.argv[1] == 'hanging': hanging()
+    if sys.argv[1] == 'comparison': comparison()
+    if sys.argv[1] == 'normalize':
+        for p in HERE.rglob('*.png'): finish(Image.open(p)).save(p)
+    if sys.argv[1] == 'validate': validate()
