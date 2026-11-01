@@ -35,9 +35,10 @@ function startGame() {
     if (!World3D.init(canvas)) { showBootError(Lang.t('bootError')); return; }
 
     const scene = new CollapseScene(canvas);
-    UI.init(canvas);
+    UI.init(canvas, IS_LAND ? UI.overlay(UI_LAYOUT, UI_LAND) : undefined);
     window.app = { scene, game: null };
     const game = window.app.game = new Game(window.app);
+    game.fitOrientation();
     updateLoadingProgress(70);
 
     let last = performance.now();
@@ -47,7 +48,7 @@ function startGame() {
         game.update(Math.min(0.1, dt));
         World3D.renderFrame();
     });
-    window.addEventListener('resize', () => scene.applyResolution());
+    window.addEventListener('resize', () => { scene.applyResolution(); game.fitOrientation(); });
     scene.ready.then(hideLoader);
 }
 

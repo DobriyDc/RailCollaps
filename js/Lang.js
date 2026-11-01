@@ -12,6 +12,10 @@ const Lang = {
         "ru": "Старт",
         "en": "Start"
     },
+    "rotate": {
+        "ru": "Поверни телефон горизонтально",
+        "en": "Turn the phone sideways"
+    },
     "settings": {
         "ru": "Настройки",
         "en": "Settings"
@@ -320,6 +324,7 @@ const Lang = {
     bindings: {
     "menuTitle": "title",
     "menuStart": "start",
+    "rotateNote": "rotate",
     "menuSettings": "settings",
     "menuShop": "shop",
     "menuExit": "exit",
