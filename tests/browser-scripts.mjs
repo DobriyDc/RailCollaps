@@ -25,11 +25,13 @@ export function loadScripts(files, globals = {}) {
 }
 
 // Babylon/World3D stub: any field, call and new return the stub itself. For logic that
-// does not need 3D, but whose constructor creates meshes and materials along the way.
+// does not need 3D, but whose constructor creates meshes and materials along the way. In arithmetic
+// it is 0 (an empty uv array: `uv.length`), in a string — empty.
 export function stub() {
   const target = function () {};
+  const primitive = hint => (hint === 'string' ? '' : 0);
   const proxy = new Proxy(target, {
-    get: (t, key) => (key === 'then' || typeof key === 'symbol' ? undefined : proxy),
+    get: (t, key) => (key === Symbol.toPrimitive ? primitive : key === 'then' || typeof key === 'symbol' ? undefined : proxy),
     set: () => true,
     apply: () => proxy,
     construct: () => proxy,

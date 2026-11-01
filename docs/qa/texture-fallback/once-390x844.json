@@ -1,0 +1,59 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:18753/",
+  "browser": "msedge.exe",
+  "waitMs": 5000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-robust/98127d53-b56c-41d9-8414-683ba7b6f146/scratchpad/probe.js",
+  "evalResult": {
+    "mode": "play",
+    "state": "run",
+    "advanced": 5.52,
+    "flat": 0,
+    "textures": 129,
+    "notReady": 0,
+    "floorTop": [
+      [
+        "465058",
+        3978
+      ],
+      [
+        "b07a58",
+        2690
+      ],
+      [
+        "47303a",
+        2501
+      ],
+      [
+        "96604a",
+        2448
+      ],
+      [
+        "7a4a3a",
+        1757
+      ]
+    ],
+    "size": [
+      166,
+      360
+    ],
+    "digitImgs": 7,
+    "digitSpans": 0,
+    "missed": [],
+    "fallbackFlag": false
+  },
+  "errors": [
+    {
+      "kind": "log",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:18753/assets/textures/world/track.png"
+    }
+  ],
+  "ok": false
+}

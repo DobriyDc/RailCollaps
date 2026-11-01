@@ -33,6 +33,32 @@ const UI = {
     DIGITS: ['assets/ui/hud_v3/digit_0.png', 'assets/ui/hud_v3/digit_1.png', 'assets/ui/hud_v3/digit_2.png', 'assets/ui/hud_v3/digit_3.png', 'assets/ui/hud_v3/digit_4.png', 'assets/ui/hud_v3/digit_5.png', 'assets/ui/hud_v3/digit_6.png', 'assets/ui/hud_v3/digit_7.png', 'assets/ui/hud_v3/digit_8.png', 'assets/ui/hud_v3/digit_9.png'],
     FONT: 'system-ui, "Segoe UI", Roboto, sans-serif',
 
+    /** @type {Set<string>} */
+    missedDigits: new Set(),   // numerals whose file would not load: shown as text from then on
+
+    // One raster numeral of an element h px tall. A file that would not load is asked for once more,
+    // then the digit stands as text: a number never leaves the frame without a trace.
+    digitNode(digit, h) {
+        const asText = () => {
+            const el = document.createElement('span');
+            el.textContent = digit;
+            el.style.cssText = 'font: 700 ' + h + 'px/1 monospace; color: #e8d0a8; text-shadow: 0 0 2px #0b0a10;';
+            return el;
+        };
+        if (this.missedDigits.has(digit)) return asText();
+        const img = document.createElement('img');
+        let tried = false;
+        img.onerror = () => {
+            if (!tried) { tried = true; img.src = img.src; return; }
+            this.missedDigits.add(digit);
+            img.replaceWith(asText());
+        };
+        img.src = UI.assetBase + UI.DIGITS[Number(digit)];
+        img.alt = '';
+        img.style.cssText = 'height: 100%; min-width: 0; object-fit: contain; image-rendering: pixelated;';
+        return img;
+    },
+
     // Images: slice is left,top,right,bottom in source pixels; sliceScale sets the drawn edge size.
     // columns/rows/frame crop a sheet; digits uses the raster numerals; angle rotates around pivotX/Y (%).
     // bleedTop extends only the artwork through the Telegram safe area, keeping children below it.
@@ -405,13 +431,7 @@ class UIElement {
                 if (this.inner.dataset.text !== text) {
                     this.inner.dataset.text = text;
                     this.inner.textContent = '';
-                    for (const digit of text.replace(/[^0-9]/g, '')) {
-                        const img = document.createElement('img');
-                        img.src = UI.assetBase + UI.DIGITS[Number(digit)];
-                        img.alt = '';
-                        img.style.cssText = 'height: 100%; min-width: 0; object-fit: contain; image-rendering: pixelated;';
-                        this.inner.appendChild(img);
-                    }
+                    for (const digit of text.replace(/[^0-9]/g, '')) this.inner.appendChild(UI.digitNode(digit, d.h));
                 }
                 t.display = 'flex';
                 t.justifyContent = 'flex-end';

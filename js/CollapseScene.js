@@ -143,6 +143,11 @@ class CollapseScene {
 
         this._tex = new Map();
         this._mats = new Map();
+        /** @type {Set<string>} */
+        this._retried = new Set();
+        // A file that fails is ours to replace: Babylon's own answer is a checkerboard over the floor.
+        BABYLON.Tools.UseFallbackTexture = false;
+        BABYLON.Texture.OnTextureLoadErrorObservable.add(t => this._textureFailed(/** @type {BABYLON.Texture} */ (t).url));
         this._buildTunnel();
         this._buildTrain();
         this.rig.finish(this);
@@ -184,10 +189,19 @@ class CollapseScene {
     // Every frame a material swaps to later is loaded with the scene: a texture made on its first show
     // is not ready in that frame, and the sprite blinks out (the first shot, the first effect).
     _preload() {
+        const { mipped, plain } = CollapseScene.preloadUrls();
+        for (const u of mipped) this.texture(u);
+        for (const u of plain) this.texture(u, false);
+    }
+
+    // The frames _preload asks for. Pure: the smoke probe walks the same lists without a browser.
+    static preloadUrls() {
         const A = CollapseArt;
-        for (const u of [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoTurn), ...Object.values(A.locoFall), A.locoDamaged, ...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...Object.values(A.demon).flat(), ...Object.values(A.sign), ...Object.values(A.sw), ...A.lava]) this.texture(u);
-        for (const u of [...Object.values(A.gap), ...A.bg.map(b => b.url),
-            ...Object.values(A.fx).flat(), ...Object.values(A.switches).flatMap(v => Object.values(v))]) this.texture(u, false);
+        return {
+            mipped: [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoTurn), ...Object.values(A.locoFall), A.locoDamaged, ...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...Object.values(A.demon).flat(), ...Object.values(A.sign), ...Object.values(A.sw), ...A.lava],
+            plain: [...Object.values(A.gap), ...A.bg.map(b => b.url),
+                ...Object.values(A.fx).flat(), ...Object.values(A.switches).flatMap(v => Object.values(v))],
+        };
     }
 
     // Render COLLAPSE_RENDER_HEIGHT px tall whatever the screen; CSS scales it up pixelated.
@@ -209,6 +223,41 @@ class CollapseScene {
             this._tex.set(url, t);
         }
         return t;
+    }
+
+    // A file that would not load (invariant 6): it is asked for once more, then every texture of that
+    // url, clones included, takes its flat color in place. updateURL reports no error of its own, so
+    // the second try is a plain image, and the texture gets it as a buffer. All copies let the failed
+    // internal texture go first: while one holds it, the cache hands it back to the next.
+    _textureFailed(url) {
+        if (url.startsWith('data:') || this._retried.has(url)) return;
+        this._retried.add(url);
+        const swap = (to, buffer) => {
+            const copies = /** @type {BABYLON.Texture[]} */ (this.scene.textures).filter(t => t.url === url);
+            for (const t of copies) t.releaseInternalTexture();
+            for (const t of copies) t.updateURL(to, buffer);
+        };
+        const img = new Image();
+        img.onload = () => swap(url, img);
+        img.onerror = () => swap(CollapseScene.flatUrl(CollapseScene.flatColor(url)));
+        img.src = url;
+    }
+
+    // What stands in for a file: its color of FLAT, null — nothing at all. Pure: the probes run it in node.
+    static flatColor(url) {
+        const hit = CollapseScene.FLAT.find(([re]) => re.test(url));
+        return hit ? hit[1] : null;
+    }
+
+    static flatUrl(color) {
+        const c = document.createElement('canvas');
+        c.width = c.height = 1;
+        if (color !== null) {
+            const g = c.getContext('2d');
+            g.fillStyle = '#' + color.toString(16).padStart(6, '0');
+            g.fillRect(0, 0, 1, 1);
+        }
+        return c.toDataURL('image/png');
     }
 
     // Unlit pixel material: color = texture, fog applies, toon plugin skips unlit materials.
@@ -1230,6 +1279,21 @@ CollapseScene.FX = {
 };
 CollapseScene.LAVA_MS = 180;      // ms a frame of the magma (art_src/world_v3: four frames, 720 ms)
 CollapseScene.AHEAD = 6;
+// The flat stand-in of art that would not load, first match; colors of CollapseLook.PALETTE. No match —
+// nothing is drawn: a flat cut-out of an effect, a crack or a gap's edge would cover what is under it.
+/** @type {[RegExp, number][]} */
+CollapseScene.FLAT = [
+    [/textures\/world\/(brick_wall|vault_brick|arch_rib)/, 0x47303a],
+    [/textures\/world\/(track|floor_ballast)/, 0x33232b],
+    [/textures\/world\/lava|fx\/lava_flow/, 0xd2340f],
+    [/bg_01_void/, 0x0b0a10],
+    [/px\/train/, 0x465058],
+    [/demon_v3\/(?!ash)/, 0x9c1e10],
+    [/px\/ui\/sign_cross/, 0xd2340f],
+    [/px\/ui\/sign_/, 0x2f9a44],
+    [/px\/switch/, 0x6c7880],
+    [/px\/pickups/, 0xfcc048],
+];
 CollapseScene.SW_PX = 640;        // turnout texture height, px (art_src/switches_v1/switches_manifest_v1.json)
 CollapseScene.SW_ROWS = [96, 544]; // texture rows where the S curve ends and starts (travel: bottom to top)
 CollapseScene.RAIL_U = [30, 37];   // the rail's column in track.png, px (the left rail; the tile's rails are at 32 and 96)
