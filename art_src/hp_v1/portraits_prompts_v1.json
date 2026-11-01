@@ -1,0 +1,6 @@
+{
+  "tool": "built-in image_gen",
+  "calls": 1,
+  "prompt": "Edit this original pixel-art train driver's portrait into a two-panel wound reference sheet on transparent background. Left panel mild injury: forehead cut, narrow blood trail from forehead along viewer-right temple, small cheek abrasions. Right panel severe injury: same face strongly bruised, viewer-right eye swollen nearly shut, more dark red blood across forehead and cheek, cap shifted crookedly. Preserve this exact man's identity, moustache, head direction, gaze and stern calm mouth, cap emblem and costume. Do not replace face with a different character. Each panel should look like 48x48 coarse pixel art enlarged nearest-neighbor, hard square pixels only, no antialias, no text, no frame, no letters, no photorealism. Keep original dark iron / rust / warm skin palette; wounds dark maroon #3a1010 #6a1410 and red #9c1e10 with restrained #d2340f highlights; bruises #47303a #5c3a35. Do not change expression. Two equal panels side by side, front head silhouette fully inside each panel. This is reference for a shared wound overlay to be drawn onto six existing expressions.",
+  "assembly": "Generated two-stage reference; shared wound layers traced at 48px over original six portraits, swollen eye adjusted for expressions, cap tilted independently."
+}
