@@ -1,0 +1,32 @@
+{
+  "pixel_filter": "nearest",
+  "row_indexing": "zero-based",
+  "assets": [
+    {
+      "file": "assets/px/train/loco_turn_left.png",
+      "size": [
+        139,
+        200
+      ],
+      "frames": 1,
+      "pivot": [
+        69.5,
+        198
+      ],
+      "purpose": "slight left turn, no smoke"
+    },
+    {
+      "file": "assets/px/train/loco_turn_right.png",
+      "size": [
+        139,
+        200
+      ],
+      "frames": 1,
+      "pivot": [
+        69.5,
+        198
+      ],
+      "purpose": "slight right turn, no smoke"
+    }
+  ]
+}

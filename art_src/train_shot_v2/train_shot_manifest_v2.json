@@ -1,0 +1,31 @@
+{
+  "assets": [
+    {
+      "file": "assets/px/train/loco_shot_left.png",
+      "size": [
+        139,
+        200
+      ],
+      "frames": 1,
+      "pivot": [
+        69.5,
+        198
+      ],
+      "purpose": "left shot; exact run_0 with driver overlay"
+    },
+    {
+      "file": "assets/px/train/loco_shot_right.png",
+      "size": [
+        139,
+        200
+      ],
+      "frames": 1,
+      "pivot": [
+        69.5,
+        198
+      ],
+      "purpose": "right shot; exact run_0 with driver overlay"
+    }
+  ],
+  "exception": "Base RGBA preserved exactly by user choice; palette and binary alpha apply only to overlay."
+}
