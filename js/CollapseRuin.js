@@ -132,7 +132,7 @@ class CollapseRuin {
                 g: 3600, floor: 14, size: 44 + H(k, 5) * 60, kind: Math.floor(H(k, 6) * 7), t: time + H(k, 7) * 0.06, n: n * 23 + k + 900 });
         }
         for (let k = 0; k < S.EDGE_DUST; k++) {
-            this.dust.push({ kind: 'dust', x: x + (H(k, 8) - 0.5) * 220, y: 30 + H(k, 9) * 90, z: (pos + 0.3) * SEG, vy: 140, size: 300 + H(k, 10) * 180, t: time + H(k, 11) * 0.08, dur: 0.45 });
+            this.dust.push({ kind: 'dust', x: x + (H(k, 8) - 0.5) * 220, y: 30 + H(k, 9) * 90, z: (pos + 0.3) * SEG, vy: 140, size: 200 + H(k, 10) * 120, t: time + H(k, 11) * 0.08, dur: 0.45 });
         }
         this.jolts.push({ at: time, amp: this.c.jolt * 0.4 });
     }

@@ -235,8 +235,9 @@ test('портрет: все шесть кадров приходят из со�
     if (state === 'tense') g.run.ammo = 0;
     if (state === 'joy') {
       let at = 1;
-      while (!g.run.track.seg(at).pickup.some(Boolean)) at++;
-      g.run.lane = g.run.track.seg(at).pickup.findIndex(Boolean);
+      const gift = k => k && k !== 'slow';             // a pile on the track is no joy
+      while (!g.run.track.seg(at).pickup.some(gift)) at++;
+      g.run.lane = g.run.track.seg(at).pickup.findIndex(gift);
       g.run._collect(at);
     }
     if (state === 'hit' || state === 'fire') { g.run.shield = 1; g.run._hit(state === 'hit' ? 'demon' : 'lava'); }
