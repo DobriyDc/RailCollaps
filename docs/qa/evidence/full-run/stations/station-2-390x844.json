@@ -1,0 +1,50 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:52721/?stations&stage=2",
+  "browser": "msedge.exe",
+  "waitMs": 1200,
+  "eval": "docs/qa/evidence/full-run/stations/stations-eval.js",
+  "evalResult": {
+    "path": "stations-1-to-2",
+    "passed": true,
+    "targetStation": 2,
+    "stationsReached": 2,
+    "moneyAtStops": [
+      85,
+      85
+    ],
+    "purchases": [
+      {
+        "station": 1,
+        "item": "stationAmmo",
+        "spent": 30,
+        "money": 55
+      },
+      {
+        "station": 1,
+        "item": "stationShield",
+        "spent": 50,
+        "money": 5
+      },
+      {
+        "station": 2,
+        "item": "stationAmmo",
+        "spent": 30,
+        "money": 55
+      }
+    ],
+    "stage": 2,
+    "atStation": true,
+    "shopVisible": true,
+    "moneyHud": "55"
+  },
+  "errors": [],
+  "ok": true
+}
