@@ -62,6 +62,29 @@ test('остряки: прямо, пока стрелка не взведена;
   assert.equal(S.pointsState(into, { at: 5, from: 0, to: 1 }), 'left');
 });
 
+test('поезд на стрелке стоит на рельсах: нос ровно на кривой, куда бы ни смотрел кадр', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const { ROOT } = await import('./browser-scripts.mjs');
+  const { decodePng } = await import('../tools/art/check-art.mjs');
+  const tip = name => {
+    const { w, h, rgba } = decodePng(fs.readFileSync(path.join(ROOT, 'assets/px/train', name + '.png')));
+    for (let y = h - 1; y >= 0; y--) {
+      const xs = [];
+      for (let x = 0; x < w; x++) if (rgba[(y * w + x) * 4 + 3] > 128) xs.push(x);
+      if (xs.length) return (xs[0] + xs[xs.length - 1]) / 2;
+    }
+    return NaN;
+  };
+  const S = page().get('CollapseScene'), run = tip('loco_run_0');
+  for (const side of ['left', 'right']) assert.equal(tip('loco_turn_' + side) - run, S.LOCO_NOSE[side], side);
+  const px = S.LOCO.w / S.LOCO_PX;
+  for (const x of [-300, -137, 0, 42, 300]) {
+    assert.equal(S.trainAt(x, ''), x, 'кадр бега стоит на кривой');
+    for (const side of ['left', 'right']) assert.ok(Math.abs(S.trainAt(x, side) + S.LOCO_NOSE[side] * px - x) < 1e-9, side);
+  }
+});
+
 test('поезд едет по нарисованному ответвлению: кривая растра = кривая laneX, перевод не заходит на опасный сегмент', async () => {
   const fs = await import('node:fs');
   const path = await import('node:path');

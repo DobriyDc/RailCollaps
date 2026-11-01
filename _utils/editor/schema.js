@@ -664,8 +664,6 @@ const KIT_SCHEMA = [
               label: { en: 'Falling chunks: world units per art pixel', ru: 'Падающие куски: единиц мира на пиксель арта' } },
             { name: 'COLLAPSE_TRAIN_ROLL_DEG', min: 0, max: 30, step: 1,
               label: { en: 'Loco lean on a fork (°)', ru: 'Крен паровоза на стрелке (°)' } },
-            { name: 'COLLAPSE_TRAIN_SHIFT', min: 0, max: 150, step: 2,
-              label: { en: 'Loco swing along the fork curve (world units)', ru: 'Сдвиг паровоза по кривой стрелки (ед. мира)' } },
             { name: 'COLLAPSE_FLOW_FADE_FROM', min: 0, max: 1500, step: 10,
               label: { en: 'Lava stream fully drawn from (world units ahead)', ru: 'Поток лавы виден целиком с расстояния' } },
             { name: 'COLLAPSE_FLOW_FADE_TO', min: 0, max: 2000, step: 10,

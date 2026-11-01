@@ -133,9 +133,8 @@ class CollapseScene {
         this.bgPx = typeof COLLAPSE_BG_PX !== U ? COLLAPSE_BG_PX : 3.4;
         this.bgGap = typeof COLLAPSE_BG_REF_GAP !== U ? COLLAPSE_BG_REF_GAP : 5;
         this.bgSlope = (typeof COLLAPSE_BG_SLOPE_DEG !== U ? COLLAPSE_BG_SLOPE_DEG : 12) * Math.PI / 180;
-        // The train at the steepest point of a fork: its lean, how far it swings out, how narrow it turns.
+        // The train at the steepest point of a fork: its lean, how narrow it turns.
         this.rollMax = (typeof COLLAPSE_TRAIN_ROLL_DEG !== U ? COLLAPSE_TRAIN_ROLL_DEG : 8) * Math.PI / 180;
-        this.trainShift = typeof COLLAPSE_TRAIN_SHIFT !== U ? COLLAPSE_TRAIN_SHIFT : 36;
         this.trainSqueeze = typeof COLLAPSE_TRAIN_SQUEEZE !== U ? COLLAPSE_TRAIN_SQUEEZE : 0.14;
         this.turnFrom = typeof COLLAPSE_TRAIN_TURN_FROM !== U ? COLLAPSE_TRAIN_TURN_FROM : 0.15;
         this.flowFadeFrom = typeof COLLAPSE_FLOW_FADE_FROM !== U ? COLLAPSE_FLOW_FADE_FROM : 450;
@@ -751,6 +750,9 @@ class CollapseScene {
         return (on.laneX() - run.laneX()) / step * CollapseRules.SWITCH_LEN / 1.5;
     }
 
+    // Where the sprite stands for its nose to be at x: a turn frame draws the nose off its center.
+    static trainAt(x, turn) { return x - (turn ? CollapseScene.LOCO_NOSE[turn] * CollapseScene.LOCO.w / CollapseScene.LOCO_PX : 0); }
+
     // A point given from the sprite's bottom center (x to the screen right, +z toward the camera) in
     // the world, as the sprite stands now: rides its lean, squeeze, tip and fall.
     _onTrain(at, out) {
@@ -1185,8 +1187,9 @@ class CollapseScene {
         }
         this._setSpriteTex(this._mats.get('flow') || this.spriteMat('flow', CollapseArt.flow[0]), CollapseArt.flow[Math.floor(this.time * 10) % 4]);
 
-        // The train: on the rules' curve, run frames, shot and crash frames. At a fork it bends with the
-        // curve: leans toward the new lane, swings out and turns narrow; a crash breaks it, a fall tips it.
+        // The train: its nose on the rules' curve, the one the branch rails are laid along; run frames,
+        // shot and crash frames. At a fork it leans a little toward the new lane and turns its side; a
+        // crash breaks it, a fall tips it.
         const x = S.laneX(run.laneX()), bend = S.bendOf(run);
         let frame = CollapseArt.loco[Math.floor(this.time * (4 + run.speed() * 2)) % 4];
         if (this._shotUntil > this.time) frame = this._shotFrame;
@@ -1205,7 +1208,7 @@ class CollapseScene {
                 frame = CollapseArt.locoDamaged;
             }
         }
-        this.train.position.set(x + bend * this.trainShift, fall, 0);
+        this.train.position.set(S.trainAt(x, turn), fall, 0);
         this.train.rotation.z = -roll;
         this.train.rotation.x = tip;
         this.train.scaling.x = turn ? 1 : 1 - Math.abs(bend) * this.trainSqueeze;
@@ -1349,6 +1352,8 @@ CollapseScene.TILE = 140;         // world units per texture tile along the tunn
 CollapseScene.WALL_X = 640;       // half width of the tunnel
 CollapseScene.WALL_TOP = 430;     // where the walls meet the vault
 CollapseScene.LOCO = { w: 290, h: 418 };   // the loco's sprite (assets/px/train), world units
+CollapseScene.LOCO_PX = 139;      // the width of its frames, art px
+CollapseScene.LOCO_NOSE = { left: -11.5, right: 9.5 };   // art px: the tip of the cowcatcher in a turn frame against the run frames
 CollapseScene.LOCO_TOP = 414;     // world units: the top of the loco's art, its smoke included
 // The lever stand of a fork (assets/px/switch, 91 x 120 px) and its signal: the lit panel of the sign art
 // as shares of that file, on the disc at height y.
