@@ -87,7 +87,7 @@ const GAME_STEP_SEC = 0.35;             // s: between footstep sounds while the 
 
 // --- RAIL LINK: COLLAPSE (CollapseRules.js — the run, CollapseScene.js — the tunnel). Distance is
 // counted in track SEGMENTS; the first numbers of the prototype, tuned in playtests (GDD v3 §8) ---
-const COLLAPSE_RULES_VERSION = 4;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
+const COLLAPSE_RULES_VERSION = 5;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
 const COLLAPSE_SEG_METERS = 10;         // m of distance shown per segment
 const COLLAPSE_SPEED = 2.2;             // segments/s: train speed at the start
 const COLLAPSE_SPEED_GROWTH = 0.0025;   // segments/s added per segment travelled
@@ -112,7 +112,9 @@ const COLLAPSE_AMMO_PICKUP = 4;         // cartridges per ammo pickup
 const COLLAPSE_DEMON_WARN_SEC = 1;      // s: the wall icons warn of a demon before it shows on its wall
 const COLLAPSE_DEMON_BLINK_HZ = 3;      // the wall icon of a demon in its warning blinks this many times a second
 const COLLAPSE_DEMON_PERCH_SEC = 1;     // s a demon stands on its wall in the frame; it can be shot from its first frame
-const COLLAPSE_DEMON_SEC = 0.6;         // s of the leap: a demon not shot by its end hits the train
+const COLLAPSE_HP = 3;                  // lives of the train: lava and a demon's strike take one, a gap and the collapse end the run
+const COLLAPSE_DEMON_STRIKE_SEC = 0.7;  // s between the strikes of a demon hanging on the train
+const COLLAPSE_DEMON_SEC = 0.6;         // s of the leap: a demon not shot by its end lands on the train and hangs there
 const COLLAPSE_DEMON_EVERY = 30;        // segments: a demon at most once per this distance
 const COLLAPSE_DEMON_CHANCE = 0.2;      // chance that a pattern is a demon once the spacing above allows one
 const COLLAPSE_DEMON_START = 60;        // segments: no demon before this distance (600 m)
@@ -210,7 +212,7 @@ const COLLAPSE_RUIN_STEP_MAX = 3;       // sections one blow of the collapse tak
 const COLLAPSE_RUIN_BREAK = 0.3;        // 0..1: chance that a blow ends at a section: smaller — rarer, larger blows
 const COLLAPSE_RUIN_RIPPLE_SEC = 0.09;  // s between the sections of one blow, the farthest first
 const COLLAPSE_RUIN_FALL_RATE = 2.4;    // how fast what was struck falls: segments of the fall curve per s
-const COLLAPSE_RUIN_RIB_SAG = 500;      // world units: the arch ribs behind the train stand this much lower: the close camera sees no higher than the loco
+const COLLAPSE_RUIN_RIB_SAG = 500;      // world units: an arch the collapse has reached comes down this far: the close camera sees no higher than the loco
 const COLLAPSE_RUIN_NEAR_GAP = 6;       // segments: from this gap between the edge and the train the blows start to be felt on the train
 const COLLAPSE_RUIN_NEAR_CHUNKS = 5;    // big pieces beside the train from a blow right behind it (one from a far blow)
 const COLLAPSE_RUIN_JOLT = 30;          // world units: the camera's jolt from a blow right behind the train (a tenth of it from a far one)

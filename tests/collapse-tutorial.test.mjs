@@ -95,6 +95,31 @@ test('трасса той же модели: стрелки ведут на по
   assert.equal(t.seg(end + 20).kind, 'calm', 'за обучением тихая колея');
 });
 
+test('жизни: поезда на панели гаснут, лицо машиниста меняется с потерей, в обучении индикаторов нет', () => {
+  const b = boot(), g = b.game, Game = g.constructor;
+  g.start();
+  g.update(0);
+  const lit = () => [0, 1, 2].filter(i => b.UI.get('hp' + i).src === Game.HP.full).length;
+  assert.equal(lit(), 3);
+  assert.equal(b.UI.get('hpRow').visible, true);
+  assert.equal(b.UI.get('portrait').src, Game.PORTRAITS.calm.replace('calm', b.UI.get('portrait').src.includes('tense') ? 'tense' : 'calm'));
+  g.run.hp = 2;
+  g.update(0);
+  assert.equal(lit(), 2);
+  assert.ok(/_w1\.png$/.test(b.UI.get('portrait').src), b.UI.get('portrait').src);
+  g.run.hp = 1;
+  g.update(0);
+  assert.equal(lit(), 1);
+  assert.ok(/_w2\.png$/.test(b.UI.get('portrait').src), b.UI.get('portrait').src);
+  for (const [state, files] of Object.entries(Game.PORTRAITS_HURT)) {
+    assert.equal(Game.portraitOf(state, 0), Game.PORTRAITS[state]);
+    assert.deepEqual([Game.portraitOf(state, 1), Game.portraitOf(state, 2), Game.portraitOf(state, 5)], [files[0], files[1], files[1]]);
+  }
+  g.start(new (b.p.get('CollapseTutorial'))());
+  assert.equal(b.UI.get('hpRow').visible, false);
+  assert.equal(g.run.hp, 1, 'в обучении удар возвращает на шаг');
+});
+
 test('обвал мягче обычного и идёт только на своём шаге', () => {
   const p = page(), run = new (p.get('CollapseTutorial'))(), usual = new (p.get('CollapseRun'))(1);
   assert.ok(run.frontSpeed() < usual.frontSpeed());

@@ -300,6 +300,15 @@ function collapseStart() {
   return effect(drive(x, 1.8), 0.82, 0.01);
 }
 
+// A demon lands on the cab: a thud on iron and claws scraping down it.
+function demonHang() {
+  const x = buffer(0.6, RATE);
+  thump(x, 0, 150, 60, 22, 11, 1.1);
+  strike(x, 0.01, 260, 0.45);
+  burst(x, 0.05, 0.5, { seed: 95, low: 1800, high: 6500, attack: 0.02, decay: 5, gain: 1.8 });
+  return effect(drive(x, 1.5), 0.8);
+}
+
 function continued() {
   const x = buffer(0.85, RATE);
   burst(x, 0, 0.85, { seed: 22, low: 500, high: t => 1000 + 6000 * t, attack: 0.25, decay: 2.2, gain: 3.4 });
@@ -463,6 +472,7 @@ function buildSounds() {
     'sfx_rescue.wav': writeWav(rescue()),
     'sfx_demon_show.wav': writeWav(demonShow()),
     'sfx_demon_leap.wav': writeWav(demonLeap()),
+    'sfx_demon_hang.wav': writeWav(demonHang()),
     'sfx_demon_down.wav': writeWav(demonDown()),
     'sfx_hit.wav': writeWav(crashHit()),
     'sfx_lava.wav': writeWav(lava()),
