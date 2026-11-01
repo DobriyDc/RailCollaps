@@ -1,0 +1,119 @@
+{
+  "palette": "docs/STYLE.md",
+  "alpha": [
+    0,
+    255
+  ],
+  "side": "right",
+  "mirror_left": "x -> 159-x; mirrored grip [116,56]",
+  "world_units_per_pixel": 1.2,
+  "locomotive_width_world": 290,
+  "max_allowed_width_world": 96.66666666666667,
+  "grip_note": "Permanent support hand remains fixed; the other hand winds up and strikes.",
+  "files": [
+    {
+      "file": "assets/sprites/demon_v3/hang_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "frames": 1,
+      "pivot": [
+        43,
+        56
+      ],
+      "grip": [
+        43,
+        56
+      ],
+      "character": "furnace_mason_01",
+      "purpose": "hang",
+      "duration_ms": 180,
+      "opaque_bbox": [
+        40,
+        21,
+        106,
+        145
+      ],
+      "opaque_width_world": 79.2
+    },
+    {
+      "file": "assets/sprites/demon_v3/hang_01.png",
+      "size": [
+        160,
+        160
+      ],
+      "frames": 1,
+      "pivot": [
+        43,
+        56
+      ],
+      "grip": [
+        43,
+        56
+      ],
+      "character": "furnace_mason_01",
+      "purpose": "breathe",
+      "duration_ms": 180,
+      "opaque_bbox": [
+        40,
+        20,
+        106,
+        144
+      ],
+      "opaque_width_world": 79.2
+    },
+    {
+      "file": "assets/sprites/demon_v3/hang_02.png",
+      "size": [
+        160,
+        160
+      ],
+      "frames": 1,
+      "pivot": [
+        43,
+        56
+      ],
+      "grip": [
+        43,
+        56
+      ],
+      "character": "furnace_mason_01",
+      "purpose": "windup",
+      "duration_ms": 150,
+      "opaque_bbox": [
+        40,
+        20,
+        117,
+        145
+      ],
+      "opaque_width_world": 92.4
+    },
+    {
+      "file": "assets/sprites/demon_v3/hang_03.png",
+      "size": [
+        160,
+        160
+      ],
+      "frames": 1,
+      "pivot": [
+        43,
+        56
+      ],
+      "grip": [
+        43,
+        56
+      ],
+      "character": "furnace_mason_01",
+      "purpose": "claw strike",
+      "duration_ms": 100,
+      "opaque_bbox": [
+        40,
+        22,
+        111,
+        145
+      ],
+      "opaque_width_world": 85.2
+    }
+  ]
+}

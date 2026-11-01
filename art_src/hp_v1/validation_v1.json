@@ -1,0 +1,25 @@
+{
+  "groups": [
+    2,
+    12,
+    4
+  ],
+  "outside_palette_colors": 0,
+  "alpha": [
+    0,
+    255
+  ],
+  "grip": [
+    43,
+    56
+  ],
+  "demon_widths_world": [
+    79.2,
+    79.2,
+    92.4,
+    85.2
+  ],
+  "max_allowed_width_world": 96.66666666666667,
+  "assets_checked": 18,
+  "all_package_pngs_checked": true
+}

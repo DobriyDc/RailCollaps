@@ -1,0 +1,5 @@
+﻿{
+    "command":  "node tools/check.mjs --tests",
+    "exit_code":  0,
+    "wall_seconds":  6.92
+}

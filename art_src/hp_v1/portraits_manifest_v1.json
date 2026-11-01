@@ -1,0 +1,189 @@
+{
+  "palette": "docs/STYLE.md",
+  "alpha": [
+    0,
+    255
+  ],
+  "files": [
+    {
+      "file": "assets/ui/hud_v3/portrait_calm_w1.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": 1,
+      "pivot": [
+        24,
+        24
+      ],
+      "purpose": "calm, injury 1",
+      "source": "assets/ui/hud_v3/portrait_calm.png",
+      "wound_level": 1
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_calm_w2.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": 1,
+      "pivot": [
+        24,
+        24
+      ],
+      "purpose": "calm, injury 2",
+      "source": "assets/ui/hud_v3/portrait_calm.png",
+      "wound_level": 2
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_tense_w1.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": 1,
+      "pivot": [
+        24,
+        24
+      ],
+      "purpose": "tense, injury 1",
+      "source": "assets/ui/hud_v3/portrait_tense.png",
+      "wound_level": 1
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_tense_w2.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": 1,
+      "pivot": [
+        24,
+        24
+      ],
+      "purpose": "tense, injury 2",
+      "source": "assets/ui/hud_v3/portrait_tense.png",
+      "wound_level": 2
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_joy_w1.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": 1,
+      "pivot": [
+        24,
+        24
+      ],
+      "purpose": "joy, injury 1",
+      "source": "assets/ui/hud_v3/portrait_joy.png",
+      "wound_level": 1
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_joy_w2.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": 1,
+      "pivot": [
+        24,
+        24
+      ],
+      "purpose": "joy, injury 2",
+      "source": "assets/ui/hud_v3/portrait_joy.png",
+      "wound_level": 2
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_hit_w1.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": 1,
+      "pivot": [
+        24,
+        24
+      ],
+      "purpose": "hit, injury 1",
+      "source": "assets/ui/hud_v3/portrait_hit.png",
+      "wound_level": 1
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_hit_w2.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": 1,
+      "pivot": [
+        24,
+        24
+      ],
+      "purpose": "hit, injury 2",
+      "source": "assets/ui/hud_v3/portrait_hit.png",
+      "wound_level": 2
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_fire_w1.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": 1,
+      "pivot": [
+        24,
+        24
+      ],
+      "purpose": "fire, injury 1",
+      "source": "assets/ui/hud_v3/portrait_fire.png",
+      "wound_level": 1
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_fire_w2.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": 1,
+      "pivot": [
+        24,
+        24
+      ],
+      "purpose": "fire, injury 2",
+      "source": "assets/ui/hud_v3/portrait_fire.png",
+      "wound_level": 2
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_fall_w1.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": 1,
+      "pivot": [
+        24,
+        24
+      ],
+      "purpose": "fall, injury 1",
+      "source": "assets/ui/hud_v3/portrait_fall.png",
+      "wound_level": 1
+    },
+    {
+      "file": "assets/ui/hud_v3/portrait_fall_w2.png",
+      "size": [
+        48,
+        48
+      ],
+      "frames": 1,
+      "pivot": [
+        24,
+        24
+      ],
+      "purpose": "fall, injury 2",
+      "source": "assets/ui/hud_v3/portrait_fall.png",
+      "wound_level": 2
+    }
+  ]
+}
