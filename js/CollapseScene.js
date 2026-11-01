@@ -111,11 +111,12 @@ class CollapseScene {
         // Brightness of the unlit pixel art (texture level): brick a bit above its file, lava glows.
         this.brickLevel = typeof COLLAPSE_BRICK_LEVEL !== U ? COLLAPSE_BRICK_LEVEL : 1.35;
         this.lavaLevel = typeof COLLAPSE_LAVA_LEVEL !== U ? COLLAPSE_LAVA_LEVEL : 1.5;
-        // The collapse: the crack zone ahead of it, how bright the cracks glow, how far ahead of the
-        // edge the vault starts to shed blocks.
+        // The collapse: the crack zone ahead of it, how bright the cracks glow.
         this.crackZone = typeof COLLAPSE_CRACK_ZONE !== U ? COLLAPSE_CRACK_ZONE : 3;
         this.crackLevel = typeof COLLAPSE_CRACK_LEVEL !== U ? COLLAPSE_CRACK_LEVEL : 1.6;
-        this.debrisLead = typeof COLLAPSE_DEBRIS_LEAD !== U ? COLLAPSE_DEBRIS_LEAD : 1;
+        // What has fallen, and when, in world coordinates (CollapseRuin.js): the scene only draws it.
+        this.ruin = new CollapseRuin();
+        this._ruinRun = null;
         // Effects (card 16): the camera shake of a demon hit, the glow of a
         // lava hit, the lean into a gap.
         this.shakeAmp = typeof COLLAPSE_FX_SHAKE !== U ? COLLAPSE_FX_SHAKE : 24;
@@ -130,7 +131,6 @@ class CollapseScene {
         this.bgPx = typeof COLLAPSE_BG_PX !== U ? COLLAPSE_BG_PX : 3.4;
         this.bgGap = typeof COLLAPSE_BG_REF_GAP !== U ? COLLAPSE_BG_REF_GAP : 5;
         this.bgSlope = (typeof COLLAPSE_BG_SLOPE_DEG !== U ? COLLAPSE_BG_SLOPE_DEG : 12) * Math.PI / 180;
-        this.chunkArt = typeof COLLAPSE_CHUNK_ART !== U ? COLLAPSE_CHUNK_ART : 4;
         // The train at the steepest point of a fork: its lean, how far it swings out, how narrow it turns.
         this.rollMax = (typeof COLLAPSE_TRAIN_ROLL_DEG !== U ? COLLAPSE_TRAIN_ROLL_DEG : 8) * Math.PI / 180;
         this.trainShift = typeof COLLAPSE_TRAIN_SHIFT !== U ? COLLAPSE_TRAIN_SHIFT : 36;
@@ -358,16 +358,15 @@ class CollapseScene {
         const wallLo = (mid + 60) / BRICK, wallHi = (top - mid) / BRICK;
         // Length of an arc in tiles: the art repeats along it, the mesh makes the bend.
         const arcTiles = r => { let d = 0; const p = arc(r, 0, 8); for (let k = 1; k < p.length; k++) d += BABYLON.Vector3.Distance(p[k], p[k - 1]); return d / BRICK; };
-        const ribPath = [new BABYLON.Vector3(0, 0, -40), new BABYLON.Vector3(0, 0, 40)];
         this.torchMat = this.spriteMat('torch', CollapseArt.torch[0]);
-        /** @type {{ mesh: any, side: number, kind: string, pivot: number[], buf: Float32Array }[]} */
+        /** @type {{ mesh: any, side: number, kind: string, pivot: number[], buf: Float32Array, wedge: number }[]} */
         this.pieces = [];
-        const piece = (mesh, side, kind, pivot) => {
+        const piece = (mesh, side, kind, pivot, wedge = 0) => {
             mesh.isPickable = false;
             mesh.alwaysSelectAsActiveMesh = true;   // instances move every frame: no stale bounds to cull by
             const buf = new Float32Array(16 * this.slots);
             mesh.thinInstanceSetBuffer('matrix', buf, 16, false);
-            this.pieces.push({ mesh, side, kind, pivot, buf });
+            this.pieces.push({ mesh, side, kind, pivot, buf, wedge });
         };
         for (const side of [-1, 1]) {
             const s = side < 0 ? 'L' : 'R';
@@ -384,13 +383,19 @@ class CollapseScene {
             const vault = extrude('vault-' + s, side < 0 ? arc(R, 0, 8) : arc(R, 8, 16));
             vault.material = this.surface('vault', CollapseArt.tex.vault, arcTiles(R), 1, this.brickLevel);
             piece(vault, side, 'vault', [side * W, top]);
-            // The rib's art is a straight band (Y repeats): it follows the arc, its X crosses the rib.
-            const ribShape = side < 0 ? [V(-(W - 40), -60), ...arc(R - 40, 0, 8)] : [...arc(R - 40, 8, 16), V(W - 40, -60)];
-            const rib = extrude('rib-' + s, ribShape, ribPath);
-            S._alongPath(rib, arcTiles(R - 40) + (top + 60) / BRICK, 0);
-            const ribMat = rib.material = this.surface('rib', CollapseArt.tex.rib, 1, 1, this.brickLevel);
+            // The rib stands across the track in wedges: its art is a straight band (Y repeats), along
+            // the arc, its X across the rib. The keystone goes first (wedge).
+            const ribMat = this.surface('rib', CollapseArt.tex.rib, 1, 1, this.brickLevel * S.RIB_LEVEL);
             ribMat.emissiveTexture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
-            piece(rib, side, 'rib', [side * W, -60]);
+            let ribV = 0;
+            S.RIB_WEDGES.forEach(([from, to], w) => {
+                const rows = S.ribRows(side, from, to, ribV);
+                ribV = rows[rows.length - 1].v;
+                const mesh = this._ribMesh('rib-' + s + w, rows);
+                mesh.material = ribMat;
+                const mid = rows[rows.length >> 1];
+                piece(mesh, side, 'rib', [(mid.xi + mid.xo) / 2, (mid.yi + mid.yo) / 2], S.RIB_WEDGES.length - 1 - w);
+            });
             const sh = BABYLON.MeshBuilder.CreateGround('shoulder', { width: shoulder, height: S.SEG }, scene);
             sh.bakeTransformIntoVertices(BABYLON.Matrix.Translation(side * (edge + shoulder / 2), -8, S.SEG / 2));
             sh.material = this.surface('ballast', CollapseArt.tex.ballast, shoulder / S.TILE, S.SEG / S.TILE);
@@ -403,6 +408,51 @@ class CollapseScene {
 
         this._m = [0, 1, 2, 3, 4].map(() => new BABYLON.Matrix());
         this._buildCollapse();
+    }
+
+    // The rows of an arch wedge, from `from` to `to` in sixteenths of the half turn (0 — the springing;
+    // from < 0 — the leg below it), for the side given: its inner and outer edge and the art's V there.
+    static ribRows(side, from, to, v) {
+        const S = CollapseScene, W = S.WALL_X - 40, inner = W - S.RIB_DEEP, top = S.WALL_TOP;
+        /** @type {{ xi: number, yi: number, xo: number, yo: number, v: number }[]} */
+        const rows = [];
+        const at = (r, k) => [side * Math.cos(Math.PI * k / 16) * r, top + Math.sin(Math.PI * k / 16) * r * 0.75];
+        const add = (xi, yi, xo, yo) => {
+            const b = rows[rows.length - 1];
+            v += b ? Math.hypot(xo - b.xo, yo - b.yo) / (S.TILE * 2) : 0;
+            rows.push({ xi, yi, xo, yo, v });
+        };
+        if (from < 0) add(side * inner, -60, side * W, -60);
+        for (let k = Math.max(0, from); k <= to; k++) add(...at(inner, k), ...at(W, k));
+        return rows;
+    }
+
+    // A wedge as a solid: the face toward the train, the underside, the back of the arch and both cut
+    // ends, which show when the wedges part. It is seen from the train's side only: no far face.
+    _ribMesh(name, rows) {
+        const S = CollapseScene, z = S.RIB_THICK / 2, pos = [], uv = [], idx = [], last = rows.length - 1;
+        // A quad; the index order puts cross(b - a, c - a) against `out`, Babylon's own convention.
+        const quad = (a, b, c, d, ua, ub, uc, ud, out) => {
+            const e = pos.length / 3, [ux, uy, uz] = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], [vx, vy, vz] = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+            const dot = (uy * vz - uz * vy) * out[0] + (uz * vx - ux * vz) * out[1] + (ux * vy - uy * vx) * out[2];
+            pos.push(...a, ...b, ...c, ...d);
+            uv.push(...ua, ...ub, ...uc, ...ud);
+            idx.push(...(dot < 0 ? [e, e + 1, e + 2, e, e + 2, e + 3] : [e, e + 2, e + 1, e, e + 3, e + 2]));
+        };
+        for (let k = 0; k < last; k++) {
+            const a = rows[k], b = rows[k + 1];
+            quad([a.xi, a.yi, z], [a.xo, a.yo, z], [b.xo, b.yo, z], [b.xi, b.yi, z], [0, a.v], [1, a.v], [1, b.v], [0, b.v], [0, 0, 1]);
+            quad([a.xi, a.yi, -z], [a.xi, a.yi, z], [b.xi, b.yi, z], [b.xi, b.yi, -z], [0, a.v], [0.3, a.v], [0.3, b.v], [0, b.v], [a.xi - a.xo, a.yi - a.yo, 0]);
+            quad([a.xo, a.yo, z], [a.xo, a.yo, -z], [b.xo, b.yo, -z], [b.xo, b.yo, z], [0.7, a.v], [1, a.v], [1, b.v], [0.7, b.v], [a.xo - a.xi, a.yo - a.yi, 0]);
+        }
+        for (const [r, n] of [[rows[0], rows[1]], [rows[last], rows[last - 1]]]) {
+            quad([r.xi, r.yi, z], [r.xo, r.yo, z], [r.xo, r.yo, -z], [r.xi, r.yi, -z], [0, r.v], [1, r.v], [1, r.v + 0.2], [0, r.v + 0.2], [r.xo - n.xo, r.yo - n.yo, 0]);
+        }
+        const m = new BABYLON.Mesh(name, this.scene), d = new BABYLON.VertexData(), nor = [];
+        BABYLON.VertexData.ComputeNormals(pos, idx, nor);
+        d.positions = pos; d.uvs = uv; d.indices = idx; d.normals = nor;
+        d.applyToMesh(m);
+        return m;
     }
 
     // Swaps an extruded ribbon's UV: the art's X along the extrusion, its Y repeated along the shape.
@@ -433,7 +483,7 @@ class CollapseScene {
     _buildCollapse() {
         const S = CollapseScene, scene = this.scene, cam = this.view.camera;
         const ref = cam.position.z + this.bgGap * S.SEG, last = CollapseArt.bg.length - 1, near = CollapseArt.bg[last].depth;
-        /** @type {{ mesh: any, back: number }[]} */
+        /** @type {{ mesh: any, back: number, buf: Float32Array, sink: number }[]} */
         this.bgLayers = CollapseArt.bg.map((b, k) => {
             const back = (b.depth - near) * this.bgDepth, px = this.bgPx * (ref + back) / ref, w = S.BG_PX[0] * px, h = S.BG_PX[1] * px;
             const mesh = k === last ? this._rubble(b, w, h) : BABYLON.MeshBuilder.CreatePlane(b.key, { width: w, height: h }, scene);
@@ -441,10 +491,13 @@ class CollapseScene {
             mesh.material = this.spriteMat(b.key, b.url, false);
             mesh.material.fogEnabled = false;   // the wreck glows through the dark of the tunnel
             mesh.isPickable = false;
-            return { mesh, back, sink: k === last ? 0 : 1 + (last - 1 - k) * 0.5 };
+            mesh.alwaysSelectAsActiveMesh = true;
+            const buf = new Float32Array(16 * CollapseRuin.STANDS);
+            mesh.thinInstanceSetBuffer('matrix', buf, 16, false);
+            return { mesh, back, buf, sink: k === last ? 0 : 1 + (last - 1 - k) * 0.5 };
         });
         this._sinkLayers();
-        const cap = 4 * (Math.ceil(this.crackZone) + 2);   // per segment: two walls, two on the floor
+        const cap = 8 * (Math.ceil(this.crackZone) + 2);   // per segment: two walls, two on the floor, four on the arch
         this.cracks = {
             wall: CollapseArt.crackWall.map(u => this._instSprite('crack-wall', u, 128 * S.CRACK_ART, 160 * S.CRACK_ART, cap, true)),
             vault: CollapseArt.crackVault.map(u => this._instSprite('crack-vault', u, 192 * S.CRACK_ART, 112 * S.CRACK_ART, cap, true)),
@@ -456,6 +509,10 @@ class CollapseScene {
         this.bricks = CollapseArt.brick.map(u => this._instSprite('brick', u, 1, 1, S.DEBRIS, false));
         for (const b of this.bricks) b.mesh.material.emissiveTexture.level = this.brickLevel;
         this.railBits = CollapseArt.railBits.map(u => this._instSprite('rail-bit', u, 1, 1, S.DEBRIS, false));
+        this.dustSets = {
+            dust: CollapseArt.fx.smoke.map(u => this._instSprite('dust', u, 1, 1, S.DEBRIS, true)),
+            spark: CollapseArt.fx.sparks.map(u => this._instSprite('dust-spark', u, 1, 1, S.DEBRIS, true)),
+        };
     }
 
     // The rubble stays on the floor; the layers behind it go down by shares of frontLift (applyCamera).
@@ -478,6 +535,9 @@ class CollapseScene {
         return m;
     }
 
+    // An arch stands every RIB_EVERY segments: each is a thing of its own the eye can follow.
+    static hasRib(i) { return ((i % CollapseScene.RIB_EVERY) + CollapseScene.RIB_EVERY) % CollapseScene.RIB_EVERY === 1; }
+
     // A stable pseudo-random 0..1 per segment and slot: pieces of one segment do not fall in lockstep.
     static hash(i, k) {
         const x = Math.sin(i * 127.1 + k * 311.7) * 43758.5453;
@@ -490,20 +550,24 @@ class CollapseScene {
         return [f * f * 700 + f * 120, Math.min(1, f / 1.2)];
     }
 
-    // Pieces start at staggered moments (DELAY): the vault and the torches go at the front, the upper
-    // walls a little later, the lower walls last; the shoulders go with the floor.
+    // Pieces start at staggered moments after their section's blow (DELAY): the vault and the torches
+    // first, the upper walls a little later, the lower walls last; the shoulders go with the floor.
+    // The train's position only turns the world's place into the view (z) and keeps a rib over it up.
     // The matrix of piece `p` of segment i into `out`; false — not drawn (skipped or gone into the lava).
     _pieceMatrix(p, i, run, pos, out) {
         const S = CollapseScene, m = this._m;
-        if ((p.kind === 'rib' && (i & 1) === 0) || (p.kind === 'torch' && (i & 1) === 1)) return false;
-        const f = run.front - i - S.DELAY[p.kind] - S.hash(i, p.side + 3) * 0.25;
+        if ((p.kind === 'rib' && !S.hasRib(i)) || (p.kind === 'torch' && (i & 1) === 1)) return false;
+        const ruin = this.ruin, rib = p.kind === 'rib';
+        const f = ruin.fallen(i, this.time) - S.DELAY[p.kind] - p.wedge * S.WEDGE_DELAY - S.hash(i, p.side + 3 + p.wedge * 11) * 0.25;
         const [drop, k2] = S.fall(f);
         if (drop > 1500) return false;
-        const a = p.side * S.LEAN[p.kind] * k2 * (0.7 + 0.6 * S.hash(i, p.side + 7));
+        // A cracked rib settles: its wedges part a little before they go.
+        const crack = rib ? ruin.crack(i) : 0, settle = crack * crack * (6 + 22 * S.hash(i, p.side + 5 + p.wedge * 3));
+        const a = p.side * (S.LEAN[p.kind] * k2 * (0.7 + 0.6 * S.hash(i, p.side + 7)) + crack * crack * 0.04 * (S.hash(i, p.wedge + 9) - 0.5));
         BABYLON.Matrix.TranslationToRef(-p.pivot[0], -p.pivot[1], 0, m[0]);
         BABYLON.Matrix.RotationZToRef(a, m[1]);
         m[0].multiplyToRef(m[1], m[2]);
-        BABYLON.Matrix.TranslationToRef(p.pivot[0] - p.side * drop * 0.15, p.pivot[1] - drop, (i - pos) * S.SEG, m[1]);
+        BABYLON.Matrix.TranslationToRef(p.pivot[0] - p.side * drop * 0.15, p.pivot[1] - drop - settle - (rib ? ruin.sag(i, pos) : 0), (i - pos) * S.SEG, m[1]);
         m[2].multiplyToRef(m[1], out);
         return true;
     }
@@ -537,15 +601,33 @@ class CollapseScene {
         }
     }
 
-    _syncCollapse(run, pos) {
-        const S = CollapseScene, m = this._m, W = S.WALL_X, R = S.WALL_X, top = S.WALL_TOP;
-        for (const l of this.bgLayers) l.mesh.position.z = (run.front - pos) * S.SEG - l.back;
+    // The layers stand where the blows left them (CollapseRuin.stands): a translation per stand, written
+    // straight into the instance buffer. The train's position only turns the world into the view.
+    _syncLayers(pos) {
+        const S = CollapseScene, ruin = this.ruin;
+        this.bgLayers.forEach((l, k) => {
+            const stands = ruin.stands[k];
+            stands.forEach((s, n) => {
+                const o = n * 16;
+                l.buf.fill(0, o, o + 16);
+                l.buf[o] = l.buf[o + 5] = l.buf[o + 10] = l.buf[o + 15] = 1;
+                l.buf[o + 13] = ruin.standDrop(s, this.time);
+                l.buf[o + 14] = (s.at - pos) * S.SEG - l.back;
+            });
+            l.mesh.thinInstanceCount = stands.length;
+            l.mesh.thinInstanceBufferUpdated('matrix');
+        });
+    }
 
-        // Cracks: segments from the edge to crackZone ahead of it; they grow as the edge comes and
+    _syncCollapse(run, pos) {
+        const S = CollapseScene, m = this._m, W = S.WALL_X, R = S.WALL_X, top = S.WALL_TOP, ruin = this.ruin, edge = ruin.edge;
+        this._syncLayers(pos);
+
+        // Cracks: segments from the edge to crackZone ahead of the front; they grow as it comes and
         // ride the wall or vault piece they sit on when it starts to fall.
-        const from = Math.floor(run.front - 1), to = Math.ceil(run.front + this.crackZone);
+        const from = edge - 1, to = Math.ceil(edge + this.crackZone);
         for (let i = from; i <= to; i++) {
-            const near = 1 - (i + 0.5 - run.front) / this.crackZone;
+            const near = ruin.crack(i);
             if (near <= 0) continue;
             const grow = Math.min(1, 0.35 + 0.65 * near);
             for (const side of [-1, 1]) {
@@ -577,10 +659,22 @@ class CollapseScene {
                     m[2].multiplyToRef(m[4], m[3]);
                     S._put(this.cracks.vault[Math.floor(h(7) * this.cracks.vault.length)], m[3]);
                 }
+                // Rib cracks: on the faces of the arch's wedges, the part of the tunnel the camera sees.
+                for (const p of S.hasRib(i) ? this.pieces : []) {
+                    if (p.side !== side || p.kind !== 'rib' || !this._pieceMatrix(p, i, run, pos, m[4])) continue;
+                    const size = S.RIB_CRACK / (192 * S.CRACK_ART) * grow * (0.8 + h(8 + p.wedge) * 0.5);
+                    BABYLON.Matrix.ScalingToRef(size, size, 1, m[0]);
+                    BABYLON.Matrix.RotationZToRef(h(12 + p.wedge) * Math.PI, m[1]);
+                    m[0].multiplyToRef(m[1], m[2]);
+                    BABYLON.Matrix.TranslationToRef(p.pivot[0], p.pivot[1], S.RIB_THICK / 2 + 3, m[1]);
+                    m[2].multiplyToRef(m[1], m[0]);
+                    m[0].multiplyToRef(m[4], m[3]);
+                    S._put(this.cracks.vault[Math.floor(h(16 + p.wedge) * this.cracks.vault.length)], m[3]);
+                }
             }
             // Floor cracks: the camera sees the walls nearly edge-on, the track it sees whole —
             // the ground ahead of the edge splits too, and drops with the floor.
-            const drop = S.floorDrop(run.front - i);
+            const drop = S.floorDrop(ruin.fallen(i, this.time));
             for (let c = 0; c < 2 && drop < 880; c++) {
                 const h = k => S.hash(i, 40 + c * 9 + k);
                 if (h(0) > 0.75) continue;
@@ -594,39 +688,32 @@ class CollapseScene {
         }
         S._flush([...this.cracks.wall, ...this.cracks.vault]);
 
-        // Debris: blocks shed by the vault and walls from debrisLead segments ahead of the edge, and
-        // rail wreckage thrown up where the floor goes. Each slot falls once, each chunk on its own; it
-        // is drawn only ahead of the edge (behind it the wreck hides it anyway).
-        const per = 8, base = Math.floor(run.front + this.debrisLead) + 1, art = this.chunkArt;
-        for (let j = 0; j < S.DEBRIS; j++) {
-            const i = base - Math.floor(j / per), h = k => S.hash(i, j % per * 5 + k);
-            const zi = i + h(4);
-            if (zi < run.front) continue;
-            if (j % 4 === 3) {
-                const f = run.front - i - h(0) * 0.4;
-                const y = f * 900 - f * f * 3200;
-                if (f <= 0 || y < -170) continue;
-                const size = S.CHUNK_PX * art * (0.8 + h(3) * 0.5);
-                BABYLON.Matrix.ScalingToRef(size, size, 1, m[0]);
-                BABYLON.Matrix.RotationZToRef(f * 9 * (h(1) - 0.5), m[1]);
-                m[0].multiplyToRef(m[1], m[2]);
-                BABYLON.Matrix.TranslationToRef(S.laneX(Math.floor(h(2) * 3)) + (h(5) - 0.5) * 200, y, (zi - pos) * S.SEG, m[1]);
-                m[2].multiplyToRef(m[1], m[3]);
-                S._put(this.railBits[j % this.railBits.length], m[3]);
-            } else {
-                const f = run.front - i + this.debrisLead - h(0) * 0.9;
-                const y = 300 + h(2) * 560 - (f > 0 ? f * f * 2000 + f * 200 : 0);
-                if (f <= 0 || y < -200) continue;
-                const side = h(1) < 0.5 ? -1 : 1, size = 0.67 * S.CHUNK_PX * art * (0.7 + h(3) * 0.8);
-                BABYLON.Matrix.ScalingToRef(size, size, 1, m[0]);
-                BABYLON.Matrix.RotationZToRef(f * 7 * (h(5) - 0.5), m[1]);
-                m[0].multiplyToRef(m[1], m[2]);
-                BABYLON.Matrix.TranslationToRef(side * (W - 80 - h(3) * 380), y, (zi - pos) * S.SEG, m[1]);
-                m[2].multiplyToRef(m[1], m[3]);
-                S._put(this.bricks[j % this.bricks.length], m[3]);
-            }
+        // Chunks: each is a thing in the world from the moment it is let go (CollapseRuin.chunks). It
+        // tumbles within limits: a flat piece never turns edge-on and vanishes.
+        for (const c of ruin.chunks) {
+            const at = ruin.chunkAt(c, this.time);
+            if (!at) continue;
+            const t = this.time - c.t, h = k => S.hash(c.n, k);
+            BABYLON.Matrix.ScalingToRef(c.size, c.size, 1, m[0]);
+            BABYLON.Matrix.RotationYawPitchRollToRef(0.8 * Math.sin(t * (5 + h(1) * 5) + h(2) * 6), 0.8 * Math.sin(t * (4 + h(3) * 6) + h(4) * 6), t * 9 * (h(5) - 0.5), m[1]);
+            m[0].multiplyToRef(m[1], m[2]);
+            BABYLON.Matrix.TranslationToRef(at[0], at[1], at[2] - pos * S.SEG, m[1]);
+            m[2].multiplyToRef(m[1], m[3]);
+            S._put(c.kind === 'rail' ? this.railBits[0] : this.bricks[c.kind], m[3]);
         }
         S._flush([...this.bricks, ...this.railBits]);
+
+        // Dust and sparks hang where they rose: only their art plays.
+        for (const d of ruin.dust) {
+            const t = this.time - d.t;
+            if (t < 0) continue;
+            const set = this.dustSets[d.kind], f = Math.min(set.length - 1, Math.floor(t / d.dur * set.length));
+            BABYLON.Matrix.ScalingToRef(d.size, d.size * 0.75, 1, m[0]);
+            BABYLON.Matrix.TranslationToRef(d.x, d.y + d.vy * t, d.z - pos * S.SEG, m[1]);
+            m[0].multiplyToRef(m[1], m[3]);
+            S._put(set[f], m[3]);
+        }
+        S._flush([...this.dustSets.dust, ...this.dustSets.spark]);
     }
 
     // --- The train -------------------------------------------------------------------------------------
@@ -965,6 +1052,7 @@ class CollapseScene {
         this._crashAt = null;
         this._lever = null;
         this._shakeAt = this._heatAt = -1e9;
+        this._ruinRun = null;
         for (const fx of this.fx) fx.mesh.setEnabled(false);
         for (const side of [-1, 1]) { this.demonViews.get(side).setEnabled(false); this._ashUntil.set(side, -1); }
         this._camSnap = true;
@@ -992,8 +1080,9 @@ class CollapseScene {
         else this.camX += (goal - this.camX) * (1 - Math.exp(-this.camRate * dt));
         const k = (this.time - this._shakeAt) / this.shakeSec;
         const a = k >= 0 && k < 1 ? this.shakeAmp * (1 - k) * (1 - k) : 0;
-        this.view.camera.position.x = this.camX + a * Math.sin(this.time * 71);
-        this.view.camera.position.y = this.camY + a * 0.6 * Math.cos(this.time * 53);
+        const j = this.ruin.jolt(this.time);   // a blow of the collapse: stronger the closer it is
+        this.view.camera.position.x = this.camX + a * Math.sin(this.time * 71) + j * Math.sin(this.time * 83);
+        this.view.camera.position.y = this.camY + a * 0.6 * Math.cos(this.time * 53) + j * Math.cos(this.time * 61);
     }
 
     // Everything follows the run: called every frame before the render.
@@ -1001,6 +1090,8 @@ class CollapseScene {
         const S = CollapseScene;
         this.time += dt;
         const pos = run.pos;
+        if (this._ruinRun !== run) { this._ruinRun = run; this.ruin.begin(run.front); }
+        this.ruin.update(run.front, pos, this.time, S.laneX(run.laneX()));
         // The lava goes away from the camera with the track; it wraps by whole periods, and every
         // texture tile divides PERIOD, so the wrap is invisible. The pieces above it follow the segments.
         this.tunnel.position.z = -(((pos * S.SEG) % S.PERIOD + S.PERIOD) % S.PERIOD);
@@ -1022,14 +1113,17 @@ class CollapseScene {
         const sink = falling ? Math.min(1, (this.time - (this._crashAt || this.time)) * 1.6) * S.FALL_SINK : 0;
         for (const [i, v] of this.segViews) {
             const z = (i - pos) * S.SEG;
-            // Behind the collapse front the floor falls into the lava.
-            const drop = S.floorDrop(run.front - i);
+            // Behind the collapse the floor falls into the lava, lane by lane, each strip tipping its own way.
+            const fallen = this.ruin.fallen(i, this.time), drop = S.floorDrop(fallen);
             v.lanes.forEach((m, l) => {
                 if (!m) return;
                 m.position.z = z + S.SEG / 2;
                 const under = l === run.lane && i <= pos + 1 && i >= pos - S.TRAIN_SEGS ? sink : 0;
-                m.position.y = -drop - under;
-                m.setEnabled(drop + under < 880);
+                const own = S.floorDrop(fallen - S.hash(i, l + 50) * 0.6);
+                m.position.y = -own - under;
+                m.rotation.x = own * S.FLOOR_TIP * (S.hash(i, l + 54) - 0.5);
+                m.rotation.z = own * S.FLOOR_TIP * (S.hash(i, l + 58) - 0.5);
+                m.setEnabled(own + under < 880);
             });
             // The points go over with the lever: not before the sparks are done.
             if (run.armed && run.armed.at === i && !S.leverHolds(this._lever, i, this.time, this.leverHit)) v.set = run.armed;
@@ -1111,7 +1205,7 @@ class CollapseScene {
 
         this._syncDemons(run, x);
         this._syncFx();
-        this.rig.sync(run, pos, this.time, x, heat, this._shotUntil > this.time);
+        this.rig.sync(run, pos, this.time, x, heat, this._shotUntil > this.time, this.ruin.edge, this.ruin.flash(this.time));
     }
 
     // A demon stands on its wall from its first frame in the rules, the sprite follows the phases: it
@@ -1249,16 +1343,23 @@ CollapseScene.BODIES = {
     pickup: { hw: CollapseScene.PICKUP.w / 2, top: CollapseScene.PICKUP.y + CollapseScene.PICKUP.h + CollapseScene.PICKUP.bob },
 };
 CollapseScene.BEHIND = 16;        // segments drawn behind the train (into the vanishing point)
-CollapseScene.DEBRIS = 40;        // falling blocks and rail wreckage along the collapse edge (every 4th — a rail)
+CollapseScene.DEBRIS = 40;        // instances of one chunk or dust frame at once
 CollapseScene.DELAY = { vault: 0, torch: 0.05, rib: 0.1, 'wall-hi': 0.15, 'wall-lo': 0.3, floor: 1 };   // segments a piece waits past the edge
 CollapseScene.LEAN = { vault: 0.75, torch: 0.45, rib: 0.55, 'wall-hi': 0.45, 'wall-lo': 0.25, floor: 0 };  // how far it leans in as it falls
+CollapseScene.RIB_WEDGES = [[-1, 3], [3, 6], [6, 8]];   // an arch rib's wedges on one side, sixteenths of the half turn; -1 — with the leg
+CollapseScene.RIB_EVERY = 8;      // segments between arches
+CollapseScene.RIB_LEVEL = 0.7;    // an arch's brightness over the brick's: its art is the palest of the tunnel
+CollapseScene.RIB_DEEP = 120;     // world units from the rib's underside to its back
+CollapseScene.RIB_THICK = 80;     // world units along the tunnel
+CollapseScene.RIB_CRACK = 170;    // world units: a crack on a rib, its long side
+CollapseScene.WEDGE_DELAY = 0.35; // segments of the fall curve between the keystone and the next wedge down
+CollapseScene.FLOOR_TIP = 0.0009; // radians a floor strip tips per world unit it has dropped, at most
 CollapseScene.CRACK_ART = 3;      // world units per art pixel of the cracks (the loco: 2.1); walls are seen edge-on
 CollapseScene.BG_PX = [384, 256]; // size of a layer of the collapse, art px (art_src/world_v3/world_manifest_v3.json)
 CollapseScene.RAIL_ROW = 180;     // art row of bg_04_rubble.png: the fold, just under its broken rails
 CollapseScene.FALL_SINK = 900;    // world units the lane under the train drops as the train falls: it never goes through whole floor
 CollapseScene.TRAIN_SEGS = 3;     // segments of track under the train behind it
 CollapseScene.FLOOR_HOLD = 1;     // segments behind the edge where the floor still holds, under the wreck
-CollapseScene.CHUNK_PX = 96;      // size of a falling chunk's art, px (the biggest of them; 64 for a brick)
 // The demon's art (art_src/demon_v3/demon_manifest_v3.json): canvas, px; the wall contact on it; ms per
 // frame. World: units per art px, the gap of the contact to the wall, the height of the feet, the height
 // of the sprite's foot at the hit, the share of the half frame a demon stays in, z of the perch, s of the ash, the size of the dark shape under it.
