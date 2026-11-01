@@ -1,0 +1,9 @@
+{
+  "tool": "built-in image_gen",
+  "references": [
+    "assets/px/train/loco_run_0.png",
+    "assets/px/train/loco_turn_left.png (pre-change)"
+  ],
+  "prompt": "Edit the first image, the front-facing locomotive sprite, into a very slight LEFT turn (only 15-20 degrees yaw), showing a narrow portion of its right side. The second image is the OLD turn and only a design detail reference: DO NOT copy its steep high cab perspective. Preserve the first image's exact rusty black/bronze locomotive design, twin warm headlights, circular boiler front, rivets, red buffer bar, cowcatcher, proportions and fine 1-pixel texture. CRITICAL: the cab roof must stay at the SAME height as the front-facing reference, never rise; the train is level, the camera elevation is unchanged, no pitching up, no tall rear cab. Keep mostly frontal view, with only a subtle side visible. No smoke. Entire locomotive isolated on genuine transparent background. Intended final sprite 139x200 pixels, body top at y=41, wheel/cowcatcher bottom y=197, so leave upper fifth empty. No ground, no rails, no shadow, no text. Match low resolution pixel art exactly, hard stepped pixel edges, no smooth shading or blur. Restricted palette: #0b0a10 #17121b #241a24 #33232b #47303a #3a1010 #5c3a35 #7a4a3a #96604a #b07a58 #cc9c74 #e8d0a8 #6a1410 #9c1e10 #d2340f #f0601a #f8902a #fcc048 #fff090 #2a3038 #465058 #6c7880 #9aa8ac #d0d8d4 #1f5a30 #2f9a44 #6cdc5c #1f4a8c #3a8ae0 #8cd4f0 #5a2a78 #fff8ec.",
+  "postprocessing": "Pillow: alpha >=128, alpha-bounds crop, nearest resize keeping aspect ratio to body height 157, nearest exact STYLE palette, paste at y=41 on 139x200; mirror the finished left sprite for right. No new dependencies."
+}

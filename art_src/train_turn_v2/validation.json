@@ -1,0 +1,28 @@
+{
+  "loco_turn_left.png": {
+    "width": 139,
+    "height": 200,
+    "body_top": 41,
+    "first_row_25_percent": 42,
+    "bottom": 197,
+    "off_palette_colors": 0,
+    "alpha_values": [
+      0,
+      255
+    ],
+    "sha256": "e899d6507b0e66b734ec2503627648aaccdb7b638dbe8f9ff0f26a0d6de768d9"
+  },
+  "loco_turn_right.png": {
+    "width": 139,
+    "height": 200,
+    "body_top": 41,
+    "first_row_25_percent": 42,
+    "bottom": 197,
+    "off_palette_colors": 0,
+    "alpha_values": [
+      0,
+      255
+    ],
+    "sha256": "96fc133b34165e69ec174d48934fd505405f9b196044866d273ba3d85f78e639"
+  }
+}
