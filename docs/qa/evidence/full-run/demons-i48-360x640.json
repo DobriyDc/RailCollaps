@@ -1,0 +1,117 @@
+{
+  "ordered": {
+    "width": 360,
+    "height": 640
+  },
+  "innerWidth": 360,
+  "innerHeight": 640,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:61922/?qa=demons&inset=48",
+  "browser": "msedge.exe",
+  "waitMs": 1500,
+  "eval": "docs/qa/evidence/full-run/run-eval.js",
+  "evalResult": {
+    "phase": "demons",
+    "results": [
+      {
+        "name": "demons-single-appear",
+        "ok": true,
+        "targets": [
+          {
+            "x": 53.26130016484787,
+            "y": 190.09227247407813,
+            "kind": "demon",
+            "side": -1
+          }
+        ],
+        "ammoBefore": 8,
+        "ammoAfter": 7,
+        "remaining": 0
+      },
+      {
+        "name": "demons-single-jump",
+        "ok": true,
+        "targets": [
+          {
+            "x": 67.36438357397356,
+            "y": 190.10692152706793,
+            "kind": "demon",
+            "side": -1
+          }
+        ],
+        "ammoBefore": 8,
+        "ammoAfter": 7,
+        "remaining": 0
+      },
+      {
+        "name": "demons-pair-appear",
+        "ok": true,
+        "targets": [
+          {
+            "x": 53.26130016484787,
+            "y": 190.09227247407813,
+            "kind": "demon",
+            "side": -1
+          },
+          {
+            "x": 306.73869186178365,
+            "y": 190.09227247407813,
+            "kind": "demon",
+            "side": 1
+          }
+        ],
+        "ammoBefore": 8,
+        "ammoAfter": 6,
+        "remaining": 0
+      },
+      {
+        "name": "demons-pair-jump",
+        "ok": true,
+        "targets": [
+          {
+            "x": 67.36438357397356,
+            "y": 190.10692152706793,
+            "kind": "demon",
+            "side": -1
+          },
+          {
+            "x": 292.63560484933566,
+            "y": 190.10692152706793,
+            "kind": "demon",
+            "side": 1
+          }
+        ],
+        "ammoBefore": 8,
+        "ammoAfter": 6,
+        "remaining": 0
+      }
+    ],
+    "passed": 4,
+    "total": 4,
+    "mode": "play",
+    "targets": [
+      {
+        "x": 295.72410355263173,
+        "y": 596.8012348983775,
+        "kind": "fork",
+        "at": 73,
+        "to": 2
+      },
+      {
+        "x": 63.153410322802635,
+        "y": 185.96500193549315,
+        "kind": "demon",
+        "side": -1
+      },
+      {
+        "x": 296.84657911713686,
+        "y": 185.96500193549315,
+        "kind": "demon",
+        "side": 1
+      }
+    ]
+  },
+  "errors": [],
+  "ok": true
+}

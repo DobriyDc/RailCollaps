@@ -57,7 +57,7 @@ Keep it a thin facade: methods named after game intents (`TG.boot()`, `TG.runSta
 | cloud key-value | `CloudStorage.setItem/getItem/getItems/removeItem` | 6.9 |
 | no swipe-to-minimize | `disableVerticalSwipes()`, `isVerticalSwipesEnabled` | 7.7 |
 | fullscreen | `requestFullscreen()`, `exitFullscreen()`, `isFullscreen`, events `fullscreenChanged`, `fullscreenFailed` (`UNSUPPORTED`, `ALREADY_FULLSCREEN`) | 8.0 |
-| portrait lock | `lockOrientation()`, `unlockOrientation()`, `isOrientationLocked` | 8.0 |
+| orientation lock (holds the CURRENT orientation, no call asks for one) | `lockOrientation()`, `unlockOrientation()`, `isOrientationLocked` | 8.0 |
 | safe areas | `safeAreaInset`, `contentSafeAreaInset`, events `safeAreaChanged`, `contentSafeAreaChanged` | 8.0 |
 | minimized / restored | events `deactivated`, `activated` | 8.0 |
 | home screen icon | `addToHomeScreen()`, `checkHomeScreenStatus(cb)` | 8.0 |
@@ -74,7 +74,7 @@ Run from `main.js` as soon as the loading screen is visible, before the 3D scene
 2. `expand()`.
 3. `at('7.7')` → `disableVerticalSwipes()`. Without it a downward swipe minimizes the game mid-run.
 4. `at('8.0') && mobile` → `requestFullscreen()`; on `fullscreenFailed` stay expanded, no retry loop.
-5. `at('8.0')` → `lockOrientation()` (the game is portrait only).
+5. `at('8.0')` → `lockOrientation()` for the portrait game. With `?land` the lock waits for the turn (`TG.holdOrientation`, `Game.fitOrientation`): locked early it would hold portrait.
 6. `at('6.1')` → `setHeaderColor` / `setBackgroundColor` to the game's background color.
 7. On run start `enableClosingConfirmation()`, on run end `disableClosingConfirmation()`.
 
@@ -90,9 +90,9 @@ Run from `main.js` as soon as the loading screen is visible, before the 3D scene
 
 ## Lifecycle
 
-- `deactivated` (or `document.visibilitychange` to hidden in a browser) → pause the run and mute
-  `Sound3D`.
-- `activated` → show the pause overlay; do not auto-resume. One tap resumes.
+- `deactivated` (or `document.visibilitychange` to hidden in a browser) → pause the run and hold
+  `Sound3D` (`setHeld`, through the `onActive` of `TG.boot`): a minimized app may stay visible.
+- `activated` → release the sound, show the pause overlay; do not auto-resume. One tap resumes.
 
 ## Haptics
 

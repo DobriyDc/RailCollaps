@@ -89,6 +89,8 @@ class CollapseScene {
     constructor(canvas) {
         this.canvas = canvas;
         this.rig = new CollapseLookRig();
+        this.land = typeof IS_LAND !== 'undefined' && IS_LAND;
+        this.demon = CollapseScene.demonLook(this.land);
         this.view = World3D.createView({});
         const scene = this.scene = this.view.scene;
         this.engine = this.view.engine;
@@ -166,14 +168,15 @@ class CollapseScene {
     // camera moved farther than the one the scene was built with needs the larger one at construction.
     applyCamera() {
         const cam = this.view.camera, scene = this.scene, U = 'undefined';
-        const y = typeof COLLAPSE_CAM_Y !== U ? COLLAPSE_CAM_Y : 450, z = typeof COLLAPSE_CAM_Z !== U ? COLLAPSE_CAM_Z : 1467;
-        cam.fov = (typeof COLLAPSE_CAM_FOV_DEG !== U ? COLLAPSE_CAM_FOV_DEG : 50) * Math.PI / 180;
+        const y = this.land ? COLLAPSE_LAND_CAM_Y : typeof COLLAPSE_CAM_Y !== U ? COLLAPSE_CAM_Y : 450;
+        const z = this.land ? COLLAPSE_LAND_CAM_Z : typeof COLLAPSE_CAM_Z !== U ? COLLAPSE_CAM_Z : 1467;
+        cam.fov = (this.land ? COLLAPSE_LAND_CAM_FOV_DEG : typeof COLLAPSE_CAM_FOV_DEG !== U ? COLLAPSE_CAM_FOV_DEG : 50) * Math.PI / 180;
         cam.position.set(this.camX || 0, y, z);
         this.camY = y;
         this.topGap = typeof COLLAPSE_CAM_TOP_GAP !== U ? COLLAPSE_CAM_TOP_GAP : 0.01;
         // The camera follows the train sideways (GDD v3 §2): eye and look-at point shift together by a
         // share of the train's offset, so the view direction never turns; camX eases toward that goal.
-        this.camFollow = typeof COLLAPSE_CAM_FOLLOW !== U ? COLLAPSE_CAM_FOLLOW : 0.5;
+        this.camFollow = this.land ? COLLAPSE_LAND_CAM_FOLLOW : typeof COLLAPSE_CAM_FOLLOW !== U ? COLLAPSE_CAM_FOLLOW : 0.5;
         this.camRate = typeof COLLAPSE_CAM_FOLLOW_RATE !== U ? COLLAPSE_CAM_FOLLOW_RATE : 5;
         this.signShift = typeof COLLAPSE_CAM_SIGN !== U ? COLLAPSE_CAM_SIGN : 0.3;        // where a fork sign stands between its two lanes
         this.signScale = typeof COLLAPSE_CAM_SIGN_SCALE !== U ? COLLAPSE_CAM_SIGN_SCALE : 1;
@@ -846,7 +849,7 @@ class CollapseScene {
         this.demonViews = new Map();
         /** @type {Map<number, number>} */
         this._ashUntil = new Map();
-        const S = CollapseScene.DEMON, size = S.px * S.art;
+        const S = this.demon, size = S.px * S.art;
         for (const side of [-1, 1]) {
             const d = this.sprite('demon', 'demon' + side, CollapseArt.demon.perch[0], size, size);
             d.renderingGroupId = 2;
@@ -856,6 +859,7 @@ class CollapseScene {
             shade.renderingGroupId = 1;
             shade.material.emissiveTexture = null;
             shade.material.emissiveColor = new BABYLON.Color3(0.03, 0.02, 0.03);
+            shade.material.disableDepthWrite = true;   // it lies in the sprite's plane: its depth cut the demon into dark bands
             d.metadata = { shade: shade.material };
             // The left wall mirrors the art in its UV: a negative scale would turn the sprite inside out.
             if (side < 0) for (const m of [d, shade]) m.setVerticesData(BABYLON.VertexBuffer.UVKind, m.getVerticesData(BABYLON.VertexBuffer.UVKind).map((v, i) => i % 2 ? v : 1 - v));
@@ -1065,9 +1069,11 @@ class CollapseScene {
     }
 
     // The frame's top plate ends at clip height `edge`, safe area included: the camera tilts so the
-    // whole loco stands under it. Game asks this whenever the plates may have moved.
-    fitFrame(edge) {
+    // whole loco stands under it. wide — the share of the canvas's width between the side plates of
+    // ?land. Game asks this whenever the plates may have moved.
+    fitFrame(edge, wide = 1) {
         const S = CollapseScene, cam = this.view.camera;
+        this.frameWide = wide;
         cam.rotation.x = -S.fitPitch(this.camY, cam.position.z, cam.fov, S.LOCO_TOP, edge - 2 * this.topGap);
     }
 
@@ -1212,7 +1218,7 @@ class CollapseScene {
     // breaks out of the brick, stands, leaps at the train; at the end of the leap (the hit) it is in
     // front of the train on its side. Shot, it turns to ash where it was.
     _syncDemons(run, trainX) {
-        const S = CollapseScene, D = S.DEMON, A = CollapseArt.demon;
+        const S = CollapseScene, D = this.demon, A = CollapseArt.demon;
         for (const [side, view] of this.demonViews) {
             const d = run.shootable().find(m => m.side === side);
             const ash = (this._ashUntil.get(side) - this.time) / D.ashSec;
@@ -1242,6 +1248,11 @@ class CollapseScene {
         view.metadata.shade.opacityTexture = view.material.opacityTexture;
     }
 
+    // The demon's numbers for this frame: DEMON, with ?land its place and size in the wide frame.
+    static demonLook(land) {
+        return land ? Object.assign({}, CollapseScene.DEMON, CollapseScene.DEMON_LAND) : CollapseScene.DEMON;
+    }
+
     // The frame of a demon `e` seconds after it showed, of its leap at share k.
     static demonFrame(A, e) {
         const D = CollapseScene.DEMON;
@@ -1254,12 +1265,12 @@ class CollapseScene {
         return frames[Math.min(frames.length - 1, Math.floor(k * frames.length))];
     }
 
-    // x clamped into the frame at depth z (share of the half frame, a sprite's margin): the camera
-    // follows the train, and on a narrow phone the wall at that depth is out of the frame: a demon
-    // stands at its edge then.
+    // x clamped into the frame at depth z (share of the half frame between the side plates, a
+    // sprite's margin): the camera follows the train, and on a narrow phone the wall at that depth is
+    // out of the frame: a demon stands at its edge then.
     _inFrameX(x, z, share = 0.8) {
         const cam = this.view.camera;
-        const half = (cam.position.z - z) * Math.tan(cam.fov / 2) * this.engine.getAspectRatio(cam) * share;
+        const half = (cam.position.z - z) * Math.tan(cam.fov / 2) * this.engine.getAspectRatio(cam) * this.frameWide * share;
         return Math.max(this.camX - half, Math.min(this.camX + half, x));
     }
 
@@ -1291,7 +1302,7 @@ class CollapseScene {
             this._fxPlay(this.fxShield, [0, 200, 90]);
             if (e.reason !== 'caught') this._hitFx(e.reason, run);   // the shield pushed the collapse back: no fall
         } else if (e.type === 'demon-killed') {
-            this._ashUntil.set(e.side, this.time + CollapseScene.DEMON.ashSec);
+            this._ashUntil.set(e.side, this.time + this.demon.ashSec);
         } else if (e.type === 'crash') {
             this._crashAt = this.time;
             this._hitFx(e.reason, run);
@@ -1314,7 +1325,7 @@ class CollapseScene {
         for (const d of run.shootable()) {
             const view = this.demonViews.get(d.side);
             if (!view || !view.isEnabled()) continue;
-            const p = this.view.projectToScreen(view.position.x, view.position.z, view.position.y + CollapseScene.DEMON.px * CollapseScene.DEMON.art / 2);
+            const p = this.view.projectToScreen(view.position.x, view.position.z, view.position.y + this.demon.px * this.demon.art / 2);
             if (!p.behind) out.push({ x: p.x, y: p.y, kind: 'demon', side: d.side });
         }
         return out;
@@ -1363,7 +1374,8 @@ CollapseScene.FLOOR_HOLD = 1;     // segments behind the edge where the floor st
 // The demon's art (art_src/demon_v3/demon_manifest_v3.json): canvas, px; the wall contact on it; ms per
 // frame. World: units per art px, the gap of the contact to the wall, the height of the feet, the height
 // of the sprite's foot at the hit, the share of the half frame a demon stays in, z of the perch, s of the ash, the size of the dark shape under it.
-CollapseScene.DEMON = { px: 160, contact: [103, 134], emergeMs: 120, perchMs: 160, art: 2.4, wallGap: 20, footY: 100, hitY: 40, frameShare: 0.7, z: -700, ashSec: 0.47, outline: 1.09 };
+CollapseScene.DEMON = { px: 160, contact: [103, 134], emergeMs: 120, perchMs: 160, art: 1.2, wallGap: 20, footY: 30, hitY: 40, frameShare: 0.55, z: 500, ashSec: 0.47, outline: 1.09 };
+CollapseScene.DEMON_LAND = { art: 2.2, frameShare: 0.9, z: 620 };   // the same in the wide frame (?land): the wall is in the frame there
 CollapseScene.FX_ART = 2.1;       // world units per art pixel of the effects (the loco: 290 / 139 px)
 // Effect art (art_src/fx_v1/fx_manifest_v1.json): frame size, px; pivot from the top left, 0..1;
 // ms per frame; scale over FX_ART (the shield break covers the shield sprite).

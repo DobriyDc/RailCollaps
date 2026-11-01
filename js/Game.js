@@ -30,15 +30,21 @@ class Game {
         this._iconFiles = [...Object.values(Game.ICONS), ...Object.values(Game.PORTRAITS), ...(UI.DIGITS || [])].map(url => { const img = new Image(); img.src = url; return img; });
         TG.loadBest(m => { if (m > this.best) { this.best = m; Store.set('collapse.best', String(m)); this._hudBest(); } });
 
-        const pause = UI.get('pauseBtn');
-        if (pause) pause.onClick(() => this.setPaused(this.mode !== 'pause'));
-        const board = UI.get('boardBtn');
-        if (board) board.onClick(() => { if (!this.adPending) Leaderboard.open(); });
+        this.soundOn = false;         // the first tap came: nothing plays or loads before it
+        /** @type {Record<string, SoundHandle>} */
+        this._loops = {};             // wheels, steam, rumble: this file owns them (_mix)
+        /** @type {SoundHandle | null} */
+        this._music = null;
+        this._leapt = new WeakSet();  // demons already heard in their leap: the rules have no event for it
+        Sound3D.onGesture(() => this._wakeSound());
+
+        const on = (id, fn) => { const el = UI.get(id); if (el) el.onClick(this._clicked(fn)); };
+        on('pauseBtn', () => this.setPaused(this.mode !== 'pause'));
+        on('boardBtn', () => { if (!this.adPending) Leaderboard.open(); });
         this.scene.canvas.addEventListener('pointerdown', e => this.tap(e));
 
         this.run = new CollapseRun(Game.newSeed());
         this.scene.sync(this.run, 0);
-        const on = (id, fn) => { const el = UI.get(id); if (el) el.onClick(fn); };
         on('menuStart', () => this.openMenu('modeScreen'));
         on('menuSettings', () => this.openMenu('settingsScreen'));
         on('menuShop', () => this.openMenu('shopScreen'));
@@ -227,11 +233,22 @@ class Game {
         TG.runStarted();
     }
 
+    // ?land on a tall screen: the game waits behind the request to turn the phone, and a run pauses.
+    // Telegram locks only the orientation the phone is already in, so the lock follows the turn.
+    fitOrientation() {
+        if (!IS_LAND) return;
+        const c = this.scene.canvas, tall = c.clientHeight > c.clientWidth;
+        this._show('rotateNote', tall);
+        if (tall) this.setPaused(true);
+        TG.holdOrientation(!tall);
+    }
+
     // Pause by the button or when the app is minimized; resuming is always the player's tap.
     setPaused(on) {
         if (on && this.mode === 'play') {
             this.mode = 'pause';
             this._pauseDialog();
+            this._soundDown();
         } else if (!on && this.mode === 'pause') {
             this.mode = 'play';
             this._show('over', false);
@@ -280,12 +297,14 @@ class Game {
 
     update(dt) {
         const run = this.run;
+        this._mix(run);
         if (!run || this.mode === 'menu') return;
         if (this.mode === 'play') {
             run.update(dt);
             this.portraitLeft = Math.max(0, this.portraitLeft - dt);
         }
         for (const ev of run.takeEvents()) this._onEvent(ev);
+        this._leaps(run);
         if (this.mode === 'play' && run.tutorial && (run.missed || run.finished)) { this._tutorialEnd(run); return; }
         if (this.overIn >= 0 && (this.overIn -= dt) < 0) this._showOver();
         if (this.flashLeft > 0 && (this.flashLeft -= dt) <= 0) this._show('hitFlash', false);
@@ -297,6 +316,7 @@ class Game {
     _onEvent(ev) {
         const run = this.run;
         this.scene.onEvent(ev, run);
+        for (const src of Game.soundsOf(ev)) this._play(src);
         const reaction = Game.portraitEvent(ev);
         if (reaction && (this.portraitLeft <= 0 || Game.PORTRAIT_PRIORITY.indexOf(reaction) >= Game.PORTRAIT_PRIORITY.indexOf(this.portrait))) {
             this.portrait = reaction;
@@ -329,6 +349,80 @@ class Game {
         }
     }
 
+    // The first tap of the page: the effects load ahead, a shot must not wait for its file, then the
+    // music, the longest of them. It plays from then on, in the menu too.
+    _wakeSound() {
+        this.soundOn = true;
+        for (const src of Object.values(Game.SOUNDS)) Sound3D.load(src);
+        for (const src of Object.values(Game.LOOPS)) Sound3D.load(src);
+        this._music = Sound3D.music(Game.MUSIC);
+    }
+
+    _play(src) { if (this.soundOn) Sound3D.play(src); }
+
+    // A handler of a button with its sound after it: a pause stops what plays, its own click included.
+    _clicked(fn) {
+        return () => {
+            fn();
+            this._play(Game.SOUNDS.button);
+        };
+    }
+
+    // Everything the sfx channel plays stops now, the music goes quiet at the next look of _mix.
+    _soundDown() {
+        Sound3D.stopChannel('sfx');
+        this._loops = {};
+        if (this._music) this._music.setVolume(0);
+    }
+
+    // The leap is a phase of a demon, not an event: heard once, as the scene starts to draw it.
+    _leaps(run) {
+        if (this.mode !== 'play') return;
+        for (const d of run.demons) {
+            if (d.wait > 0 || d.t > run.c.demonSec || this._leapt.has(d)) continue;
+            this._leapt.add(d);
+            this._play(Game.SOUNDS.demonLeap);
+        }
+    }
+
+    // What the loops should do now. speed, top, gap, far — of the rules, in their units: the wheels and
+    // the steam follow the speed and fall silent with a standing train, the rumble grows as the
+    // collapse comes near. Pure: the probes run it without a sound.
+    static loopMix(speed, top, gap, far) {
+        const U = 'undefined';
+        const rateMin = typeof AUDIO_TRAIN_RATE_MIN !== U ? AUDIO_TRAIN_RATE_MIN : 0.85;
+        const rateMax = typeof AUDIO_TRAIN_RATE_MAX !== U ? AUDIO_TRAIN_RATE_MAX : 1.7;
+        const rumbleFar = typeof AUDIO_RUMBLE_FAR !== U ? AUDIO_RUMBLE_FAR : 0.1;
+        const curve = typeof AUDIO_RUMBLE_CURVE !== U ? AUDIO_RUMBLE_CURVE : 2;
+        const pace = Math.max(0, speed / top);
+        const near = 1 - Math.max(0, Math.min(1, gap / far));
+        const going = Math.min(1, pace * 2);       // half the top speed is already at speed: the train starts there
+        return {
+            rate: rateMin + (rateMax - rateMin) * pace,
+            wheels: going * (typeof AUDIO_WHEELS_VOLUME !== U ? AUDIO_WHEELS_VOLUME : 0.5),
+            steam: going * (typeof AUDIO_STEAM_VOLUME !== U ? AUDIO_STEAM_VOLUME : 0.3),
+            rumble: (rumbleFar + (1 - rumbleFar) * near ** curve) * (typeof AUDIO_RUMBLE_VOLUME !== U ? AUDIO_RUMBLE_VOLUME : 0.9),
+        };
+    }
+
+    // Every frame: the loops live only while the train runs. Pause, the end of a run and the menu stop
+    // them; the pause takes the music too, and it comes back where it was.
+    _mix(run) {
+        if (!this.soundOn) return;
+        if (this._music) this._music.setVolume(this.mode === 'pause' ? 0 : 1);
+        if (this.mode !== 'play' || !run || run.state !== 'run') {
+            for (const handle of Object.values(this._loops)) handle.stop();
+            this._loops = {};
+            return;
+        }
+        const mix = Game.loopMix(run.speed(), run.c.speedMax, run.pos - run.front, run.c.frontMaxGap);
+        for (const [name, src] of Object.entries(Game.LOOPS)) {
+            const train = name !== 'rumble', volume = mix[name], rate = train ? mix.rate : 1;
+            if (!this._loops[name]) this._loops[name] = Sound3D.play(src, { loop: true, volume, rate });
+            else this._loops[name].setVolume(volume).setRate(rate);
+        }
+    }
+
     // A miss goes back to the step; the last step passed goes on to the endless mode, a new run: the
     // table replays a run from its seed, and the tutorial's track is not of any seed.
     _tutorialEnd(run) {
@@ -357,10 +451,10 @@ class Game {
         set('overTitle', title);
         set('overText', text);
         const b = UI.get('restartBtn');
-        if (b) b.setText(main[0]).onClick(main[1]);
+        if (b) b.setText(main[0]).onClick(this._clicked(main[1]));
         const c = UI.get('continueBtn');
         if (c) {
-            if (second) c.setText(second[0]).onClick(second[1]);
+            if (second) c.setText(second[0]).onClick(this._clicked(second[1]));
             c.show(!!second);
         }
         this._show('boardBtn', Leaderboard.enabled);
@@ -442,10 +536,11 @@ class Game {
             const box = scene.canvas.getBoundingClientRect();
             const edge = (id, side, def) => { const e = UI.get(id); return e ? e.el.getBoundingClientRect()[side] : def; };
             const ndc = y => 1 - 2 * (y - box.top) / box.height;
-            const top = ndc(edge(this.run && this.run.tutorial ? 'tutorialBox' : 'frameTop', 'bottom', box.top));
-            scene.fitFrame(top);
-            const view = { y: scene.camY, z: cam.position.z, pitch: Math.abs(cam.rotation.x), fov: cam.fov, aspect: engine.getAspectRatio(cam),
-                top, bottom: ndc(edge('frameBottom', 'top', box.bottom)) };
+            const land = IS_LAND, top = ndc(edge(this.run && this.run.tutorial ? 'tutorialBox' : land ? '' : 'frameTop', 'bottom', box.top));
+            const wide = land ? (edge('frameBottom', 'left', box.right) - edge('frameTop', 'right', box.left)) / box.width : 1;
+            scene.fitFrame(top, wide);
+            const view = { y: scene.camY, z: cam.position.z, pitch: Math.abs(cam.rotation.x), fov: cam.fov, aspect: engine.getAspectRatio(cam) * wide,
+                top, bottom: ndc(edge(land ? '' : 'frameBottom', 'top', box.bottom)) };
             const strip = UI.get('iconStrip'), rect = strip ? strip.el.getBoundingClientRect() : box;
             this._frame = { key: size + ':', cam: view, enter: null, reach: Game.frameTable(view, null, scene.camFollow), floor: Game.floorZ(view, view.bottom),
                 row: { center: rect.left + rect.width / 2 - box.left, scale: UI.scale(), width: rect.width / UI.scale() } };
@@ -459,6 +554,29 @@ class Game {
     }
 
     _hudBest() { this._set('best', String(this.best)); }
+
+    // The sounds of an event of a run, the one owner of that link; the probe walks the events the
+    // rules can push against this. A demon driven off is a shot and its end, no 'shot' comes with it.
+    static soundsOf(ev) {
+        const S = Game.SOUNDS;
+        switch (ev.type) {
+            case 'shot': return [S.shot];
+            case 'no-ammo': return [S.dry];
+            case 'switched': return [S.switch];
+            case 'pickup': return [S.pickup];
+            case 'shielded': return [S.shield];
+            case 'rescued': return [S.rescue];
+            case 'demon': return [S.demonShow];
+            case 'demon-killed': return [S.shot, S.demonDown];
+            case 'crash': return [ev.reason === 'gap' ? S.fall : ev.reason === 'lava' ? S.lava : ev.reason === 'caught' ? S.caught : S.hit];
+            case 'continued': return [S.continue];
+            case 'station': return [S.station];
+            case 'departed': return [S.depart];
+            case 'money': return [S.coin];
+            case 'bought': return [S.bought];
+            default: return [];
+        }
+    }
 
     static portraitEvent(ev) {
         if (ev.type === 'crash' || ev.type === 'shielded') return ev.reason === 'gap' ? 'fall' : ev.reason === 'lava' ? 'fire' : 'hit';
@@ -540,3 +658,32 @@ Game.PORTRAITS = {
     fall: 'assets/ui/hud_v3/portrait_fall.png',
 };
 Game.PORTRAIT_PRIORITY = ['calm', 'tense', 'joy', 'hit', 'fire', 'fall'];
+
+// Generated by tools/make-sounds.mjs. Literal paths: the builder's scanner reads them.
+Game.SOUNDS = {
+    shot: 'assets/sounds/sfx_shot.wav',
+    dry: 'assets/sounds/sfx_dry.wav',
+    switch: 'assets/sounds/sfx_switch.wav',
+    pickup: 'assets/sounds/sfx_pickup.wav',
+    shield: 'assets/sounds/sfx_shield.wav',
+    rescue: 'assets/sounds/sfx_rescue.wav',
+    demonShow: 'assets/sounds/sfx_demon_show.wav',
+    demonLeap: 'assets/sounds/sfx_demon_leap.wav',
+    demonDown: 'assets/sounds/sfx_demon_down.wav',
+    hit: 'assets/sounds/sfx_hit.wav',
+    lava: 'assets/sounds/sfx_lava.wav',
+    fall: 'assets/sounds/sfx_fall.wav',
+    caught: 'assets/sounds/sfx_caught.wav',
+    continue: 'assets/sounds/sfx_continue.wav',
+    station: 'assets/sounds/sfx_station.wav',
+    depart: 'assets/sounds/sfx_depart.wav',
+    coin: 'assets/sounds/sfx_coin.wav',
+    bought: 'assets/sounds/sfx_bought.wav',
+    button: 'assets/sounds/sfx_button.wav',
+};
+Game.LOOPS = {
+    wheels: 'assets/sounds/loop_wheels.wav',
+    steam: 'assets/sounds/loop_steam.wav',
+    rumble: 'assets/sounds/loop_rumble.wav',
+};
+Game.MUSIC = 'assets/sounds/music_tunnel.wav';

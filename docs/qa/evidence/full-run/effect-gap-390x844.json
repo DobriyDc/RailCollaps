@@ -1,0 +1,25 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:60936/?hazard=gap",
+  "browser": "msedge.exe",
+  "waitMs": 1500,
+  "eval": "docs/qa/evidence/full-run/hazard-eval.js",
+  "evalResult": {
+    "kind": "gap",
+    "state": "over",
+    "reason": "gap",
+    "lane": 1,
+    "shield": 0,
+    "rescue": 0,
+    "pos": 1.0234140294270833
+  },
+  "errors": [],
+  "ok": true
+}

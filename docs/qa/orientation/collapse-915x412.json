@@ -1,0 +1,43 @@
+{
+  "ordered": {
+    "width": 915,
+    "height": 412
+  },
+  "innerWidth": 915,
+  "innerHeight": 412,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:58030/?land",
+  "browser": "msedge.exe",
+  "waitMs": 1500,
+  "eval": "C:\\Users\\dobri\\AppData\\Local\\Temp\\claude\\C--Users-dobri-orca-workspaces-collapse-dev-land\\64331d48-fec5-4305-9846-0fa573b29bad\\scratchpad\\gen-9568.js",
+  "evalResult": {
+    "case": {
+      "kind": "collapse",
+      "lint": true
+    },
+    "steps": 2153,
+    "pos": 80.0673729591149,
+    "state": "run",
+    "reason": "",
+    "views": [
+      [
+        -569,
+        -27,
+        620
+      ]
+    ],
+    "targets": [
+      {
+        "x": 236.35984448354316,
+        "y": 207.8407739143509,
+        "kind": "demon",
+        "side": -1
+      }
+    ],
+    "pitch": -0.6037078808335117,
+    "wide": 0.7298268219160904
+  },
+  "errors": [],
+  "ok": true
+}

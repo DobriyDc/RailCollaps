@@ -42,6 +42,9 @@ const IS_MOBILE = (() => {
     return userAgentMobile || isiPad || (hasTouchScreen && isSmallScreen);
 })();
 
+// ?land in the address: the wide-screen prototype (card 45): camera COLLAPSE_LAND_*, plates at the sides (UILand.js).
+const IS_LAND = typeof location !== 'undefined' && new URLSearchParams(location.search).has('land');
+
 // --- LOCATION (Location3D.js, Terrain3D.js). World units are px: x to the right, y down
 // the map, height up (skill world3d, §Coordinates). ---
 const LOCATION_WIDTH = 2048;            // px: location width (the area the game camera stays within)
@@ -57,6 +60,7 @@ const TERRAIN_CELL = 8;                 // px: terrain grid step (mobile — no 
 // --- MODELS (Gltf3D.js) and UI (UI.js) ---
 const MODEL_CLIP_BLEND_SEC = 0.2;       // s: cross-fade between animation clips of a .glb model (idle -> run); 0 — instant
 const UI_REF_HEIGHT = 710;              // px: the screen height the UI layout (UILayout.js) is drawn for; the UI scales with the screen height, 0 — no scaling
+const UI_REF_HEIGHT_LAND = 520;         // px: the same for ?land: a wide phone is low, the layout there is drawn for a lower screen
 
 // --- SOUND (Sound3D.js): channel volumes; a sound with a place on the map is heard from where
 // the CAMERA is — its audible region is a sphere of AUDIO_FALLOFF_MAX around it ---
@@ -67,6 +71,13 @@ const AUDIO_SFX_VOLUME = 1;             // 0..1: the 'sfx' channel — effects a
 const AUDIO_FALLOFF_MIN = 150;          // px: full volume while the camera is this close to a sound (0 — it fades from the source itself)
 const AUDIO_FALLOFF_MAX = 1024;         // px: from here on it is silent (fades linearly in between); an object may set its own pair. The camera stands ~800 px from its look-at point at zoom 1
 const AUDIO_PAN = 0.7;                  // 0..1: how far a sound at the side of the screen goes into one ear (0 — mono)
+const AUDIO_TRAIN_RATE_MIN = 0.85;      // wheels and steam: playback speed of a standing train
+const AUDIO_TRAIN_RATE_MAX = 1.7;       // wheels and steam: playback speed at the top speed of the rules
+const AUDIO_WHEELS_VOLUME = 0.5;        // 0..1: the wheels on the 'sfx' channel, at speed
+const AUDIO_STEAM_VOLUME = 0.3;         // 0..1: the steam on the 'sfx' channel, at speed
+const AUDIO_RUMBLE_VOLUME = 0.9;        // 0..1: the collapse on the 'sfx' channel, at the train's tail
+const AUDIO_RUMBLE_FAR = 0.1;           // 0..1: share of that volume left at the farthest gap of the collapse
+const AUDIO_RUMBLE_CURVE = 2;           // the rumble grows as nearness to this power: larger — it comes up later and harder
 
 // --- SAMPLE GAME (Game.js): the "Run" button, the energy bar ---
 const GAME_RUN_SEC = 8;                 // s: a full energy bar lasts this long while running
@@ -165,6 +176,10 @@ const COLLAPSE_CAM_FRONT_Y = -350;      // world units: the column layer of the 
 const COLLAPSE_CAM_FOV_DEG = 40;        // vertical field of view of the tunnel camera (narrow: the side lanes stay in a 9:19.5 frame)
 const COLLAPSE_CAM_FOLLOW = 0.7;        // 0..1: share of the train's sideways offset the camera follows (0 — fixed on the center lane)
 const COLLAPSE_CAM_FOLLOW_RATE = 8;     // 1/s: how fast the camera eases toward that offset (larger — stiffer)
+const COLLAPSE_LAND_CAM_Y = 760;        // world units: camera height with ?land: higher and steeper, the low frame shows more track
+const COLLAPSE_LAND_CAM_Z = 1500;       // world units: camera distance in front of the train with ?land
+const COLLAPSE_LAND_CAM_FOV_DEG = 44;   // vertical field of view with ?land
+const COLLAPSE_LAND_CAM_FOLLOW = 0.35;  // 0..1: share of the train's sideways offset the camera follows with ?land: all three lanes fit
 const COLLAPSE_FOG_START = 1200;         // world units behind the train where the tunnel starts to fade into the dark
 const COLLAPSE_FOG_END = 5600;          // world units behind the train where it is gone (the vanishing point stays dark)
 const COLLAPSE_BRICK_LEVEL = 1.25;      // brightness of the walls, vault and arch ribs over their pixel art (1 — as drawn)

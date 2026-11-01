@@ -116,6 +116,7 @@ js/               код игры — классические скрипты:
                   sound — звук на месте объекта); пишет редактор
   UILayout.js     UI_LAYOUT — раскладка интерфейса игры (id, вид, якорь, x/y, размеры, цвета,
                   parent — внутри какого элемента, stretch — растянуть по оси); пишет редактор
+  UILand.js       UI_LAND — поля поверх записей UILayout.js для широкого экрана (`?land`, IS_LAND); редактор её не видит
   Sound3D.js      звук: эффекты, музыка, звук на карте (слышно оттуда, где камера; область слышимости —
                   шар falloffMin/falloffMax), каналы и громкости AUDIO_*
   World3D.js      движок: init/renderFrame, View3D (камера, свет, тени, проекции), cfg(),
@@ -145,7 +146,7 @@ libs/             babylon.js (9.26 UMD), babylonjs.loaders.min.js (glTF-загр
                   *.d.ts — их типы для tsc
 assets/           ground_texture_{g,d,s}.jpg — трава, песок, снег; models/*.fbx, *.glb — модели объектов
                   (character.glb — персонаж с клипами idle/run, генерируется tools/make-character.mjs);
-                  sounds/*.wav, *.mp3 — звуки (step.wav генерируется tools/make-sounds.mjs)
+                  sounds/*.wav, *.mp3 — звуки (step.wav, sfx_*, loop_*, music_tunnel.wav генерирует tools/make-sounds.mjs)
 tools/            dev-server.mjs, build.mjs, asset-scan.mjs, zip.mjs, check.mjs (типы + тесты),
                   build-worker.mjs (функция таблицы одним файлом из js/ и server/),
                   make-character.mjs, make-sounds.mjs, export-unity.mjs (перенос в Unity);

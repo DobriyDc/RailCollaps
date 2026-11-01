@@ -1,0 +1,28 @@
+{
+  "ordered": {
+    "width": 430,
+    "height": 932
+  },
+  "innerWidth": 430,
+  "innerHeight": 932,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:59984/?qaScreen=main&qaSafeTop=48",
+  "browser": "msedge.exe",
+  "waitMs": 3000,
+  "eval": "docs/qa/evidence/full-run/menu/menu-eval.js",
+  "evalResult": {
+    "screen": "main",
+    "safeTop": 48,
+    "viewport": [
+      430,
+      932
+    ],
+    "visibleChecks": 8,
+    "minimumTapCssPx": 73.51,
+    "language": "ru",
+    "reload": null
+  },
+  "errors": [],
+  "ok": true
+}

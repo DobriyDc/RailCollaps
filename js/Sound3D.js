@@ -31,6 +31,7 @@
 /**
  * @typedef {Object} SoundOptions
  * @property {number} [volume] 0..1, 1 by default
+ * @property {number} [rate] playback speed, 1 by default: pitch and tempo together
  * @property {boolean} [loop]
  * @property {string} [channel] 'sfx' (default) | 'music'
  * @property {number} [x] map px — a sound at a fixed point (with y)
@@ -45,6 +46,8 @@
 const Sound3D = {
     CHANNELS: ['sfx', 'music'],
     FADE: 0.03,              // s: time constant of volume changes and of the fade on stop() — no clicks
+    // pointerdown is not a user activation on a phone: there the unlock comes with touchend or click.
+    GESTURES: ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'],
 
     /** @type {AudioContext | null} */
     ctx: null,
@@ -59,6 +62,7 @@ const Sound3D = {
     /** @type {{ x: number, y: number, h: number, azimuth: number } | null} */
     listener: null,          // where sounds are heard from; null — no camera yet: no fading
     muted: false,
+    held: false,             // the app is minimized: the whole graph stands (setHeld)
     /** @type {Record<string, number>} */
     channelVolumes: {},
     /** @type {SoundHandle | null} */
@@ -101,14 +105,45 @@ const Sound3D = {
         this.applyConstants();
 
         // Autoplay policy: the context runs only after a user gesture.
-        const unlock = () => { if (this.ctx.state === 'suspended' && !document.hidden) this.ctx.resume().catch(() => {}); };
-        for (const type of ['pointerdown', 'keydown', 'touchend']) window.addEventListener(type, unlock, true);
+        for (const type of this.GESTURES) window.addEventListener(type, () => this._unlock(), true);
         // A hidden tab is silent: the frame loop is stopped there anyway.
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) this.ctx.suspend().catch(() => {});
-            else this.ctx.resume().catch(() => {});
-        });
+        document.addEventListener('visibilitychange', () => this._sync());
         return true;
+    },
+
+    // fn once, inside the first press or key of the page: a context born there starts playing, and
+    // nothing is heard or fetched before it. No page to listen on (the tests) — never.
+    onGesture(fn) {
+        if (typeof addEventListener === 'undefined') return;
+        const once = () => {
+            for (const type of this.GESTURES) removeEventListener(type, once, true);
+            fn();
+            this._unlock();
+        };
+        for (const type of this.GESTURES) addEventListener(type, once, true);
+    },
+
+    // A press means the app is in front, whatever its last lifecycle event said.
+    _unlock() {
+        this.held = false;
+        this._sync();
+    },
+
+    // The app minimized in Telegram: unlike a hidden tab the page may stay visible, the frame loop
+    // too, and the sound must still stop. Everything stands where it was and goes on from there.
+    setHeld(on) {
+        this.held = !!on;
+        this._sync();
+    },
+
+    // Held or hidden — suspended, otherwise running. iOS reports 'interrupted' after a call or the
+    // background; before the first gesture the browser itself ignores resume().
+    _sync() {
+        const ctx = this.ctx;
+        if (!ctx) return;
+        if (this.held || document.hidden) {
+            if (ctx.state === 'running') ctx.suspend().catch(() => {});
+        } else if (ctx.state !== 'running' && ctx.state !== 'closed') ctx.resume().catch(() => {});
     },
 
     // Volumes from AUDIO_* (the editor — live) and the mute flag.
@@ -175,6 +210,10 @@ const Sound3D = {
         for (const handle of [...this.playing]) handle.stop();
     },
 
+    stopChannel(channel) {
+        for (const handle of [...this.playing]) if (handle.channel === channel) handle.stop();
+    },
+
     // Every frame, before the render: the listener stands WHERE THE CAMERA IS (not where it
     // looks), so moving away makes a sound quieter and merely turning around does not silence
     // it. camera — a CameraController; cam.position is the world point: x, height, map y.
@@ -225,6 +264,7 @@ class SoundHandle {
         this.channel = opts.channel === 'music' ? 'music' : 'sfx';
         this.loop = !!opts.loop;
         this.volume = opts.volume == null ? 1 : Math.max(0, Math.min(1, Number(opts.volume) || 0));
+        this.rate = Number(opts.rate) > 0 ? Number(opts.rate) : 1;
         /** @type {{ x: number, y: number, h?: number } | null} */
         this.at = opts.at || (opts.x != null && opts.y != null ? { x: Number(opts.x) || 0, y: Number(opts.y) || 0, h: 0 } : null);
         this.falloffMin = Number(opts.falloffMin) > 0 ? Number(opts.falloffMin) : 0;   // 0 — AUDIO_FALLOFF_MIN
@@ -248,6 +288,7 @@ class SoundHandle {
         const source = this.source = ctx.createBufferSource();
         source.buffer = buffer;
         source.loop = this.loop;
+        source.playbackRate.value = this.rate;
         this.gain = ctx.createGain();
         source.connect(this.gain);
         /** @type {AudioNode} */
@@ -298,6 +339,15 @@ class SoundHandle {
         if (volume === this.volume) return this;
         this.volume = volume;
         if (this.gain) this._place(Sound3D.cfg(), false);
+        return this;
+    }
+
+    // Playback speed: an engine following the throttle. Eased like the volume; a still rate schedules nothing.
+    setRate(r) {
+        const rate = Number(r) > 0 ? Number(r) : 1;
+        if (Math.abs(rate - this.rate) < 0.002) return this;
+        this.rate = rate;
+        if (this.source) this.source.playbackRate.setTargetAtTime(rate, Sound3D.ctx.currentTime, Sound3D.FADE);
         return this;
     }
 

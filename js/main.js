@@ -30,14 +30,15 @@ function startGame() {
     if (loading) loading.textContent = Lang.t('loading');
     updateLoadingProgress(40);
     // Telegram first (skill telegram-miniapp, launch sequence): our loading screen replaces its
-    // placeholder; minimizing the app pauses the run.
-    TG.boot(() => { if (window.app && window.app.game) window.app.game.setPaused(true); });
+    // placeholder; minimizing the app pauses the run and stops all sound until it comes back.
+    TG.boot(() => { if (window.app && window.app.game) window.app.game.setPaused(true); }, on => Sound3D.setHeld(!on));
     if (!World3D.init(canvas)) { showBootError(Lang.t('bootError')); return; }
 
     const scene = new CollapseScene(canvas);
-    UI.init(canvas);
+    UI.init(canvas, IS_LAND ? UI.overlay(UI_LAYOUT, UI_LAND) : undefined);
     window.app = { scene, game: null };
     const game = window.app.game = new Game(window.app);
+    game.fitOrientation();
     updateLoadingProgress(70);
 
     let last = performance.now();
@@ -47,7 +48,7 @@ function startGame() {
         game.update(Math.min(0.1, dt));
         World3D.renderFrame();
     });
-    window.addEventListener('resize', () => scene.applyResolution());
+    window.addEventListener('resize', () => { scene.applyResolution(); game.fitOrientation(); });
     scene.ready.then(hideLoader);
 }
 

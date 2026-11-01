@@ -17,8 +17,9 @@ const TG = {
         try { fn(); } catch (e) { console.warn('TG:', e); }
     },
 
-    // Launch sequence (skill telegram-miniapp §Launch sequence). onPause — minimized or hidden.
-    boot(onPause) {
+    // Launch sequence (skill telegram-miniapp §Launch sequence). onPause — minimized or hidden;
+    // onActive(on) — the app went to the background (false) and came back (true).
+    boot(onPause, onActive) {
         if (typeof document !== 'undefined') {
             document.addEventListener('visibilitychange', () => { if (document.hidden && onPause) onPause(); });
         }
@@ -28,12 +29,23 @@ const TG = {
         this._call(() => a.expand());
         if (this.at('7.7')) this._call(() => a.disableVerticalSwipes());
         if (this.at('8.0') && this.mobile) this._call(() => a.requestFullscreen());
-        if (this.at('8.0')) this._call(() => a.lockOrientation());
+        if (this.at('8.0') && !IS_LAND) this._call(() => a.lockOrientation());
         if (this.at('6.1')) {
             this._call(() => a.setHeaderColor('#181419'));
             this._call(() => a.setBackgroundColor('#181419'));
         }
         if (this.at('8.0') && onPause) this._call(() => a.onEvent('deactivated', onPause));
+        if (this.at('8.0') && onActive) {
+            this._call(() => a.onEvent('deactivated', () => onActive(false)));
+            this._call(() => a.onEvent('activated', () => onActive(true)));
+        }
+    },
+
+    // ?land: lockOrientation holds the orientation the phone is in, no call asks for landscape: the
+    // lock comes after the turn, a tall screen lets go so the player can turn the phone.
+    holdOrientation(wide) {
+        if (!this.at('8.0')) return;
+        this._call(() => { if (wide) this.app.lockOrientation(); else this.app.unlockOrientation(); });
     },
 
     close() { if (this.inside && this.app.close) this._call(() => this.app.close()); },
