@@ -38,6 +38,7 @@ const CollapseArt = {
     loco: ['assets/px/train/loco_run_0.png', 'assets/px/train/loco_run_1.png',
         'assets/px/train/loco_run_2.png', 'assets/px/train/loco_run_3.png'],
     locoShot: { left: 'assets/px/train/loco_shot_left.png', right: 'assets/px/train/loco_shot_right.png' },
+    locoTurn: { left: 'assets/px/train/loco_turn_left.png', right: 'assets/px/train/loco_turn_right.png' },
     locoFall: { left: 'assets/px/train/loco_fall_left.png', right: 'assets/px/train/loco_fall_right.png' },
     locoDamaged: 'assets/px/train/loco_damaged.png',
     torch: ['assets/px/fx/torch_0.png', 'assets/px/fx/torch_1.png', 'assets/px/fx/torch_2.png', 'assets/px/fx/torch_3.png'],
@@ -134,6 +135,7 @@ class CollapseScene {
         this.rollMax = (typeof COLLAPSE_TRAIN_ROLL_DEG !== U ? COLLAPSE_TRAIN_ROLL_DEG : 8) * Math.PI / 180;
         this.trainShift = typeof COLLAPSE_TRAIN_SHIFT !== U ? COLLAPSE_TRAIN_SHIFT : 36;
         this.trainSqueeze = typeof COLLAPSE_TRAIN_SQUEEZE !== U ? COLLAPSE_TRAIN_SQUEEZE : 0.14;
+        this.turnFrom = typeof COLLAPSE_TRAIN_TURN_FROM !== U ? COLLAPSE_TRAIN_TURN_FROM : 0.15;
         this._shakeAt = this._heatAt = -1e9;
         this.ahead = Math.max(CollapseScene.AHEAD, Math.ceil(camZ / CollapseScene.SEG) + 1);
         this.slots = CollapseScene.BEHIND + this.ahead + 2;   // tunnel pieces: one per segment of the window
@@ -183,7 +185,7 @@ class CollapseScene {
     // is not ready in that frame, and the sprite blinks out (the first shot, the first effect).
     _preload() {
         const A = CollapseArt;
-        for (const u of [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoFall), A.locoDamaged, ...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...Object.values(A.demon).flat(), ...Object.values(A.sign), ...Object.values(A.sw), ...A.lava]) this.texture(u);
+        for (const u of [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoTurn), ...Object.values(A.locoFall), A.locoDamaged, ...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...Object.values(A.demon).flat(), ...Object.values(A.sign), ...Object.values(A.sw), ...A.lava]) this.texture(u);
         for (const u of [...Object.values(A.gap), ...A.bg.map(b => b.url),
             ...Object.values(A.fx).flat(), ...Object.values(A.switches).flatMap(v => Object.values(v))]) this.texture(u, false);
     }
@@ -1029,6 +1031,9 @@ class CollapseScene {
         const x = S.laneX(run.laneX()), bend = S.bendOf(run);
         let frame = CollapseArt.loco[Math.floor(this.time * (4 + run.speed() * 2)) % 4];
         if (this._shotUntil > this.time) frame = this._shotFrame;
+        // On a fork the drawn turn frame shows the loco's side; lanes count from the left of the screen.
+        const turn = run.state === 'run' && Math.abs(bend) > this.turnFrom ? (run.lane < run.prevLane ? 'left' : 'right') : '';
+        if (turn) frame = CollapseArt.locoTurn[turn];
         let roll = bend * this.rollMax, tip = 0, fall = 0;
         if (run.state === 'over') {
             const k = Math.min(1, (this.time - (this._crashAt || this.time)) * 1.6);
@@ -1044,7 +1049,7 @@ class CollapseScene {
         this.train.position.set(x + bend * this.trainShift, fall, 0);
         this.train.rotation.z = -roll;
         this.train.rotation.x = tip;
-        this.train.scaling.x = 1 - Math.abs(bend) * this.trainSqueeze;
+        this.train.scaling.x = turn ? S.LOCO_TURN[turn] : 1 - Math.abs(bend) * this.trainSqueeze;
         this.train.computeWorldMatrix(true);
         // A lava hit: the loco glows red-hot for heatSec (added to its unlit texture).
         const heat = Math.max(0, 1 - (this.time - this._heatAt) / this.heatSec);
@@ -1179,6 +1184,7 @@ CollapseScene.PERIOD = 560;       // the static tunnel repeats every two segment
 CollapseScene.TILE = 140;         // world units per texture tile along the tunnel: divides PERIOD
 CollapseScene.WALL_X = 640;       // half width of the tunnel
 CollapseScene.WALL_TOP = 430;     // where the walls meet the vault
+CollapseScene.LOCO_TURN = { left: 128 / 139, right: 110 / 139 };   // turn frames' width to the run frames'
 CollapseScene.LOCO = { w: 290, h: 418 };   // the loco's sprite (assets/px/train), world units
 CollapseScene.LOCO_TOP = 414;     // world units: the top of the loco's art, its smoke included
 // The lever stand of a fork (assets/px/switch, 91 x 120 px) and its signal: the lit panel of the sign art

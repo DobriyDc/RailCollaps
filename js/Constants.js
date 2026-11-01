@@ -176,6 +176,7 @@ const COLLAPSE_CHUNK_ART = 4;           // world units per art pixel of the fall
 const COLLAPSE_TRAIN_ROLL_DEG = 8;      // degrees the loco leans toward the new lane at the steepest point of a fork
 const COLLAPSE_TRAIN_SHIFT = 36;        // world units the loco swings out along the curve at its steepest point
 const COLLAPSE_TRAIN_SQUEEZE = 0.14;    // share of the loco's width lost at the steepest point of a fork: it turns its side
+const COLLAPSE_TRAIN_TURN_FROM = 0.15;  // 0..1: share of a fork's steepest point from which the drawn turn frame replaces the run frames
 const COLLAPSE_CRACK_ZONE = 5;          // segments ahead of the collapse with glowing cracks on walls and vault
 const COLLAPSE_CRACK_LEVEL = 1.8;       // brightness of the cracks over their pixel art
 const COLLAPSE_DEBRIS_LEAD = 1;         // segments ahead of the collapse where the vault starts to shed blocks

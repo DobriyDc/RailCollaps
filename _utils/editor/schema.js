@@ -636,6 +636,8 @@ const KIT_SCHEMA = [
               label: { en: 'Loco lean on a fork (°)', ru: 'Крен паровоза на стрелке (°)' } },
             { name: 'COLLAPSE_TRAIN_SHIFT', min: 0, max: 150, step: 2,
               label: { en: 'Loco swing along the fork curve (world units)', ru: 'Сдвиг паровоза по кривой стрелки (ед. мира)' } },
+            { name: 'COLLAPSE_TRAIN_TURN_FROM', min: 0, max: 1, step: 0.05,
+              label: { en: 'Fork share from which the loco shows its side', ru: 'С какой доли поворота виден бок паровоза' } },
             { name: 'COLLAPSE_TRAIN_SQUEEZE', min: 0, max: 0.5, step: 0.01,
               label: { en: 'Loco narrows on a fork (share of width)', ru: 'Сжатие паровоза на стрелке (доля ширины)' } },
             { name: 'COLLAPSE_CRACK_ZONE', min: 0, max: 8, step: 0.5,
