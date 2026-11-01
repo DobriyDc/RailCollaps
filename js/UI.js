@@ -181,7 +181,8 @@ const UI = {
 
     // UI px per CSS px: screen height / UI_REF_HEIGHT.
     scale() {
-        const ref = typeof UI_REF_HEIGHT !== 'undefined' ? UI_REF_HEIGHT : 720;
+        const land = typeof IS_LAND !== 'undefined' && IS_LAND;
+        const ref = land ? UI_REF_HEIGHT_LAND : typeof UI_REF_HEIGHT !== 'undefined' ? UI_REF_HEIGHT : 720;
         const h = this.canvas ? this.canvas.clientHeight : 0;
         return ref > 0 && h > 0 ? h / ref : 1;
     },
@@ -199,6 +200,11 @@ const UI = {
         r.style.width = 'max(0px, calc((' + c.clientWidth + 'px - ' + left + ' - ' + right + ') * ' + (1 / s) + '))';
         r.style.height = 'max(0px, calc((' + c.clientHeight + 'px - ' + top + ' - ' + bottom + ') * ' + (1 / s) + '))';
         r.style.transform = 'scale(' + s + ')';
+    },
+
+    // The layout with the fields of `over` (id -> fields) on top of its records; pure, the records stay.
+    overlay(layout, over) {
+        return layout.map(d => over[d.id] ? Object.assign({}, d, over[d.id]) : d);
     },
 
     // Screen size in layout px.

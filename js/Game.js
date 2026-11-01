@@ -233,6 +233,16 @@ class Game {
         TG.runStarted();
     }
 
+    // ?land on a tall screen: the game waits behind the request to turn the phone, and a run pauses.
+    // Telegram locks only the orientation the phone is already in, so the lock follows the turn.
+    fitOrientation() {
+        if (!IS_LAND) return;
+        const c = this.scene.canvas, tall = c.clientHeight > c.clientWidth;
+        this._show('rotateNote', tall);
+        if (tall) this.setPaused(true);
+        TG.holdOrientation(!tall);
+    }
+
     // Pause by the button or when the app is minimized; resuming is always the player's tap.
     setPaused(on) {
         if (on && this.mode === 'play') {
@@ -526,10 +536,11 @@ class Game {
             const box = scene.canvas.getBoundingClientRect();
             const edge = (id, side, def) => { const e = UI.get(id); return e ? e.el.getBoundingClientRect()[side] : def; };
             const ndc = y => 1 - 2 * (y - box.top) / box.height;
-            const top = ndc(edge(this.run && this.run.tutorial ? 'tutorialBox' : 'frameTop', 'bottom', box.top));
-            scene.fitFrame(top);
-            const view = { y: scene.camY, z: cam.position.z, pitch: Math.abs(cam.rotation.x), fov: cam.fov, aspect: engine.getAspectRatio(cam),
-                top, bottom: ndc(edge('frameBottom', 'top', box.bottom)) };
+            const land = IS_LAND, top = ndc(edge(this.run && this.run.tutorial ? 'tutorialBox' : land ? '' : 'frameTop', 'bottom', box.top));
+            const wide = land ? (edge('frameBottom', 'left', box.right) - edge('frameTop', 'right', box.left)) / box.width : 1;
+            scene.fitFrame(top, wide);
+            const view = { y: scene.camY, z: cam.position.z, pitch: Math.abs(cam.rotation.x), fov: cam.fov, aspect: engine.getAspectRatio(cam) * wide,
+                top, bottom: ndc(edge(land ? '' : 'frameBottom', 'top', box.bottom)) };
             const strip = UI.get('iconStrip'), rect = strip ? strip.el.getBoundingClientRect() : box;
             this._frame = { key: size + ':', cam: view, enter: null, reach: Game.frameTable(view, null, scene.camFollow), floor: Game.floorZ(view, view.bottom),
                 row: { center: rect.left + rect.width / 2 - box.left, scale: UI.scale(), width: rect.width / UI.scale() } };
