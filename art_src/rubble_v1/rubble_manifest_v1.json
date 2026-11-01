@@ -1,0 +1,80 @@
+{
+  "palette_source": "docs/STYLE.md",
+  "filter": "nearest",
+  "assets": [
+    {
+      "file": "assets/px/pickups/rubble.png",
+      "size": [
+        120,
+        72
+      ],
+      "frames": 1,
+      "pivot_px": [
+        60,
+        71
+      ],
+      "purpose": "Track-blocking masonry heap",
+      "colors": 13,
+      "outside_palette": 0,
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_rubble.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": 1,
+      "pivot_px": [
+        12,
+        12
+      ],
+      "purpose": "Rubble hazard HUD glyph",
+      "colors": 8,
+      "outside_palette": 0,
+      "alpha": [
+        0,
+        255
+      ]
+    }
+  ],
+  "lower_third": {
+    "rows_inclusive": [
+      48,
+      71
+    ],
+    "opaque_columns": 120,
+    "width_percent": 100.0,
+    "mean_row_percent": 97.56944444444444,
+    "minimum_row_percent": 90.0,
+    "opaque_pixels_per_row": [
+      113,
+      117,
+      117,
+      117,
+      117,
+      117,
+      118,
+      118,
+      118,
+      117,
+      114,
+      115,
+      116,
+      118,
+      118,
+      119,
+      120,
+      120,
+      120,
+      120,
+      120,
+      120,
+      113,
+      108
+    ]
+  }
+}
