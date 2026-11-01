@@ -71,6 +71,13 @@ const AUDIO_SFX_VOLUME = 1;             // 0..1: the 'sfx' channel — effects a
 const AUDIO_FALLOFF_MIN = 150;          // px: full volume while the camera is this close to a sound (0 — it fades from the source itself)
 const AUDIO_FALLOFF_MAX = 1024;         // px: from here on it is silent (fades linearly in between); an object may set its own pair. The camera stands ~800 px from its look-at point at zoom 1
 const AUDIO_PAN = 0.7;                  // 0..1: how far a sound at the side of the screen goes into one ear (0 — mono)
+const AUDIO_TRAIN_RATE_MIN = 0.85;      // wheels and steam: playback speed of a standing train
+const AUDIO_TRAIN_RATE_MAX = 1.7;       // wheels and steam: playback speed at the top speed of the rules
+const AUDIO_WHEELS_VOLUME = 0.5;        // 0..1: the wheels on the 'sfx' channel, at speed
+const AUDIO_STEAM_VOLUME = 0.3;         // 0..1: the steam on the 'sfx' channel, at speed
+const AUDIO_RUMBLE_VOLUME = 0.9;        // 0..1: the collapse on the 'sfx' channel, at the train's tail
+const AUDIO_RUMBLE_FAR = 0.1;           // 0..1: share of that volume left at the farthest gap of the collapse
+const AUDIO_RUMBLE_CURVE = 2;           // the rumble grows as nearness to this power: larger — it comes up later and harder
 
 // --- SAMPLE GAME (Game.js): the "Run" button, the energy bar ---
 const GAME_RUN_SEC = 8;                 // s: a full energy bar lasts this long while running

@@ -90,9 +90,9 @@ Run from `main.js` as soon as the loading screen is visible, before the 3D scene
 
 ## Lifecycle
 
-- `deactivated` (or `document.visibilitychange` to hidden in a browser) → pause the run and mute
-  `Sound3D`.
-- `activated` → show the pause overlay; do not auto-resume. One tap resumes.
+- `deactivated` (or `document.visibilitychange` to hidden in a browser) → pause the run and hold
+  `Sound3D` (`setHeld`, through the `onActive` of `TG.boot`): a minimized app may stay visible.
+- `activated` → release the sound, show the pause overlay; do not auto-resume. One tap resumes.
 
 ## Haptics
 

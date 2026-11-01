@@ -39,6 +39,7 @@ a console warning and a silent handle — the game goes on.
 | opts | |
 |---|---|
 | `volume` | 0..1, 1 by default |
+| `rate` | playback speed, 1 by default: pitch and tempo together |
 | `loop` | looped until `stop()` |
 | `channel` | `'sfx'` (default) or `'music'` — their own volumes |
 | `x`, `y` | map px: the sound stands at that point |
@@ -50,10 +51,14 @@ a console warning and a silent handle — the game goes on.
 ```js
 const engine = Sound3D.play('assets/sounds/engine.wav', { at: car, loop: true });
 engine.setVolume(0.3);      // throttle
+engine.setRate(1.4);        // eased like the volume
 engine.stop();              // with a short fade: a wave cut mid-swing clicks
 engine.playing;             // false after stop() or the end of a sound that is not looped
 Sound3D.stopAll();
+Sound3D.stopChannel('sfx');
 Sound3D.setMuted(true);     // the editor's "sound" checkbox (unchecked at startup)
+Sound3D.setHeld(true);      // the app is minimized: the whole graph stands until setHeld(false) or a press
+Sound3D.onGesture(fn);      // fn once, inside the first press or key: the game wakes its sound there
 ```
 
 A sound that is not looped forgets itself when it ends — its handle need not be kept.
@@ -116,8 +121,18 @@ starts unchecked — the editor is silent until you ask it to play.
 Ordinary assets — put `.wav`, `.mp3` or `.ogg` there and the editor's Sound tab lists them
 (a click auditions one), while the Objects tab offers them for an object's `sound` field.
 
-`step.wav` is SYNTHESIZED by `tools/make-sounds.mjs` — no recording, no licence questions;
-replace it with a real one. The tool owns only the files it generates and never touches the rest.
+`step.wav` and all of the game's `sfx_*.wav`, `loop_*.wav`, `music_tunnel.wav` are SYNTHESIZED by
+`tools/make-sounds.mjs` — no recording, no licence questions. The tool owns only the files it
+generates and never touches the rest; `tests/sound-game.test.mjs` compares them to its output.
+
+## The sound of a run (`Game.js`)
+
+`Game.soundsOf(ev)` is the one link from an event of a run to its files; the probe reads the event
+types out of the code of the rules and of the stations, so a new event without a sound is red.
+`Game.loopMix` is the pure math of the loops; `Game._mix` applies it every frame and owns the handles.
+Nothing starts before the first gesture: `Sound3D.onGesture` creates the context, so no warning and
+no request comes earlier. A pause stops the sfx channel and takes the music to 0; the end of a run and
+the menu stop the loops and leave the music; minimizing suspends the context (`TG.boot`'s `onActive`).
 
 ```
 node tools/make-sounds.mjs          # write the files
@@ -125,9 +140,11 @@ node tools/make-sounds.mjs --check  # exit 1 if a file on disk differs from the 
 ```
 
 An effect of your own is a few lines there: an oscillator or `noise()` through an envelope ->
-`writeWav` (PCM 16 bit, mono, 22050 Hz). A looped sound must not click at the seam — the
-exported `loopedNoise()` shows how: the noise and the envelope are periodic over the loop, and
-the filter runs one loop ahead of the part that is kept.
+`writeWav` (PCM 16 bit, mono, 22050 Hz). A looped sound must not click at the seam: `buffer(sec,
+rate, true)` wraps every tail round, `bed()` runs its filters one loop ahead, and `seamless()` turns
+the piece round to a zero crossing — the browser's resampler pulls the ends of a file toward zero,
+so a seam in the file that is smooth but not at zero clicks after decoding. A wav loops to the
+sample; an mp3 pads its ends with silence and cannot.
 
 ## Pitfalls
 
@@ -135,6 +152,10 @@ the filter runs one loop ahead of the part that is kept.
   that begins at that moment — nothing is lost, but sound on the loading screen is not heard.
   Do not try to work around it: no autoplay hack works, and a game that shouts before the user
   has touched it is a bad game.
+- `pointerdown` is not a user activation on a phone: a context created there stays suspended until
+  `touchend` or `click` of the same tap. `Sound3D.GESTURES` listens to all of them.
+- iOS reports the state `interrupted` after a call or the background: test `!== 'running'`, not
+  `=== 'suspended'`.
 - A hidden tab is suspended (`visibilitychange`): the frame loop stops there anyway.
 - `Sound3D.play` inside `update(dt)` with no timer is a new sound EVERY frame — 60 copies a
   second. A repeating effect needs an interval of its own (`Game._stepTimer`).

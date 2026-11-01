@@ -1,0 +1,314 @@
+[
+  {
+    "file": "icons-l0-i0-320x568.json",
+    "lane": 0,
+    "inset": 0,
+    "size": {
+      "width": 320,
+      "height": 568
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l0-i0-360x640.json",
+    "lane": 0,
+    "inset": 0,
+    "size": {
+      "width": 360,
+      "height": 640
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l0-i0-390x844.json",
+    "lane": 0,
+    "inset": 0,
+    "size": {
+      "width": 390,
+      "height": 844
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l0-i0-430x932.json",
+    "lane": 0,
+    "inset": 0,
+    "size": {
+      "width": 430,
+      "height": 932
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l0-i48-320x568.json",
+    "lane": 0,
+    "inset": 48,
+    "size": {
+      "width": 320,
+      "height": 568
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l0-i48-360x640.json",
+    "lane": 0,
+    "inset": 48,
+    "size": {
+      "width": 360,
+      "height": 640
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l0-i48-390x844.json",
+    "lane": 0,
+    "inset": 48,
+    "size": {
+      "width": 390,
+      "height": 844
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l0-i48-430x932.json",
+    "lane": 0,
+    "inset": 48,
+    "size": {
+      "width": 430,
+      "height": 932
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l1-i0-320x568.json",
+    "lane": 1,
+    "inset": 0,
+    "size": {
+      "width": 320,
+      "height": 568
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l1-i0-360x640.json",
+    "lane": 1,
+    "inset": 0,
+    "size": {
+      "width": 360,
+      "height": 640
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l1-i0-390x844.json",
+    "lane": 1,
+    "inset": 0,
+    "size": {
+      "width": 390,
+      "height": 844
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l1-i0-430x932.json",
+    "lane": 1,
+    "inset": 0,
+    "size": {
+      "width": 430,
+      "height": 932
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l1-i48-320x568.json",
+    "lane": 1,
+    "inset": 48,
+    "size": {
+      "width": 320,
+      "height": 568
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l1-i48-360x640.json",
+    "lane": 1,
+    "inset": 48,
+    "size": {
+      "width": 360,
+      "height": 640
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l1-i48-390x844.json",
+    "lane": 1,
+    "inset": 48,
+    "size": {
+      "width": 390,
+      "height": 844
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l1-i48-430x932.json",
+    "lane": 1,
+    "inset": 48,
+    "size": {
+      "width": 430,
+      "height": 932
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l2-i0-320x568.json",
+    "lane": 2,
+    "inset": 0,
+    "size": {
+      "width": 320,
+      "height": 568
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l2-i0-360x640.json",
+    "lane": 2,
+    "inset": 0,
+    "size": {
+      "width": 360,
+      "height": 640
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l2-i0-390x844.json",
+    "lane": 2,
+    "inset": 0,
+    "size": {
+      "width": 390,
+      "height": 844
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l2-i0-430x932.json",
+    "lane": 2,
+    "inset": 0,
+    "size": {
+      "width": 430,
+      "height": 932
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l2-i48-320x568.json",
+    "lane": 2,
+    "inset": 48,
+    "size": {
+      "width": 320,
+      "height": 568
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l2-i48-360x640.json",
+    "lane": 2,
+    "inset": 48,
+    "size": {
+      "width": 360,
+      "height": 640
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l2-i48-390x844.json",
+    "lane": 2,
+    "inset": 48,
+    "size": {
+      "width": 390,
+      "height": 844
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  },
+  {
+    "file": "icons-l2-i48-430x932.json",
+    "lane": 2,
+    "inset": 48,
+    "size": {
+      "width": 430,
+      "height": 932
+    },
+    "icons": 3,
+    "bounds": true,
+    "orderAndNoOverlap": true,
+    "ok": true
+  }
+]
