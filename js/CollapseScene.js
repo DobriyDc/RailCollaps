@@ -138,6 +138,8 @@ class CollapseScene {
         this.trainShift = typeof COLLAPSE_TRAIN_SHIFT !== U ? COLLAPSE_TRAIN_SHIFT : 36;
         this.trainSqueeze = typeof COLLAPSE_TRAIN_SQUEEZE !== U ? COLLAPSE_TRAIN_SQUEEZE : 0.14;
         this.turnFrom = typeof COLLAPSE_TRAIN_TURN_FROM !== U ? COLLAPSE_TRAIN_TURN_FROM : 0.15;
+        this.flowFadeFrom = typeof COLLAPSE_FLOW_FADE_FROM !== U ? COLLAPSE_FLOW_FADE_FROM : 450;
+        this.flowFadeTo = typeof COLLAPSE_FLOW_FADE_TO !== U ? COLLAPSE_FLOW_FADE_TO : 950;
         this._shakeAt = this._heatAt = -1e9;
         this.ahead = Math.max(CollapseScene.AHEAD, Math.ceil(camZ / CollapseScene.SEG) + 1);
         this.slots = CollapseScene.BEHIND + this.ahead + 2;   // tunnel pieces: one per segment of the window
@@ -1169,8 +1171,11 @@ class CollapseScene {
                 p.position.set(S.laneX(p.metadata.lane), S.PICKUP.y + Math.sin(this.time * 4 + i) * S.PICKUP.bob, z + S.SEG / 2);
             }
             for (const fl of v.flows) {
-                fl.position.set(S.laneX(fl.metadata.lane), S.FLOW.y, z + S.SEG / 2);
+                const near = z + S.SEG / 2;
+                fl.position.set(S.laneX(fl.metadata.lane), S.FLOW.y, near);
                 fl.setEnabled(drop === 0);
+                // Close to the camera a stream would fill the frame: it fades in on its way to the train.
+                fl.visibility = 1 - Math.max(0, Math.min(1, (near - this.flowFadeFrom) / (this.flowFadeTo - this.flowFadeFrom)));
             }
         }
         this._setSpriteTex(this._mats.get('flow') || this.spriteMat('flow', CollapseArt.flow[0]), CollapseArt.flow[Math.floor(this.time * 10) % 4]);
