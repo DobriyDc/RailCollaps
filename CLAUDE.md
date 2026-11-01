@@ -144,7 +144,7 @@ libs/             babylon.js (9.26 UMD), babylonjs.loaders.min.js (glTF-загр
                   *.d.ts — их типы для tsc
 assets/           ground_texture_{g,d,s}.jpg — трава, песок, снег; models/*.fbx, *.glb — модели объектов
                   (character.glb — персонаж с клипами idle/run, генерируется tools/make-character.mjs);
-                  sounds/*.wav, *.mp3 — звуки (step.wav генерируется tools/make-sounds.mjs)
+                  sounds/*.wav, *.mp3 — звуки (step.wav, sfx_*, loop_*, music_tunnel.wav генерирует tools/make-sounds.mjs)
 tools/            dev-server.mjs, build.mjs, asset-scan.mjs, zip.mjs, check.mjs (типы + тесты),
                   build-worker.mjs (функция таблицы одним файлом из js/ и server/),
                   make-character.mjs, make-sounds.mjs, export-unity.mjs (перенос в Unity);

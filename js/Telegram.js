@@ -17,8 +17,9 @@ const TG = {
         try { fn(); } catch (e) { console.warn('TG:', e); }
     },
 
-    // Launch sequence (skill telegram-miniapp §Launch sequence). onPause — minimized or hidden.
-    boot(onPause) {
+    // Launch sequence (skill telegram-miniapp §Launch sequence). onPause — minimized or hidden;
+    // onActive(on) — the app went to the background (false) and came back (true).
+    boot(onPause, onActive) {
         if (typeof document !== 'undefined') {
             document.addEventListener('visibilitychange', () => { if (document.hidden && onPause) onPause(); });
         }
@@ -34,6 +35,10 @@ const TG = {
             this._call(() => a.setBackgroundColor('#181419'));
         }
         if (this.at('8.0') && onPause) this._call(() => a.onEvent('deactivated', onPause));
+        if (this.at('8.0') && onActive) {
+            this._call(() => a.onEvent('deactivated', () => onActive(false)));
+            this._call(() => a.onEvent('activated', () => onActive(true)));
+        }
     },
 
     close() { if (this.inside && this.app.close) this._call(() => this.app.close()); },

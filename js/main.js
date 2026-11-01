@@ -30,8 +30,8 @@ function startGame() {
     if (loading) loading.textContent = Lang.t('loading');
     updateLoadingProgress(40);
     // Telegram first (skill telegram-miniapp, launch sequence): our loading screen replaces its
-    // placeholder; minimizing the app pauses the run.
-    TG.boot(() => { if (window.app && window.app.game) window.app.game.setPaused(true); });
+    // placeholder; minimizing the app pauses the run and stops all sound until it comes back.
+    TG.boot(() => { if (window.app && window.app.game) window.app.game.setPaused(true); }, on => Sound3D.setHeld(!on));
     if (!World3D.init(canvas)) { showBootError(Lang.t('bootError')); return; }
 
     const scene = new CollapseScene(canvas);
