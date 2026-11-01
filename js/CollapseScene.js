@@ -1208,7 +1208,7 @@ class CollapseScene {
         this.train.position.set(x + bend * this.trainShift, fall, 0);
         this.train.rotation.z = -roll;
         this.train.rotation.x = tip;
-        this.train.scaling.x = turn ? S.LOCO_TURN[turn] : 1 - Math.abs(bend) * this.trainSqueeze;
+        this.train.scaling.x = turn ? 1 : 1 - Math.abs(bend) * this.trainSqueeze;
         this.train.computeWorldMatrix(true);
         // A lava hit: the loco glows red-hot for heatSec (added to its unlit texture).
         const heat = Math.max(0, 1 - (this.time - this._heatAt) / this.heatSec);
@@ -1348,7 +1348,6 @@ CollapseScene.PERIOD = 560;       // the static tunnel repeats every two segment
 CollapseScene.TILE = 140;         // world units per texture tile along the tunnel: divides PERIOD
 CollapseScene.WALL_X = 640;       // half width of the tunnel
 CollapseScene.WALL_TOP = 430;     // where the walls meet the vault
-CollapseScene.LOCO_TURN = { left: 128 / 139, right: 110 / 139 };   // turn frames' width to the run frames'
 CollapseScene.LOCO = { w: 290, h: 418 };   // the loco's sprite (assets/px/train), world units
 CollapseScene.LOCO_TOP = 414;     // world units: the top of the loco's art, its smoke included
 // The lever stand of a fork (assets/px/switch, 91 x 120 px) and its signal: the lit panel of the sign art
