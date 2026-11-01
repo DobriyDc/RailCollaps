@@ -5,6 +5,7 @@
 // element by id and feeds it data:
 //     UI.get('score').setText('10');  UI.get('hp').setValue(0.7);
 //     UI.get('start').onClick(() => …);  UI.get('hint').show(false);  UI.get('icon').setSrc(url);
+//     UI.get('icon').setX(12);  UI.get('icon').setLook('frameRecord', 'sizeRecord');  UI.get('icon').setPulse(1.1);
 // Many elements of one kind (inventory slots): a template record in UILayout.js +
 //     UI.add(Object.assign({}, UI.def('slot'), { id: 'slot2', x: 140 }));
 //
@@ -232,6 +233,10 @@ class UIElement {
         this._src = prev ? prev._src : null;
         this._frame = prev ? prev._frame : null;
         this._angle = prev ? prev._angle : null;
+        this._x = prev ? prev._x : null;
+        this._pulse = prev ? prev._pulse : 1;
+        /** @type {[string, string] | null} */
+        this._look = prev ? prev._look : null;
         this._pressed = false;
         for (const name of ['pointerdown', 'pointerup', 'pointercancel', 'pointerleave']) this.el.addEventListener(name, () => {
             this._pressed = name === 'pointerdown' && this._enabled;
@@ -256,6 +261,53 @@ class UIElement {
 
     setAngle(angle) { this._angle = Number(angle) || 0; this.apply(); return this; }
 
+    // Where the element stands on its anchor's axis at run time, instead of the record's x; null — the
+    // record's x again. For what follows the 3D view: the record still owns y and the size.
+    setX(x) {
+        if (this._x === x) return this;
+        this._x = x;
+        this._placeX();
+        return this;
+    }
+
+    // A scale around the element's center, 1 — none. Written alone: it changes every frame.
+    setPulse(k) {
+        if (this._pulse === k) return this;
+        this._pulse = k;
+        this._transform();
+        return this;
+    }
+
+    // An element of many roles: fill, border, radius and alpha from the record `frame`, w and h from
+    // the record `size`, so a role stays a record the editor sees. No arguments — its own record again.
+    setLook(frame, size) {
+        const same = this._look ? this._look[0] === frame && this._look[1] === size : !frame;
+        if (same) return this;
+        this._look = frame ? [frame, size] : null;
+        this.apply();
+        return this;
+    }
+
+    // The record with the look on top.
+    _styled() {
+        if (!this._look) return this.def;
+        const f = UI.def(this._look[0]), z = UI.def(this._look[1]);
+        if (!f || !z) return this.def;
+        return Object.assign({}, this.def, { w: z.w, h: z.h, fill: f.fill, border: f.border, radius: f.radius, alpha: f.alpha });
+    }
+
+    _placeX() {
+        const d = this.def, s = this.el.style, a = UI.parseAnchor(d.anchor), st = UI.stretchOf(d);
+        const x = (this._x != null ? this._x : Number(d.x) || 0) + 'px';
+        s.left = st.h || a.h === 'left' ? x : a.h === 'center' ? 'calc(50% + ' + x + ')' : '';
+        s.right = st.h || a.h === 'right' ? x : '';
+    }
+
+    _transform() {
+        const d = this.def, a = UI.parseAnchor(d.anchor), st = UI.stretchOf(d);
+        this.el.style.transform = 'translate(' + (!st.h && a.h === 'center' ? '-50%' : '0') + ', ' + (!st.v && a.v === 'middle' ? '-50%' : '0') + ')' + (this._pulse !== 1 ? ' scale(' + this._pulse + ')' : '');
+    }
+
     show(on) { this._shown = on !== false; this.apply(); return this; }
 
     setEnabled(on) { this._enabled = on !== false; this._skins(); this.apply(); return this; }
@@ -273,19 +325,18 @@ class UIElement {
 
     // Record + run-time state -> DOM. Cheap: called on every edit and every setText.
     apply() {
-        const d = this.def, s = this.el.style, a = UI.parseAnchor(d.anchor);
-        const x = Number(d.x) || 0, y = Number(d.y) || 0, px = (v) => (Number(v) || 0) + 'px';
+        const d = this._styled(), s = this.el.style, a = UI.parseAnchor(d.anchor);
+        const y = Number(d.y) || 0, px = (v) => (Number(v) || 0) + 'px';
         const sized = d.kind !== 'text', st = UI.stretchOf(d);
         s.cssText = '';
         s.position = 'absolute';
         s.boxSizing = 'border-box';
         // The container is the parent's box (an absolute element positions its children) or the
         // root. A stretched axis pins both edges with the same inset; w (h) is not used there.
-        s.left = st.h || a.h === 'left' ? px(x) : a.h === 'center' ? 'calc(50% + ' + px(x) + ')' : '';
-        s.right = st.h || a.h === 'right' ? px(x) : '';
+        this._placeX();
         s.top = st.v || a.v === 'top' ? px(y) : a.v === 'middle' ? 'calc(50% + ' + px(y) + ')' : '';
         s.bottom = st.v || a.v === 'bottom' ? px(y) : '';
-        s.transform = 'translate(' + (!st.h && a.h === 'center' ? '-50%' : '0') + ', ' + (!st.v && a.v === 'middle' ? '-50%' : '0') + ')';
+        this._transform();
         if (sized && !st.h) s.width = px(d.w);
         if (sized && !st.v) s.height = px(d.h);
         s.opacity = String(d.alpha == null ? 1 : Math.max(0, Math.min(1, Number(d.alpha))));

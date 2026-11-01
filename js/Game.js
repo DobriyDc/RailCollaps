@@ -24,7 +24,7 @@ class Game {
         this.best = parseInt(Store.get('collapse.best') || '0', 10) || 0;
         /** @type {Map<string, string>} */
         this._hudText = new Map();    // what the HUD shows: a DOM write only on change
-        /** @type {{ cam: any, enter: any, reach: any, key: string } | null} */
+        /** @type {{ cam: any, enter: any, reach: any, key: string, floor: number, row: { center: number, scale: number, width: number } } | null} */
         this._frame = null;           // the frame in segments ahead, by body and lane (frameTable)
         // Loaded ahead: an icon that fetches its file when it lights shows empty for its first moments.
         this._iconFiles = [...Object.values(Game.ICONS), ...Object.values(Game.PORTRAITS), ...(UI.DIGITS || [])].map(url => { const img = new Image(); img.src = url; return img; });
@@ -157,6 +157,40 @@ class Game {
             if (id) slots.set(id, item);
         }
         return slots;
+    }
+
+    // What an icon of this slot looks like: frame and size — records of UILayout.js. A hazard on the
+    // train's lane is the big red one and pulses, on another lane it is small and quiet; a pickup is
+    // never framed as a threat. The nearest thing on the train's lane takes the big size.
+    static iconLook(id, item, own) {
+        const here = item.lane === own, small = 'iconLane' + item.lane + 'Next';
+        const hazard = item.kind === 'gap' || item.kind === 'lava';
+        return { frame: hazard ? (here ? 'iconLookHot' : 'iconLookNear') : 'iconLookPickup', size: here ? id : small, pulse: here && hazard && id !== small };
+    }
+
+    // Where the lanes' icons stand on the row, layout px from its center. xs — each lane's projection;
+    // half — half width of its icons, 0 — no icon; W — the row's width; edge — kept free at each side.
+    // A lane past the edge stops there, and the lanes behind it line up inward, so the order of the
+    // lanes survives. side: -1, 1 — the icon was moved that way off its lane's place: the edge holds
+    // it tight, the fork levers stand just inside. Then the pointer shows.
+    static iconRow(xs, half, W, edge, gap) {
+        const x = xs.slice(), side = [0, 0, 0], lit = [0, 1, 2].filter(l => half[l] > 0);
+        for (let i = lit.length - 1, wall = W / 2 - edge + gap; i >= 0; i--) {
+            const l = lit[i], max = wall - gap - half[l];
+            if (x[l] > max) { x[l] = max; side[l] = 1; }
+            wall = x[l] - half[l];
+        }
+        for (let i = 0, wall = -W / 2 + edge - gap; i < lit.length; i++) {
+            const l = lit[i], min = wall + gap + half[l];
+            if (x[l] < min) { x[l] = min; side[l] = -1; }
+            wall = x[l] + half[l];
+        }
+        return { x, side };
+    }
+
+    // World z of the floor at clip height v of the frame, over the numbers of Game.frameEntry.
+    static floorZ(cam, v) {
+        return cam.z - cam.y / Math.tan(cam.pitch - Math.atan(v * Math.tan(cam.fov / 2)));
     }
 
     static newSeed() {
@@ -354,10 +388,11 @@ class Game {
             const f = this._frameNow();
             const hz = typeof COLLAPSE_DEMON_BLINK_HZ !== 'undefined' ? COLLAPSE_DEMON_BLINK_HZ : 3;
             const off = Math.floor(run.time * hz * 2) % 2 === 1;       // a demon's icon blinks: both walls of a pair in step
-            for (const [id, item] of Game.iconSlots(run.ahead(run.c.iconLead, f.enter, f.reach))) if (item.lane >= 0 || !off) lit.set(id, Game.ICONS[item.kind]);
+            for (const [id, item] of Game.iconSlots(run.ahead(run.c.iconLead, f.enter, f.reach))) if (item.lane >= 0 || !off) lit.set(id, item);
         }
+        this._iconPlaces(run, lit);
         for (const id of Game.ICON_IDS) {
-            const url = lit.get(id) || '';
+            const item = lit.get(id), url = item ? Game.ICONS[item.kind] : '';
             if (url && this._hudText.get(id) !== url) {
                 this._hudText.set(id, url);
                 const el = UI.get(id);
@@ -365,6 +400,37 @@ class Game {
             }
             this._show(id, !!url);
         }
+    }
+
+    // The lanes' icons follow the lanes: the camera moves the rails on the screen every frame, so x is
+    // the rails' projection on the bottom edge of the frame. The record keeps y and the size.
+    _iconPlaces(run, lit) {
+        const own = Math.round(run.laneX()), half = [0, 0, 0], looks = new Map();
+        const hz = typeof COLLAPSE_ICON_PULSE_HZ !== 'undefined' ? COLLAPSE_ICON_PULSE_HZ : 2;
+        const amp = typeof COLLAPSE_ICON_PULSE_AMP !== 'undefined' ? COLLAPSE_ICON_PULSE_AMP : 0.1;
+        for (const [id, item] of lit) {
+            if (item.lane < 0) continue;
+            const look = Game.iconLook(id, item, own), size = UI.def(look.size);
+            looks.set(id, look);
+            if (size) half[item.lane] = Math.max(half[item.lane], size.w / 2 * (look.pulse ? 1 + amp : 1));
+        }
+        let side = [0, 0, 0];
+        if (looks.size) {
+            const f = this._frameNow(), view = this.scene.view, rail = UI.def('frameLeft');
+            view.refreshMatrices();       // this frame's camera: the scene takes its matrices only when it renders
+            const xs = [0, 1, 2].map(l => (view.projectToScreen(CollapseScene.laneX(l), f.floor, 0).x - f.row.center) / f.row.scale);
+            const gap = typeof COLLAPSE_ICON_GAP !== 'undefined' ? COLLAPSE_ICON_GAP : 4;
+            const row = Game.iconRow(xs, half, f.row.width, rail ? rail.w : 0, gap);
+            side = row.side;
+            const beat = 0.5 + 0.5 * Math.sin(run.time * hz * 2 * Math.PI);
+            for (const [id, look] of looks) {
+                const el = UI.get(id);
+                if (!el) continue;
+                el.setX(row.x[lit.get(id).lane]).setLook(look.frame, look.size).setPulse(look.pulse ? 1 + amp * beat : 1);
+            }
+        }
+        this._show('iconEdgeLeft', side.includes(-1));
+        this._show('iconEdgeRight', side.includes(1));
     }
 
     // The camera as Game.frameEntry reads it, tilted to the top plate; the box between the plates,
@@ -380,7 +446,9 @@ class Game {
             scene.fitFrame(top);
             const view = { y: scene.camY, z: cam.position.z, pitch: Math.abs(cam.rotation.x), fov: cam.fov, aspect: engine.getAspectRatio(cam),
                 top, bottom: ndc(edge('frameBottom', 'top', box.bottom)) };
-            this._frame = { key: size + ':', cam: view, enter: null, reach: Game.frameTable(view, null, scene.camFollow) };
+            const strip = UI.get('iconStrip'), rect = strip ? strip.el.getBoundingClientRect() : box;
+            this._frame = { key: size + ':', cam: view, enter: null, reach: Game.frameTable(view, null, scene.camFollow), floor: Game.floorZ(view, view.bottom),
+                row: { center: rect.left + rect.width / 2 - box.left, scale: UI.scale(), width: rect.width / UI.scale() } };
         }
         const f = this._frame, key = size + ':' + Math.round(scene.camX / 8);
         if (f.key !== key) {

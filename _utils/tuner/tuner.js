@@ -71,7 +71,9 @@ function measure() {
     view.refreshMatrices();
     const canvas = scene.canvas, W = canvas.clientWidth, H = canvas.clientHeight, cam = view.camera;
     const edge = (id, side) => ui.get(id).el.getBoundingClientRect()[side];
-    const top = edge('frameTop', 'bottom'), bottom = edge('frameBottom', 'top'), strip = edge('iconStrip', 'top');
+    const top = edge('frameTop', 'bottom'), bottom = edge('frameBottom', 'top');
+    // The row every icon stands in; the rows over it hold a lane's second icon and the demons, rarely lit.
+    const strip = edge('iconStrip', 'bottom') - (ui.def('iconLane0').h + 8) * ui.scale();
     // A sign's offset from the camera, the camera settled: from the middle lane and from a side lane.
     const shift = S.LANE_W * scene.signShift, offsets = [shift, S.LANE_W * (1 - scene.camFollow) - shift];
     const far = cam.position.z / S.SEG;

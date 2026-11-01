@@ -1,0 +1,42 @@
+{
+  "ordered": {
+    "width": 320,
+    "height": 568
+  },
+  "innerWidth": 320,
+  "innerHeight": 568,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:56165/",
+  "browser": "msedge.exe",
+  "waitMs": 3500,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-lanes/a151a962-5824-4d0e-8cb2-71476ba166c9/scratchpad/probe.js",
+  "evalResult": {
+    "samples": 4320,
+    "onLane": 1184,
+    "pointer": 3136,
+    "fail": 0,
+    "maxOnLane": 0.596364805085912,
+    "maxAll": 320.6868424368534,
+    "maxRow": 21.999591777454214,
+    "overlap": 145,
+    "lanes": {
+      "iconLane0/iconEdgeLeft": 90,
+      "iconLane2/iconEdgeRight": 55
+    },
+    "pushedFromEdge": 45.762481689453125,
+    "minPushedDev": 0.03624397198251472,
+    "maxRowMain": 8.356486338845286,
+    "frames": 720,
+    "state": "run",
+    "tap": {
+      "checked": 675,
+      "covered": 0,
+      "nearest": 28.877982878083138,
+      "forks": 24,
+      "where": {}
+    }
+  },
+  "errors": [],
+  "ok": true
+}

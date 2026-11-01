@@ -117,9 +117,13 @@ has set (text, value, visibility, click handler) survives by id. `UIElement.appl
 element from its record, cheap: called on every edit and every `setText`. `UI.editing` — the
 editor's UI tab: every element catches the pointer, hidden ones show at 35%, buttons do not fire.
 
-World-anchored interface (a label over a character) is not covered yet: it is a new element
-kind whose position comes from `view.projectToScreen` (skill `world3d`) every frame, styled by
-its record like the rest — not DOM positioned by hand in game code.
+World-anchored interface (a label over a character) is not covered as a kind yet. An element that
+only follows the view sideways stays a record and takes `setX(x)` every frame, `x` from
+`view.projectToScreen` (skill `world3d`) in the units of its anchor; `null` gives the record's x
+back, and the record keeps y and the size. One element of many roles: `setLook(frameId, sizeId)` —
+fill, border, radius and alpha from one record, w and h from another, so every role stays a record
+the editor shows; no arguments — its own record. `setPulse(k)` — a scale around the center.
+The game's icons over the lanes work this way (`Game._iconPlaces`).
 
 An image `src` is relative to the page: the game loads it as written, the editor sets
 `UI.assetBase = '/'` because its page lives in `/_utils/editor/`.

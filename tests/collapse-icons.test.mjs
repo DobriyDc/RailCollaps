@@ -138,3 +138,46 @@ test('слоты: ближайшая в большом, следующая в м
   const ids = page().get('UI_LAYOUT').map(d => d.id);
   for (const id of Game.ICON_IDS) assert.ok(ids.includes(id), `нет записи ${id} в UILayout.js`);
 });
+
+// Card 43: the frame's bottom edge, the rails' projection on it, the row of icons over it.
+function laneRow(p, w, h, camX, half) {
+  const Game = p.get('Game'), S = p.get('CollapseScene'), cam = camera(p, w, h), scale = h / p.get('UI_REF_HEIGHT');
+  const z = Game.floorZ(cam, cam.bottom), d = cam.z - z, cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch), t = Math.tan(cam.fov / 2);
+  const depth = d * cp + cam.y * sp;
+  const xs = [0, 1, 2].map(l => (S.laneX(l) - camX) / (depth * t * cam.aspect) * w / 2 / scale);
+  const edge = p.get('UI_LAYOUT').find(r => r.id === 'frameLeft').w;
+  return { cam, edge, W: w / scale, scale, xs, v: (d * sp - cam.y * cp) / (depth * t), row: Game.iconRow(xs, half, w / scale, edge, p.get('COLLAPSE_ICON_GAP')) };
+}
+
+test('три экрана × три полосы: иконка на проекции своей полосы или у края с указателем, порядок полос цел, друг на друга не налезают', () => {
+  const p = page(), S = p.get('CollapseScene'), follow = p.get('COLLAPSE_CAM_FOLLOW');
+  let free = 0, moved = 0;
+  for (const [w, h] of [[320, 568], [390, 844], [430, 932]]) {
+    for (const lane of [0, 1, 2]) {
+      const half = [0, 1, 2].map(l => (l === lane ? 54 * 1.1 : 39) / 2);
+      const r = laneRow(p, w, h, S.laneX(lane) * follow, half);
+      assert.ok(Math.abs(r.v - r.cam.bottom) < 1e-9, 'floorZ — нижний край кадра');
+      for (const l of [0, 1, 2]) {
+        const off = Math.abs(r.row.x[l] - r.xs[l]) * r.scale;
+        if (r.row.side[l] === 0) { free++; assert.ok(off <= 12, `${w}x${h} поезд ${lane} полоса ${l}: ${off}`); }
+        else { moved++; assert.equal(Math.sign(r.xs[l] - r.row.x[l]), r.row.side[l], 'указатель смотрит к полосе'); }
+        assert.ok(Math.abs(r.row.x[l]) + half[l] <= r.W / 2 - r.edge + 1e-9, 'иконка в кадре');
+      }
+      assert.equal(r.row.side[lane], 0, 'своя полоса на месте');
+      for (const l of [0, 1]) assert.ok(r.row.x[l] + half[l] <= r.row.x[l + 1] - half[l + 1] + 1e-9, 'порядок полос');
+    }
+  }
+  assert.ok(free >= 9 && moved > 0, `на местах ${free}, у края ${moved}`);
+});
+
+test('вид иконки: опасность на своей полосе крупная и пульсирует, на соседней мелкая, пикап не красный нигде', () => {
+  const Game = page().get('Game'), plain = v => JSON.parse(JSON.stringify(v));
+  const look = (id, kind, lane, own) => plain(Game.iconLook(id, { kind, lane }, own));
+  assert.deepEqual(look('iconLane1', 'gap', 1, 1), { frame: 'iconLookHot', size: 'iconLane1', pulse: true });
+  assert.deepEqual(look('iconLane1Next', 'lava', 1, 1), { frame: 'iconLookHot', size: 'iconLane1Next', pulse: false });
+  assert.deepEqual(look('iconLane2', 'gap', 2, 1), { frame: 'iconLookNear', size: 'iconLane2Next', pulse: false });
+  for (const kind of ['ammo', 'boost', 'slow', 'shield', 'rescue']) {
+    assert.equal(look('iconLane1', kind, 1, 1).frame, 'iconLookPickup');
+    assert.equal(look('iconLane1', kind, 1, 1).pulse, false);
+  }
+});
