@@ -1,0 +1,7 @@
+{
+  "tool": "built-in image_gen",
+  "calls": 1,
+  "references": ["assets/px/train/loco_run_0.png", "assets/ui/hud_v3/icon_shield.png", "assets/ui/hud_v3/icon_ammo.png"],
+  "prompt": "Create one original pixel-art game HUD icon: front-facing steam locomotive life indicator. First image is locomotive identity/reference, second and third are icon style references. Simplify this exact locomotive into a legible 24x24 pixel icon enlarged with nearest-neighbor hard square pixels on transparent background; center it with generous transparent margins. Cast iron, rusty brown, heavy black contour, chimney, circular boiler, front cowcatcher, TWO warm lit headlights. No smoke, no scenery, no text, no frames, no smooth shading, no gradients. Chunky low-resolution sprite, 3 shades per material. Palette only: #0b0a10 #17121b #241a24 #33232b #47303a #5c3a35 #7a4a3a #96604a #b07a58 #cc9c74 #e8d0a8 #6a1410 #9c1e10 #f8902a #fcc048 #fff090 #2a3038 #465058 #6c7880. One icon only. This will be reduced to 24x24; prioritize clear silhouette and two distinct bright lamps.",
+  "assembly": "Crop alpha, nearest 20x22 into 24x24; palette snap, hand-refined lamp cores; empty uses identical silhouette with unlit iron tones."
+}

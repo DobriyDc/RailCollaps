@@ -1,0 +1,35 @@
+{
+  "palette": "docs/STYLE.md",
+  "alpha": [
+    0,
+    255
+  ],
+  "files": [
+    {
+      "file": "assets/ui/hud_v3/icon_hp_full.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": 1,
+      "pivot": [
+        12,
+        12
+      ],
+      "purpose": "train life full"
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_hp_empty.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": 1,
+      "pivot": [
+        12,
+        12
+      ],
+      "purpose": "train life empty"
+    }
+  ]
+}
