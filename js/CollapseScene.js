@@ -45,8 +45,14 @@ const CollapseArt = {
     splash: ['assets/px/fx/lava_splash_0.png', 'assets/px/fx/lava_splash_1.png'],
     shield: ['assets/px/fx/shield_0.png', 'assets/px/fx/shield_1.png', 'assets/px/fx/shield_2.png'],
     shieldHit: 'assets/px/fx/shield_hit.png',
-    demon: ['assets/px/demon/jump_0.png', 'assets/px/demon/jump_1.png', 'assets/px/demon/jump_2.png', 'assets/px/demon/jump_3.png'],
-    demonAsh: 'assets/px/demon/ash.png',
+    // The demon (art_src/demon_v3): drawn for the right wall, the left one mirrors it.
+    demon: {
+        emerge: ['assets/sprites/demon_v3/emerge_00.png', 'assets/sprites/demon_v3/emerge_01.png', 'assets/sprites/demon_v3/emerge_02.png'],
+        perch: ['assets/sprites/demon_v3/perch_00.png', 'assets/sprites/demon_v3/perch_01.png', 'assets/sprites/demon_v3/perch_02.png', 'assets/sprites/demon_v3/perch_03.png'],
+        jump: ['assets/sprites/demon_v3/jump_00.png', 'assets/sprites/demon_v3/jump_01.png', 'assets/sprites/demon_v3/jump_02.png', 'assets/sprites/demon_v3/jump_03.png'],
+        strike: ['assets/sprites/demon_v3/strike_00.png', 'assets/sprites/demon_v3/strike_01.png'],
+        ash: ['assets/sprites/demon_v3/ash_00.png', 'assets/sprites/demon_v3/ash_01.png', 'assets/sprites/demon_v3/ash_02.png', 'assets/sprites/demon_v3/ash_03.png'],
+    },
     sign: { left: 'assets/px/ui/sign_left.png', right: 'assets/px/ui/sign_right.png', cross: 'assets/px/ui/sign_cross.png' },
     hazard: 'assets/px/ui/hazard.png',
     sw: { waiting: 'assets/px/switch/waiting.png', hit: 'assets/px/switch/hit.png',
@@ -177,7 +183,7 @@ class CollapseScene {
     // is not ready in that frame, and the sprite blinks out (the first shot, the first effect).
     _preload() {
         const A = CollapseArt;
-        for (const u of [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoFall), A.locoDamaged, ...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...A.demon, A.demonAsh, ...Object.values(A.sign), ...Object.values(A.sw), ...A.lava]) this.texture(u);
+        for (const u of [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoFall), A.locoDamaged, ...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...Object.values(A.demon).flat(), ...Object.values(A.sign), ...Object.values(A.sw), ...A.lava, ...A.smoke]) this.texture(u);
         for (const u of [...Object.values(A.gap), ...A.bg.map(b => b.url),
             ...Object.values(A.fx).flat(), ...Object.values(A.switches).flatMap(v => Object.values(v))]) this.texture(u, false);
     }
@@ -693,15 +699,28 @@ class CollapseScene {
         }
     }
 
-    // One demon sprite per tunnel wall: a pair leaps from both walls at once. Each side has its
-    // own material, so the two play their frames apart.
+    // One demon sprite per tunnel wall: a pair comes from both walls. Each side has its own material,
+    // so the two play their frames apart. A demon is drawn over the train: it stands behind the nose,
+    // and on the side of the train's lane the hull would hide it. A dark shape under the sprite cuts
+    // it out of the rubble behind it, the same brick and fire as the demon.
     _buildDemons() {
         /** @type {Map<number, any>} */
         this.demonViews = new Map();
         /** @type {Map<number, number>} */
         this._ashUntil = new Map();
+        const S = CollapseScene.DEMON, size = S.px * S.art;
         for (const side of [-1, 1]) {
-            const d = this.sprite('demon', 'demon' + side, CollapseArt.demon[0], 360, 314);
+            const d = this.sprite('demon', 'demon' + side, CollapseArt.demon.perch[0], size, size);
+            d.renderingGroupId = 2;
+            const shade = this.sprite('demon-shade', 'demon-shade' + side, CollapseArt.demon.perch[0], size * S.outline, size * S.outline, false);
+            shade.parent = d;
+            shade.position.y = -size * (S.outline - 1) / 2;
+            shade.renderingGroupId = 1;
+            shade.material.emissiveTexture = null;
+            shade.material.emissiveColor = new BABYLON.Color3(0.03, 0.02, 0.03);
+            d.metadata = { shade: shade.material };
+            // The left wall mirrors the art in its UV: a negative scale would turn the sprite inside out.
+            if (side < 0) for (const m of [d, shade]) m.setVerticesData(BABYLON.VertexBuffer.UVKind, m.getVerticesData(BABYLON.VertexBuffer.UVKind).map((v, i) => i % 2 ? v : 1 - v));
             d.setEnabled(false);
             this.demonViews.set(side, d);
             this._ashUntil.set(side, -1);
@@ -1041,34 +1060,58 @@ class CollapseScene {
         this.rig.sync(run, pos, this.time, x, heat, this._shotUntil > this.time);
     }
 
-    // Demons leap out of their wall toward the cab: at the start the sprite is half inside the
-    // wall behind the nose (the stretch of wall the portrait frame shows), at the end of the leap (the
-    // hit) it is in front of the train on its side.
+    // A demon stands on its wall from its first frame in the rules, the sprite follows the phases: it
+    // breaks out of the brick, stands, leaps at the train; at the end of the leap (the hit) it is in
+    // front of the train on its side. Shot, it turns to ash where it was.
     _syncDemons(run, trainX) {
-        const S = CollapseScene;
+        const S = CollapseScene, D = S.DEMON, A = CollapseArt.demon;
         for (const [side, view] of this.demonViews) {
-            const d = run.leaping().find(m => m.side === side);
+            const d = run.shootable().find(m => m.side === side);
+            const ash = (this._ashUntil.get(side) - this.time) / D.ashSec;
             if (d) {
-                const k = 1 - Math.max(0, d.t) / run.c.demonSec;
-                const e = k * k * (3 - 2 * k);
-                const z0 = -S.SEG * 2.5, z1 = 120;
-                const x0 = this._inFrameX(side * (S.WALL_X - 40), z0), x1 = this._inFrameX(trainX + side * S.LANE_W * 0.45, z1);
+                const x = this._inFrameX(side * (S.WALL_X - D.wallGap - (D.contact[0] - D.px / 2) * D.art), D.z, D.frameShare);
+                const y = D.footY + (D.contact[1] - D.px) * D.art;
                 view.setEnabled(true);
-                view.position.set(x0 + (x1 - x0) * e, 150 - 110 * e + Math.sin(k * Math.PI) * 120, z0 + (z1 - z0) * e);
-                this._setSpriteTex(view.material, CollapseArt.demon[Math.min(3, Math.floor(k * 4))]);
-            } else if (this._ashUntil.get(side) > this.time) {
-                this._setSpriteTex(view.material, CollapseArt.demonAsh);
+                if (d.t > run.c.demonSec) {
+                    view.position.set(x, y, D.z);
+                    this._demonTex(view, S.demonFrame(A, run.c.demonPerch + run.c.demonSec - d.t));
+                } else {
+                    const k = 1 - Math.max(0, d.t) / run.c.demonSec, e = k * k * (3 - 2 * k);
+                    const z1 = 120, x1 = this._inFrameX(trainX + side * S.LANE_W * 0.45, z1);
+                    view.position.set(x + (x1 - x) * e, y + (D.hitY - y) * e + Math.sin(k * Math.PI) * 40, D.z + (z1 - D.z) * e);
+                    this._demonTex(view, S.demonLeapFrame(A, k));
+                }
+            } else if (ash > 0) {
+                this._demonTex(view, A.ash[Math.min(3, Math.floor((1 - ash) * 4))]);
             } else {
                 view.setEnabled(false);
             }
         }
     }
 
-    // x clamped into the frame at depth z (with a sprite's margin): the camera follows the train, and
-    // on a narrow phone the far wall leaves the frame — a demon from it enters at the frame edge.
-    _inFrameX(x, z) {
+    _demonTex(view, url) {
+        this._setSpriteTex(view.material, url);
+        view.metadata.shade.opacityTexture = view.material.opacityTexture;
+    }
+
+    // The frame of a demon `e` seconds after it showed, of its leap at share k.
+    static demonFrame(A, e) {
+        const D = CollapseScene.DEMON;
+        const n = Math.floor(e * 1000 / D.emergeMs);
+        return n < A.emerge.length ? A.emerge[Math.max(0, n)] : A.perch[Math.floor((e - A.emerge.length * D.emergeMs / 1000) * 1000 / D.perchMs) % A.perch.length];
+    }
+
+    static demonLeapFrame(A, k) {
+        const frames = [...A.jump, ...A.strike];
+        return frames[Math.min(frames.length - 1, Math.floor(k * frames.length))];
+    }
+
+    // x clamped into the frame at depth z (share of the half frame, a sprite's margin): the camera
+    // follows the train, and on a narrow phone the wall at that depth is out of the frame: a demon
+    // stands at its edge then.
+    _inFrameX(x, z, share = 0.8) {
         const cam = this.view.camera;
-        const half = (cam.position.z - z) * Math.tan(cam.fov / 2) * this.engine.getAspectRatio(cam) * 0.8;
+        const half = (cam.position.z - z) * Math.tan(cam.fov / 2) * this.engine.getAspectRatio(cam) * share;
         return Math.max(this.camX - half, Math.min(this.camX + half, x));
     }
 
@@ -1100,14 +1143,14 @@ class CollapseScene {
             this._fxPlay(this.fxShield, [0, 200, 90]);
             if (e.reason !== 'caught') this._hitFx(e.reason, run);   // the shield pushed the collapse back: no fall
         } else if (e.type === 'demon-killed') {
-            this._ashUntil.set(e.side, this.time + 0.4);
+            this._ashUntil.set(e.side, this.time + CollapseScene.DEMON.ashSec);
         } else if (e.type === 'crash') {
             this._crashAt = this.time;
             this._hitFx(e.reason, run);
         }
     }
 
-    // Tap targets in canvas CSS px: the next fork's signs and every leaping demon.
+    // Tap targets in canvas CSS px: the next fork's levers and every demon in the frame.
     tapTargets(run) {
         const out = [];
         const next = run.nextFork();
@@ -1120,10 +1163,10 @@ class CollapseScene {
                 if (!p.behind) out.push({ x: p.x, y: p.y, kind: 'fork', at: md.at, to: md.to });
             }
         }
-        for (const d of run.leaping()) {
+        for (const d of run.shootable()) {
             const view = this.demonViews.get(d.side);
             if (!view || !view.isEnabled()) continue;
-            const p = this.view.projectToScreen(view.position.x, view.position.z, view.position.y + 140);
+            const p = this.view.projectToScreen(view.position.x, view.position.z, view.position.y + CollapseScene.DEMON.px * CollapseScene.DEMON.art / 2);
             if (!p.behind) out.push({ x: p.x, y: p.y, kind: 'demon', side: d.side });
         }
         return out;
@@ -1161,6 +1204,10 @@ CollapseScene.FALL_SINK = 900;    // world units the lane under the train drops 
 CollapseScene.TRAIN_SEGS = 3;     // segments of track under the train behind it
 CollapseScene.FLOOR_HOLD = 1;     // segments behind the edge where the floor still holds, under the wreck
 CollapseScene.CHUNK_PX = 96;      // size of a falling chunk's art, px (the biggest of them; 64 for a brick)
+// The demon's art (art_src/demon_v3/demon_manifest_v3.json): canvas, px; the wall contact on it; ms per
+// frame. World: units per art px, the gap of the contact to the wall, the height of the feet, the height
+// of the sprite's foot at the hit, the share of the half frame a demon stays in, z of the perch, s of the ash, the size of the dark shape under it.
+CollapseScene.DEMON = { px: 160, contact: [103, 134], emergeMs: 120, perchMs: 160, art: 2.4, wallGap: 20, footY: 100, hitY: 40, frameShare: 0.7, z: -700, ashSec: 0.47, outline: 1.09 };
 CollapseScene.FX_ART = 2.1;       // world units per art pixel of the effects (the loco: 290 / 139 px)
 // Effect art (art_src/fx_v1/fx_manifest_v1.json): frame size, px; pivot from the top left, 0..1;
 // ms per frame; scale over FX_ART (the shield break covers the shield sprite).

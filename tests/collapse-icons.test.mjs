@@ -47,25 +47,27 @@ function drive(p, seed, cam, opts) {
   const reach = Game.frameTable(cam, null, follow), tables = new Map();
   const lit = new Map(), entered = new Map(), wrong = [];
   const byKey = new Map(list.map(o => [o.key, o]));
-  let lo = 0, third = 0;
+  let lo = 0, third = 0, enter = null;
+  // A demon is in the frame from its phase on the wall, the rest by where the camera catches them.
+  const inFrame = o => o.body ? o.pos - run.pos <= enter[o.body][o.lane]
+    : run.demons.some(d => o.key === `demon:${d.side}:${d.at}` && d.wait <= 0);
   for (let f = 0; f < 60 * opts.sec; f++) {
     const next = run.nextFork();
     if (next && !next.armed && dice() < 0.5) run.shoot(next.at, next.to[Math.floor(dice() * next.to.length)]);
     const camX = Math.round(S.laneX(run.laneX()) * follow / 8) * 8;
     if (!tables.has(camX)) tables.set(camX, Game.frameTable(cam, camX));
-    const enter = tables.get(camX);
+    enter = tables.get(camX);
     const items = run.ahead(lead, enter, reach), slots = Game.iconSlots(items);
     if (items.length > slots.size) third++;
     for (const it of slots.values()) {
       const o = byKey.get(keyOf(it));
-      const inFrame = o && o.pos - run.pos <= (o.body ? enter[o.body][o.lane] : 0);
-      if (!o || inFrame) wrong.push(keyOf(it) + ' @' + run.pos.toFixed(2));
+      if (!o || inFrame(o)) wrong.push(keyOf(it) + ' @' + run.pos.toFixed(2));
       else if (!lit.has(o.key)) lit.set(o.key, { t: run.time, first: f === 0 });
     }
-    while (list[lo] && list[lo].pos < run.pos - 1) lo++;
+    while (list[lo] && list[lo].pos < run.pos - 20) lo++;   // a demon stays in its warning for a while behind the nose
     for (let i = lo; i < list.length && list[i].pos < run.pos + 20; i++) {
       const o = list[i];
-      if (!entered.has(o.key) && o.pos - run.pos <= (o.body ? enter[o.body][o.lane] : 0)) entered.set(o.key, f ? run.time : -1);
+      if (!entered.has(o.key) && inFrame(o)) entered.set(o.key, f ? run.time : -1);
     }
     run.update(1 / 60);
   }

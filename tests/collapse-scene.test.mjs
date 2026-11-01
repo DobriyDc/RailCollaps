@@ -1,5 +1,6 @@
 // Rail Link: Collapse tunnel signals (js/CollapseScene.js): what the scene shows is asked from the run,
 // never decided by the scene. Only the pure statics — the 3D part is checked in the browser.
+import fs from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadScripts } from './browser-scripts.mjs';
@@ -163,4 +164,13 @@ test('рычаг: ожидание, искры выстрела, перекин�
   assert.ok(!S.leverHolds(lever, 12, 5.2, hit), 'кончились искры — идут вместе с рычагом');
   assert.ok(!S.leverHolds(lever, 13, 5.05, hit), 'чужая развилка не держится');
   assert.ok(!S.leverHolds(null, 12, 5.05, hit));
+});
+
+test('кадры демона: выход из кладки, стойка по кругу, прыжок и удар в конце, файлы на месте', () => {
+  const p = page(), S = p.get('CollapseScene'), A = p.get('CollapseArt').demon;
+  const at = [0, 0.13, 0.25, 0.37, 0.53, 0.69, 0.85, 1.01].map(e => S.demonFrame(A, e).match(/(\w+_\d+)\.png/)[1]);
+  assert.deepEqual(at, ['emerge_00', 'emerge_01', 'emerge_02', 'perch_00', 'perch_01', 'perch_02', 'perch_03', 'perch_00']);
+  assert.match(S.demonLeapFrame(A, 0), /jump_00/);
+  assert.match(S.demonLeapFrame(A, 0.99), /strike_01/);
+  for (const url of Object.values(A).flat()) assert.ok(fs.existsSync(url), url);
 });

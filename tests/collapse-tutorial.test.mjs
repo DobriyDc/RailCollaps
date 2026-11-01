@@ -8,12 +8,12 @@ const page = () => loadScripts(['js/Constants.js', 'js/CollapseRules.js']);
 const LIMIT = 60 * 120;     // frames: far beyond any tutorial
 const going = run => run.state === 'run' && !run.missed && !run.finished;
 
-// The player: shoots the next fork and every leaping demon, except on the step named `lazy`.
+// The player: shoots the next fork and every demon in the frame, except on the step named `lazy`.
 function play(run, lazy) {
   if (run.step.id === lazy) return;
   const next = run.nextFork();
   if (next && !next.armed) run.shoot(next.at, next.to[0]);
-  for (const d of run.leaping()) run.shootDemon(d.side);
+  for (const d of run.shootable()) run.shootDemon(d.side);
 }
 
 // The kit each step starts with on a clean pass.
@@ -172,11 +172,11 @@ test('промах возвращает на шаг сразу, подсказк
   assert.notEqual(game.run, first, 'без тапа шаг не пройден');
   assert.deepEqual([game.run.index, game.mode], [0, 'play']);
   game.update(1 / 60);
-  assert.match(b.UI.get('tutorialText').text, /Тап по табличке/);
+  assert.match(b.UI.get('tutorialText').text, /Тап по рычагу/);
   assert.equal(b.UI.get('best').text, '1');
   b.lang.set('en');
   game.update(1 / 60);
-  assert.match(b.UI.get('tutorialText').text, /Tap the sign/);
+  assert.match(b.UI.get('tutorialText').text, /Tap the lever/);
 });
 
 test('конец обучения: пройдено в Store, новый забег бесконечного режима, он уже идёт в таблицу', () => {

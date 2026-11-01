@@ -56,7 +56,7 @@ const TERRAIN_CELL = 8;                 // px: terrain grid step (mobile — no 
 
 // --- MODELS (Gltf3D.js) and UI (UI.js) ---
 const MODEL_CLIP_BLEND_SEC = 0.2;       // s: cross-fade between animation clips of a .glb model (idle -> run); 0 — instant
-const UI_REF_HEIGHT = 720;              // px: the screen height the UI layout (UILayout.js) is drawn for; the UI scales with the screen height, 0 — no scaling
+const UI_REF_HEIGHT = 710;              // px: the screen height the UI layout (UILayout.js) is drawn for; the UI scales with the screen height, 0 — no scaling
 
 // --- SOUND (Sound3D.js): channel volumes; a sound with a place on the map is heard from where
 // the CAMERA is — its audible region is a sphere of AUDIO_FALLOFF_MAX around it ---
@@ -75,7 +75,7 @@ const GAME_STEP_SEC = 0.35;             // s: between footstep sounds while the 
 
 // --- RAIL LINK: COLLAPSE (CollapseRules.js — the run, CollapseScene.js — the tunnel). Distance is
 // counted in track SEGMENTS; the first numbers of the prototype, tuned in playtests (GDD v3 §8) ---
-const COLLAPSE_RULES_VERSION = 2;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
+const COLLAPSE_RULES_VERSION = 3;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
 const COLLAPSE_SEG_METERS = 10;         // m of distance shown per segment
 const COLLAPSE_SPEED = 2.2;             // segments/s: train speed at the start
 const COLLAPSE_SPEED_GROWTH = 0.0025;   // segments/s added per segment travelled
@@ -91,14 +91,17 @@ const COLLAPSE_SLOW_MULT = 0.65;        // decelerator: speed multiplier
 const COLLAPSE_SLOW_SEC = 3;            // s: decelerator duration
 const COLLAPSE_START_AMMO = 8;          // cartridges at the start: one shot switches one fork
 const COLLAPSE_AMMO_PICKUP = 4;         // cartridges per ammo pickup
-const COLLAPSE_DEMON_SEC = 1.6;         // s to shoot a jumping demon before it hits the train
+const COLLAPSE_DEMON_WARN_SEC = 1;      // s: the wall icons warn of a demon before it shows on its wall
+const COLLAPSE_DEMON_BLINK_HZ = 3;      // the wall icon of a demon in its warning blinks this many times a second
+const COLLAPSE_DEMON_PERCH_SEC = 1;     // s a demon stands on its wall in the frame; it can be shot from its first frame
+const COLLAPSE_DEMON_SEC = 0.6;         // s of the leap: a demon not shot by its end hits the train
 const COLLAPSE_DEMON_EVERY = 30;        // segments: a demon at most once per this distance
 const COLLAPSE_DEMON_CHANCE = 0.2;      // chance that a pattern is a demon once the spacing above allows one
 const COLLAPSE_DEMON_START = 60;        // segments: no demon before this distance (600 m)
 const COLLAPSE_DEMON_PAIR_FROM = 120;   // segments: demons come in pairs (both walls) from this distance (1200 m)
 const COLLAPSE_DEMON_PAIR_FULL = 350;   // segments: the chance of a pair grows until this distance
 const COLLAPSE_DEMON_PAIR_MAX = 0.6;    // chance of a pair from DEMON_PAIR_FULL on
-const COLLAPSE_DEMON_PAIR_LAG = 0.35;   // s: the second demon of a pair leaps this much after the first
+const COLLAPSE_DEMON_PAIR_LAG = 0.35;   // s: the second demon of a pair shows and leaps this much after the first
 const COLLAPSE_SHIELD_MAX = 2;          // shields the train can carry
 const COLLAPSE_RESCUE_MAX = 2;          // rescues from a fall the train can carry
 const COLLAPSE_SHIELD_GAP = 6;          // segments: a shield that takes the collapse pushes it back this far
@@ -130,9 +133,28 @@ const COLLAPSE_TUTORIAL_FRONT_GAP = 8;  // segments: tutorial: the collapse stay
 const COLLAPSE_TUTORIAL_RUSH = 4;       // segments/s: tutorial: the collapse on its step, until the accelerator is taken
 const COLLAPSE_OVER_DELAY_SEC = 0.7;    // s: the fall plays before the end-of-run dialog
 const COLLAPSE_ICON_LEAD_SEC = 1;       // s: an icon over the bottom plate lights at least this long before its object enters the frame
+const COLLAPSE_STATION_STRETCH = 100;   // ?stations: segments of a stretch between stations (100 — 1 km); the stop stands at the first pattern boundary after that
+const COLLAPSE_STATION_APPROACH = 12;   // ?stations: segments before a stop free of hazards; the collapse stands still from here on: the gap grows by this much
+const COLLAPSE_STATION_AFTER = 4;       // ?stations: segments free of hazards after a stop
+const COLLAPSE_STATION_STOP_SEC = 8;    // ?stations: s the train stands at a station unless the player goes on earlier
+const COLLAPSE_STATION_RESPITE_SEC = 10; // ?stations: s after the stop until the collapse is back at its usual farthest gap
+const COLLAPSE_STATION_BRAKE = 6;       // ?stations: segments the train brakes before a stop and speeds up after it
+const COLLAPSE_STATION_CRAWL = 0.25;    // ?stations: share of its speed the train keeps at the slowest of the brake
+const COLLAPSE_STATION_HARD_STEP = 0.4; // ?stations: every station shortens the generator's way to full difficulty and raises the chance of demons by this share
+const COLLAPSE_STATION_FRONT_STEP = 0.1;  // ?stations: segments/s the collapse gains with every station
+const COLLAPSE_STATION_MONEY_EVERY = 2; // ?stations: a coin stands every this many segments
+const COLLAPSE_STATION_MONEY_VALUE = 5; // ?stations: money per coin
+const COLLAPSE_STATION_MONEY_SWITCH = 0.2; // ?stations: chance that the line of coins moves to another lane
+const COLLAPSE_STATION_PRICE_AMMO = 30; // ?stations: price of an ammo crate (COLLAPSE_AMMO_PICKUP cartridges)
+const COLLAPSE_STATION_PRICE_SHIELD = 50; // ?stations: price of a shield
+const COLLAPSE_STATION_PRICE_RESCUE = 80; // ?stations: price of a rescue
+const COLLAPSE_STATION_TINT_0 = 0xffffff; // ?stations: the light of the first stretch, then of every next one in turn
+const COLLAPSE_STATION_TINT_1 = 0x9fd0ff;
+const COLLAPSE_STATION_TINT_2 = 0xb8ff9a;
+const COLLAPSE_STATION_TINT_3 = 0xe0a0ff;
 const COLLAPSE_RENDER_HEIGHT = 360;     // px: the tunnel is rendered this tall and scaled up without smoothing (docs/STYLE.md)
-const COLLAPSE_CAM_Y = 450;             // world units: camera height above the rails
-const COLLAPSE_CAM_Z = 1467;            // world units: camera distance in front of the train
+const COLLAPSE_CAM_Y = 446;             // world units: camera height above the rails
+const COLLAPSE_CAM_Z = 1452;            // world units: camera distance in front of the train
 const COLLAPSE_CAM_TOP_GAP = 0.01;      // share of the frame's height between the top of the loco and the top plate; the camera tilts to this gap on every screen
 const COLLAPSE_CAM_SIGN = 0.3;          // where a fork sign stands from its lane toward the next one, share of the lane step: the close camera sees a narrow strip of the track, and a sign out at the side enters late
 const COLLAPSE_CAM_SIGN_SCALE = 1;      // multiplier of the fork signs' size

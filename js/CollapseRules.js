@@ -7,8 +7,9 @@
 // `to`; the player arms it with a shot (one cartridge) and the train changes lane when it passes i.
 // Hazards sit on one lane of one segment: `gap` (the track is gone) or `lava` (a stream from the
 // vault). A pickup stands in the middle of a segment and is taken by the train on its lane.
-// A demon segment releases one or two demons from the tunnel walls (side -1 left, +1 right); each
-// one needs its own shot before its leap ends.
+// A demon segment releases one or two demons from the tunnel walls (side -1 left, +1 right), three
+// phases each: a warning, the demon standing on its wall, the leap at the train. It can be shot from
+// its first frame on the wall to the end of the leap; each one needs its own shot.
 //
 // The tutorial (end of the file) is a run on a scripted track of the same segments: its steps are
 // data, CollapseRules.TUTORIAL. It never reaches the record or the table: Game owns that.
@@ -42,7 +43,7 @@ const CollapseRules = {
         { id: 'slow', lane: 2, len: 6, pickups: [[3, 2, 'slow']] },
         { id: 'shield', lane: 2, len: 8, pickups: [[2, 2, 'shield']], lava: [[6, 2]] },
         { id: 'rescue', lane: 2, len: 8, pickups: [[2, 2, 'rescue']], gaps: [[6, 2, 1]] },
-        { id: 'demon', lane: 1, len: 10, demons: [[4, -1]] },
+        { id: 'demon', lane: 1, len: 12, demons: [[4, -1]] },
         { id: 'collapse', lane: 1, len: 15, forks: [[4, 1, 2]], pickups: [[8, 2, 'boost']], rush: true },
         { id: 'done', lane: 2, len: 8 },
     ],
@@ -79,7 +80,9 @@ const CollapseRules = {
             shieldMax: typeof COLLAPSE_SHIELD_MAX !== U ? COLLAPSE_SHIELD_MAX : 2,
             rescueMax: typeof COLLAPSE_RESCUE_MAX !== U ? COLLAPSE_RESCUE_MAX : 2,
             shieldGap: typeof COLLAPSE_SHIELD_GAP !== U ? COLLAPSE_SHIELD_GAP : 6,
-            demonSec: typeof COLLAPSE_DEMON_SEC !== U ? COLLAPSE_DEMON_SEC : 1.6,
+            demonWarn: typeof COLLAPSE_DEMON_WARN_SEC !== U ? COLLAPSE_DEMON_WARN_SEC : 1,
+            demonPerch: typeof COLLAPSE_DEMON_PERCH_SEC !== U ? COLLAPSE_DEMON_PERCH_SEC : 1,
+            demonSec: typeof COLLAPSE_DEMON_SEC !== U ? COLLAPSE_DEMON_SEC : 0.6,
             demonEvery: typeof COLLAPSE_DEMON_EVERY !== U ? COLLAPSE_DEMON_EVERY : 30,
             demonChance: typeof COLLAPSE_DEMON_CHANCE !== U ? COLLAPSE_DEMON_CHANCE : 0.2,
             demonStart: typeof COLLAPSE_DEMON_START !== U ? COLLAPSE_DEMON_START : 60,
@@ -315,7 +318,7 @@ class CollapseTrack {
         this._push(back);
     }
 
-    // One demon from a random wall, or a pair from both walls: the second leaps pairLag s later.
+    // One demon from a random wall, or a pair from both walls: the second shows pairLag s later.
     _demon() {
         const c = this.cfg, at = this.segs.length;
         const s = collapseSegment('demon');
@@ -347,7 +350,8 @@ class CollapseRun {
         this.slow = 0;                // s left
         /** @type {{ at: number, from: number, to: number } | null} */
         this.armed = null;
-        // Demons out of the walls: `wait` s before the leap starts, then `t` s to shoot it.
+        // Demons of a segment the nose entered: `wait` s until one shows on its wall, then `t` s until
+        // it hits the train, the last demonSec of them in the leap.
         /** @type {{ at: number, side: number, wait: number, t: number }[]} */
         this.demons = [];
         this.state = 'run';           // 'run' | 'over'
@@ -393,13 +397,14 @@ class CollapseRun {
         return null;
     }
 
-    // What comes at the train from beyond the frame (card 21): the start of every hazard run, every
-    // pickup and every demon no more than `sec` seconds short of the frame, nearest first. Seconds
+    // What comes at the train from beyond the frame (card 21): the start of every hazard run and every
+    // pickup no more than `sec` seconds short of the frame, nearest first, and every demon still in its
+    // warning, the second of a pair until it shows: both walls stay lit together. Seconds
     // count at the fastest the train may go there (maxSpeedAt, an accelerator included): an accelerator
     // taken later cannot eat the lead. The frame belongs to the camera, so it comes as arguments, by
     // body ('gap' | 'lava' | 'pickup') and lane, in segments ahead of the nose: enter — where the body
     // is in the frame now, reach — the farthest that can get with the camera following the train.
-    // A demon needs no table: it is in the frame from its leap, when the nose enters its segment.
+    // A demon needs no table: its warning is a phase of the rules, not a distance to the frame.
     // { kind, lane, side, at, dist }: lane -1 for a demon, side 0 for the rest.
     ahead(sec, enter, reach = enter) {
         const R = CollapseRules, c = this.c, pos = this.pos, track = this.track;
@@ -418,9 +423,8 @@ class CollapseRun {
                 if (s.lava[l] && !before.lava[l]) add('lava', 'lava', l, i, i + 0.5);
                 if (s.pickup[l]) add(s.pickup[l], 'pickup', l, i, i + 0.5);
             }
-            const dist = i - pos;
-            if (dist > 0 && dist <= far) for (const d of s.demon || []) out.push({ kind: 'demon', lane: -1, side: d.side, at: i, dist });
         }
+        for (const d of this.demons) if (d.wait > 0) out.push({ kind: 'demon', lane: -1, side: d.side, at: d.at, dist: d.at - pos });
         return out.sort((a, b) => a.dist - b.dist);
     }
 
@@ -443,14 +447,14 @@ class CollapseRun {
         return 'ok';
     }
 
-    // Leaping demons (out of the wall, not yet hit): the ones a tap can shoot.
-    leaping() { return this.demons.filter(d => d.wait <= 0); }
+    // Demons in the frame (on the wall or in the leap, not yet hit): the ones a tap can shoot.
+    shootable() { return this.demons.filter(d => d.wait <= 0); }
 
-    // Tap on a leaping demon: one shot drives off one demon — the one on `side`, or the nearest to
+    // Tap on a demon in the frame: one shot drives off one demon — the one on `side`, or the nearest to
     // the cab when the side is not given.
     shootDemon(side) {
         if (this.state !== 'run') return 'invalid';
-        const ds = this.leaping().filter(d => side === undefined || d.side === side);
+        const ds = this.shootable().filter(d => side === undefined || d.side === side);
         if (!ds.length) return 'invalid';
         if (this.ammo <= 0) { this.events.push({ type: 'no-ammo' }); return 'no-ammo'; }
         const d = ds.reduce((a, b) => (b.t < a.t ? b : a));
@@ -521,8 +525,8 @@ class CollapseRun {
     _enter(i) {
         const s = this.track.seg(i);
         for (const d of s.demon || []) {
-            this.demons.push({ at: i, side: d.side, wait: d.lag, t: this.c.demonSec });
-            if (d.lag <= 0) this.events.push({ type: 'demon', at: i, side: d.side });
+            this.demons.push({ at: i, side: d.side, wait: this.c.demonWarn + d.lag, t: this.c.demonPerch + this.c.demonSec });
+            if (this.c.demonWarn + d.lag <= 0) this.events.push({ type: 'demon', at: i, side: d.side });
         }
         if (s.gap[this.lane]) this._fall(i);
         else if (s.lava[this.lane]) this._hit('lava');

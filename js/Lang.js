@@ -41,8 +41,8 @@ const Lang = {
         "en": "Once more."
     },
     "tutorial.sign": {
-        "ru": "Тап по табличке — машинист стреляет по стрелке, и поезд меняет полосу",
-        "en": "Tap the sign: the driver shoots the switch and the train changes lane"
+        "ru": "Тап по рычагу — машинист стреляет по стрелке, и поезд меняет полосу",
+        "en": "Tap the lever: the driver shoots the switch and the train changes lane"
     },
     "tutorial.ammo": {
         "ru": "Выстрел стоит патрон, без патронов стрелку не перевести. Стреляй и забери ящик",
@@ -73,8 +73,8 @@ const Lang = {
         "en": "A rescue pulls the train out of a gap onto a whole lane"
     },
     "tutorial.demon": {
-        "ru": "Демон из стены! Тап по нему — выстрел, иначе он доберётся до кабины",
-        "en": "A demon out of the wall! Tap it to shoot before it reaches the cab"
+        "ru": "Значок внизу — стена демона. Встал на ней — тап, пока не прыгнул на поезд",
+        "en": "The icon below is the demon's wall. Once it stands there, tap before it leaps"
     },
     "tutorial.collapse": {
         "ru": "Обвал догоняет! Сверни за ускорителем: он оторвёт поезд от обвала",
@@ -205,8 +205,8 @@ const Lang = {
         "en": "Out of ammo — look for an ammo crate"
     },
     "hint": {
-        "ru": "Тап по табличке — выстрел по стрелке",
-        "en": "Tap a sign to shoot the switch"
+        "ru": "Тап по рычагу — выстрел по стрелке",
+        "en": "Tap a lever to shoot the switch"
     },
     "board": {
         "ru": "Таблица лидеров",
@@ -279,6 +279,42 @@ const Lang = {
     "percent": {
         "ru": "{value}%",
         "en": "{value}%"
+    },
+    "stationNext": {
+        "ru": "До станции {value} м",
+        "en": "Next station in {value} m"
+    },
+    "stationTitle": {
+        "ru": "Станция {value}",
+        "en": "Station {value}"
+    },
+    "stationGo": {
+        "ru": "Дальше · {value}",
+        "en": "Go on · {value}"
+    },
+    "stationsPassed": {
+        "ru": "Станций пройдено: {value}.",
+        "en": "Stations passed: {value}."
+    },
+    "station.ammo": {
+        "ru": "Патроны +{value} — {price}",
+        "en": "Ammo +{value} — {price}"
+    },
+    "station.shield": {
+        "ru": "Щит — {price}",
+        "en": "Shield — {price}"
+    },
+    "station.rescue": {
+        "ru": "Спасение — {price}",
+        "en": "Rescue — {price}"
+    },
+    "station.full.shield": {
+        "ru": "Щит — полон",
+        "en": "Shield — full"
+    },
+    "station.full.rescue": {
+        "ru": "Спасение — полно",
+        "en": "Rescue — full"
     }
 },
     bindings: {
