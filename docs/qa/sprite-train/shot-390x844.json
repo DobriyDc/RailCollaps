@@ -1,0 +1,25 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:50110/",
+  "browser": "msedge.exe",
+  "waitMs": 2000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-train/50b309fd-9f84-4e41-989e-e53445094565/scratchpad/shot.js",
+  "evalResult": {
+    "armed": {
+      "at": 33,
+      "from": 1,
+      "to": 0
+    },
+    "under": "world3d",
+    "frameUrl": "assets/px/train/loco_shot_left.png"
+  },
+  "errors": [],
+  "ok": true
+}

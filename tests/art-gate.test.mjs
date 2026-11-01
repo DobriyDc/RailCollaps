@@ -5,7 +5,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { checkAll, checkImage, decodePng, readPalette, upscaled } from '../tools/art/check-art.mjs';
-import { readManifest, render, OUT } from '../tools/art/make-train-mesh.mjs';
 import { collectRefs } from '../tools/asset-scan.mjs';
 import { ROOT } from './browser-scripts.mjs';
 
@@ -52,17 +51,12 @@ test('декодер читает строки со сжатием: нефиль
   assert.ok(decodePng(file).rgba.equals(img.rgba));
 });
 
-test('js/CollapseTrainMesh.js собран из манифеста: все грани, файл не правлен руками', () => {
-  const man = readManifest(), text = render(man);
-  assert.equal(fs.readFileSync(OUT, 'utf8'), text);
-  const triangles = [...text.matchAll(/"idx":\[(.*?)\]/g)].reduce((n, m) => n + m[1].split(',').length / 3, 0);
-  assert.equal(triangles, man.faces.reduce((n, f) => n + f.triangles.length, 0));
-});
-
-test('старый тоннель, плоский фронт и спрайт паровоза ушли из сцены и сборки', async () => {
+test('старый тоннель, плоский фронт и объёмный поезд ушли из сцены и сборки, рисованный паровоз в ней', async () => {
   const { refs } = await collectRefs(ROOT);
-  const old = refs.filter(r => /^assets\/textures\/(tunnel|collapse)\/|\/front_\d|^assets\/px\/train\/|sprites\/collapse\/(brick|rail)_debris_/.test(r));
+  const old = refs.filter(r => /^assets\/textures\/(tunnel|collapse|train)\/|\/front_\d|sprites\/collapse\/(brick|rail)_debris_/.test(r));
   assert.deepEqual(old, []);
-  const world = refs.filter(r => /^assets\/(textures\/(world|train)|sprites\/world)\//.test(r));
-  assert.equal(world.length, 23 + 31, 'весь арт мира и поезда в сборке');
+  const world = refs.filter(r => /^assets\/(textures\/world|sprites\/world)\//.test(r));
+  assert.equal(world.length, 23, 'весь арт мира в сборке');
+  const loco = refs.filter(r => /^assets\/px\/train\/loco_(run|shot|fall|damaged)/.test(r));
+  assert.equal(loco.length, 9, 'кадры хода, выстрела, падения и повреждения в сборке');
 });
