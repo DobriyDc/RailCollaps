@@ -1,0 +1,80 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:55271/",
+  "browser": "msedge.exe",
+  "waitMs": 1500,
+  "eval": "docs/qa/evidence/full-run/demon-eval.js",
+  "evalResult": {
+    "pos": 91.9047357241572,
+    "demons": [
+      {
+        "at": 88,
+        "side": -1,
+        "wait": -1.394717674685353e-15,
+        "t": 0.9833333333333355
+      }
+    ],
+    "targets": [
+      {
+        "x": 57.69477425161155,
+        "y": 250.30438371108974,
+        "kind": "demon",
+        "side": -1
+      }
+    ],
+    "views": [
+      {
+        "side": -1,
+        "enabled": true,
+        "visible": true,
+        "visibility": 1,
+        "pos": [
+          -252.82019530324666,
+          37.6,
+          -700
+        ],
+        "scaling": [
+          1,
+          1,
+          1
+        ],
+        "ready": true,
+        "texture": "assets/sprites/demon_v3/perch_01.png",
+        "texReady": true,
+        "active": true,
+        "backFaceCulling": false
+      },
+      {
+        "side": 1,
+        "enabled": false,
+        "visible": true,
+        "visibility": 1,
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "scaling": [
+          1,
+          1,
+          1
+        ],
+        "ready": true,
+        "texture": "assets/sprites/demon_v3/perch_00.png",
+        "texReady": true,
+        "active": false,
+        "backFaceCulling": false
+      }
+    ],
+    "text": "Значок внизу — стена демона. Встал на ней — тап, пока не прыгнул на поезд"
+  },
+  "errors": [],
+  "ok": true
+}

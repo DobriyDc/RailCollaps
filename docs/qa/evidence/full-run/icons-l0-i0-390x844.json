@@ -1,0 +1,135 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:60316/?kind=icons&lane=0",
+  "browser": "msedge.exe",
+  "waitMs": 1500,
+  "eval": "docs/qa/evidence/full-run/visual-eval.js",
+  "evalResult": {
+    "kind": "icons",
+    "lane": 0,
+    "inset": 0,
+    "pos": 20,
+    "hint": {
+      "id": "tutorialText",
+      "visible": true,
+      "text": null,
+      "src": null,
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    },
+    "icons": [
+      {
+        "id": "iconWallLeft",
+        "visible": false,
+        "text": null,
+        "src": null,
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      },
+      {
+        "id": "iconLane0",
+        "visible": true,
+        "text": null,
+        "src": "assets/ui/hud_v3/icon_gap.png",
+        "x": 38.087730407714844,
+        "y": 631.9896240234375,
+        "w": 67.401123046875,
+        "h": 67.40106201171875
+      },
+      {
+        "id": "iconLane0Next",
+        "visible": false,
+        "text": null,
+        "src": null,
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      },
+      {
+        "id": "iconLane1",
+        "visible": true,
+        "text": null,
+        "src": "assets/ui/hud_v3/icon_lava.png",
+        "x": 287.76611328125,
+        "y": 651.4253540039062,
+        "w": 46.360565185546875,
+        "h": 46.36053466796875
+      },
+      {
+        "id": "iconLane1Next",
+        "visible": false,
+        "text": null,
+        "src": null,
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      },
+      {
+        "id": "iconLane2",
+        "visible": true,
+        "text": null,
+        "src": "assets/ui/hud_v3/pickup_ammo.png",
+        "x": 338.881591796875,
+        "y": 651.4253540039062,
+        "w": 46.360565185546875,
+        "h": 46.36053466796875
+      },
+      {
+        "id": "iconLane2Next",
+        "visible": false,
+        "text": null,
+        "src": null,
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      },
+      {
+        "id": "iconWallRight",
+        "visible": false,
+        "text": null,
+        "src": null,
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    ],
+    "targets": [],
+    "frameTop": {
+      "id": "frameTop",
+      "visible": true,
+      "text": null,
+      "src": null,
+      "x": 0,
+      "y": 0,
+      "w": 389.9971008300781,
+      "h": 84.4000015258789
+    },
+    "frameBottom": {
+      "id": "frameBottom",
+      "visible": true,
+      "text": null,
+      "src": null,
+      "x": 0,
+      "y": 702.5408325195312,
+      "w": 389.9971008300781,
+      "h": 141.45916748046875
+    }
+  },
+  "errors": [],
+  "ok": true
+}
