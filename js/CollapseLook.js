@@ -228,7 +228,8 @@ class CollapseLookRig {
 
     // Every light of the frame, in place. A torch fades in and out at the ends of the list, so a
     // light never pops when the list moves on by two segments.
-    sync(run, pos, time, trainX, heat, shot) {
+    // `edge` — the collapse where it stands in the world (CollapseRuin), `blow` — 0..1, its fire flares.
+    sync(run, pos, time, trainX, heat, shot, edge = run.front, blow = 0) {
         const S = CollapseScene, c = this.c;
         this.frame++;
         let n = 0;
@@ -243,7 +244,7 @@ class CollapseLookRig {
         const first = 2 * Math.floor((pos - 2) / 2);
         for (let k = 0; k < 5; k++) {
             const i = first + 2 * k, ahead = i - pos, z = ahead * S.SEG;
-            const fade = Math.max(0, Math.min(1, ahead + 2, (8 - ahead) / 2)) * (i > run.front ? 1 : 0);
+            const fade = Math.max(0, Math.min(1, ahead + 2, (8 - ahead) / 2)) * (i > edge ? 1 : 0);
             for (const side of [-1, 1]) put(side * (S.WALL_X - 60), 340, z, c.torchRadius, this.torchCol, fade * wave(time, i + side));
         }
         // Lava streams and gaps ahead and just behind: the nearest of each.
@@ -251,7 +252,7 @@ class CollapseLookRig {
         const from = Math.floor(pos) - 1, to = Math.floor(pos) + 8;
         for (let i = from; i <= to; i++) {
             const seg = run.track.seg(i), z = (i + 0.5 - pos) * S.SEG;
-            if (i <= run.front) continue;
+            if (i <= edge) continue;
             for (let l = 0; l < 3; l++) {
                 if (seg.lava[l] && streams < 2) { streams++; put(S.laneX(l), 240, z, c.streamRadius, this.streamCol, wave(time, i)); }
                 if (seg.gap[l] && gaps < 3) { gaps++; put(S.laneX(l), -90, z, c.gapRadius, this.gapCol, wave(time, i * 3)); }
@@ -259,7 +260,7 @@ class CollapseLookRig {
         }
         while (streams++ < 2) put(0, 0, 0, 1, this.streamCol, 0);
         while (gaps++ < 3) put(0, 0, 0, 1, this.gapCol, 0);
-        put(0, 160, (run.front - pos) * S.SEG + 60, c.frontRadius, this.frontCol, wave(time * 1.4, 5));
+        put(0, 240, (edge - pos) * S.SEG + 380, c.frontRadius, this.frontCol, wave(time * 1.4, 5) * (1 + 0.4 * blow));
         put(trainX, c.lampY, c.lampZ, c.lampRadius, this.lampCol, 1);      // the headlamp on the track ahead
         put(trainX, 360, 80, 900, this.torchCol, shot ? 1.6 : 0);          // the driver's shot
         put(trainX, 240, 120, 620, [1, 0.3, 0.1], heat * 1.5);             // the loco red-hot after lava
