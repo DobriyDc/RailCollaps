@@ -184,10 +184,19 @@ class CollapseScene {
     // Every frame a material swaps to later is loaded with the scene: a texture made on its first show
     // is not ready in that frame, and the sprite blinks out (the first shot, the first effect).
     _preload() {
+        const { mipped, plain } = CollapseScene.preloadUrls();
+        for (const u of mipped) this.texture(u);
+        for (const u of plain) this.texture(u, false);
+    }
+
+    // The frames _preload asks for. Pure: the smoke probe walks the same lists without a browser.
+    static preloadUrls() {
         const A = CollapseArt;
-        for (const u of [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoTurn), ...Object.values(A.locoFall), A.locoDamaged, ...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...Object.values(A.demon).flat(), ...Object.values(A.sign), ...Object.values(A.sw), ...A.lava]) this.texture(u);
-        for (const u of [...Object.values(A.gap), ...A.bg.map(b => b.url),
-            ...Object.values(A.fx).flat(), ...Object.values(A.switches).flatMap(v => Object.values(v))]) this.texture(u, false);
+        return {
+            mipped: [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoTurn), ...Object.values(A.locoFall), A.locoDamaged, ...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...Object.values(A.demon).flat(), ...Object.values(A.sign), ...Object.values(A.sw), ...A.lava],
+            plain: [...Object.values(A.gap), ...A.bg.map(b => b.url),
+                ...Object.values(A.fx).flat(), ...Object.values(A.switches).flatMap(v => Object.values(v))],
+        };
     }
 
     // Render COLLAPSE_RENDER_HEIGHT px tall whatever the screen; CSS scales it up pixelated.
