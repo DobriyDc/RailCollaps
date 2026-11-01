@@ -1,7 +1,7 @@
 // CollapseScene.js — the tunnel of Rail Link: Collapse (GDD v3 §2, the world of docs/STYLE.md):
 // a real 3D scene rendered small (COLLAPSE_RENDER_HEIGHT px tall) and scaled up without smoothing,
 // pixel textures (emissive, nearest sampling), the light and the palette of CollapseLook.js, linear fog for depth.
-// The train's nose stands still at z = 0 facing the camera (+Z); the world scrolls toward the camera as
+// The train stands still at z = 0 facing the camera (+Z); the world scrolls toward the camera as
 // CollapseRun.pos grows: segment i is drawn at z = (i - pos) * SEG, the upcoming track is in the
 // lower part of the frame, the passed track and the collapse go up into the vanishing point.
 // The scene only draws CollapseRun; it decides nothing (CollapseRules.js).
@@ -35,8 +35,12 @@ const CollapseArt = {
         'assets/sprites/world/chunk_brick_05.png', 'assets/sprites/world/chunk_brick_06.png',
         'assets/sprites/world/chunk_vault_01.png'],
     railBits: ['assets/sprites/world/chunk_rail_sleepers.png'],
-    smoke: ['assets/px/fx/smoke_0.png', 'assets/px/fx/smoke_1.png', 'assets/px/fx/smoke_2.png', 'assets/px/fx/smoke_3.png'],
-    flash: 'assets/px/fx/flash.png',
+    loco: ['assets/px/train/loco_run_0.png', 'assets/px/train/loco_run_1.png',
+        'assets/px/train/loco_run_2.png', 'assets/px/train/loco_run_3.png'],
+    locoShot: { left: 'assets/px/train/loco_shot_left.png', right: 'assets/px/train/loco_shot_right.png' },
+    locoTurn: { left: 'assets/px/train/loco_turn_left.png', right: 'assets/px/train/loco_turn_right.png' },
+    locoFall: { left: 'assets/px/train/loco_fall_left.png', right: 'assets/px/train/loco_fall_right.png' },
+    locoDamaged: 'assets/px/train/loco_damaged.png',
     torch: ['assets/px/fx/torch_0.png', 'assets/px/fx/torch_1.png', 'assets/px/fx/torch_2.png', 'assets/px/fx/torch_3.png'],
     flow: ['assets/px/fx/lava_flow_0.png', 'assets/px/fx/lava_flow_1.png', 'assets/px/fx/lava_flow_2.png', 'assets/px/fx/lava_flow_3.png'],
     splash: ['assets/px/fx/lava_splash_0.png', 'assets/px/fx/lava_splash_1.png'],
@@ -112,9 +116,8 @@ class CollapseScene {
         this.crackZone = typeof COLLAPSE_CRACK_ZONE !== U ? COLLAPSE_CRACK_ZONE : 3;
         this.crackLevel = typeof COLLAPSE_CRACK_LEVEL !== U ? COLLAPSE_CRACK_LEVEL : 1.6;
         this.debrisLead = typeof COLLAPSE_DEBRIS_LEAD !== U ? COLLAPSE_DEBRIS_LEAD : 1;
-        // Effects (card 16): the lean on a lane change, the camera shake of a demon hit, the glow of a
+        // Effects (card 16): the camera shake of a demon hit, the glow of a
         // lava hit, the lean into a gap.
-        this.rollMax = (typeof COLLAPSE_FX_ROLL_DEG !== U ? COLLAPSE_FX_ROLL_DEG : 8) * Math.PI / 180;
         this.shakeAmp = typeof COLLAPSE_FX_SHAKE !== U ? COLLAPSE_FX_SHAKE : 24;
         this.shakeSec = typeof COLLAPSE_FX_SHAKE_SEC !== U ? COLLAPSE_FX_SHAKE_SEC : 0.35;
         this.heatSec = typeof COLLAPSE_FX_HEAT_SEC !== U ? COLLAPSE_FX_HEAT_SEC : 0.5;
@@ -122,16 +125,17 @@ class CollapseScene {
         // The lever of a fork after the driver's shot: sparks, then the throw.
         this.leverHit = typeof COLLAPSE_SWITCH_HIT_SEC !== U ? COLLAPSE_SWITCH_HIT_SEC : 0.14;
         this.leverThrow = typeof COLLAPSE_SWITCH_THROW_SEC !== U ? COLLAPSE_SWITCH_THROW_SEC : 0.12;
-        // The layers of the collapse and the volume of the train.
+        // The layers of the collapse.
         this.bgDepth = typeof COLLAPSE_BG_DEPTH !== U ? COLLAPSE_BG_DEPTH : 90;
         this.bgPx = typeof COLLAPSE_BG_PX !== U ? COLLAPSE_BG_PX : 3.4;
         this.bgGap = typeof COLLAPSE_BG_REF_GAP !== U ? COLLAPSE_BG_REF_GAP : 5;
         this.bgSlope = (typeof COLLAPSE_BG_SLOPE_DEG !== U ? COLLAPSE_BG_SLOPE_DEG : 12) * Math.PI / 180;
         this.chunkArt = typeof COLLAPSE_CHUNK_ART !== U ? COLLAPSE_CHUNK_ART : 4;
-        this.trainScale = typeof COLLAPSE_TRAIN_SCALE !== U ? COLLAPSE_TRAIN_SCALE : 2.54;
-        this.yawGain = typeof COLLAPSE_TRAIN_YAW_GAIN !== U ? COLLAPSE_TRAIN_YAW_GAIN : 1.3;
-        this.smokeRise = typeof COLLAPSE_TRAIN_SMOKE_RISE !== U ? COLLAPSE_TRAIN_SMOKE_RISE : 100;
-        this.smokeLife = typeof COLLAPSE_TRAIN_SMOKE_SEC !== U ? COLLAPSE_TRAIN_SMOKE_SEC : 1.1;
+        // The train at the steepest point of a fork: its lean, how far it swings out, how narrow it turns.
+        this.rollMax = (typeof COLLAPSE_TRAIN_ROLL_DEG !== U ? COLLAPSE_TRAIN_ROLL_DEG : 8) * Math.PI / 180;
+        this.trainShift = typeof COLLAPSE_TRAIN_SHIFT !== U ? COLLAPSE_TRAIN_SHIFT : 36;
+        this.trainSqueeze = typeof COLLAPSE_TRAIN_SQUEEZE !== U ? COLLAPSE_TRAIN_SQUEEZE : 0.14;
+        this.turnFrom = typeof COLLAPSE_TRAIN_TURN_FROM !== U ? COLLAPSE_TRAIN_TURN_FROM : 0.15;
         this._shakeAt = this._heatAt = -1e9;
         this.ahead = Math.max(CollapseScene.AHEAD, Math.ceil(camZ / CollapseScene.SEG) + 1);
         this.slots = CollapseScene.BEHIND + this.ahead + 2;   // tunnel pieces: one per segment of the window
@@ -181,9 +185,8 @@ class CollapseScene {
     // is not ready in that frame, and the sprite blinks out (the first shot, the first effect).
     _preload() {
         const A = CollapseArt;
-        for (const u of [...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...Object.values(A.demon).flat(), ...Object.values(A.sign), ...Object.values(A.sw), ...A.lava, ...A.smoke]) this.texture(u);
-        const trainFrames = CollapseTrainMesh.GROUPS.flatMap(g => g.frames || [g.tex]);
-        for (const u of [...trainFrames, ...Object.values(CollapseTrainMesh.BROKEN), A.flash, ...Object.values(A.gap), ...A.bg.map(b => b.url),
+        for (const u of [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoTurn), ...Object.values(A.locoFall), A.locoDamaged, ...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...Object.values(A.demon).flat(), ...Object.values(A.sign), ...Object.values(A.sw), ...A.lava]) this.texture(u);
+        for (const u of [...Object.values(A.gap), ...A.bg.map(b => b.url),
             ...Object.values(A.fx).flat(), ...Object.values(A.switches).flatMap(v => Object.values(v))]) this.texture(u, false);
     }
 
@@ -578,130 +581,37 @@ class CollapseScene {
     }
 
     // --- The train -------------------------------------------------------------------------------------
-    // The volume of art_src/train_v3: faces of CollapseTrainMesh in art px, merged per texture under one
-    // root. The root stands on the yaw pivot; the file's z runs nose to tender and its x looks from
-    // behind the engine, so here the nose faces +Z and the camera (the half turn is baked in the vertices).
-    // Materials: the solid hull culls its back, wheel planes, emitters and the soot decal are cut-outs.
+    // The drawn loco: frames of one sprite; at a fork it bends by movement alone (bendOf).
 
     _buildTrain() {
-        const M = CollapseTrainMesh, k = this.trainScale, pivot = this.trainPivot = M.PIVOT_PX * k;
-        const root = this.train = new BABYLON.TransformNode('train', this.scene);
-        root.position.z = -pivot;
-        this._trainHeat = new BABYLON.Color3(0, 0, 0);
-        /** @type {{ mesh: any, mat: any, group: any }[]} */
-        this.trainParts = M.GROUPS.map((g, n) => {
-            const mesh = new BABYLON.Mesh('train-' + n, this.scene), d = new BABYLON.VertexData();
-            const pos = new Array(g.pos.length), nor = new Array(g.nor.length);
-            for (let a = 0; a < g.pos.length; a += 3) {
-                pos[a] = -g.pos[a] * k; pos[a + 1] = g.pos[a + 1] * k; pos[a + 2] = pivot - g.pos[a + 2] * k;
-                nor[a] = -g.nor[a]; nor[a + 1] = g.nor[a + 1]; nor[a + 2] = -g.nor[a + 2];
-            }
-            d.positions = pos; d.normals = nor; d.uvs = g.uv; d.indices = g.idx;
-            d.applyToMesh(mesh);
-            mesh.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
-            const glow = g.part === 'emission';
-            const mat = this.spriteMat((glow ? 'lamp:' : 'train:') + n, g.tex, false);
-            mat.backFaceCulling = g.solid;
-            if (!glow) {
-                mat.emissiveColor = this._trainHeat;
-                mat.metadata.cap = 1;           // the iron keeps the colors of its art under the headlamp
-                mat.metadata.hull = g.solid;
-            }
-            mesh.material = mat;
-            mesh.parent = root;
-            mesh.isPickable = false;
-            mesh.setEnabled(g.part !== 'damage_decal');
-            return { mesh, mat, group: g };
-        });
-        // The small tender wheels turn as planes: their own copy of the texture, the shared one stays still.
-        const tender = this.trainParts.find(p => p.group.part === 'tender_wheels').mat;
-        const spin = this.tenderWheel = tender.emissiveTexture.clone();
-        spin.hasAlpha = true;
-        tender.emissiveTexture = tender.opacityTexture = spin;
-        this._broken = false;
-        this._yaw = 0;
+        const S = CollapseScene;
+        this.train = this.sprite('loco', 'loco', CollapseArt.loco[0], S.LOCO.w, S.LOCO.h);
+        // Not a billboard: the loco leans (rotation.z) and tips into a gap (rotation.x) about its bottom
+        // center. The camera sees the plane's back (no culling), which is the art as drawn: a half turn
+        // to the front mirrors it, and the driver shoots out of the wrong side.
+        this.train.billboardMode = BABYLON.Mesh.BILLBOARDMODE_NONE;
         this.shieldFx = this.sprite('shield', 'shield', CollapseArt.shield[0], 460, 352);
         this.shieldFx.position.set(0, 10, 20);
-        this._buildSmoke();
         this._buildDemons();
         this._buildFx();
     }
 
-    // The yaw of a train running along the drawn curve at run.pos, radians: the rules' own laneX is the
-    // curve, read a step further on. + turns the nose toward +x. Pure: the probes run it in node.
-    static yawOf(run, gain = 1) {
-        const S = CollapseScene, step = 0.02, a = run.laneX();
-        const on = Object.create(run);
+    // How deep the train at run.pos is in the bend of a fork, -1..1: 0 on the straight, 1 at the curve's
+    // steepest point, + toward +x. The rules' own laneX is the curve, read a step further on. Pure: the
+    // probes run it in node.
+    static bendOf(run) {
+        const step = 0.02, on = Object.create(run);
         on.pos = run.pos + step;
-        return gain * Math.atan((on.laneX() - a) * S.LANE_W / (step * S.SEG));
+        return (on.laneX() - run.laneX()) / step * CollapseRules.SWITCH_LEN / 1.5;
     }
 
-    // A point given from the rail under the nose (x to the screen right, +z ahead) in the world, as the
-    // volume stands now: rides its yaw, roll and fall.
+    // A point given from the sprite's bottom center (x to the screen right, +z toward the camera) in
+    // the world, as the sprite stands now: rides its lean, squeeze, tip and fall.
     _onTrain(at, out) {
         const p = BABYLON.TmpVectors.Vector3[8];
-        p.set(at[0], at[1], at[2] + this.trainPivot);
+        p.set(at[0], at[1], at[2]);
         BABYLON.Vector3.TransformCoordinatesToRef(p, this.train.getWorldMatrix(), out);
         return out;
-    }
-
-    // Wheels and rods take the phase from the distance run, the opposite side one frame on; the small
-    // tender wheels turn as planes. A broken train stops on its last frame.
-    _syncWheels(run) {
-        const M = CollapseTrainMesh, S = CollapseScene, n = M.WHEEL_PHASES;
-        if (this._broken) return;
-        const turns = run.pos * S.SEG / (2 * Math.PI * M.WHEEL_R_PX * this.trainScale);
-        const phase = Math.floor(turns * n);
-        for (const p of this.trainParts) {
-            if (p.group.frames) this._setSpriteTex(p.mat, p.group.frames[(phase + p.group.phase) % n], false);
-        }
-        this.tenderWheel.wAng = -turns * 2 * Math.PI * 1.67;
-    }
-
-    // Broken (the fall, the end of a run): three textures swap under the same UV, the emitters go out,
-    // the soot decal comes on. reset() gives the whole train back.
-    _setBroken(on) {
-        if (on === this._broken) return;
-        this._broken = on;
-        const B = CollapseTrainMesh.BROKEN;
-        for (const p of this.trainParts) {
-            if (B[p.group.tex]) this._setSpriteTex(p.mat, on ? B[p.group.tex] : p.group.tex, false);
-            if (p.group.part === 'emission') p.mesh.setEnabled(!on);
-            if (p.group.part === 'damage_decal') p.mesh.setEnabled(on);
-        }
-    }
-
-    // The chimney's smoke: puffs leave the stack where it stands now, then belong to the air: they rise
-    // and stay behind a train that runs away from them. One draw call per frame of the art.
-    _buildSmoke() {
-        const S = CollapseScene;
-        this.smokeSets = CollapseArt.smoke.map(u => this._instSprite('smoke', u, S.SMOKE.w, S.SMOKE.h, S.SMOKE.puffs, false));
-        this.puffs = Array.from({ length: S.SMOKE.puffs }, (_, k) => ({ at: -1e9 - k, x: 0, y: 0, z: 0, hash: S.hash(k, 3) }));
-        this._puffNext = 0;
-    }
-
-    _syncSmoke(run, dt) {
-        const S = CollapseScene, M = CollapseTrainMesh, m = this._m, k = this.trainScale, sets = this.smokeSets, life = this.smokeLife;
-        const every = life / S.SMOKE.puffs;
-        if (dt > 0 && run.state === 'run' && this.time >= this._puffNext) {
-            this._puffNext = this.time + every;
-            const p = this.puffs.reduce((a, b) => (a.at < b.at ? a : b));
-            const v = this._onTrain([M.CHIMNEY_PX[0] * k, M.CHIMNEY_PX[1] * k, -M.CHIMNEY_PX[2] * k], this._stack);
-            p.at = this.time; p.x = v.x; p.y = v.y; p.z = v.z;
-        }
-        const back = run.speed() * S.SEG;
-        for (const p of this.puffs) {
-            const t = (this.time - p.at) / life;
-            if (t < 0 || t >= 1) continue;
-            const grow = 0.45 + t * 0.9;
-            BABYLON.Matrix.ScalingToRef(grow, grow, 1, m[0]);
-            BABYLON.Matrix.RotationZToRef((p.hash - 0.5) * 3, m[1]);
-            m[0].multiplyToRef(m[1], m[2]);
-            BABYLON.Matrix.TranslationToRef(p.x + (p.hash - 0.25) * S.SMOKE.drift * t, p.y + this.smokeRise * t, p.z - back * life * t, m[1]);
-            m[2].multiplyToRef(m[1], m[3]);
-            S._put(sets[Math.min(sets.length - 1, Math.floor(t * sets.length))], m[3]);
-        }
-        S._flush(sets);
     }
 
     // --- Effects (card 16) -------------------------------------------------------------------------
@@ -735,12 +645,10 @@ class CollapseScene {
         this.fxDrops = add('drops', A.drops);
         this.fxShield = add('shieldBreak', A.shieldBreak);
         this.fxRails = A.rail.map(u => add('rail', [u]));
-        this.fxFlash = add('flash', [CollapseArt.flash]);
         this._fxAt = new BABYLON.Vector3(0, 0, 0);
-        this._stack = new BABYLON.Vector3(0, 0, 0);
     }
 
-    // Start an effect: `at` — a point on the train from the rail under its nose (follow, _onTrain) or a world point;
+    // Start an effect: `at` — a point on the sprite from its bottom center (follow, _onTrain) or a world point;
     // v — world units/s, g — fall acceleration, spin — rad/s, dur — s (default: its frames once).
     _fxPlay(fx, at, o = {}) {
         fx.start = this.time;
@@ -773,13 +681,13 @@ class CollapseScene {
     // A hit the run reports (its reason): what it looks like on the loco.
     _hitFx(reason, run) {
         if (reason === 'demon') {
-            this._fxPlay(this.fxClaw, [0, 230, 40]);
-            this._fxPlay(this.fxAsh, [0, 200, 30]);
+            this._fxPlay(this.fxClaw, [0, 230, 70]);
+            this._fxPlay(this.fxAsh, [0, 200, 60]);
             this._shakeAt = this.time;
         } else if (reason === 'lava') {
-            this._fxPlay(this.fxSplash, [0, 280, 40]);
-            this._fxPlay(this.fxDrops, [0, 310, 50]);
-            this._fxPlay(this.fxSteam, [0, 340, 10], { dur: this.heatSec + 0.25 });
+            this._fxPlay(this.fxSplash, [0, 300, 70]);
+            this._fxPlay(this.fxDrops, [0, 330, 80]);
+            this._fxPlay(this.fxSteam, [0, 380, 50], { dur: this.heatSec + 0.25 });
             this._heatAt = this.time;
         } else if (reason === 'gap' || reason === 'caught') {
             // The loco goes down into the magma: a splash where it meets it, the rails under it fly apart.
@@ -1008,7 +916,6 @@ class CollapseScene {
         this._crashAt = null;
         this._lever = null;
         this._shakeAt = this._heatAt = -1e9;
-        this._setBroken(false);
         for (const fx of this.fx) fx.mesh.setEnabled(false);
         for (const side of [-1, 1]) { this.demonViews.get(side).setEnabled(false); this._ashUntil.set(side, -1); }
         this._camSnap = true;
@@ -1119,38 +1026,42 @@ class CollapseScene {
         }
         this._setSpriteTex(this._mats.get('flow') || this.spriteMat('flow', CollapseArt.flow[0]), CollapseArt.flow[Math.floor(this.time * 10) % 4]);
 
-        // The train: the nose on the rules' curve, the hull yawed along it around the pivot (the side
-        // shows), leaning into the crossing (run.prevLane, switchAt); a crash breaks it, a fall tips it.
-        const x = S.laneX(run.laneX());
-        const cross = (run.pos - run.switchAt) / CollapseRules.SWITCH_LEN;
-        let roll = run.lane !== run.prevLane && cross >= 0 && cross < 1 ? Math.sign(run.lane - run.prevLane) * this.rollMax * Math.sin(Math.PI * cross) : 0;
-        let tip = 0, fall = 0;
-        const yaw = run.state === 'run' || !this._crashAt ? S.yawOf(run, this.yawGain) : this._yaw;
-        this._yaw = yaw;
+        // The train: on the rules' curve, run frames, shot and crash frames. At a fork it bends with the
+        // curve: leans toward the new lane, swings out and turns narrow; a crash breaks it, a fall tips it.
+        const x = S.laneX(run.laneX()), bend = S.bendOf(run);
+        let frame = CollapseArt.loco[Math.floor(this.time * (4 + run.speed() * 2)) % 4];
+        if (this._shotUntil > this.time) frame = this._shotFrame;
+        // On a fork the drawn turn frame shows the loco's side; lanes count from the left of the screen.
+        const turn = run.state === 'run' && Math.abs(bend) > this.turnFrom ? (run.lane < run.prevLane ? 'left' : 'right') : '';
+        if (turn) frame = CollapseArt.locoTurn[turn];
+        let roll = bend * this.rollMax, tip = 0, fall = 0;
         if (run.state === 'over') {
             const k = Math.min(1, (this.time - (this._crashAt || this.time)) * 1.6);
             if (falling) {
+                frame = run.lane === 0 ? CollapseArt.locoFall.left : CollapseArt.locoFall.right;
                 fall = -k * 260;
                 roll = (run.lane === 0 ? -1 : 1) * this.fallTilt * k;   // it tips over the side it falls to
-                tip = 0.3 * k;                                         // and its nose goes down first
+                tip = 0.45 * k;                                        // and its top comes toward the camera
+            } else {
+                frame = CollapseArt.locoDamaged;
             }
         }
-        this._setBroken(run.state === 'over');
-        this._syncWheels(run);
-        this.train.position.set(x - Math.sin(yaw) * this.trainPivot, fall, -this.trainPivot);
-        this.train.rotation.set(tip, yaw, -roll);
+        this.train.position.set(x + bend * this.trainShift, fall, 0);
+        this.train.rotation.z = -roll;
+        this.train.rotation.x = tip;
+        this.train.scaling.x = turn ? S.LOCO_TURN[turn] : 1 - Math.abs(bend) * this.trainSqueeze;
         this.train.computeWorldMatrix(true);
         // A lava hit: the loco glows red-hot for heatSec (added to its unlit texture).
         const heat = Math.max(0, 1 - (this.time - this._heatAt) / this.heatSec);
-        this._trainHeat.set(heat * 0.9, heat * 0.3, heat * 0.05);
+        this.train.material.emissiveColor.set(heat * 0.9, heat * 0.3, heat * 0.05);
+        this._setSpriteTex(this.train.material, frame);
         this._followCamera(x, dt);
         this.shieldFx.setEnabled(run.shield > 0 && run.state === 'run');
-        this.shieldFx.position.x = x;
+        this.shieldFx.position.x = this.train.position.x;
         this._setSpriteTex(this.shieldFx.material, this._shieldHitUntil > this.time ? CollapseArt.shieldHit : CollapseArt.shield[Math.floor(this.time * 6) % 3]);
 
         this._syncDemons(run, x);
         this._syncFx();
-        this._syncSmoke(run, dt);
         this.rig.sync(run, pos, this.time, x, heat, this._shotUntil > this.time);
     }
 
@@ -1223,16 +1134,15 @@ class CollapseScene {
     onEvent(e, run) {
         if (e.type === 'shot') {
             this._lever = { at: e.at, to: e.to, time: this.time };
-            // The driver fires out of the cab, on the side of the fork.
-            this._fxPlay(this.fxFlash, [(e.to < run.lane ? -1 : 1) * 150, 300, -60], { dur: 0.18 });
+            // The driver fires out of the cab, on the side of the fork: the frame draws the muzzle flash.
+            this._shotFrame = e.to < run.lane ? CollapseArt.locoShot.left : CollapseArt.locoShot.right;
             this._shotUntil = this.time + 0.18;
         } else if (e.type === 'switched') {
             // Sparks under both wheel sets, the smoke blown against the move (the art drifts right).
             const dir = e.to > run.prevLane ? 1 : -1;
-            const M = CollapseTrainMesh, k = this.trainScale, wheel = M.HALF_WIDTH_PX * k * 0.92;
-            this._fxPlay(this.fxSparks[0], [-wheel, 0, 30], { flip: dir < 0 });
-            this._fxPlay(this.fxSparks[1], [wheel, 0, 30], { flip: dir < 0 });
-            this._fxPlay(this.fxSmoke, [0, M.CHIMNEY_PX[1] * k, -M.CHIMNEY_PX[2] * k], { flip: dir > 0, v: [-dir * 420, 140, 0] });
+            this._fxPlay(this.fxSparks[0], [-95, 0, 40], { flip: dir < 0 });
+            this._fxPlay(this.fxSparks[1], [95, 0, 40], { flip: dir < 0 });
+            this._fxPlay(this.fxSmoke, [0, 380, 10], { flip: dir > 0, v: [-dir * 420, 140, 0] });
         } else if (e.type === 'shielded') {
             this._shieldHitUntil = this.time + 0.3;
             this._fxPlay(this.fxShield, [0, 200, 90]);
@@ -1274,7 +1184,9 @@ CollapseScene.PERIOD = 560;       // the static tunnel repeats every two segment
 CollapseScene.TILE = 140;         // world units per texture tile along the tunnel: divides PERIOD
 CollapseScene.WALL_X = 640;       // half width of the tunnel
 CollapseScene.WALL_TOP = 430;     // where the walls meet the vault
-CollapseScene.LOCO_TOP = 414;     // world units: the top of the chimney (394 at COLLAPSE_TRAIN_SCALE) and of the smoke leaving it
+CollapseScene.LOCO_TURN = { left: 128 / 139, right: 110 / 139 };   // turn frames' width to the run frames'
+CollapseScene.LOCO = { w: 290, h: 418 };   // the loco's sprite (assets/px/train), world units
+CollapseScene.LOCO_TOP = 414;     // world units: the top of the loco's art, its smoke included
 // The lever stand of a fork (assets/px/switch, 91 x 120 px) and its signal: the lit panel of the sign art
 // as shares of that file, on the disc at height y.
 CollapseScene.LEVER = { w: 150, h: 198, badge: { w: 84, y: 160, crop: [0.16, 0.13, 0.68, 0.56] } };
@@ -1294,15 +1206,14 @@ CollapseScene.LEAN = { vault: 0.75, torch: 0.45, rib: 0.55, 'wall-hi': 0.45, 'wa
 CollapseScene.CRACK_ART = 3;      // world units per art pixel of the cracks (the loco: 2.1); walls are seen edge-on
 CollapseScene.BG_PX = [384, 256]; // size of a layer of the collapse, art px (art_src/world_v3/world_manifest_v3.json)
 CollapseScene.RAIL_ROW = 180;     // art row of bg_04_rubble.png: the fold, just under its broken rails
-CollapseScene.FALL_SINK = 900;    // world units the lane under the hull drops as the train falls: it never goes through whole floor
-CollapseScene.TRAIN_SEGS = 3;     // segments of track under the hull behind its nose
+CollapseScene.FALL_SINK = 900;    // world units the lane under the train drops as the train falls: it never goes through whole floor
+CollapseScene.TRAIN_SEGS = 3;     // segments of track under the train behind it
 CollapseScene.FLOOR_HOLD = 1;     // segments behind the edge where the floor still holds, under the wreck
 CollapseScene.CHUNK_PX = 96;      // size of a falling chunk's art, px (the biggest of them; 64 for a brick)
 // The demon's art (art_src/demon_v3/demon_manifest_v3.json): canvas, px; the wall contact on it; ms per
 // frame. World: units per art px, the gap of the contact to the wall, the height of the feet, the height
 // of the sprite's foot at the hit, the share of the half frame a demon stays in, z of the perch, s of the ash, the size of the dark shape under it.
 CollapseScene.DEMON = { px: 160, contact: [103, 134], emergeMs: 120, perchMs: 160, art: 2.4, wallGap: 20, footY: 100, hitY: 40, frameShare: 0.7, z: -700, ashSec: 0.47, outline: 1.09 };
-CollapseScene.SMOKE = { w: 190, h: 182, puffs: 8, drift: 420 };   // chimney smoke: a puff's sprite, world units; how many at once; how far the air takes it sideways
 CollapseScene.FX_ART = 2.1;       // world units per art pixel of the effects (the loco: 290 / 139 px)
 // Effect art (art_src/fx_v1/fx_manifest_v1.json): frame size, px; pivot from the top left, 0..1;
 // ms per frame; scale over FX_ART (the shield break covers the shield sprite).
@@ -1316,7 +1227,6 @@ CollapseScene.FX = {
     drops: { size: [96, 96], pivot: [0.5, 0.9375], ms: 90 },
     shieldBreak: { size: [160, 160], pivot: [0.5, 0.5], ms: 90, scale: 1.4 },
     rail: { size: [96, 96], pivot: [0.5, 0.5], ms: 350 },
-    flash: { size: [124, 96], pivot: [0.5, 0.5], ms: 180, scale: 0.4 },
 };
 CollapseScene.LAVA_MS = 180;      // ms a frame of the magma (art_src/world_v3: four frames, 720 ms)
 CollapseScene.AHEAD = 6;

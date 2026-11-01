@@ -1,0 +1,38 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:52288/",
+  "browser": "msedge.exe",
+  "waitMs": 2000,
+  "eval": "C:/Users/dobri/AppData/Local/Temp/claude/C--Users-dobri-orca-workspaces-collapse-dev-train/50b309fd-9f84-4e41-989e-e53445094565/scratchpad/curve.js",
+  "evalResult": {
+    "at": 13,
+    "bend": 0.9999620740740456,
+    "x": 185.99863466666562,
+    "rails": 150,
+    "sx": 0.8600053096296336,
+    "rzDeg": -7.999696592592364,
+    "sparks": [
+      105.0931830406189,
+      266.904100894928,
+      -11.37008436024189
+    ],
+    "lint": {
+      "findings": [],
+      "stats": {
+        "meshes": 89,
+        "triangles": 4446,
+        "materials": 53,
+        "lights": 2
+      }
+    }
+  },
+  "errors": [],
+  "ok": true
+}
