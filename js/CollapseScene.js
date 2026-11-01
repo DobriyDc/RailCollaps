@@ -772,6 +772,7 @@ class CollapseScene {
             shade.renderingGroupId = 1;
             shade.material.emissiveTexture = null;
             shade.material.emissiveColor = new BABYLON.Color3(0.03, 0.02, 0.03);
+            shade.material.disableDepthWrite = true;   // it lies in the sprite's plane: its depth cut the demon into dark bands
             d.metadata = { shade: shade.material };
             // The left wall mirrors the art in its UV: a negative scale would turn the sprite inside out.
             if (side < 0) for (const m of [d, shade]) m.setVerticesData(BABYLON.VertexBuffer.UVKind, m.getVerticesData(BABYLON.VertexBuffer.UVKind).map((v, i) => i % 2 ? v : 1 - v));
@@ -1272,7 +1273,7 @@ CollapseScene.CHUNK_PX = 96;      // size of a falling chunk's art, px (the bigg
 // The demon's art (art_src/demon_v3/demon_manifest_v3.json): canvas, px; the wall contact on it; ms per
 // frame. World: units per art px, the gap of the contact to the wall, the height of the feet, the height
 // of the sprite's foot at the hit, the share of the half frame a demon stays in, z of the perch, s of the ash, the size of the dark shape under it.
-CollapseScene.DEMON = { px: 160, contact: [103, 134], emergeMs: 120, perchMs: 160, art: 1.2, wallGap: 20, footY: 30, hitY: 40, frameShare: 0.62, z: 620, ashSec: 0.47, outline: 1.09 };
+CollapseScene.DEMON = { px: 160, contact: [103, 134], emergeMs: 120, perchMs: 160, art: 1.2, wallGap: 20, footY: 30, hitY: 40, frameShare: 0.55, z: 500, ashSec: 0.47, outline: 1.09 };
 CollapseScene.DEMON_LAND = { art: 2.2, frameShare: 0.9, z: 620 };   // the same in the wide frame (?land): the wall is in the frame there
 CollapseScene.FX_ART = 2.1;       // world units per art pixel of the effects (the loco: 290 / 139 px)
 // Effect art (art_src/fx_v1/fx_manifest_v1.json): frame size, px; pivot from the top left, 0..1;
