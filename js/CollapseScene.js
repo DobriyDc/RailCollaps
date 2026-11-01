@@ -1247,6 +1247,7 @@ class CollapseScene {
                 // Where it holds the cab: the leap ends there, and from then on it rides the train.
                 const art = D.art * hang, at = this._onTrain([side * S.CAB_SIDE[0], S.CAB_SIDE[1], S.CAB_SIDE[2]], cab);
                 const hx = at.x - side * (D.hold[0] - D.px / 2) * art, hy = at.y - (D.px - D.hold[1]) * art;
+                view.metadata.trail = null;
                 if (d.on) {
                     view.scaling.setAll(hang);
                     view.position.set(hx, hy, at.z);
@@ -1260,6 +1261,9 @@ class CollapseScene {
                     view.scaling.setAll(1 + (hang - 1) * e);
                     view.position.set(x + (hx - x) * e, y + (hy - y) * e + Math.sin(k * Math.PI) * 40, D.z + (at.z - D.z) * e);
                     this._demonTex(view, S.demonLeapFrame(A, k));
+                    // Where it was a moment ago: a finger comes down there, the eye is that much late.
+                    const b = Math.max(0, k - D.trail), f = b * b * (3 - 2 * b);
+                    view.metadata.trail = { x: x + (hx - x) * f, y: y + (hy - y) * f + Math.sin(b * Math.PI) * 40, z: D.z + (at.z - D.z) * f, scale: 1 + (hang - 1) * f };
                 }
             } else if (ash > 0) {
                 this._demonTex(view, A.ash[Math.min(3, Math.floor((1 - ash) * 4))]);
@@ -1347,6 +1351,9 @@ class CollapseScene {
             if (e.reason !== 'caught') this._hitFx(e.reason, run);   // the shield pushed the collapse back: no fall
         } else if (e.type === 'demon-killed') {
             this._ashUntil.set(e.side, this.time + this.demon.ashSec);
+            // The driver fires at it out of the cab, as at a lever: the player sees the shot go.
+            this._shotFrame = e.side < 0 ? CollapseArt.locoShot.left : CollapseArt.locoShot.right;
+            this._shotUntil = this.time + 0.18;
         } else if (e.type === 'crash') {
             this._crashAt = this.time;
             this._hitFx(e.reason, run);
@@ -1370,9 +1377,25 @@ class CollapseScene {
             const view = this.demonViews.get(d.side);
             if (!view || !view.isEnabled()) continue;
             const p = this.view.projectToScreen(view.position.x, view.position.z, view.position.y + this.demon.px * this.demon.art * view.scaling.y / 2);
-            if (!p.behind) out.push({ x: p.x, y: p.y, kind: 'demon', side: d.side });
+            if (p.behind) continue;
+            const { x, y, z } = view.position, box = this._demonBox(x, y, z, view.scaling.y, d.on ? d.side : 0), was = view.metadata.trail;
+            out.push({ x: p.x, y: p.y, kind: 'demon', side: d.side, box: was ? CollapseScene.boxUnion(box, this._demonBox(was.x, was.y, was.z, was.scale, 0)) : box });
         }
         return out;
+    }
+
+    // A demon's sprite on screen, canvas CSS px. side: on the cab it holds one side of its canvas, the
+    // box is its body there; 0 — the whole canvas, its leap throws the claws wide.
+    _demonBox(x, y, z, scale, side) {
+        const S = CollapseScene, D = this.demon, size = D.px * D.art * scale, [from, to] = side ? D.hangBody : [0, D.px];
+        const a = side > 0 ? from : side < 0 ? D.px - to : 0, w = (to - from) / D.px * size;
+        const left = x - size / 2 + a / D.px * size;
+        const p = this.view.projectToScreen(left, z, y + size), q = this.view.projectToScreen(left + w, z, y);
+        return { l: Math.min(p.x, q.x), r: Math.max(p.x, q.x), t: Math.min(p.y, q.y), b: Math.max(p.y, q.y) };
+    }
+
+    static boxUnion(a, b) {
+        return { l: Math.min(a.l, b.l), r: Math.max(a.r, b.r), t: Math.min(a.t, b.t), b: Math.max(a.b, b.b) };
     }
 }
 
@@ -1421,7 +1444,7 @@ CollapseScene.FLOOR_HOLD = 1;     // segments behind the edge where the floor st
 // The demon's art (art_src/demon_v3/demon_manifest_v3.json): canvas, px; the wall contact on it; ms per
 // frame. World: units per art px, the gap of the contact to the wall, the height of the feet, the height
 // of the sprite's foot at the hit, the share of the half frame a demon stays in, z of the perch, s of the ash, the size of the dark shape under it.
-CollapseScene.DEMON = { px: 160, contact: [103, 134], emergeMs: 120, perchMs: 160, art: 1.2, wallGap: 20, footY: 30, frameShare: 0.55, z: 500, ashSec: 0.47, outline: 1.09, hold: [43, 56], hangShare: 0.85, blowSec: 0.08, raiseSec: 0.2 };   // hold — where hang_* grips the cab, art px; hangShare — its size on the cab against the wall, on screen
+CollapseScene.DEMON = { px: 160, contact: [103, 134], emergeMs: 120, perchMs: 160, art: 1.2, wallGap: 20, footY: 30, frameShare: 0.55, z: 500, ashSec: 0.47, outline: 1.09, hold: [43, 56], hangBody: [40, 117], hangShare: 0.85, blowSec: 0.08, raiseSec: 0.2, trail: 0.4 };   // hold — where hang_* grips the cab, art px; hangBody — its columns there, art px; hangShare — its size on the cab against the wall, on screen; trail — share of the leap behind it a tap still counts
 CollapseScene.CAB_SIDE = [70, 280, 30];   // the point of the cab a demon hangs on, from the sprite's bottom center, its right side
 CollapseScene.DEMON_LAND = { art: 2.2, frameShare: 0.9, z: 620, hangShare: 0.6 };   // the same in the wide frame (?land): the wall is in the frame there
 CollapseScene.FX_ART = 2.1;       // world units per art pixel of the effects (the loco: 290 / 139 px)

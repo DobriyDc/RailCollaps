@@ -62,6 +62,24 @@ test('остряки: прямо, пока стрелка не взведена;
   assert.equal(S.pointsState(into, { at: 5, from: 0, to: 1 }), 'left');
 });
 
+test('нажатие: по демону засчитывается всё тело и след прыжка, демон важнее рычага под пальцем, мимо — мимо', () => {
+  const Game = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/CollapseRules.js', 'js/Game.js'], { UI: {}, Sound3D: {}, TG: {}, Store: undefined }).get('Game');
+  const demon = { x: 290, y: 240, kind: 'demon', side: 1, box: { l: 250, r: 335, t: 160, b: 320 } };
+  const lever = { x: 268, y: 330, kind: 'fork', at: 9, to: 2 };
+  const reach = 62, tap = (x, y, list = [demon, lever]) => Game.tapTarget(list, x, y, reach);
+  assert.equal(tap(290, 240), demon, 'центр');
+  assert.equal(tap(290, 165), demon, 'голова: дальше круга, но на теле');
+  assert.equal(tap(290, 315), demon, 'ноги ближе к рычагу, но это демон');
+  assert.equal(tap(340, 170), demon, 'край пальцем');
+  assert.equal(tap(268, 345), lever, 'ниже тела — рычаг');
+  assert.equal(tap(40, 700), null, 'мимо');
+  assert.equal(tap(280, 290, [lever]), lever, 'рычаг в своём радиусе');
+  const pair = [demon, { ...demon, x: 90, side: -1, box: { l: 50, r: 130, t: 160, b: 320 } }];
+  assert.equal(tap(100, 200, pair).side, -1);
+  const flying = { ...demon, box: page().get('CollapseScene').boxUnion({ l: 200, r: 400, t: 130, b: 330 }, { l: 190, r: 410, t: 300, b: 520 }) };
+  assert.equal(tap(300, 500, [flying]), flying, 'палец опоздал за прыжком');
+});
+
 test('демон запрыгивает, почти не уменьшаясь: на кабине на экране 85 % размера со стены, в горизонтали 60 %', () => {
   const p = page(), S = p.get('CollapseScene');
   const screen = (D, cam, z, scale) => D.art * scale * cam / (cam - z);

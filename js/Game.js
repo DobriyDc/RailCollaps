@@ -297,14 +297,26 @@ class Game {
         if (this.mode !== 'play' || !run || run.state !== 'run') return;
         const r = this.scene.canvas.getBoundingClientRect();
         const px = e.clientX - r.left, py = e.clientY - r.top;
-        let best = null, bestD = Math.max(56, r.width * 0.16);
-        for (const t of this.scene.tapTargets(run)) {
-            const d = Math.hypot(t.x - px, t.y - py);
-            if (d < bestD) { best = t; bestD = d; }
-        }
+        const best = Game.tapTarget(this.scene.tapTargets(run), px, py, Math.max(56, r.width * 0.16));
         if (!best) return;
         const res = best.kind === 'demon' ? run.shootDemon(best.side) : run.shoot(best.at, best.to);
         if (res === 'no-ammo') TG.haptic('deny');
+    }
+
+    // What a tap at px, py means: a demon anywhere on its body, over any lever under the same finger,
+    // else the nearest target within reach. Pure: the probes run it in node.
+    static tapTarget(targets, px, py, reach) {
+        let best = null, bestD = Infinity;
+        const near = t => {
+            const d = Math.hypot(t.x - px, t.y - py);
+            if (d < bestD) { best = t; bestD = d; }
+        };
+        const slop = Game.TAP_SLOP;
+        for (const t of targets) if (t.box && px >= t.box.l - slop && px <= t.box.r + slop && py >= t.box.t - slop && py <= t.box.b + slop) near(t);
+        if (best) return best;
+        bestD = reach;
+        for (const t of targets) near(t);
+        return best;
     }
 
     async continueForAd() {
@@ -679,6 +691,8 @@ class Game {
             : next && !next.armed ? Lang.t('hint') : '');
     }
 }
+
+Game.TAP_SLOP = 14;   // CSS px around a demon's box that still count: a finger is not a pixel
 
 // Incoming symbols use the same raster family as the dashboard.
 Game.ICONS = {
