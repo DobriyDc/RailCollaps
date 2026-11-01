@@ -1,0 +1,85 @@
+{
+  "ordered": {
+    "width": 430,
+    "height": 932
+  },
+  "innerWidth": 430,
+  "innerHeight": 932,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:52487/?qa=lanes&inset=0",
+  "browser": "msedge.exe",
+  "waitMs": 1500,
+  "eval": "docs/qa/evidence/full-run/run-eval.js",
+  "evalResult": {
+    "phase": "lanes",
+    "results": [
+      {
+        "name": "lane-0-1",
+        "ok": true,
+        "target": {
+          "x": 214.99998579927475,
+          "y": 744.7005096582113,
+          "kind": "fork",
+          "at": 5,
+          "to": 1
+        },
+        "ammoBefore": 8,
+        "ammoAfter": 7,
+        "lane": 1,
+        "armed": null
+      },
+      {
+        "name": "lane-1-0",
+        "ok": true,
+        "target": {
+          "x": 61.081120162757394,
+          "y": 744.7005096582113,
+          "kind": "fork",
+          "at": 5,
+          "to": 0
+        },
+        "ammoBefore": 8,
+        "ammoAfter": 7,
+        "lane": 0,
+        "armed": null
+      },
+      {
+        "name": "lane-1-2",
+        "ok": true,
+        "target": {
+          "x": 368.9188725426107,
+          "y": 744.7005096582113,
+          "kind": "fork",
+          "at": 5,
+          "to": 2
+        },
+        "ammoBefore": 8,
+        "ammoAfter": 7,
+        "lane": 2,
+        "armed": null
+      },
+      {
+        "name": "lane-2-1",
+        "ok": true,
+        "target": {
+          "x": 215.00000690609335,
+          "y": 744.7005096582113,
+          "kind": "fork",
+          "at": 5,
+          "to": 1
+        },
+        "ammoBefore": 8,
+        "ammoAfter": 7,
+        "lane": 1,
+        "armed": null
+      }
+    ],
+    "passed": 4,
+    "total": 4,
+    "mode": "play",
+    "targets": []
+  },
+  "errors": [],
+  "ok": true
+}

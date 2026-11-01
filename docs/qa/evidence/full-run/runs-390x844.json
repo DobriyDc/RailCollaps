@@ -1,0 +1,78 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:55572/?qa=runs",
+  "browser": "msedge.exe",
+  "waitMs": 1500,
+  "eval": "docs/qa/evidence/full-run/run-eval.js",
+  "evalResult": {
+    "phase": "runs",
+    "results": [
+      {
+        "name": "run-7",
+        "ok": true,
+        "meters": 610,
+        "reason": "gap",
+        "steps": 1672
+      },
+      {
+        "name": "run-83",
+        "ok": true,
+        "meters": 330,
+        "reason": "gap",
+        "steps": 764
+      },
+      {
+        "name": "run-2026",
+        "ok": true,
+        "meters": 210,
+        "reason": "gap",
+        "steps": 567
+      },
+      {
+        "name": "pause",
+        "ok": true,
+        "pos": 2.2027063463171515,
+        "after": 2.2027063463171515
+      },
+      {
+        "name": "resume",
+        "ok": true,
+        "pos": 4.4109262326889676
+      },
+      {
+        "name": "ad-continue",
+        "ok": true,
+        "stub": true,
+        "mode": "play",
+        "pos": 11.031678993047548,
+        "continued": true
+      },
+      {
+        "name": "ad-once",
+        "ok": true,
+        "canContinue": false
+      }
+    ],
+    "passed": 7,
+    "total": 7,
+    "mode": "over",
+    "targets": [
+      {
+        "x": 194.99941299013113,
+        "y": 714.4692818538958,
+        "kind": "fork",
+        "at": 14,
+        "to": 1
+      }
+    ]
+  },
+  "errors": [],
+  "ok": true
+}

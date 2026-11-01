@@ -1,0 +1,70 @@
+{
+  "ordered": {
+    "width": 390,
+    "height": 844
+  },
+  "innerWidth": 390,
+  "innerHeight": 844,
+  "devicePixelRatio": 1,
+  "title": "Rail Link: Collapse",
+  "url": "http://127.0.0.1:55529/?qa=hazards",
+  "browser": "msedge.exe",
+  "waitMs": 1500,
+  "eval": "docs/qa/evidence/full-run/run-eval.js",
+  "evalResult": {
+    "phase": "hazards",
+    "results": [
+      {
+        "name": "gap",
+        "ok": true,
+        "state": "over",
+        "reason": "gap",
+        "lane": 1,
+        "shield": 0,
+        "rescue": 0
+      },
+      {
+        "name": "lava",
+        "ok": true,
+        "state": "over",
+        "reason": "lava",
+        "lane": 1,
+        "shield": 0,
+        "rescue": 0
+      },
+      {
+        "name": "caught",
+        "ok": true,
+        "state": "over",
+        "reason": "caught",
+        "lane": 1,
+        "shield": 0,
+        "rescue": 0
+      },
+      {
+        "name": "shield",
+        "ok": true,
+        "state": "run",
+        "reason": "",
+        "lane": 1,
+        "shield": 0,
+        "rescue": 0
+      },
+      {
+        "name": "rescue",
+        "ok": true,
+        "state": "run",
+        "reason": "",
+        "lane": 0,
+        "shield": 0,
+        "rescue": 0
+      }
+    ],
+    "passed": 5,
+    "total": 5,
+    "mode": "play",
+    "targets": []
+  },
+  "errors": [],
+  "ok": true
+}
