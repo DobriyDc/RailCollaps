@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "generation_calls": 3,
+  "palette_source": "../../docs/STYLE.md",
+  "new_art_grid": [
+    166,
+    360
+  ],
+  "sampling": "BOX reduction, weak Bayer 4x4, nearest RGB palette, NEAREST enlargement",
+  "preservation": "Original base RGB has priority per coordinator: all off-palette pixels must match base at same coordinate",
+  "compare_order": [
+    "base",
+    "A",
+    "B"
+  ],
+  "passenger_crops": {
+    "A": [
+      [
+        20,
+        330,
+        104,
+        410
+      ],
+      [
+        280,
+        330,
+        365,
+        410
+      ]
+    ],
+    "B": [
+      [
+        13,
+        280,
+        107,
+        387
+      ],
+      [
+        290,
+        280,
+        382,
+        387
+      ]
+    ]
+  },
+  "files": [
+    {
+      "file": "station_A_390x844.png",
+      "width": 390,
+      "height": 844,
+      "frames": 1,
+      "pivot": [
+        0,
+        0
+      ],
+      "purpose": "Owner choice keyframe; not a runtime sprite",
+      "off_palette_colors_inherited": 555,
+      "off_palette_pixels_inherited": 4125,
+      "off_palette_pixels_changed": 0,
+      "protected_pixels_changed": 0,
+      "sha256": "01af9016e14072add74fd07e507b077dc8d842c11f83ecea24ff3009e0956b85"
+    },
+    {
+      "file": "station_B_390x844.png",
+      "width": 390,
+      "height": 844,
+      "frames": 1,
+      "pivot": [
+        0,
+        0
+      ],
+      "purpose": "Owner choice keyframe; not a runtime sprite",
+      "off_palette_colors_inherited": 555,
+      "off_palette_pixels_inherited": 4125,
+      "off_palette_pixels_changed": 0,
+      "protected_pixels_changed": 0,
+      "sha256": "5cb9932f469e6c5c4fcb66ef5d835f871a1284f467f4c3ed6ea299e0d0b51b31"
+    }
+  ]
+}
