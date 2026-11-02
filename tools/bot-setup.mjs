@@ -43,7 +43,7 @@ export async function send(token, calls = CALLS, post = fetch) {
 }
 
 // The console does not echo: a pasted token stays off the screen and out of the shell history.
-function askHidden(question) {
+export function askHidden(question) {
   return new Promise(resolve => {
     const { stdin } = process;
     let value = '';

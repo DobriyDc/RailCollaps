@@ -38,6 +38,17 @@ test('настройка бота: все вызовы по очереди, от
   assert.ok(!logged.some(line => line.includes(TOKEN)));
 });
 
+test('подключение бота: адрес функции, webhook на /bot с секретом и оплатами', async () => {
+  const { isAddress, webhookParams, UPDATES } = await import('../tools/bot-connect.mjs');
+  assert.ok(isAddress('https://collapse-leaderboard.railcollapse.workers.dev'));
+  for (const bad of ['', 'http://a.workers.dev', 'https://evil.example', 'https://a.workers.dev/bot', 'https://a.workers.dev.evil.com']) assert.ok(!isAddress(bad), bad);
+  const p = webhookParams('https://x.workers.dev', 's3');
+  assert.equal(p.url, 'https://x.workers.dev/bot');
+  assert.equal(p.secret_token, 's3');
+  assert.deepEqual(p.allowed_updates, ['message', 'pre_checkout_query']);
+  assert.deepEqual(UPDATES, p.allowed_updates);
+});
+
 test('токен: форма проверяется до отправки', () => {
   assert.ok(isToken(TOKEN));
   for (const bad of ['', '123', 'abc:def', '123456:short', '123 456:FAKE-TOKEN-FOR-TESTS-ONLY']) assert.ok(!isToken(bad), bad);

@@ -249,7 +249,7 @@ const COLLAPSE_LOOK_GAP_RADIUS = 560;   // world units: where a gap's light ends
 // --- LEADERBOARD: the shared table on a Cloudflare Worker (js/Leaderboard.js — the game,
 // server/leaderboard — the function; tools/build-worker.mjs bakes these numbers into it, so a change
 // of a server number needs a new deploy). A season of the table is COLLAPSE_RULES_VERSION. ---
-const LEADERBOARD_URL = '';             // address of the function without a trailing slash; '' — no requests, no table button
+const LEADERBOARD_URL = 'https://collapse-leaderboard.railcollapse.workers.dev';           // address of the function without a trailing slash; '' — no requests, no table button
 const LEADERBOARD_TIMEOUT_MS = 6000;    // ms: the game drops a request after this long
 const LEADERBOARD_PAGE_ROWS = 10;       // rows on one page of the table screen
 const LEADERBOARD_TOP = 100;            // rows the function returns
