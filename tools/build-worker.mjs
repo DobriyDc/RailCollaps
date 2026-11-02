@@ -16,7 +16,7 @@ const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '..'
 const read = rel => fs.readFileSync(path.join(ROOT, rel), 'utf8');
 
 export function workerSource() {
-  const rules = read('js/CollapseRules.js'), handler = read('server/leaderboard/src/index.js');
+  const rules = read('js/CollapseRules.js') + '\n' + read('js/CollapseStationRules.js'), handler = read('server/leaderboard/src/index.js');
   const named = new Set((rules + handler).match(/\b(?:COLLAPSE|LEADERBOARD)_[A-Z0-9_]+\b/g));
   const constants = read('js/Constants.js').split(/\r?\n/).filter(line => {
     const m = /^const ([A-Z0-9_]+) = /.exec(line);

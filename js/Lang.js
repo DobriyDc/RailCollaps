@@ -393,20 +393,36 @@ const Lang = {
         "en": "{value}%"
     },
     "stationNext": {
-        "ru": "До станции {value} м",
-        "en": "Next station in {value} m"
+        "ru": "До станции {value} м\nПассажиров: {riders}",
+        "en": "Next station in {value} m\nPassengers: {riders}"
     },
     "stationTitle": {
-        "ru": "Станция {value}",
-        "en": "Station {value}"
+        "ru": "Станция {value} · жетонов {money}",
+        "en": "Station {value} · {money} tokens"
+    },
+    "stationPaid": {
+        "ru": "Довезли {riders} из {seats}: +{amount}",
+        "en": "Delivered {riders} of {seats}: +{amount}"
+    },
+    "stationTip": {
+        "ru": "Пассажиры платят жетонами на станции.\nКаждый удар высаживает одного.",
+        "en": "Passengers pay tokens at the station.\nEvery hit drops one off."
     },
     "stationGo": {
         "ru": "Дальше · {value}",
         "en": "Go on · {value}"
     },
     "stationsPassed": {
-        "ru": "Станций пройдено: {value}.",
-        "en": "Stations passed: {value}."
+        "ru": "Станций: {value}, пассажиров довезено: {riders}",
+        "en": "Stations: {value}, passengers delivered: {riders}"
+    },
+    "station.repair": {
+        "ru": "Ремонт +{value} — {price}",
+        "en": "Repair +{value} — {price}"
+    },
+    "station.full.repair": {
+        "ru": "Ремонт — поезд цел",
+        "en": "Repair — train is whole"
     },
     "station.ammo": {
         "ru": "Патроны +{value} — {price}",

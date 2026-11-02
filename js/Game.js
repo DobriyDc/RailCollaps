@@ -80,7 +80,7 @@ class Game {
     }
 
     // The tunnel of the link: the same seed gives the same track.
-    startChallenge() { this.start(new CollapseRun(this.challenge.seed), this.challenge.meters); }
+    startChallenge() { this.start(new CollapseStationRun(this.challenge.seed), this.challenge.meters); }
 
     // "Again": a challenge is raced until the player leaves it.
     _again() {
@@ -244,13 +244,12 @@ class Game {
         return (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
     }
 
-    // ?stations in the address: the endless run goes through stations (CollapseStations.js).
-    static stationsOn() { return typeof CollapseStations !== 'undefined' && CollapseStations.on; }
-
-    static newRun() { return Game.stationsOn() ? new CollapseStationRun(Game.newSeed()) : new CollapseRun(Game.newSeed()); }
+    // The endless run goes through stations (CollapseStationRules.js).
+    /** @returns {CollapseRun} */
+    static newRun() { return new CollapseStationRun(Game.newSeed()); }
 
     /** @param {any} run */
-    static stationsLine(run) { return run.stations ? '\n' + Lang.t('stationsPassed', { value: run.stage }) : ''; }
+    static stationsLine(run) { return run.stations ? '\n' + Lang.t('stationsPassed', { value: run.stage, riders: run.delivered }) : ''; }
 
     // A run: a new endless one unless given another (the tutorial, a retry of its step).
     start(run = Game.newRun(), goal = 0) {
@@ -274,7 +273,7 @@ class Game {
         this._show('hpRow', !run.tutorial);
         this._show('runTime', !run.tutorial);
         this._hudBest();
-        if (Game.stationsOn()) CollapseStations.dress(this, run);
+        CollapseStations.dress(this, run);
         TG.runStarted();
     }
 
@@ -376,6 +375,7 @@ class Game {
         const run = this.run;
         this.scene.onEvent(ev, run);
         for (const src of Game.soundsOf(ev)) this._play(src);
+        if (ev.type === 'departed') CollapseStations.onDeparted();
         const reaction = Game.portraitEvent(ev);
         if (reaction && (this.portraitLeft <= 0 || Game.PORTRAIT_PRIORITY.indexOf(reaction) >= Game.PORTRAIT_PRIORITY.indexOf(this.portrait))) {
             this.portrait = reaction;
@@ -395,7 +395,6 @@ class Game {
             this.mode = 'over';
             this.overIn = typeof COLLAPSE_OVER_DELAY_SEC !== 'undefined' ? COLLAPSE_OVER_DELAY_SEC : 0.7;
             if (run.tutorial) return;     // neither the record nor the table: _showOver sends it back to its step
-            if (/** @type {any} */ (run).stations) return;     // a variant to compare: its runs stay out of the record and the table
             if (run.meters > this.best) {
                 this.best = run.meters;
                 this.newRecord = true;
@@ -638,7 +637,7 @@ class Game {
             case 'continued': return [S.continue];
             case 'station': return [S.station];
             case 'departed': return [S.depart];
-            case 'money': return [S.coin];
+            case 'paid': return [S.coin];
             case 'bought': return [S.bought];
             default: return [];
         }
@@ -709,7 +708,7 @@ class Game {
             this._set('tutorialText', (run.failed ? Lang.t('tutorial.retry') + ' ' : '') + Lang.t('tutorial.' + run.step.id));
             return;
         }
-        if (run.stations) { CollapseStations.hud(this, run); return; }
+        if (run.stations) CollapseStations.hud(this, run);
         const next = run.nextFork();
         this._show('hint', true);
         this._set('hint', run.ammo <= 0 ? Lang.t('noAmmo')

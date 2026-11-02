@@ -14,7 +14,7 @@ import { workerSource } from '../tools/build-worker.mjs';
 import { BUILD_EXCLUDE, CODE_FILES, collectRefs } from '../tools/asset-scan.mjs';
 
 const TOKEN = '123456:FAKE-TOKEN-FOR-TESTS', ORIGIN = 'https://dobriydc.github.io';
-const page = () => loadScripts(['js/Constants.js', 'js/CollapseRules.js']);
+const page = () => loadScripts(['js/Constants.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js']);
 const SEEDS = Array.from({ length: 20 }, (_, i) => i + 1);
 
 // The bundle as the deploy builds it.
@@ -56,12 +56,14 @@ const call = (e, method, route, { auth = initData(), body, origin = ORIGIN } = {
 };
 
 // A live run as the game drives it: frames of an uneven length through update(), taps between them,
-// shots at forks and demons, one continue after the first crash.
+// shots at forks and demons, one continue after the first crash; at every stop a cartridge crate when
+// it can be paid, then "go on".
 function live(p, seed) {
-  const CollapseRun = p.get('CollapseRun'), R = p.get('CollapseRules');
+  const CollapseRun = p.get('CollapseStationRun'), R = p.get('CollapseRules');
   const run = new CollapseRun(seed), dice = R.rng(seed ^ 0x51ed);
   for (let f = 0; f < 60 * 900; f++) {
     if (run.state === 'over') { if (!run.continueRun()) break; }
+    if (run.atStation) { run.buy('ammo'); run.leave(); }
     const next = run.time < 120 ? run.nextFork() : null;      // the bot never tires: a run has to end
     if (next && !next.armed && !run.track.laneSafe(run.lane, next.at, R.LOOK)) {
       const to = next.to.find(l => run.forkSafe(next.at, l));
@@ -74,7 +76,7 @@ function live(p, seed) {
 }
 
 test('реплей журнала на 20 зёрнах совпадает с живым забегом до метра, функция записывает те же метры', async () => {
-  const p = page(), CollapseRun = p.get('CollapseRun'), maxSteps = p.get('LEADERBOARD_MAX_STEPS');
+  const p = page(), CollapseRun = p.get('CollapseStationRun'), maxSteps = p.get('LEADERBOARD_MAX_STEPS');
   const e = env();
   let actions = 0, demons = 0, continues = 0;
   for (const seed of SEEDS) {
@@ -96,18 +98,18 @@ test('реплей журнала на 20 зёрнах совпадает с ж�
 });
 
 test('журнал не влияет на правила: забег с выброшенным журналом идёт шаг в шаг', () => {
-  const p = page(), CollapseRun = p.get('CollapseRun');
+  const p = page(), CollapseRun = p.get('CollapseStationRun');
   const state = r => JSON.stringify([r.meters, r.pos, r.front, r.steps, r.lane, r.ammo, r.reason]);
   for (const seed of SEEDS) {
     const plain = live(p, seed);
     const Mute = class extends CollapseRun { constructor(s) { super(s); this.log = { push() {} }; } };
-    const muted = live({ get: name => (name === 'CollapseRun' ? Mute : p.get(name)) }, seed);
+    const muted = live({ get: name => (name === 'CollapseStationRun' ? Mute : p.get(name)) }, seed);
     assert.equal(state(muted), state(plain));
   }
 });
 
 test('журнал не из забега отклоняется реплеем: не по порядку, после конца, отказ правил, забег без конца', () => {
-  const p = page(), CollapseRun = p.get('CollapseRun'), run = live(p, 3), max = p.get('LEADERBOARD_MAX_STEPS');
+  const p = page(), CollapseRun = p.get('CollapseStationRun'), run = live(p, 3), max = p.get('LEADERBOARD_MAX_STEPS');
   const [a, b] = run.log;
   assert.equal(CollapseRun.replay(3, [b, a, ...run.log.slice(2)], max), null, 'не по порядку');
   assert.equal(CollapseRun.replay(3, [...run.log, [run.steps + 500, 'c']], max), null, 'после конца');
@@ -126,7 +128,7 @@ test('функция отказывает подделкам: записи не�
     ['подделанные метры', { body: { ...honest, meters: run.meters + 10 } }, 422, 'meters_mismatch'],
     ['метры меньше настоящих', { body: { ...honest, meters: run.meters - 10 } }, 422, 'meters_mismatch'],
     ['журнал другого зерна', { body: { ...honest, seed: 8 } }, 422, 'bad_replay'],
-    ['сдвинутый журнал', { body: { ...honest, log: run.log.map(([s, ...a]) => [s + 7, ...a]) } }, 422, 'bad_replay'],
+    ['сдвинутый журнал', { body: { ...honest, log: run.log.map(([s, ...a]) => [s + 600, ...a]) } }, 422, 'bad_replay'],
     ['пустой журнал с чужими метрами', { body: { ...honest, log: [] } }, 422, 'meters_mismatch'],
     ['другая версия правил', { body: { ...honest, rules: rules + 1 } }, 409, 'rules_version'],
     ['чужой initData: другой токен', { auth: initData({ token: '999999:ANOTHER-FAKE-TOKEN' }), body: honest }, 401, 'bad_auth'],
@@ -334,11 +336,11 @@ test('таблица: лучший результат игрока за сезо
 // The rules of a version do not change: the fingerprint of the numbers and of what they do. A new
 // fingerprint without a new version would make the function refuse honest runs of older clients.
 test('правила изменились — подними COLLAPSE_RULES_VERSION и добавь отпечаток сюда', () => {
-  const FINGERPRINTS = { 1: '630a834b', 2: 'ba60d729', 3: '0f2242e0', 4: '5a5ecf1d', 5: '227e15a6', 6: '20d9426f' };
-  const p = page(), R = p.get('CollapseRules');
+  const FINGERPRINTS = { 1: '630a834b', 2: 'ba60d729', 3: '0f2242e0', 4: '5a5ecf1d', 5: '227e15a6', 6: '20d9426f', 7: '6590e0d4' };
+  const p = page(), R = p.get('CollapseRules'), stations = p.get('CollapseStationRules').cfg();
   const { iconLead, ...numbers } = R.cfg();
   const walk = SEEDS.slice(0, 5).map(seed => { const r = live(p, seed); return [r.meters, r.steps, r.pos]; });
-  const print = crypto.createHash('sha256').update(JSON.stringify([numbers, walk])).digest('hex').slice(0, 8);
+  const print = crypto.createHash('sha256').update(JSON.stringify(p.get('COLLAPSE_RULES_VERSION') >= 7 ? [numbers, stations, walk] : [numbers, walk])).digest('hex').slice(0, 8);
   assert.equal(print, FINGERPRINTS[p.get('COLLAPSE_RULES_VERSION')]);
 });
 

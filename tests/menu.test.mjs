@@ -54,11 +54,11 @@ test('настройки: громкость обоих каналов пере�
       });
       return elements.get(id);
     }};
-    const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/Game.js'], {
+    const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/Game.js'], {
       localStorage, UI, Image: class {}, CollapseScene: { LANE_W: 180 },
       TG: { inside: false, loadBest() {}, runEnded() {}, runStarted() {} },
       Leaderboard: { close() {}, refreshLanguage() {} },
-      Shop: { init() {}, open() {}, render() {} }, Challenge: { parse: () => null },
+      Shop: { init() {}, open() {}, render() {} }, Challenge: { parse: () => null }, CollapseStations: { dress() {}, hud() {}, onDeparted() {} },
     });
     const Game = ctx.get('Game'), audio = ctx.get('Sound3D');
     const game = new Game({ scene: { canvas: { addEventListener() {} }, sync() {}, reset() {} } });
@@ -96,11 +96,11 @@ test('ориентация: выбор в настройках хранится,
       });
       return elements.get(id);
     }};
-    const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/Game.js'], {
+    const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/Game.js'], {
       localStorage, UI, Image: class {}, CollapseScene: { LANE_W: 180 }, URL, URLSearchParams,
       TG: { inside: false, loadBest() {}, runEnded() {}, runStarted() {}, holdOrientation: v => holds.push(v) },
       Leaderboard: { close() {}, refreshLanguage() {} },
-      Shop: { init() {}, open() {}, render() {} }, Challenge: { parse: () => null },
+      Shop: { init() {}, open() {}, render() {} }, Challenge: { parse: () => null }, CollapseStations: { dress() {}, hud() {}, onDeparted() {} },
       location: { search, href: 'https://game.test/' + search + '#tgWebAppData=1', reload: () => reloads.push(1) },
       history: { replaceState: (a, b, url) => urls.push(url) },
     });

@@ -1,6 +1,8 @@
 зона: logic + ui (`js/CollapseStationRules.js`, `js/CollapseStations.js`, `js/Game.js`, `js/Constants.js`, `js/Lang.js`, `js/UILayout.js`, `js/UILand.js`, `tools/build-worker.mjs`, `server/leaderboard/src/index.js`, `tests/`)
 майка: L
 
+Сделано 2026-11-02: станции подключены, рейс всегда со станциями, правила v7, цены подобраны ботом. Отчёт: `docs/qa/stations/REPORT.md`. Не достигнуто: +30 % рейса с лавкой только у сильного игрока. Осталось: деплой функции v7, рисунки (карточка 49), проверка на телефоне.
+
 # Станции как основной режим: пассажиры, жетоны, ремонт (владелец, 2026-11-01)
 
 Полный план и замеры: `docs/release-plan.md`, этапы 1 и 2. Решения владельца там же, заново не обсуждать.

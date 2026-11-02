@@ -15,11 +15,11 @@ function boot({ startParam = '', inside = true } = {}) {
     });
     return elements.get(id);
   } };
-  const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/Challenge.js', 'js/Game.js'], {
+  const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/Challenge.js', 'js/Game.js'], {
     localStorage: { getItem: () => null, setItem() {} }, UI, Image: class {}, CollapseScene: { LANE_W: 180 },
     TG: { inside, startParam, loadBest() {}, saveBest() {}, runEnded() {}, runStarted() {}, haptic() {}, share: (url, text) => shared.push({ url, text }) },
     Leaderboard: { enabled: false, close() {}, refreshLanguage() {}, submit() {} },
-    Shop: { init() {}, open() {}, render() {} },
+    Shop: { init() {}, open() {}, render() {} }, CollapseStations: { dress() {}, hud() {}, onDeparted() {} },
   });
   const Game = ctx.get('Game');
   const game = new Game({ scene: { canvas: { addEventListener() {} }, sync() {}, reset() {} } });

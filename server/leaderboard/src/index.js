@@ -77,7 +77,7 @@ async function postScore(request, env, me) {
     if (!isScore(body)) return refuse(400, 'bad_request');
     const season = COLLAPSE_RULES_VERSION;
     if (body.rules !== season) return refuse(409, 'rules_version');
-    const run = CollapseRun.replay(body.seed, body.log, LEADERBOARD_MAX_STEPS);
+    const run = CollapseStationRun.replay(body.seed, body.log, LEADERBOARD_MAX_STEPS);
     if (!run) return refuse(422, 'bad_replay');
     if (run.meters !== body.meters) return refuse(422, 'meters_mismatch');
     await env.DB.prepare(

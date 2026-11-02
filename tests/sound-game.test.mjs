@@ -28,7 +28,7 @@ function fakeAudio() {
 function page() {
   const listeners = [], document = { hidden: false, handler: null, documentElement: {}, addEventListener(type, fn) { this.handler = fn; } };
   const audio = fakeAudio(), fetched = [];
-  const p = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/Game.js'], {
+  const p = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/Game.js'], {
     document, AudioContext: audio.AudioContext,
     addEventListener(type, fn) { listeners.push(fn); }, removeEventListener(type, fn) { listeners.splice(listeners.indexOf(fn), 1); },
     fetch(src) { fetched.push(src); return Promise.resolve({ ok: true, arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)) }); },
@@ -36,7 +36,7 @@ function page() {
     UI: { get: () => null, def: () => null }, Image: class {}, CollapseScene: { LANE_W: 180 },
     TG: { inside: false, loadBest() {}, saveBest() {}, runEnded() {}, runStarted() {}, haptic() {} },
     Leaderboard: { close() {}, refreshLanguage() {}, submit() {} },
-    Shop: { init() {}, open() {}, render() {} }, Challenge: { parse: () => null },
+    Shop: { init() {}, open() {}, render() {} }, Challenge: { parse: () => null }, CollapseStations: { dress() {}, hud() {}, onDeparted() {} },
   });
   p.ctx.window.addEventListener = p.ctx.addEventListener;
   const Game = p.get('Game');
@@ -50,7 +50,7 @@ const settle = () => new Promise(r => setTimeout(r, 0));
 
 test('каждое событие забега даёт свой звук: типы берутся из кода правил и станций, файл на диске', () => {
   const Game = page().Game;
-  const src = ['js/CollapseRules.js', 'js/CollapseStations.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n');
+  const src = ['js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/CollapseStations.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n');
   const types = [...new Set([...src.matchAll(/events\.push\(\{ type: '([^']+)'/g)].map(m => m[1]))];
   assert.ok(types.length >= 14, `событий ${types.length}`);
   const made = MADE;
