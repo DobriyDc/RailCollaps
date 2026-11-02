@@ -1485,8 +1485,8 @@ CollapseScene.FLOOR_HOLD = 1;     // segments behind the edge where the floor st
 // The demon's art (art_src/demon_v3/demon_manifest_v3.json): canvas, px; the wall contact on it; ms per
 // frame. World: units per art px, the gap of the contact to the wall, the height of the feet, the height
 // of the sprite's foot at the hit, the share of the half frame a demon stays in, z of the perch, s of the ash, the size of the dark shape under it.
-CollapseScene.DEMON = { px: 160, contact: [103, 134], emergeMs: 120, perchMs: 160, art: 1.2, wallGap: 20, footY: 30, frameShare: 0.55, z: 460, ashSec: 0.47, outline: 1.09, hold: [43, 56], hangBody: [40, 117], hangShare: 0.85, blowSec: 0.08, raiseSec: 0.2, trail: 0.4 };   // hold — where hang_* grips the cab, art px; hangBody — its columns there, art px; hangShare — its size on the cab against the wall, on screen; trail — share of the leap behind it a tap still counts
-CollapseScene.CAB_SIDE = [70, 280, 30];   // the point of the cab a demon hangs on, from the sprite's bottom center, its right side
+CollapseScene.DEMON = { px: 160, contact: [103, 134], emergeMs: 120, perchMs: 160, art: 1.2, wallGap: 20, footY: 30, frameShare: 0.55, z: 460, ashSec: 0.47, outline: 1.05, hold: [43, 56], hangBody: [35, 152], hangShare: 0.85, blowSec: 0.08, raiseSec: 0.2, trail: 0.4 };   // hold — where hang_* grips the cab, art px; hangBody — its columns there, art px; hangShare — its size on the cab against the wall, on screen; trail — share of the leap behind it a tap still counts
+CollapseScene.CAB_SIDE = [70, 320, 30];   // the point of the cab a demon hangs on, from the sprite's bottom center, its right side: the roof's corner, so its feet stand on the cab above the lamps
 CollapseScene.DEMON_LAND = { art: 2.2, frameShare: 0.9, z: 620, hangShare: 0.6 };   // the same in the wide frame (?land): the wall is in the frame there
 CollapseScene.FX_ART = 2.1;       // world units per art pixel of the effects (the loco: 290 / 139 px)
 // Effect art (art_src/fx_v1/fx_manifest_v1.json): frame size, px; pivot from the top left, 0..1;
@@ -1518,6 +1518,7 @@ CollapseScene.FLAT = [
     [/px\/ui\/sign_/, 0x2f9a44],
     [/px\/switch/, 0x6c7880],
     [/px\/pickups/, 0xfcc048],
+    [/sprites\/station\/platform/, 0x47303a],
 ];
 CollapseScene.SW_PX = 640;        // turnout texture height, px (art_src/switches_v1/switches_manifest_v1.json)
 CollapseScene.SW_ROWS = [96, 544]; // texture rows where the S curve ends and starts (travel: bottom to top)

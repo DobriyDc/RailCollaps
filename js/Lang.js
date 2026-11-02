@@ -409,40 +409,40 @@ const Lang = {
         "en": "Passengers pay tokens at the station.\nEvery hit drops one off."
     },
     "stationGo": {
-        "ru": "Дальше · {value}",
-        "en": "Go on · {value}"
+        "ru": "Дальше (через {value} с)",
+        "en": "Go on (in {value} s)"
     },
     "stationsPassed": {
         "ru": "Станций: {value}, пассажиров довезено: {riders}",
         "en": "Stations: {value}, passengers delivered: {riders}"
     },
     "station.repair": {
-        "ru": "Ремонт +{value} — {price}",
-        "en": "Repair +{value} — {price}"
+        "ru": "Ремонт +{value} · {price}",
+        "en": "Repair +{value} · {price}"
     },
     "station.full.repair": {
-        "ru": "Ремонт — поезд цел",
-        "en": "Repair — train is whole"
+        "ru": "Поезд цел",
+        "en": "Train whole"
     },
     "station.ammo": {
-        "ru": "Патроны +{value} — {price}",
-        "en": "Ammo +{value} — {price}"
+        "ru": "Патроны +{value} · {price}",
+        "en": "Ammo +{value} · {price}"
     },
     "station.shield": {
-        "ru": "Щит — {price}",
-        "en": "Shield — {price}"
+        "ru": "Щит · {price}",
+        "en": "Shield · {price}"
     },
     "station.rescue": {
-        "ru": "Спасение — {price}",
-        "en": "Rescue — {price}"
+        "ru": "Спасение · {price}",
+        "en": "Rescue · {price}"
     },
     "station.full.shield": {
-        "ru": "Щит — полон",
-        "en": "Shield — full"
+        "ru": "Щит полон",
+        "en": "Shield full"
     },
     "station.full.rescue": {
-        "ru": "Спасение — полно",
-        "en": "Rescue — full"
+        "ru": "Спасение: полно",
+        "en": "Rescue full"
     }
 },
     bindings: {
