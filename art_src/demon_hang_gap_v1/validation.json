@@ -1,0 +1,127 @@
+[
+  {
+    "file": "hang_00.png",
+    "size": [
+      160,
+      160
+    ],
+    "old_bbox": [
+      40,
+      21,
+      106,
+      145
+    ],
+    "bbox": [
+      35,
+      21,
+      152,
+      145
+    ],
+    "visible_width": 117,
+    "visible_height": 124,
+    "alpha": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "hang_01.png",
+    "size": [
+      160,
+      160
+    ],
+    "old_bbox": [
+      40,
+      20,
+      106,
+      144
+    ],
+    "bbox": [
+      35,
+      21,
+      152,
+      145
+    ],
+    "visible_width": 117,
+    "visible_height": 124,
+    "alpha": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "hang_02.png",
+    "size": [
+      160,
+      160
+    ],
+    "old_bbox": [
+      40,
+      20,
+      117,
+      145
+    ],
+    "bbox": [
+      35,
+      20,
+      156,
+      145
+    ],
+    "visible_width": 121,
+    "visible_height": 125,
+    "alpha": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "hang_03.png",
+    "size": [
+      160,
+      160
+    ],
+    "old_bbox": [
+      40,
+      22,
+      111,
+      145
+    ],
+    "bbox": [
+      35,
+      20,
+      138,
+      145
+    ],
+    "visible_width": 103,
+    "visible_height": 125,
+    "alpha": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "icon_gap.png",
+    "size": [
+      24,
+      24
+    ],
+    "old_bbox": [
+      0,
+      5,
+      24,
+      22
+    ],
+    "bbox": [
+      1,
+      1,
+      23,
+      23
+    ],
+    "visible_width": 22,
+    "visible_height": 22,
+    "alpha": [
+      0,
+      255
+    ]
+  }
+]
