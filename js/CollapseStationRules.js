@@ -14,7 +14,7 @@ const CollapseStationRules = {
     cfg() {
         const U = 'undefined';
         return {
-            first: typeof COLLAPSE_STATION_FIRST !== U ? COLLAPSE_STATION_FIRST : 200,
+            first: typeof COLLAPSE_STATION_FIRST !== U ? COLLAPSE_STATION_FIRST : 130,
             stretch: typeof COLLAPSE_STATION_STRETCH !== U ? COLLAPSE_STATION_STRETCH : 100,
             approach: typeof COLLAPSE_STATION_APPROACH !== U ? COLLAPSE_STATION_APPROACH : 12,
             after: typeof COLLAPSE_STATION_AFTER !== U ? COLLAPSE_STATION_AFTER : 4,
