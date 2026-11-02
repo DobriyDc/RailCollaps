@@ -29,9 +29,9 @@
 Аркада про паровоз в рушащемся тоннеле. Рейс на минуту, рекорд в метрах.
 ```
 
-**Menu Button:** текст `Играть`, адрес `https://dobriydc.github.io/RailCollaps/`.
+**Privacy Policy:** `https://dobriydc.github.io/RailCollaps/privacy.html`. Перед включением рекламы и покупок страницу надо обновить.
 
-Английские варианты для перевода описания:
+В BotFather хранятся тексты для всех языков по умолчанию, там стоит английский вариант:
 
 ```text
 The tunnel is falling behind you. Ahead lie lava, gaps and demons. Shoot the levers, switch tracks and outrun the collapse as far as you can.
@@ -43,6 +43,12 @@ The engine is under steam. Press the button below.
 
 ```text
 An arcade about a steam engine in a falling tunnel. A one-minute trip, a record in meters.
+```
+
+Русскую карточку, имя и кнопку меню `Играть` ставит одна команда. Она спросит токен, не покажет его и нигде не сохранит:
+
+```bash
+node tools/bot-setup.mjs
 ```
 
 ## Шаг 2. Ответ на `/start`
