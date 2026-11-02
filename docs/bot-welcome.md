@@ -45,11 +45,13 @@ The engine is under steam. Press the button below.
 An arcade about a steam engine in a falling tunnel. A one-minute trip, a record in meters.
 ```
 
-Русскую карточку, имя и кнопку меню `Играть` ставит одна команда. Она спросит токен, не покажет его и нигде не сохранит:
+Русскую карточку, имя и кнопку меню ставит одна команда. Она спросит токен, не покажет его и нигде не сохранит:
 
 ```bash
-node tools/bot-setup.mjs
+node D:/Railgramm/collapse/tools/bot-setup.mjs
 ```
+
+У кнопки меню нет языковых версий: текст один на всех. Поэтому команда ставит значок `▶`. После деплоя функция сама подписывает кнопку при запуске бота: `▶ Играть` на русском Telegram и `▶ Play` на остальных.
 
 ## Шаг 2. Ответ на `/start`
 

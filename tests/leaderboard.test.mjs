@@ -187,7 +187,12 @@ test('CORS: только https://dobriydc.github.io, предзапрос раз
   assert.equal(res.headers.get('Access-Control-Allow-Origin'), ORIGIN);
 });
 
-test('бот: /start в личке получает приветствие на языке игрока, остальное без ответа', async () => {
+test('бот: /start в личке получает приветствие на языке игрока, остальное без ответа', async t => {
+  const buttons = [];
+  const net = t.mock.method(globalThis, 'fetch', async (address, init) => {
+    buttons.push({ address, ...JSON.parse(init.body) });
+    return new Response('{"ok":true}');
+  });
   const e = { ...env(), BOT_WEBHOOK_SECRET: 'webhook-secret' };
   const update = (message, secret = 'webhook-secret', method = 'POST') => worker.fetch(new Request('https://collapse.test/bot', {
     method, headers: secret ? { 'X-Telegram-Bot-Api-Secret-Token': secret } : {}, body: method === 'POST' ? JSON.stringify({ message }) : undefined,
@@ -205,14 +210,20 @@ test('бот: /start в личке получает приветствие на 
   const button = ru.reply_markup.inline_keyboard[0][0];
   assert.equal(button.text, '▶ Играть');
   assert.equal(button.web_app.url, 'https://dobriydc.github.io/RailCollaps/');
+  assert.equal(buttons.length, 1);
+  assert.equal(buttons[0].address, 'https://api.telegram.org/bot' + TOKEN + '/setChatMenuButton');
+  assert.equal(buttons[0].chat_id, 7);
+  assert.equal(buttons[0].menu_button.text, '▶ Играть');
 
   for (const language of ['en', 'uk', undefined]) {
     const other = await (await update(start(language))).json();
     assert.match(other.caption, /^<b>Engineer/, String(language));
     assert.equal(other.reply_markup.inline_keyboard[0][0].text, '▶ Play');
+    assert.equal(buttons.at(-1).menu_button.text, '▶ Play');
   }
   assert.equal((await (await update(start('ru', '/start ref_1'))).json()).method, 'sendPhoto');
 
+  buttons.length = 0;
   for (const quiet of [start('ru', 'привет'), start('ru', '/started'), start('ru', '/start', 'group'), undefined]) {
     const res = await update(quiet);
     assert.equal(res.status, 200);
@@ -222,6 +233,10 @@ test('бот: /start в личке получает приветствие на 
   assert.equal((await update(start('ru'), null)).status, 403);
   assert.equal((await update(null, 'webhook-secret', 'GET')).status, 404);
   assert.equal((await worker.fetch(new Request('https://collapse.test/bot', { method: 'POST', body: '{' }), env())).status, 404);
+  assert.equal(buttons.length, 0);
+
+  net.mock.mockImplementation(async () => { throw new Error('net down'); });
+  assert.equal((await (await update(start('ru'))).json()).method, 'sendPhoto');
 });
 
 test('таблица: лучший результат игрока за сезон, топ и место, старый сезон цел', async () => {

@@ -21,7 +21,8 @@ export const CALLS = [
   ['setMyName', { name: NAME }],
   ['setMyDescription', { description: DESCRIPTION_RU, language_code: 'ru' }],
   ['setMyShortDescription', { short_description: ABOUT_RU, language_code: 'ru' }],
-  ['setChatMenuButton', { menu_button: { type: 'web_app', text: 'Играть', web_app: { url: GAME_URL } } }],
+  // The menu button has no language_code: one text for everyone, the function words it chat by chat on /start.
+  ['setChatMenuButton', { menu_button: { type: 'web_app', text: '▶', web_app: { url: GAME_URL } } }],
 ];
 
 export const isToken = token => /^\d+:[\w-]{20,}$/.test(token);

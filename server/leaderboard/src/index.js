@@ -101,7 +101,7 @@ async function getTop(env, me) {
 }
 
 // The bot's welcome. Telegram posts updates to /bot with the secret of setWebhook in a header. The answer
-// to an update is the message itself, so this path needs no token and no call to the Bot API.
+// to an update is the message itself: the token is needed only for the words of the menu button.
 const GAME_URL = 'https://dobriydc.github.io/RailCollaps/';
 const WELCOME_PHOTO = GAME_URL + 'server/leaderboard/welcome.png';
 const WELCOME = {
@@ -125,6 +125,17 @@ async function sameSecret(secret, sent) {
     return crypto.subtle.verify('HMAC', key, await crypto.subtle.sign('HMAC', key, bytes(sent)), bytes(secret));
 }
 
+// The menu button has no language_code, so its words are set chat by chat. A failure costs only the words:
+// the button stays as it was and the welcome still goes out.
+async function wordMenuButton(token, chatId, text) {
+    try {
+        await fetch('https://api.telegram.org/bot' + token + '/setChatMenuButton', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, menu_button: { type: 'web_app', text, web_app: { url: GAME_URL } } }),
+        });
+    } catch (e) { /* see above */ }
+}
+
 async function botUpdate(request, env) {
     if (request.method !== 'POST' || !env.BOT_WEBHOOK_SECRET) return new Response(null, { status: 404 });
     const sent = request.headers.get('X-Telegram-Bot-Api-Secret-Token') || '';
@@ -134,6 +145,7 @@ async function botUpdate(request, env) {
     const message = update?.message;
     if (message?.chat?.type !== 'private' || !/^\/start(\s|$)/.test(message.text || '')) return new Response(null, { status: 200 });
     const words = message.from?.language_code === 'ru' ? WELCOME.ru : WELCOME.en;
+    if (env.BOT_TOKEN) await wordMenuButton(env.BOT_TOKEN, message.chat.id, words.play);
     return new Response(JSON.stringify({
         method: 'sendPhoto', chat_id: message.chat.id, photo: WELCOME_PHOTO, caption: words.text, parse_mode: 'HTML',
         reply_markup: { inline_keyboard: [[{ text: words.play, web_app: { url: GAME_URL } }]] },
