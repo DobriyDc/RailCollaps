@@ -125,31 +125,114 @@ async function sameSecret(secret, sent) {
     return crypto.subtle.verify('HMAC', key, await crypto.subtle.sign('HMAC', key, bytes(sent)), bytes(secret));
 }
 
+const botCall = (token, method, params) => fetch('https://api.telegram.org/bot' + token + '/' + method, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params),
+});
+
 // The menu button has no language_code, so its words are set chat by chat. A failure costs only the words:
 // the button stays as it was and the welcome still goes out.
 async function wordMenuButton(token, chatId, text) {
     try {
-        await fetch('https://api.telegram.org/bot' + token + '/setChatMenuButton', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: chatId, menu_button: { type: 'web_app', text, web_app: { url: GAME_URL } } }),
-        });
+        await botCall(token, 'setChatMenuButton', { chat_id: chatId, menu_button: { type: 'web_app', text, web_app: { url: GAME_URL } } });
     } catch (e) { /* see above */ }
 }
 
+// The shop. /invoice asks Telegram for a link and the game opens it. Telegram then asks /bot whether the
+// order stands, within ten seconds, and reports the payment there. Only that report gives the train; a
+// refund takes it back by its charge id. A train changes only the look of a run, so the table ignores it.
+const TRAINS = ['soviet', 'american', 'brazil'];
+const STARS = 'XTR';
+const TERMS_URL = GAME_URL + 'terms.html';
+const SUPPORT_URL = 'https://t.me/PatrKir306';
+const SHOP = {
+    ru: {
+        trains: { soviet: 'Советский поезд', american: 'Американский поезд', brazil: 'Бразильский поезд' },
+        about: 'Новый вид поезда в Rail Link: Collapse. Меняет только внешний вид. Спасибо за поддержку!',
+        refused: 'Этот заказ уже не действует. Открой магазин заново.',
+        thanks: 'Спасибо за поддержку! Поезд уже в депо.',
+        terms: 'Условия покупки: ' + TERMS_URL,
+        support: 'Вопрос по покупке? Напиши сюда: ' + SUPPORT_URL + '\n\nПоддержка Telegram не помогает с покупками в этом боте.',
+    },
+    en: {
+        trains: { soviet: 'Soviet train', american: 'American train', brazil: 'Brazilian train' },
+        about: 'A new look for your train in Rail Link: Collapse. It changes only the appearance. Thank you for your support!',
+        refused: 'This order is no longer valid. Open the shop again.',
+        thanks: 'Thank you for your support! The train is in the depot.',
+        terms: 'Terms of purchase: ' + TERMS_URL,
+        support: 'A question about a purchase? Write here: ' + SUPPORT_URL + '\n\nTelegram support cannot help with purchases in this bot.',
+    },
+};
+
+const ownsTrain = (db, id, item) => db.prepare('SELECT 1 AS yes FROM purchases WHERE user_id = ?1 AND item = ?2').bind(id, item).first();
+
+async function postInvoice(request, env, me) {
+    let body = null;
+    try { body = JSON.parse(await request.text()); } catch (e) { /* refused below */ }
+    if (!body || !TRAINS.includes(body.item)) return refuse(400, 'bad_item');
+    if (await ownsTrain(env.DB, me.id, body.item)) return refuse(409, 'owned');
+    const words = body.lang === 'ru' ? SHOP.ru : SHOP.en, title = words.trains[body.item];
+    const answer = await (await botCall(env.BOT_TOKEN, 'createInvoiceLink', {
+        title, description: words.about, payload: body.item, provider_token: '', currency: STARS,
+        prices: [{ label: title, amount: COLLAPSE_TRAIN_STARS }],
+    })).json();
+    if (!answer.ok) return refuse(502, 'no_invoice');
+    return reply(200, { link: answer.result });
+}
+
+async function getInventory(env, me) {
+    const { results } = await env.DB.prepare('SELECT item FROM purchases WHERE user_id = ?1').bind(me.id).all();
+    return reply(200, { items: results.map(r => r.item) });
+}
+
+const asked = message => (/^\/(start|terms|paysupport)(\s|$)/.exec(message.text || '') || [])[1];
+
+// The answer to an update is one Bot API call: Telegram makes it for us.
+const botAnswer = call => new Response(JSON.stringify(call), { headers: { 'Content-Type': 'application/json' } });
+const botQuiet = () => new Response(null, { status: 200 });
+
+async function checkoutAnswer(env, query) {
+    const stands = TRAINS.includes(query.invoice_payload) && query.currency === STARS && query.total_amount === COLLAPSE_TRAIN_STARS &&
+        !await ownsTrain(env.DB, query.from.id, query.invoice_payload);
+    const call = { method: 'answerPreCheckoutQuery', pre_checkout_query_id: query.id, ok: stands };
+    if (!stands) call.error_message = (query.from.language_code === 'ru' ? SHOP.ru : SHOP.en).refused;
+    return botAnswer(call);
+}
+
+// A retried report of one payment changes nothing: the row is already there.
+async function paymentAnswer(env, message, shop) {
+    const paid = message.successful_payment;
+    if (!TRAINS.includes(paid.invoice_payload) || paid.currency !== STARS) return botQuiet();
+    await env.DB.prepare(
+        'INSERT INTO purchases (user_id, item, charge_id, stars, at) VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT (user_id, item) DO NOTHING',
+    ).bind(message.from.id, paid.invoice_payload, paid.telegram_payment_charge_id, paid.total_amount, Math.floor(Date.now() / 1000)).run();
+    return botAnswer({ method: 'sendMessage', chat_id: message.chat.id, text: shop.thanks });
+}
+
 async function botUpdate(request, env) {
-    if (request.method !== 'POST' || !env.BOT_WEBHOOK_SECRET) return new Response(null, { status: 404 });
+    if (request.method !== 'POST' || !env.BOT_WEBHOOK_SECRET || !env.DB) return new Response(null, { status: 404 });
     const sent = request.headers.get('X-Telegram-Bot-Api-Secret-Token') || '';
     if (!await sameSecret(env.BOT_WEBHOOK_SECRET, sent)) return new Response(null, { status: 403 });
     let update = null;
-    try { update = JSON.parse(await request.text()); } catch (e) { /* no message: answered below */ }
+    try { update = JSON.parse(await request.text()); } catch (e) { /* nothing to answer: below */ }
+    if (update?.pre_checkout_query) return checkoutAnswer(env, update.pre_checkout_query);
     const message = update?.message;
-    if (message?.chat?.type !== 'private' || !/^\/start(\s|$)/.test(message.text || '')) return new Response(null, { status: 200 });
-    const words = message.from?.language_code === 'ru' ? WELCOME.ru : WELCOME.en;
-    if (env.BOT_TOKEN) await wordMenuButton(env.BOT_TOKEN, message.chat.id, words.play);
-    return new Response(JSON.stringify({
-        method: 'sendPhoto', chat_id: message.chat.id, photo: WELCOME_PHOTO, caption: words.text, parse_mode: 'HTML',
+    if (message?.chat?.type !== 'private') return botQuiet();
+    const russian = message.from?.language_code === 'ru', shop = russian ? SHOP.ru : SHOP.en, chat_id = message.chat.id;
+    if (message.successful_payment) return paymentAnswer(env, message, shop);
+    if (message.refunded_payment) {
+        await env.DB.prepare('DELETE FROM purchases WHERE charge_id = ?1').bind(message.refunded_payment.telegram_payment_charge_id).run();
+        return botQuiet();
+    }
+    const command = asked(message);
+    if (command === 'terms') return botAnswer({ method: 'sendMessage', chat_id, text: shop.terms });
+    if (command === 'paysupport') return botAnswer({ method: 'sendMessage', chat_id, text: shop.support });
+    if (command !== 'start') return botQuiet();
+    const words = russian ? WELCOME.ru : WELCOME.en;
+    if (env.BOT_TOKEN) await wordMenuButton(env.BOT_TOKEN, chat_id, words.play);
+    return botAnswer({
+        method: 'sendPhoto', chat_id, photo: WELCOME_PHOTO, caption: words.text, parse_mode: 'HTML',
         reply_markup: { inline_keyboard: [[{ text: words.play, web_app: { url: GAME_URL } }]] },
-    }), { headers: { 'Content-Type': 'application/json' } });
+    });
 }
 
 export default {
@@ -163,12 +246,14 @@ export default {
                 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Max-Age': '86400' } });
         }
         const route = request.method + ' ' + new URL(request.url).pathname;
-        if (route !== 'POST /score' && route !== 'GET /top') return refuse(404, 'not_found');
+        if (!['POST /score', 'GET /top', 'POST /invoice', 'GET /inventory'].includes(route)) return refuse(404, 'not_found');
         if (!env.BOT_TOKEN || !env.DB) return refuse(500, 'not_configured');
 
         const me = await player(request, env);
         if (me.error) return refuse(401, me.error);
         if (!await underLimit(env.DB, me.id)) return refuse(429, 'rate_limited', { 'Retry-After': String(LEADERBOARD_RATE_WINDOW_SEC) });
+        if (route === 'GET /inventory') return getInventory(env, me);
+        if (route === 'POST /invoice') return postInvoice(request, env, me);
         return route === 'GET /top' ? getTop(env, me) : postScore(request, env, me);
     },
 };

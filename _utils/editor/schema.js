@@ -799,6 +799,8 @@ const KIT_SCHEMA = [
             { name: 'LEADERBOARD_NAME_MAX', min: 8, max: 64, step: 1,
               label: { en: 'Shown name (characters)', ru: 'Имя в таблице (символов)' },
               hint: { en: 'Applies after a new deploy of the function', ru: 'Работает после нового деплоя функции' } },
+            { name: 'COLLAPSE_TRAIN_STARS', min: 1, max: 10000, step: 1,
+              label: { en: 'Price of a train, Telegram Stars', ru: 'Цена поезда, звёзды Telegram' } },
         ],
     },
     {

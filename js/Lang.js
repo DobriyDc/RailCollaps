@@ -144,9 +144,53 @@ const Lang = {
         "ru": "Скоро",
         "en": "Coming soon"
     },
-    "shopText": {
-        "ru": "Магазин ещё строится.\nЗагляни позже.",
-        "en": "The shop is under construction.\nCome back later."
+    "shopSupport": {
+        "ru": "Поддержи разработчика!",
+        "en": "Support the developer!"
+    },
+    "shopChoose": {
+        "ru": "Выбрать",
+        "en": "Choose"
+    },
+    "shopChosen": {
+        "ru": "Выбран",
+        "en": "Chosen"
+    },
+    "shopPrice": {
+        "ru": "{value} ⭐",
+        "en": "{value} ⭐"
+    },
+    "shopWait": {
+        "ru": "Минуту…",
+        "en": "One moment…"
+    },
+    "shopTerms": {
+        "ru": "Покупая поезд, ты принимаешь условия:\nкоманда /terms в боте",
+        "en": "By buying a train you accept the terms:\nthe /terms command in the bot"
+    },
+    "shopError": {
+        "ru": "Не вышло. Попробуй ещё раз позже.",
+        "en": "That did not work. Try again later."
+    },
+    "shopThanks": {
+        "ru": "Спасибо! Поезд уже в депо.",
+        "en": "Thank you! The train is in the depot."
+    },
+    "train.base": {
+        "ru": "Начальный",
+        "en": "Starter"
+    },
+    "train.soviet": {
+        "ru": "Советский",
+        "en": "Soviet"
+    },
+    "train.american": {
+        "ru": "Американский",
+        "en": "American"
+    },
+    "train.brazil": {
+        "ru": "Бразильский",
+        "en": "Brazilian"
     },
     "menu": {
         "ru": "Главное меню",
@@ -366,9 +410,7 @@ const Lang = {
     "languageRU": "ru",
     "languageEN": "en",
     "settingsBack": "back",
-    "shopTitle": "shop",
-    "shopSoon": "soon",
-    "shopText": "shopText",
+    "shopTitle": "shopSupport",
     "shopBack": "back",
     "overMenu": "menu",
     "boardBtn": "board",

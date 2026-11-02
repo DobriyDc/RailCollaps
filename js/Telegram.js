@@ -67,6 +67,12 @@ const TG = {
         });
     },
 
+    // A Stars invoice over the game; onDone gets 'paid', 'cancelled', 'failed' or 'pending'.
+    openInvoice(link, onDone) {
+        if (!this.at('6.1')) { onDone('failed'); return; }
+        this._call(() => this.app.openInvoice(link, onDone));
+    },
+
     // Best distance mirrored to CloudStorage; Store stays the source of truth (invariant 7).
     loadBest(cb) {
         if (!this.at('6.9')) return;

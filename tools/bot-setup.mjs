@@ -23,6 +23,8 @@ export const CALLS = [
   ['setMyShortDescription', { short_description: ABOUT_RU, language_code: 'ru' }],
   // The menu button has no language_code: one text for everyone, the function words it chat by chat on /start.
   ['setChatMenuButton', { menu_button: { type: 'web_app', text: '▶', web_app: { url: GAME_URL } } }],
+  ['setMyCommands', { commands: [{ command: 'terms', description: 'Terms of purchase' }, { command: 'paysupport', description: 'Help with a purchase' }] }],
+  ['setMyCommands', { language_code: 'ru', commands: [{ command: 'terms', description: 'Условия покупки' }, { command: 'paysupport', description: 'Помощь с покупкой' }] }],
 ];
 
 export const isToken = token => /^\d+:[\w-]{20,}$/.test(token);

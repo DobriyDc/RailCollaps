@@ -8,7 +8,9 @@
 |---|---|
 | `POST /score` | `{ rules, seed, meters, log }`: проверяет и записывает, отвечает `{ season, meters, best, place }` |
 | `GET /top` | топ-100 сезона и место игрока: `{ season, rows, me }` |
-| `POST /bot` | сообщения Telegram для бота: отвечает приветствием на `/start` |
+| `POST /invoice` | `{ item, lang }`: ссылка на счёт в звёздах за поезд, отвечает `{ link }` |
+| `GET /inventory` | купленные поезда игрока: `{ items }` |
+| `POST /bot` | сообщения Telegram для бота: `/start`, `/terms`, `/paysupport`, подтверждение и запись оплаты, возврат |
 
 Запросы таблицы — с заголовком `Authorization: tma <initData>` и только с сайта `https://dobriydc.github.io`.
 
@@ -85,7 +87,7 @@
 2. Скажи Telegram, куда слать сообщения. Подставь адрес функции, тот же секрет и токен бота:
 
    ```
-   curl.exe -F "url=https://АДРЕС/bot" -F "secret_token=СЕКРЕТ" -F "allowed_updates=[\"message\"]" https://api.telegram.org/botТОКЕН/setWebhook
+   curl.exe -F "url=https://АДРЕС/bot" -F "secret_token=СЕКРЕТ" -F "allowed_updates=[\"message\",\"pre_checkout_query\"]" https://api.telegram.org/botТОКЕН/setWebhook
    ```
 
    В ответе должно быть `"ok":true`. Строка попадёт в историю терминала: после настройки очисти её.
@@ -93,6 +95,23 @@
 3. Проверка: удали чат с ботом, открой его заново, нажми запуск.
 
 Запрос к `/bot` без верного секрета получает `403`. Без `BOT_WEBHOOK_SECRET` в Cloudflare `/bot` отвечает `404`, таблица при этом работает.
+
+## Магазин
+
+Правила и порядок запуска: `docs/monetization.md`. Если база создана раньше магазина, добавь таблицу покупок той же командой, что и при первом деплое: она не трогает существующие данные.
+
+```
+npx wrangler d1 execute collapse-leaderboard --remote --file=schema.sql
+```
+
+Webhook должен получать `pre_checkout_query`: без него Telegram отменит оплату через 10 секунд.
+
+Возврат: найди `charge_id` покупки и верни звёзды. Telegram сообщит о возврате боту, и поезд исчезнет у игрока сам.
+
+```
+npx wrangler d1 execute collapse-leaderboard --remote --command "SELECT * FROM purchases WHERE user_id = ID"
+curl.exe -F "user_id=ID" -F "telegram_payment_charge_id=CHARGE_ID" https://api.telegram.org/botТОКЕН/refundStarPayment
+```
 
 ## Когда меняются правила
 
@@ -114,9 +133,12 @@
 | 401 | `no_auth`, `bad_auth`, `expired` | нет подписи, чужая подпись, `initData` старше `LEADERBOARD_AUTH_MAX_SEC` |
 | 403 | `bad_origin` | запрос не с `https://dobriydc.github.io` |
 | 409 | `rules_version` | другая версия правил |
+| 400 | `bad_item` | такого поезда нет в продаже |
+| 409 | `owned` | поезд уже куплен |
 | 413 | `too_large` | тело больше `LEADERBOARD_MAX_BODY` |
 | 422 | `bad_replay`, `meters_mismatch` | журнал не сходится с правилами, метры не сходятся с реплеем |
 | 429 | `rate_limited` | больше `LEADERBOARD_RATE_MAX` запросов за окно |
+| 502 | `no_invoice` | Telegram не выдал счёт |
 
 ## Если упирается в лимит
 
@@ -134,6 +156,7 @@ Workers: там предел 30 с. Результат, на котором фу
   чисел `js/Constants.js`, всего `js/CollapseRules.js` и этого файла. `dist/` не в репозитории,
   wrangler сам пересобирает её перед каждым деплоем.
 - `schema.sql` — таблицы. В базе только id Telegram, имя для показа, метры, сезон и дата; в таблице
-  `rate` — id и счётчик запросов за текущее окно.
+  `rate` — id и счётчик запросов за текущее окно; в таблице `purchases` — id, поезд, номер платежа,
+  сумма и дата.
 - `server/` не едет в архив игры (`BUILD_EXCLUDE` в `tools/asset-scan.mjs`).
 - Пробы — `tests/leaderboard.test.mjs`: настоящая сборка функции поверх настоящего SQLite в памяти.

@@ -164,6 +164,7 @@ function boot() {
     localStorage, UI, Image: class {}, CollapseScene: { LANE_W: 180 },
     TG: { inside: false, loadBest() {}, runEnded() {}, runStarted() {}, haptic() {}, saveBest: m => saves.push(m) },
     Leaderboard: { close() {}, refreshLanguage() {}, submit: r => submits.push(r), enabled: true },
+    Shop: { init() {}, open() {}, render() {} },
   });
   const game = new (ctx.get('Game'))({ scene: { canvas: { addEventListener() {} }, sync() {}, reset() {}, onEvent() {} } });
   game._icons = () => {};

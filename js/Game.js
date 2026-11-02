@@ -47,7 +47,8 @@ class Game {
         this.scene.sync(this.run, 0);
         on('menuStart', () => this.openMenu('modeScreen'));
         on('menuSettings', () => this.openMenu('settingsScreen'));
-        on('menuShop', () => this.openMenu('shopScreen'));
+        on('menuShop', () => { Shop.open(); this.openMenu('shopScreen'); });
+        Shop.init(this.scene, on);
         on('menuExit', () => TG.close());
         on('modeEndless', () => this.start());
         on('modeTutorial', () => this.start(new CollapseTutorial()));
@@ -92,6 +93,7 @@ class Game {
     refreshLanguage() {
         Lang.apply();
         Leaderboard.refreshLanguage();
+        Shop.render();
         this._hudText.clear();
         this._hudBest();
         if (this.run) this._hud(this.run);

@@ -41,6 +41,41 @@ const CollapseArt = {
     locoTurn: { left: 'assets/px/train/loco_turn_left.png', right: 'assets/px/train/loco_turn_right.png' },
     locoFall: { left: 'assets/px/train/loco_fall_left.png', right: 'assets/px/train/loco_fall_right.png' },
     locoDamaged: 'assets/px/train/loco_damaged.png',
+    // The trains of the shop (js/Shop.js): the same frames of another locomotive, wearTrain lays them over the fields above.
+    trains: {
+        base: {
+            loco: ['assets/px/train/loco_run_0.png', 'assets/px/train/loco_run_1.png',
+                'assets/px/train/loco_run_2.png', 'assets/px/train/loco_run_3.png'],
+            locoShot: { left: 'assets/px/train/loco_shot_left.png', right: 'assets/px/train/loco_shot_right.png' },
+            locoTurn: { left: 'assets/px/train/loco_turn_left.png', right: 'assets/px/train/loco_turn_right.png' },
+            locoFall: { left: 'assets/px/train/loco_fall_left.png', right: 'assets/px/train/loco_fall_right.png' },
+            locoDamaged: 'assets/px/train/loco_damaged.png',
+        },
+        soviet: {
+            loco: ['assets/px/train/soviet/loco_run_0.png', 'assets/px/train/soviet/loco_run_1.png',
+                'assets/px/train/soviet/loco_run_2.png', 'assets/px/train/soviet/loco_run_3.png'],
+            locoShot: { left: 'assets/px/train/soviet/loco_shot_left.png', right: 'assets/px/train/soviet/loco_shot_right.png' },
+            locoTurn: { left: 'assets/px/train/soviet/loco_turn_left.png', right: 'assets/px/train/soviet/loco_turn_right.png' },
+            locoFall: { left: 'assets/px/train/soviet/loco_fall_left.png', right: 'assets/px/train/soviet/loco_fall_right.png' },
+            locoDamaged: 'assets/px/train/soviet/loco_damaged.png',
+        },
+        american: {
+            loco: ['assets/px/train/american/loco_run_0.png', 'assets/px/train/american/loco_run_1.png',
+                'assets/px/train/american/loco_run_2.png', 'assets/px/train/american/loco_run_3.png'],
+            locoShot: { left: 'assets/px/train/american/loco_shot_left.png', right: 'assets/px/train/american/loco_shot_right.png' },
+            locoTurn: { left: 'assets/px/train/american/loco_turn_left.png', right: 'assets/px/train/american/loco_turn_right.png' },
+            locoFall: { left: 'assets/px/train/american/loco_fall_left.png', right: 'assets/px/train/american/loco_fall_right.png' },
+            locoDamaged: 'assets/px/train/american/loco_damaged.png',
+        },
+        brazil: {
+            loco: ['assets/px/train/brazil/loco_run_0.png', 'assets/px/train/brazil/loco_run_1.png',
+                'assets/px/train/brazil/loco_run_2.png', 'assets/px/train/brazil/loco_run_3.png'],
+            locoShot: { left: 'assets/px/train/brazil/loco_shot_left.png', right: 'assets/px/train/brazil/loco_shot_right.png' },
+            locoTurn: { left: 'assets/px/train/brazil/loco_turn_left.png', right: 'assets/px/train/brazil/loco_turn_right.png' },
+            locoFall: { left: 'assets/px/train/brazil/loco_fall_left.png', right: 'assets/px/train/brazil/loco_fall_right.png' },
+            locoDamaged: 'assets/px/train/brazil/loco_damaged.png',
+        },
+    },
     torch: ['assets/px/fx/torch_0.png', 'assets/px/fx/torch_1.png', 'assets/px/fx/torch_2.png', 'assets/px/fx/torch_3.png'],
     flow: ['assets/px/fx/lava_flow_0.png', 'assets/px/fx/lava_flow_1.png', 'assets/px/fx/lava_flow_2.png', 'assets/px/fx/lava_flow_3.png'],
     splash: ['assets/px/fx/lava_splash_0.png', 'assets/px/fx/lava_splash_1.png'],
@@ -207,6 +242,12 @@ class CollapseScene {
             plain: [...Object.values(A.gap), ...A.bg.map(b => b.url),
                 ...Object.values(A.fx).flat(), ...Object.values(A.switches).flatMap(v => Object.values(v))],
         };
+    }
+
+    // The train the player wears: its frames are loaded here, so none of them blinks on its first show.
+    wearTrain(id) {
+        const A = Object.assign(CollapseArt, CollapseArt.trains[id] || CollapseArt.trains.base);
+        for (const url of [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoTurn), ...Object.values(A.locoFall), A.locoDamaged]) this.texture(url);
     }
 
     // Render COLLAPSE_RENDER_HEIGHT px tall whatever the screen; CSS scales it up pixelated.

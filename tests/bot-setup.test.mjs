@@ -49,5 +49,6 @@ test('страница политики: без внешних скриптов,
   assert.match(html, /<title>Rail Link: Collapse/);
   assert.match(html, /Политика конфиденциальности/);
   assert.match(html, /Privacy policy/);
-  assert.match(html, /github\.com\/DobriyDc\/RailCollaps\/issues/);
+  assert.match(html, /t\.me\/PatrKir306/);
+  assert.doesNotMatch(html, /github\.com\/DobriyDc\/RailCollaps\/issues/);
 });

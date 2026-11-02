@@ -48,4 +48,12 @@ const UI_LAND = {
     orientationPortrait: { x: 332, y: 194 },
     orientationLand: { y: 194 },
     settingsBack: { y: 266 },
+    // The shop in one row: the low screen has no room for two rows of trains.
+    shopScreen: { w: 640, h: 338 },
+    shopCard0: { x: 30, y: 54 },
+    shopCard1: { x: 178, y: 54 },
+    shopCard2: { x: 326, y: 54 },
+    shopCard3: { x: 474, y: 54 },
+    shopNote: { y: 236 },
+    shopBack: { y: 266 },
 };

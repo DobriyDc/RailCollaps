@@ -239,6 +239,74 @@ test('бот: /start в личке получает приветствие на 
   assert.equal((await (await update(start('ru'))).json()).method, 'sendPhoto');
 });
 
+test('магазин: поезд выдаёт только сообщение Telegram об оплате, возврат его забирает', async t => {
+  const STARS = page().get('COLLAPSE_TRAIN_STARS');
+  const calls = [];
+  t.mock.method(globalThis, 'fetch', async (address, init) => {
+    calls.push({ method: address.split('/').pop(), body: JSON.parse(init.body) });
+    return new Response(JSON.stringify({ ok: true, result: 'https://t.me/$invoice' }));
+  });
+  const e = { ...env(), BOT_WEBHOOK_SECRET: 'webhook-secret' };
+  const update = body => worker.fetch(new Request('https://collapse.test/bot', {
+    method: 'POST', headers: { 'X-Telegram-Bot-Api-Secret-Token': 'webhook-secret' }, body: JSON.stringify(body),
+  }), e);
+  const items = async () => (await (await call(e, 'GET', '/inventory')).json()).items;
+  const from = { id: 111, language_code: 'ru' }, chat = { id: 111, type: 'private' };
+  const query = (over = {}) => ({ id: 'q1', from, currency: 'XTR', total_amount: STARS, invoice_payload: 'soviet', ...over });
+  const paid = (over = {}) => ({ message: { from, chat, successful_payment: {
+    currency: 'XTR', total_amount: STARS, invoice_payload: 'soviet', telegram_payment_charge_id: 'charge-1', ...over } } });
+
+  assert.deepEqual(await items(), []);
+
+  const invoice = await call(e, 'POST', '/invoice', { body: { item: 'soviet', lang: 'ru' } });
+  assert.equal(invoice.status, 200);
+  assert.equal((await invoice.json()).link, 'https://t.me/$invoice');
+  const made = calls.at(-1);
+  assert.equal(made.method, 'createInvoiceLink');
+  assert.equal(made.body.currency, 'XTR');
+  assert.equal(made.body.provider_token, '');
+  assert.equal(made.body.payload, 'soviet');
+  assert.deepEqual(made.body.prices, [{ label: 'Советский поезд', amount: STARS }]);
+  assert.ok(made.body.title.length <= 32 && made.body.description.length <= 255);
+  assert.deepEqual(await items(), [], 'счёт ещё не покупка');
+
+  for (const bad of [{ item: 'base' }, { item: 'tank' }, {}]) assert.equal((await call(e, 'POST', '/invoice', { body: bad })).status, 400);
+  assert.equal((await call(e, 'POST', '/invoice', { auth: initData({ token: 'чужой' }), body: { item: 'soviet' } })).status, 401);
+
+  const stands = await (await update({ pre_checkout_query: query() })).json();
+  assert.deepEqual([stands.method, stands.pre_checkout_query_id, stands.ok], ['answerPreCheckoutQuery', 'q1', true]);
+  for (const bad of [{ total_amount: 1 }, { currency: 'USD' }, { invoice_payload: 'tank' }]) {
+    const no = await (await update({ pre_checkout_query: query(bad) })).json();
+    assert.equal(no.ok, false, JSON.stringify(bad));
+    assert.match(no.error_message, /заказ/);
+  }
+
+  assert.equal((await update(paid({ invoice_payload: 'tank' }))).status, 200);
+  assert.equal((await update(paid({ currency: 'USD' }))).status, 200);
+  assert.deepEqual(await items(), [], 'чужой платёж не выдаёт поезд');
+
+  const thanks = await (await update(paid())).json();
+  assert.equal(thanks.method, 'sendMessage');
+  assert.match(thanks.text, /Спасибо/);
+  await update(paid());
+  assert.deepEqual(await items(), ['soviet'], 'повтор сообщения не дублирует покупку');
+  assert.deepEqual(e.DB.raw.prepare('SELECT user_id, stars FROM purchases').all().map(r => ({ ...r })), [{ user_id: 111, stars: STARS }]);
+
+  assert.equal((await call(e, 'POST', '/invoice', { body: { item: 'soviet' } })).status, 409);
+  assert.equal((await (await update({ pre_checkout_query: query() })).json()).ok, false, 'второй раз не продаём');
+  assert.equal((await call(e, 'GET', '/inventory', { auth: initData({ id: 222 }) }).then(r => r.json())).items.length, 0, 'покупка не чужая');
+
+  assert.equal((await update({ message: { from, chat, refunded_payment: { telegram_payment_charge_id: 'charge-1' } } })).status, 200);
+  assert.deepEqual(await items(), []);
+
+  for (const [command, pattern] of [['/terms', /terms\.html/], ['/paysupport', /t\.me\/PatrKir306/]]) {
+    const answer = await (await update({ message: { from, chat, text: command } })).json();
+    assert.equal(answer.method, 'sendMessage');
+    assert.match(answer.text, pattern);
+  }
+  assert.equal(await (await update({ message: { from, chat: { id: 5, type: 'group' }, text: '/terms' } })).text(), '');
+});
+
 test('таблица: лучший результат игрока за сезон, топ и место, старый сезон цел', async () => {
   const p = page(), rules = p.get('COLLAPSE_RULES_VERSION'), e = env();
   const a = live(p, 5), b = live(p, 6), [lo, hi] = a.meters < b.meters ? [[5, a], [6, b]] : [[6, b], [5, a]];

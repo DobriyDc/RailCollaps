@@ -260,6 +260,7 @@ const LEADERBOARD_MAX_STEPS = 36000;    // fixed steps a replay may take (10 min
 const LEADERBOARD_MAX_LOG = 4000;       // actions in one journal
 const LEADERBOARD_MAX_BODY = 65536;     // bytes of one score request
 const LEADERBOARD_NAME_MAX = 24;        // characters of a shown name
+const COLLAPSE_TRAIN_STARS = 100;        // Telegram Stars one train of the shop costs: about 2 $ to a buyer (docs/monetization.md)
 
 // --- CAMERA (CameraControl.js): target on the map, azimuth, pitch and zoom. Zoom is
 // screen px per world px at the look-at point; distance is derived from it. Flight
