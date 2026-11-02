@@ -36,7 +36,7 @@ function page() {
     UI: { get: () => null, def: () => null }, Image: class {}, CollapseScene: { LANE_W: 180 },
     TG: { inside: false, loadBest() {}, saveBest() {}, runEnded() {}, runStarted() {}, haptic() {} },
     Leaderboard: { close() {}, refreshLanguage() {}, submit() {} },
-    Shop: { init() {}, open() {}, render() {} },
+    Shop: { init() {}, open() {}, render() {} }, Challenge: { parse: () => null },
   });
   p.ctx.window.addEventListener = p.ctx.addEventListener;
   const Game = p.get('Game');

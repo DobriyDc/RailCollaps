@@ -144,6 +144,46 @@ const Lang = {
         "ru": "Скоро",
         "en": "Coming soon"
     },
+    "challengeTitle": {
+        "ru": "Вызов!",
+        "en": "Challenge!"
+    },
+    "challengeText": {
+        "ru": "Друг проехал {meters} м.\nОбгони его на том же тоннеле.",
+        "en": "A friend went {meters} m.\nBeat them in the same tunnel."
+    },
+    "challengeAccept": {
+        "ru": "Принять вызов",
+        "en": "Accept the challenge"
+    },
+    "challengeLater": {
+        "ru": "Потом",
+        "en": "Later"
+    },
+    "challengeGoal": {
+        "ru": "Цель: {value} м",
+        "en": "Goal: {value} m"
+    },
+    "challengeBeaten": {
+        "ru": "Цель взята!",
+        "en": "Goal reached!"
+    },
+    "challengeWon": {
+        "ru": "Вызов выигран: на {value} м дальше",
+        "en": "Challenge won: {value} m farther"
+    },
+    "challengeLost": {
+        "ru": "До цели не хватило {value} м",
+        "en": "{value} m short of the goal"
+    },
+    "challengeSend": {
+        "ru": "Вызвать друга",
+        "en": "Challenge a friend"
+    },
+    "challengeShare": {
+        "ru": "Я проехал {meters} м в Rail Link: Collapse. Обгони меня на этом же тоннеле!",
+        "en": "I went {meters} m in Rail Link: Collapse. Beat me in this very tunnel!"
+    },
     "shopSupport": {
         "ru": "Поддержи разработчика!",
         "en": "Support the developer!"
@@ -411,6 +451,10 @@ const Lang = {
     "languageEN": "en",
     "settingsBack": "back",
     "shopTitle": "shopSupport",
+    "challengeTitle": "challengeTitle",
+    "challengeAccept": "challengeAccept",
+    "challengeLater": "challengeLater",
+    "challengeBtn": "challengeSend",
     "shopBack": "back",
     "overMenu": "menu",
     "boardBtn": "board",

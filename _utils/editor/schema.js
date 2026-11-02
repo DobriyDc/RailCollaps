@@ -801,6 +801,8 @@ const KIT_SCHEMA = [
               hint: { en: 'Applies after a new deploy of the function', ru: 'Работает после нового деплоя функции' } },
             { name: 'COLLAPSE_TRAIN_STARS', min: 1, max: 10000, step: 1,
               label: { en: 'Price of a train, Telegram Stars', ru: 'Цена поезда, звёзды Telegram' } },
+            { name: 'COLLAPSE_SHOP_OPEN', min: 0, max: 1, step: 1,
+              label: { en: 'The shop sells trains (0 — no, 1 — yes)', ru: 'Магазин продаёт поезда (0 — нет, 1 — да)' } },
             { name: 'ADS_WAIT_MS', min: 1000, max: 30000, step: 500,
               label: { en: 'Wait for an ad network, ms', ru: 'Ожидание рекламной сети, мс' } },
         ],

@@ -26,6 +26,7 @@ function shop({ selling = true, stored = {}, inventory = [], invoice = { link: '
     },
   });
   const Shop = p.get('Shop'), clicks = {};
+  Object.defineProperty(Shop, 'salesOpen', { get: () => selling, configurable: true });
   const scene = { wearTrain: id => worn.push(id) };
   return { Shop, scene, store, worn, requests, texts, enabled, clicks, boot: () => Shop.init(scene, (id, fn) => { clicks[id] = fn; }) };
 }
@@ -47,6 +48,12 @@ test('магазин без функции: цены не продаются, п
   s.clicks.shopBuy1();
   await settle();
   assert.deepEqual(s.requests, []);
+});
+
+test('продажи закрыты числом: адрес таблицы их не открывает', () => {
+  const p = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Shop.js'], { localStorage: { getItem: () => null, setItem() {} }, Leaderboard: { enabled: true } });
+  assert.equal(p.get('COLLAPSE_SHOP_OPEN'), 0);
+  assert.equal(p.get('Shop').selling, false);
 });
 
 test('покупка: цена на кнопке, оплата надевает поезд и запоминает его', async () => {

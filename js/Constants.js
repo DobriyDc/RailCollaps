@@ -261,6 +261,9 @@ const LEADERBOARD_MAX_LOG = 4000;       // actions in one journal
 const LEADERBOARD_MAX_BODY = 65536;     // bytes of one score request
 const LEADERBOARD_NAME_MAX = 24;        // characters of a shown name
 const COLLAPSE_TRAIN_STARS = 100;        // Telegram Stars one train of the shop costs: about 2 $ to a buyer (docs/monetization.md)
+const COLLAPSE_SHOP_OPEN = 0;           // 1 — the shop sells trains; the table works without it (docs/monetization.md)
+const TELEGRAM_APP_URL = 'https://t.me/railcollapsebot/play'; // the direct link of the Mini App: a challenge goes through it
+const TELEGRAM_SHARE_URL = 'https://t.me/share/url';          // Telegram's dialog that sends a link to a chat
 
 // --- ADS: the rewarded ad that continues a run (js/Ads.js, docs/monetization.md). An empty id turns its
 // network off; the ids are public, they go into the page. ---

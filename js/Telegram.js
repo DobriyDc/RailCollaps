@@ -67,6 +67,16 @@ const TG = {
         });
     },
 
+    // The parameter of the link the game was opened by; '' without one.
+    get startParam() { return (this.inside && this.app.initDataUnsafe && this.app.initDataUnsafe.start_param) || ''; },
+
+    // Telegram's dialog that sends a link to a chat the player picks.
+    share(url, text) {
+        if (!this.at('6.1')) return;
+        const address = TELEGRAM_SHARE_URL + '?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text);
+        this._call(() => this.app.openTelegramLink(address));
+    },
+
     // A Stars invoice over the game; onDone gets 'paid', 'cancelled', 'failed' or 'pending'.
     openInvoice(link, onDone) {
         if (!this.at('6.1')) { onDone('failed'); return; }

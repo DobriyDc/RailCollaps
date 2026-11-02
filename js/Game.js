@@ -49,6 +49,9 @@ class Game {
         on('menuSettings', () => this.openMenu('settingsScreen'));
         on('menuShop', () => { Shop.open(); this.openMenu('shopScreen'); });
         Shop.init(this.scene, on);
+        on('challengeAccept', () => this.startChallenge());
+        on('challengeLater', () => this.openMenu());
+        on('challengeBtn', () => Challenge.share(this.run));
         on('menuExit', () => TG.close());
         on('modeEndless', () => this.start());
         on('modeTutorial', () => this.start(new CollapseTutorial()));
@@ -70,8 +73,20 @@ class Game {
         on('rotateBack', () => this.setOrientation(false));
         this.tutorialPassed = Store.get('collapse.tutorial') === '1';
         Lang.listeners.add(() => this.refreshLanguage());
+        this.challenge = Challenge.parse(TG.startParam);
+        this.goal = 0;                // m to beat in this run, 0 — no challenge
         this.refreshLanguage();
-        this.openMenu();
+        this.openMenu(this.challenge ? 'challengeScreen' : 'mainScreen');
+    }
+
+    // The tunnel of the link: the same seed gives the same track.
+    startChallenge() { this.start(new CollapseRun(this.challenge.seed), this.challenge.meters); }
+
+    // "Again": a challenge is raced until the player leaves it.
+    _again() {
+        if (this.run.tutorial) this.start(new CollapseTutorial());
+        else if (this.goal) this.startChallenge();
+        else this.start();
     }
 
     openMenu(screen = 'mainScreen') {
@@ -85,8 +100,8 @@ class Game {
         this._show('hitFlash', false);
         this._show('menu', true);
         this._show('tutorialBox', false);
-        for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen']) this._show(id, id === screen);
-        for (const id of ['frameTop', 'frameBottom', 'iconStrip', 'stationShop', 'collapseNote', 'runTime']) this._show(id, false);
+        for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen', 'challengeScreen']) this._show(id, id === screen);
+        for (const id of ['frameTop', 'frameBottom', 'iconStrip', 'stationShop', 'collapseNote', 'runTime', 'challengeGoal']) this._show(id, false);
         this._show('menuExit', TG.inside);
     }
 
@@ -101,6 +116,7 @@ class Game {
         else if (this.mode === 'over' && this.overIn < 0) this._showOver();
         this._settingsView();
         this._tutorialLabel();
+        if (this.challenge) this._set('challengeText', Lang.t('challengeText', { meters: this.challenge.meters }));
     }
 
     _tutorialLabel() { this._set('modeTutorial', (this.tutorialPassed ? '✓ ' : '') + Lang.t('tutorial')); }
@@ -237,8 +253,10 @@ class Game {
     static stationsLine(run) { return run.stations ? '\n' + Lang.t('stationsPassed', { value: run.stage }) : ''; }
 
     // A run: a new endless one unless given another (the tutorial, a retry of its step).
-    start(run = Game.newRun()) {
+    start(run = Game.newRun(), goal = 0) {
+        this.goal = goal;
         this._show('menu', false);
+        this._show('challengeGoal', goal > 0);
         for (const id of ['frameTop', 'frameBottom', 'iconStrip']) this._show(id, true);
         this._set('pauseBtn', '');
         this.portrait = 'calm';
@@ -288,7 +306,7 @@ class Game {
 
     _pauseDialog() {
         this._dialog(Lang.t('pause'), Lang.t('pauseText'), [Lang.t('resume'), () => this.setPaused(false)],
-            [Lang.t('restart'), () => this.start(this.run.tutorial ? new CollapseTutorial() : undefined)]);
+            [Lang.t('restart'), () => this._again()]);
         this._show('overMenu', this.run.tutorial);
         this._set('pauseBtn', '');
     }
@@ -479,11 +497,14 @@ class Game {
         const run = this.run;
         if (run.tutorial) { this.start(run.retry()); return; }
         const why = run.reason ? Lang.t('reason.' + run.reason) : '';
+        const beat = run.meters - this.goal;
+        const race = this.goal ? '\n' + Lang.t(beat > 0 ? 'challengeWon' : 'challengeLost', { value: Math.abs(beat) }) : '';
         this._dialog(Lang.t(this.newRecord ? 'recordTitle' : 'overTitle'),
-            why + '\n' + Lang.t('result', { meters: run.meters, best: this.best }) + '\n' + Lang.t('runTime', { value: Game.clock(run.time) }) + Game.stationsLine(run),
-            [Lang.t('restart'), () => this.start()],
+            why + '\n' + Lang.t('result', { meters: run.meters, best: this.best }) + '\n' + Lang.t('runTime', { value: Game.clock(run.time) }) + Game.stationsLine(run) + race,
+            [Lang.t('restart'), () => this._again()],
             run.canContinue && !this.adPending ? [Lang.t('continue'), () => this.continueForAd()] : null);
         this._show('overMenu', true);
+        this._show('challengeBtn', TG.inside);
     }
 
     // The dialog: title, text, the main button and an optional second one ([label, handler]).
@@ -499,6 +520,7 @@ class Game {
             c.show(!!second);
         }
         this._show('boardBtn', Leaderboard.enabled);
+        this._show('challengeBtn', false);
         this._show('hint', false);
         this._show('over', true);
     }
@@ -663,6 +685,7 @@ class Game {
     }
 
     _hud(run) {
+        if (this.goal) this._set('challengeGoal', run.meters > this.goal ? Lang.t('challengeBeaten') : Lang.t('challengeGoal', { value: this.goal }));
         this._portrait(run);
         this._hpView(run);
         this._set('dist', String(run.meters));

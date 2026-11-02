@@ -25,14 +25,16 @@
    npx wrangler login
    ```
 
+   Адрес функции не открывает продажи: их включает `COLLAPSE_SHOP_OPEN` (`docs/monetization.md`).
+
 2. База. Команда напечатает `database_id`:
 
    ```
    npx wrangler d1 create collapse-leaderboard
    ```
 
-   Вставь его в `wrangler.toml` вместо `REPLACE_WITH_D1_DATABASE_ID`. Этот id не секрет, но
-   привязан к твоему аккаунту: не коммить его, если не хочешь.
+   Скопируй `wrangler.toml` в `wrangler.local.toml` и впиши `database_id` туда: этот файл не едет в
+   репозиторий. Дальше все команды с ним: `npx wrangler <команда> -c wrangler.local.toml`.
 
 3. Таблицы в базе:
 

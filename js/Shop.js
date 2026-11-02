@@ -1,7 +1,7 @@
 // Shop.js — the trains of the shop. A train changes only how the run looks: the rules, the journal and
 // the table do not know about it. The function (server/leaderboard) keeps what was bought: this file shows
-// it, remembers it for the next start and asks Telegram for the invoice. While the function is not there
-// (LEADERBOARD_URL empty or outside Telegram) the shop shows its prices and sells nothing.
+// it, remembers it for the next start and asks Telegram for the invoice. While COLLAPSE_SHOP_OPEN is off or
+// the function is not there (LEADERBOARD_URL empty or outside Telegram) the shop sells nothing.
 
 /** @satisfies {Record<string, any>} */
 const Shop = {
@@ -15,7 +15,8 @@ const Shop = {
     _note: 'shopTerms',           // the word under the cards
 
     get stars() { return typeof COLLAPSE_TRAIN_STARS !== 'undefined' ? COLLAPSE_TRAIN_STARS : 100; },
-    get selling() { return Leaderboard.enabled; },
+    get salesOpen() { return typeof COLLAPSE_SHOP_OPEN !== 'undefined' && COLLAPSE_SHOP_OPEN > 0; },
+    get selling() { return this.salesOpen && Leaderboard.enabled; },
 
     // What the last start knew: the shop opens at once and the function corrects it.
     init(scene, on) {

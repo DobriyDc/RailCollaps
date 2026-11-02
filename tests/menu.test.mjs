@@ -58,7 +58,7 @@ test('настройки: громкость обоих каналов пере�
       localStorage, UI, Image: class {}, CollapseScene: { LANE_W: 180 },
       TG: { inside: false, loadBest() {}, runEnded() {}, runStarted() {} },
       Leaderboard: { close() {}, refreshLanguage() {} },
-      Shop: { init() {}, open() {}, render() {} },
+      Shop: { init() {}, open() {}, render() {} }, Challenge: { parse: () => null },
     });
     const Game = ctx.get('Game'), audio = ctx.get('Sound3D');
     const game = new Game({ scene: { canvas: { addEventListener() {} }, sync() {}, reset() {} } });
@@ -100,7 +100,7 @@ test('ориентация: выбор в настройках хранится,
       localStorage, UI, Image: class {}, CollapseScene: { LANE_W: 180 }, URL, URLSearchParams,
       TG: { inside: false, loadBest() {}, runEnded() {}, runStarted() {}, holdOrientation: v => holds.push(v) },
       Leaderboard: { close() {}, refreshLanguage() {} },
-      Shop: { init() {}, open() {}, render() {} },
+      Shop: { init() {}, open() {}, render() {} }, Challenge: { parse: () => null },
       location: { search, href: 'https://game.test/' + search + '#tgWebAppData=1', reload: () => reloads.push(1) },
       history: { replaceState: (a, b, url) => urls.push(url) },
     });

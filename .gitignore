@@ -15,3 +15,4 @@
 !/gamestudio/snapshots/.gitkeep
 /.worktrees/
 __pycache__/
+server/leaderboard/wrangler.local.toml

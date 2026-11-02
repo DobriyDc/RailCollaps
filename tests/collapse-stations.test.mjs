@@ -144,7 +144,7 @@ test('Game: без ?stations обычный забег, с ?stations забег 
     const globals = { localStorage, UI, Image: class {}, CollapseArt: { pickup: {} }, CollapseScene: { LANE_W: 180 }, CollapseStationView: undefined,
       TG: { inside: false, loadBest() {}, runEnded() {}, runStarted() {}, haptic() {}, saveBest() {} },
       Leaderboard: { enabled: false, close() {}, refreshLanguage() {}, submit: r => submitted.push(r) },
-      Shop: { init() {}, open() {}, render() {} } };
+      Shop: { init() {}, open() {}, render() {} }, Challenge: { parse: () => null } };
     Object.assign(globals, { location: { search: stations ? '?stations' : '' }, URLSearchParams });
     const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/Game.js'], globals);
     vm.runInContext(fs.readFileSync(path.join(ROOT, 'js/CollapseStations.js'), 'utf8').replace(/^class CollapseStationView[\s\S]*?^}\n/m, 'class CollapseStationView { sync() {} }\n').replace(/^CollapseStationView\..*$/gm, ''), ctx.ctx);
