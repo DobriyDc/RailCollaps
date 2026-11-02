@@ -187,6 +187,43 @@ test('CORS: только https://dobriydc.github.io, предзапрос раз
   assert.equal(res.headers.get('Access-Control-Allow-Origin'), ORIGIN);
 });
 
+test('бот: /start в личке получает приветствие на языке игрока, остальное без ответа', async () => {
+  const e = { ...env(), BOT_WEBHOOK_SECRET: 'webhook-secret' };
+  const update = (message, secret = 'webhook-secret', method = 'POST') => worker.fetch(new Request('https://collapse.test/bot', {
+    method, headers: secret ? { 'X-Telegram-Bot-Api-Secret-Token': secret } : {}, body: method === 'POST' ? JSON.stringify({ message }) : undefined,
+  }), e);
+  const start = (language_code, text = '/start', type = 'private') => ({ text, chat: { id: 7, type }, from: { id: 7, language_code } });
+
+  const ru = await (await update(start('ru'))).json();
+  assert.equal(ru.method, 'sendPhoto');
+  assert.equal(ru.chat_id, 7);
+  assert.equal(ru.parse_mode, 'HTML');
+  assert.match(ru.caption, /^<b>Машинист, на пост\.<\/b>/);
+  assert.ok(ru.caption.length <= 1024);
+  assert.match(ru.photo, /^https:\/\/dobriydc\.github\.io\/RailCollaps\/server\/leaderboard\/welcome\.png$/);
+  assert.ok(fs.existsSync(path.join(ROOT, 'server/leaderboard/welcome.png')));
+  const button = ru.reply_markup.inline_keyboard[0][0];
+  assert.equal(button.text, '▶ Играть');
+  assert.equal(button.web_app.url, 'https://dobriydc.github.io/RailCollaps/');
+
+  for (const language of ['en', 'uk', undefined]) {
+    const other = await (await update(start(language))).json();
+    assert.match(other.caption, /^<b>Engineer/, String(language));
+    assert.equal(other.reply_markup.inline_keyboard[0][0].text, '▶ Play');
+  }
+  assert.equal((await (await update(start('ru', '/start ref_1'))).json()).method, 'sendPhoto');
+
+  for (const quiet of [start('ru', 'привет'), start('ru', '/started'), start('ru', '/start', 'group'), undefined]) {
+    const res = await update(quiet);
+    assert.equal(res.status, 200);
+    assert.equal(await res.text(), '');
+  }
+  assert.equal((await update(start('ru'), 'wrong')).status, 403);
+  assert.equal((await update(start('ru'), null)).status, 403);
+  assert.equal((await update(null, 'webhook-secret', 'GET')).status, 404);
+  assert.equal((await worker.fetch(new Request('https://collapse.test/bot', { method: 'POST', body: '{' }), env())).status, 404);
+});
+
 test('таблица: лучший результат игрока за сезон, топ и место, старый сезон цел', async () => {
   const p = page(), rules = p.get('COLLAPSE_RULES_VERSION'), e = env();
   const a = live(p, 5), b = live(p, 6), [lo, hi] = a.meters < b.meters ? [[5, a], [6, b]] : [[6, b], [5, a]];

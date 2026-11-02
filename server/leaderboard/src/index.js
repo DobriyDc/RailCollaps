@@ -100,8 +100,49 @@ async function getTop(env, me) {
     return reply(200, { season, rows, me: mine ? { place, meters: mine.meters } : null });
 }
 
+// The bot's welcome. Telegram posts updates to /bot with the secret of setWebhook in a header. The answer
+// to an update is the message itself, so this path needs no token and no call to the Bot API.
+const GAME_URL = 'https://dobriydc.github.io/RailCollaps/';
+const WELCOME_PHOTO = GAME_URL + 'server/leaderboard/welcome.png';
+const WELCOME = {
+    ru: {
+        play: '▶ Играть',
+        text: '<b>Машинист, на пост.</b>\n\nТоннель рушится за спиной, впереди лава, провалы и демоны. Тормозить нельзя.\n\n' +
+            '• Стреляй по рычагам и переводи стрелки\n• Сбивай демонов, пока они не разнесли кабину\n• Уходи от обвала как можно дальше\n\n' +
+            'Рейс длится около минуты. Сколько метров продержишься?',
+    },
+    en: {
+        play: '▶ Play',
+        text: '<b>Engineer, to your post.</b>\n\nThe tunnel is falling behind you. Ahead lie lava, gaps and demons. There is no stopping.\n\n' +
+            '• Shoot the levers to switch tracks\n• Gun down demons before they wreck the cab\n• Outrun the collapse as far as you can\n\n' +
+            'A trip takes about a minute. How many meters can you last?',
+    },
+};
+
+// Compares through HMAC: the time does not tell how much of the secret matched.
+async function sameSecret(secret, sent) {
+    const key = await crypto.subtle.importKey('raw', bytes(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
+    return crypto.subtle.verify('HMAC', key, await crypto.subtle.sign('HMAC', key, bytes(sent)), bytes(secret));
+}
+
+async function botUpdate(request, env) {
+    if (request.method !== 'POST' || !env.BOT_WEBHOOK_SECRET) return new Response(null, { status: 404 });
+    const sent = request.headers.get('X-Telegram-Bot-Api-Secret-Token') || '';
+    if (!await sameSecret(env.BOT_WEBHOOK_SECRET, sent)) return new Response(null, { status: 403 });
+    let update = null;
+    try { update = JSON.parse(await request.text()); } catch (e) { /* no message: answered below */ }
+    const message = update?.message;
+    if (message?.chat?.type !== 'private' || !/^\/start(\s|$)/.test(message.text || '')) return new Response(null, { status: 200 });
+    const words = message.from?.language_code === 'ru' ? WELCOME.ru : WELCOME.en;
+    return new Response(JSON.stringify({
+        method: 'sendPhoto', chat_id: message.chat.id, photo: WELCOME_PHOTO, caption: words.text, parse_mode: 'HTML',
+        reply_markup: { inline_keyboard: [[{ text: words.play, web_app: { url: GAME_URL } }]] },
+    }), { headers: { 'Content-Type': 'application/json' } });
+}
+
 export default {
     async fetch(request, env) {
+        if (new URL(request.url).pathname === '/bot') return botUpdate(request, env);
         if (request.headers.get('Origin') !== ORIGIN) {
             return new Response(JSON.stringify({ error: 'bad_origin' }), { status: 403, headers: { 'Content-Type': 'application/json', 'Vary': 'Origin' } });
         }
