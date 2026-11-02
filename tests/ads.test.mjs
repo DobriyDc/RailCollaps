@@ -2,7 +2,9 @@
 // no reward, a failed script does not stop the offer, and no script loads unless it should.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { loadScripts } from './browser-scripts.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { loadScripts, ROOT } from './browser-scripts.mjs';
 
 function ads({ ids = {}, inside = true, scripts = {} } = {}) {
   const store = new Map(), added = [];
@@ -37,6 +39,13 @@ test('сеть выключена без идентификатора: скри�
   assert.equal(browser.Ads.live, false);
   assert.equal(await browser.Ads.rewarded(), true);
   assert.equal(browser.added.length, 0);
+});
+
+test('включённая сеть названа в политике, id Reward-блока Adsgram без префикса другого формата', () => {
+  const p = loadScripts(['js/Constants.js', 'js/Ads.js'], { TG: { inside: true } });
+  const Ads = p.get('Ads'), html = fs.readFileSync(path.join(ROOT, 'privacy.html'), 'utf8');
+  for (const network of Ads.active) assert.match(html, new RegExp(network, 'i'), network);
+  assert.doesNotMatch(p.get('ADS_ADSGRAM_BLOCK'), /^(int|task)-/);
 });
 
 test('очередь: каждое предложение начинается со следующей сети и переживает перезагрузку', () => {
