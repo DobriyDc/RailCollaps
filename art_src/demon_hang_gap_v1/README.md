@@ -1,5 +1,7 @@
 # Демон на кабине и разрыв пути — v1
 
+Актуальная переделка виса — раздел **v2** в конце файла; исходные сведения v1 ниже сохранены для истории.
+
 Перерисованы только четыре `assets/sprites/demon_v3/hang_00..03.png` и `assets/ui/hud_v3/icon_gap.png`. Код и остальные игровые ассеты не менялись.
 
 ## Чем рисовал
@@ -49,3 +51,52 @@ All four frames share the same torso/head/feet location and dimensions, head cen
 Use case: precise-object-edit. Redraw only the first broken-rail warning icon from the reference strip; the other three icons are style and palette references. Output one isolated icon on transparent background, no sheet, no text or labels. Designed on an EXACT 24 by 24 logical pixel grid and enlarged with nearest-neighbor pixel blocks. No antialias, blur or tiny detailing. Show a single railway track running vertically UP the icon: TWO parallel pale steel rails with dark outlines and broad brown horizontal sleepers beneath them. Clear rail segments ABOVE AND BELOW a jagged horizontal black chasm at the middle. The upper and lower rails align on the same two vertical lines, slightly narrowing upward in perspective, with broken snapped-off jagged ends pointing into the chasm. Upper track occupies rows 2..9, lower track rows 15..22. At least two clearly visible sleepers across both rails in EACH half. The central chasm spans rows 10..14, is solid near-black with an irregular jagged contour and a thin rusty red/orange broken earth edge. This is a railway cut by a gap, instantly readable at 24x24. Use large simple chunky pixels matching the supplied lava, demon and rubble HUD icons: dark plum-black contour #0b0a10, rusty brown sleepers #7a4a3a and #b07a58, steel rails #6c7880 and #d0d8d4, small warm orange #f0601a broken edges. Opaque black chasm, transparent surrounding margin. No lava river, bridge supports, train, warning triangle, border panel or background. Do not rotate the rails horizontally; the railway runs from bottom to top, cut across its width.
 ```
 
+## v2 — вис с обеими ступнями на борту (2026-11-02)
+
+**Демон висит на кабине: обе ступни прижаты к левому борту, под ногами нет опоры на землю.** Верхняя масса первой переделки сохранена: голова, рога, грудь и толстые руки. Корпус отклонён вправо от трёх точек опоры. В `hang_00/01` остаётся небольшое движение фактуры/дыхания, `hang_02` поднимает свободную руку, `hang_03` бьёт когтями влево, в кабину. Положение ног и хвата не меняется.
+
+Изменены только четыре игровых PNG. `icon_gap.png` не менялся. Это продолжение существующего пакета; по ограничению задачи новые отдельные JSON и генератор в коммит не добавлены — метаданные и точные запросы v2 находятся в этом разделе. **Существующий `prepare.py` воспроизводит только v1 и откатит эти четыре кадра, если его запустить.** Старые `*_v1.json` и `validation.json` относятся к первой переделке.
+
+### Изготовление и просмотр
+
+Встроенный **image_gen**, два запроса с `transparent_background=true`: сначала ноги в упоре, затем свободная рука в ударе. Pillow использован для нарезки сгенерированных частей, привязки их к принятому корпусу, nearest-масштаба, палитры STYLE, бинарной альфы и сборки листа. Ноги сведены в общий неподвижный слой; хват закреплён около игрового pivot **(43,56)**.
+
+`compare_demon_v2.png` — 1920×1170, фон **#14121a**, все спрайты **×2 nearest**. Первый ряд — четыре кадра первой переделки, второй — новые; справа в обоих рядах неизменённые `perch_00` и `strike_00`. Внизу три подписанных увеличения ×2: исходный `scene_v1.png`, монтаж нового правого демона на этот снимок, настоящий снимок игры с **одним** новым демоном. В монтаже участок [242,157,386,322) взят из нового игрового снимка при той же позиции кабины; исходный `scene_v1.png` сохранён без изменения.
+
+Новый игровой снимок получен штатным `tools/qa-shots.mjs` через headless Edge: 390×844, ошибок страницы **0**, код **0**. Для проверки состояния в памяти задан один демон справа с `on:true, strike:0.6`, позиция поезда 3.9, обвал далеко позади; файлы правил и сцены не изменялись. Снимок и монтаж просмотрены глазами: обе ступни касаются борта над правой фарой, колени подняты, массивный корпус вынесен наружу, под ногами остаётся воздух.
+
+### Числа и метаданные v2
+
+Все bbox ниже полуоткрытые: правый и нижний край исключены. Холсты **160×160 RGBA**, альфа у каждого **{0,255}**, все непрозрачные цвета — из STYLE.
+
+| Файл | Ширина v1 → v2 | bbox v2 | Непрозрачных пикселей |
+|---|---:|---|---:|
+| hang_00.png | 117 → 117 | [35,21,152,140] | 6884 |
+| hang_01.png | 117 → 117 | [35,21,152,140] | 6880 |
+| hang_02.png | 121 → 121 | [35,20,156,140] | 6880 |
+| hang_03.png | 103 → 105 | [35,21,140,140] | 6900 |
+
+- Минимальная ширина **105 px**, запас к требованию 100 — **5 px**.
+- Верхняя ступня в контрольной области x<60: **[40,98,60,118)**; нижняя: **[40,119,60,140)**. Контакт слева — **x=40**, нижний непрозрачный пиксель ступней — **y=139**, на **6 px выше y=145**.
+- Общая область ног **[35,98,122,142)** совпадает побайтно во всех четырёх кадрах: **0 различающихся пикселей**.
+- Область верхнего хвата **[34,49,75,74)** совпадает побайтно: **0 различающихся пикселей**; pivot остаётся **(43,56)**.
+- Idle A/B различаются в **1124 RGBA-пикселях**, преимущественно фактурой и световыми плоскостями; непрозрачная площадь отличается лишь на **4 px**. Это не дубликаты.
+- В строках y≥145 нет ни одного непрозрачного пикселя у любого кадра.
+
+Проверка выполнена Pillow по финальным игровым файлам: размер, bbox, минимальная ширина, набор альфы, пустота под ступнями, побайтовое совпадение областей ног и хвата. Дополнительно сверены палитра и отсутствие изменений значка.
+
+### Точные запросы v2
+
+Первый запрос; вход — `assets/sprites/demon_v3/hang_00.png` первой переделки:
+
+```text
+Use case: precise-object-edit. Edit the supplied original game's masonry demon sprite, keep EXACTLY its upper-body identity, scale, massive shoulder width, thick arms, brick horns, angular orange Y-shaped lava sternum fissure, short brick head and charcoal steel claws. Primary request: he must be HANGING on a train side to his LEFT, both feet pressed against that invisible vertical train, never standing or running. Output ONE full-body sprite on a genuinely transparent square canvas. Reference represents a 160x160 logical pixel canvas. Keep the upper body in its reference position, horns around x90..118,y21..50, left gripping hand around x40,y56, shoulders x65..130, heavy torso x80..120,y65..102. Right free arm hangs heavy near x140,y95. CRITICAL replace BOTH dangling legs below the hips with thick bent braced legs: pelvis around x103,y99; two bent knees sticking OUT RIGHT around x112,y111 and x119,y124, two shins run diagonally back LEFT from those knees toward the train. BOTH FEET face LEFT and press their SOLES against the same invisible VERTICAL train side at x40..49. Upper foot spans x39..59,y101..117; lower foot spans x39..59,y123..139. Distinct two legs with a clear narrow transparent gap between them, coarse dark outlines. Thus feet sit far LEFT of the hips, not beneath the torso: a suspended rock climber leaning far back RIGHT from the wall. Preserve all upper-body mass; do not shrink or thin him. No vertical legs, no legs reaching down under the body, no standing toes on ground. Brick feet with charcoal claws have near-vertical soles facing left. Match native coarse pixel art, three flat masonry planes in rust brown and soot, stepped hard highlights, crisp chunky clusters and dark plum outlines. No smooth gradients or blur. Train, wall, ground, shadow, labels, text, guide lines, extra limbs all absent. Transparent lower area below y140. Enlarge nearest-neighbor if needed but keep exact square coordinate proportions.
+```
+
+Второй запрос; вход — промежуточный `hang_00` с уже привязанными ногами:
+
+```text
+Use case: precise-object-edit. This is frame 03 of a four-frame game animation. Change ONLY the FREE right arm (the arm on image right), from hanging down to striking the invisible train to the LEFT. Preserve the demon's head, horns, massive chest, shoulders, left gripping arm at x40,y56 and BOTH braced feet at x40,y108 and x40,y131 EXACTLY unchanged and in same location. Keep square transparent 160x160 logical pixel canvas proportions, use sharp enlarged pixel clusters. The free arm starts at shoulder x123,y64, elbow bends at x130,y83, thick forearm reaches horizontally LEFT across the lower chest toward wrist x75,y85, huge three charcoal claws hit at x40..60,y86..96. Arm passes in FRONT of the chest. Claws point left, not down. Both feet remain fully visible under this arm and pressed to the invisible train at image left. No train, ground, shadows, background, motion streaks, labels or extra limbs. Original rust-brown masonry demon, same pixel art, orange eyes, lava crack, large heavy proportions. Do not change the rest of the pose. Genuine transparent background.
+```
+
+Финальные ворота: `node tools/check.mjs --tests` — **код 0, стена 6,423 с, 241/241 тест** (Node `C:\Program Files\nodejs\node.exe`).
