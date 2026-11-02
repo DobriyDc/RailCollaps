@@ -4,8 +4,8 @@
 // Not in the editor: its UI tab shows the portrait layout, this table is edited by hand.
 const UI_LAND_PLATE = 156;
 const UI_LAND = {
-    frameTop: { w: UI_LAND_PLATE, h: 520, stretch: 'v' },
-    frameBottom: { anchor: 'top-right', w: UI_LAND_PLATE, h: 520, stretch: 'v', bleedTop: 1 },
+    frameTop: { w: UI_LAND_PLATE, h: 520, stretch: 'v', bleedBottom: 1 },
+    frameBottom: { anchor: 'top-right', w: UI_LAND_PLATE, h: 520, stretch: 'v', bleedTop: 1, bleedBottom: 1 },
     distanceIcon: { x: 14, y: 26 },
     dist: { x: 40, y: 22, w: 98 },
     recordIcon: { x: 14, y: 74 },

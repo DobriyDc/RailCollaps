@@ -61,14 +61,15 @@ const UI = {
 
     // Images: slice is left,top,right,bottom in source pixels; sliceScale sets the drawn edge size.
     // columns/rows/frame crop a sheet; digits uses the raster numerals; angle rotates around pivotX/Y (%).
-    // bleedTop extends only the artwork through the Telegram safe area, keeping children below it.
+    // bleedTop / bleedBottom extend only the artwork through the Telegram safe area above / below the
+    // layout (the header, the home indicator), keeping children inside it.
     // Fields of a record by kind and their defaults — a new element in the editor starts from them.
     DEFAULTS: {
         text: { parent: '', anchor: 'top-left', x: 20, y: 20, text: 'Text', fontSize: 24, color: '#ffffff', shadow: '#000000', alpha: 1, visible: 1 },
         panel: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 80, stretch: '', fill: '#10202c', border: '', radius: 10, alpha: 0.7, visible: 1 },
         bar: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 18, stretch: '', value: 0.6, color: '#5ad05a', fill: '#10202c', border: '#ffffff', radius: 9, alpha: 1, visible: 1 },
         button: { parent: '', anchor: 'bottom-center', x: 0, y: 40, w: 180, h: 48, stretch: '', text: 'Button', fontSize: 20, color: '#ffffff', fill: '#2a6fb0', border: '', radius: 10, alpha: 1, visible: 1 },
-        image: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 64, h: 64, stretch: '', src: '', pressedSrc: '', disabledSrc: '', slice: '', sliceScale: 1, columns: 1, rows: 1, frame: 0, digits: 0, text: '', angle: 0, pivotX: 50, pivotY: 50, bleedTop: 0, fill: '', border: '', radius: 0, alpha: 1, visible: 1 },
+        image: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 64, h: 64, stretch: '', src: '', pressedSrc: '', disabledSrc: '', slice: '', sliceScale: 1, columns: 1, rows: 1, frame: 0, digits: 0, text: '', angle: 0, pivotX: 50, pivotY: 50, bleedTop: 0, bleedBottom: 0, fill: '', border: '', radius: 0, alpha: 1, visible: 1 },
     },
 
     /** @type {HTMLElement | null} */
@@ -428,6 +429,10 @@ class UIElement {
             if (d.bleedTop) {
                 s.overflow = 'visible';
                 t.top = 'calc(-1 * (var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)) / ' + UI.scale() + ')';
+            }
+            if (d.bleedBottom) {
+                s.overflow = 'visible';
+                t.bottom = 'calc(-1 * (var(--tg-safe-area-inset-bottom, 0px) + var(--tg-content-safe-area-inset-bottom, 0px)) / ' + UI.scale() + ')';
             }
             const angle = this._angle != null ? this._angle : d.angle || 0;
             t.transform = 'rotate(' + angle + 'deg)';

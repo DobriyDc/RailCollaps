@@ -60,6 +60,7 @@ interface UIRecord {
     pivotX?: number;
     pivotY?: number;
     bleedTop?: number;
+    bleedBottom?: number;
 }
 
 /** LOCATION_OBJECTS record (Objects.js, written by the editor). */
