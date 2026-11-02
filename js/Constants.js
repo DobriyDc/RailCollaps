@@ -268,8 +268,6 @@ const ADS_ADSGRAM_BLOCK = '';           // Adsgram: the id of the Reward block; 
 const ADS_ADSGRAM_SCRIPT = 'https://sad.adsgram.ai/js/sad.min.js';
 const ADS_MONETAG_ZONE = '12172659';    // Monetag: the zone of the Rewarded Interstitial
 const ADS_MONETAG_SCRIPT = 'https://libtl.com/sdk.js'; // Monetag: the address of sdk.js from the tag in its dashboard
-const ADS_ADEXIUM_WIDGET = '';          // Adexium: the id of the widget
-const ADS_ADEXIUM_SCRIPT = 'https://cdn.adexium.tech/assets/js/tg-ads-co-widget.min.js';
 const ADS_WAIT_MS = 8000;               // ms: a network's script or ad that takes longer passes the offer on
 
 // --- CAMERA (CameraControl.js): target on the map, azimuth, pitch and zoom. Zoom is

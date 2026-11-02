@@ -23,12 +23,12 @@ function ads({ ids = {}, inside = true, scripts = {} } = {}) {
     localStorage: { getItem: k => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, v) },
   });
   const Ads = p.get('Ads'), { window } = p.ctx;
-  Ads._ids = () => ({ adsgram: '', monetag: '', adexium: '', ...ids });
-  Ads._urls = () => ({ adsgram: 'adsgram.js', monetag: 'monetag.js', adexium: 'adexium.js' });
+  Ads._ids = () => ({ adsgram: '', monetag: '', ...ids });
+  Ads._urls = () => ({ adsgram: 'adsgram.js', monetag: 'monetag.js' });
   return { Ads, window, added, store };
 }
 
-const all = { adsgram: '11', monetag: '22', adexium: '33' };
+const all = { adsgram: '11', monetag: '22' };
 
 test('сеть выключена без идентификатора: скрипты не грузятся, награда бесплатна', async () => {
   const off = ads();
@@ -50,14 +50,15 @@ test('включённая сеть названа в политике, id Rewar
 
 test('очередь: каждое предложение начинается со следующей сети и переживает перезагрузку', () => {
   const { Ads, store } = ads({ ids: all });
-  const firsts = Array.from({ length: 6 }, () => Ads.order()[0]);
-  assert.deepEqual([...firsts], ['adsgram', 'monetag', 'adexium', 'adsgram', 'monetag', 'adexium']);
-  assert.equal(store.get('collapse.adTurn'), '6');
-  assert.deepEqual([...Ads.order()], ['adsgram', 'monetag', 'adexium']);
+  const firsts = Array.from({ length: 4 }, () => Ads.order()[0]);
+  assert.deepEqual([...firsts], ['adsgram', 'monetag', 'adsgram', 'monetag']);
+  assert.equal(store.get('collapse.adTurn'), '4');
+  assert.deepEqual([...Ads.order()], ['adsgram', 'monetag']);
+  assert.deepEqual([...Ads.order()], ['monetag', 'adsgram']);
 
-  const two = ads({ ids: { monetag: '22', adexium: '33' } });
-  assert.deepEqual([...two.Ads.order()], ['monetag', 'adexium']);
-  assert.deepEqual([...two.Ads.order()], ['adexium', 'monetag']);
+  const one = ads({ ids: { monetag: '22' } });
+  assert.deepEqual([...one.Ads.order()], ['monetag']);
+  assert.deepEqual([...one.Ads.order()], ['monetag']);
 });
 
 test('Adsgram: досмотр даёт награду, пропуск нет, ошибка передаёт ход следующей сети', async () => {
@@ -90,33 +91,6 @@ test('Monetag: награда только за valued, ранний выход 
   s.window.show_22 = async () => ({ reward_event_type: 'valued' });
   assert.equal(await s.Ads.rewarded(), true);
   s.window.show_22 = async () => { throw new Error('Empty feed'); };
-  assert.equal(await s.Ads.rewarded(), false);
-});
-
-test('Adexium: события показа, закрытие раньше конца без награды, тишина считается пустой лентой', async () => {
-  const s = ads({ ids: { adexium: '33' } });
-  const made = [];
-  let script = ads_ => { ads_.fire('adReceived', { id: 1 }); ads_.fire('adPlaybackCompleted'); ads_.fire('adClosed'); };
-  s.window.AdexiumWidget = class {
-    constructor(o) { this.o = o; this.fns = {}; this.shown = []; made.push(this); }
-    on(name, fn) { this.fns[name] = fn; }
-    fire(name, value) { this.fns[name](value); }
-    displayAd(ad) { this.shown.push(ad); }
-    requestAd(format) { this.format = format; setTimeout(() => script(this)); }
-  };
-  assert.equal(await s.Ads.rewarded(), true);
-  assert.equal(made[0].o.wid, '33');
-  assert.equal(made[0].format, 'interstitial');
-  assert.equal(made[0].shown.length, 1);
-
-  script = a => { a.fire('adReceived', { id: 2 }); a.fire('adClosed'); };
-  assert.equal(await s.Ads.rewarded(), false);
-  script = a => a.fire('noAdFound');
-  assert.equal(await s.Ads.rewarded(), false);
-  assert.equal(made.length, 1, 'виджет один на все предложения');
-
-  Object.defineProperty(s.Ads, 'waitMs', { get: () => 5 });
-  script = () => {};
   assert.equal(await s.Ads.rewarded(), false);
 });
 

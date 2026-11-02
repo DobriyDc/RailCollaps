@@ -16,7 +16,6 @@ interface Window {
     Telegram?: { WebApp?: any };
     /** The ad networks' scripts, loaded by js/Ads.js on the first offer. */
     Adsgram?: any;
-    AdexiumWidget?: any;
 }
 
 /** UI_LAYOUT record (UILayout.js, written by the editor's UI tab); fields by kind — UI.DEFAULTS. */

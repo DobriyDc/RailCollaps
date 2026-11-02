@@ -132,8 +132,6 @@ they are not vendored. Before a network goes on, name it in `privacy.html`.
   or a failure; `error` tells them apart.
 - Monetag: the Rewarded Interstitial, not the Rewarded Popup, which leaves for an external page. The
   promise resolves on an early close too: only `reward_event_type === 'valued'` is a view.
-- Adexium: `AdexiumWidget` events. Its rewarded format is for large apps only, so this is `interstitial`
-  with `adPlaybackCompleted` as the view.
 
 ## Bot setup (the Producer does it in Telegram; agents never handle the token)
 

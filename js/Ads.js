@@ -6,22 +6,17 @@
 
 /** @satisfies {Record<string, any>} */
 const Ads = {
-    NETWORKS: ['adsgram', 'monetag', 'adexium'],
+    NETWORKS: ['adsgram', 'monetag'],
     /** @type {Record<string, Promise<void>>} */
     _scripts: {},
     /** @type {any} */
     _adsgram: null,               // its controller lives as long as the page
-    /** @type {any} */
-    _adexium: null,               // one widget: its listeners stay, _adexiumEnd changes per offer
-    /** @type {((outcome: string) => void) | null} */
-    _adexiumEnd: null,
 
     _ids() {
         const U = 'undefined';
         return {
             adsgram: typeof ADS_ADSGRAM_BLOCK !== U ? ADS_ADSGRAM_BLOCK : '',
             monetag: typeof ADS_MONETAG_ZONE !== U ? ADS_MONETAG_ZONE : '',
-            adexium: typeof ADS_ADEXIUM_WIDGET !== U ? ADS_ADEXIUM_WIDGET : '',
         };
     },
     _urls() {
@@ -29,7 +24,6 @@ const Ads = {
         return {
             adsgram: typeof ADS_ADSGRAM_SCRIPT !== U ? ADS_ADSGRAM_SCRIPT : '',
             monetag: typeof ADS_MONETAG_SCRIPT !== U ? ADS_MONETAG_SCRIPT : '',
-            adexium: typeof ADS_ADEXIUM_SCRIPT !== U ? ADS_ADEXIUM_SCRIPT : '',
         };
     },
     get waitMs() { return typeof ADS_WAIT_MS !== 'undefined' ? ADS_WAIT_MS : 8000; },
@@ -58,9 +52,7 @@ const Ads = {
     async _offer(network) {
         const id = this._ids()[network];
         try {
-            if (network === 'adsgram') return await this._showAdsgram(id);
-            if (network === 'monetag') return await this._showMonetag(id);
-            return await this._showAdexium(id);
+            return await (network === 'adsgram' ? this._showAdsgram(id) : this._showMonetag(id));
         } catch (e) {
             console.warn('Ads:', network, e);
             return 'empty';
@@ -100,31 +92,5 @@ const Ads = {
         await this._script(this._urls().monetag, { zone, sdk: 'show_' + zone });
         const result = await window['show_' + zone]();
         return result && result.reward_event_type === 'valued' ? 'reward' : 'skip';
-    },
-
-    // Events, not a promise. Adexium keeps its rewarded format for large apps, so this is its interstitial:
-    // adPlaybackCompleted says the ad was viewed, the first ending of an offer wins.
-    async _showAdexium(wid) {
-        await this._script(this._urls().adexium);
-        if (!this._adexium) {
-            const ads = new window.AdexiumWidget({ wid, adFormat: 'interstitial' });
-            const end = outcome => { if (this._adexiumEnd) this._adexiumEnd(outcome); };
-            ads.on('adReceived', ad => { end('received'); ads.displayAd(ad); });
-            ads.on('noAdFound', () => end('empty'));
-            ads.on('adPlaybackCompleted', () => end('reward'));
-            ads.on('adClosed', () => end('skip'));
-            this._adexium = ads;
-        }
-        return new Promise(resolve => {
-            const timer = setTimeout(() => finish('empty'), this.waitMs);
-            const finish = outcome => {
-                clearTimeout(timer);
-                if (outcome === 'received') return;
-                this._adexiumEnd = null;
-                resolve(outcome);
-            };
-            this._adexiumEnd = finish;
-            this._adexium.requestAd('interstitial');
-        });
     },
 };
