@@ -1,0 +1,872 @@
+{
+  "schema_version": 1,
+  "generation_calls": 8,
+  "generation_calls_this_dispatch": 5,
+  "previous_keyframe_calls": 3,
+  "palette_source": "docs/STYLE.md",
+  "assets": [
+    {
+      "file": "assets/sprites/station/wall_A.png",
+      "size": [
+        384,
+        192
+      ],
+      "frames": 1,
+      "pivot": [
+        192,
+        192
+      ],
+      "purpose": "Flat rear wall; jagged transparent roof; rail-level base",
+      "tile_axes": [],
+      "sha256": "f69bcb7ff2524effc6dcc590e865ecd26d283a6224ce4718af929763ae520e79",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/wall_B.png",
+      "size": [
+        384,
+        192
+      ],
+      "frames": 1,
+      "pivot": [
+        192,
+        192
+      ],
+      "purpose": "Flat rear wall; jagged transparent roof; rail-level base",
+      "tile_axes": [],
+      "sha256": "fa2440990c4e4e228f7bd8dd6ad6386934f7f17e953ecbf5b88db1f7bd2306ec",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_1_stand.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "cap, blue work jacket; front standing",
+      "tile_axes": [],
+      "sha256": "e0838d5bdbc253d4a6fb899f4109cdd2eb136188eac2e6530882395fcc56a71c",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_1_walk_0.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "cap, blue work jacket; right-facing walking",
+      "tile_axes": [],
+      "sha256": "45068dc642e38a0950831e45172c4243d011dacd7eb99d6cf2f092d1d38eef7f",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_1_walk_1.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "cap, blue work jacket; right-facing walking",
+      "tile_axes": [],
+      "sha256": "9d8ba4210c61a57475d595a4c8beefbef8a2b8bca7ad827a0a0e909c5eb1cfd3",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_2_stand.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "headscarf, brown coat, suitcase; front standing",
+      "tile_axes": [],
+      "sha256": "502354eb6c637eb0b9031de7b49aa8ea709acd847cc94f6cd89e6a861d040866",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_2_walk_0.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "headscarf, brown coat, suitcase; right-facing walking",
+      "tile_axes": [],
+      "sha256": "ca3d180dd78b43e967b9289b68ee420cfd53b4b424f076bfa413ce357c87c755",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_2_walk_1.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "headscarf, brown coat, suitcase; right-facing walking",
+      "tile_axes": [],
+      "sha256": "31c9311b8c3b94226aa21a8212764b785c774866c5167070aedfa77eecadd094",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_3_stand.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "brown cap, jacket, bundle; front standing",
+      "tile_axes": [],
+      "sha256": "02693a79b0a603272cee8988128ca891b040e3a890d102ee9a48614b445cb780",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_3_walk_0.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "brown cap, jacket, bundle; right-facing walking",
+      "tile_axes": [],
+      "sha256": "377d567ce0c792f0d0e5bed5ad9b80e5c418f9523946fd5cd1d24a470a6b4474",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_3_walk_1.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "brown cap, jacket, bundle; right-facing walking",
+      "tile_axes": [],
+      "sha256": "ec7ddef2cb0d5804b7f353888d31a344ca15d914d7a47f4a89cb0836ed17d4af",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_4_stand.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "burgundy shawl, grey skirt; front standing",
+      "tile_axes": [],
+      "sha256": "ba9f7df709d0a0c3dfb8eded1cc3e545f32fb72070d7ba9af4b40b8355b66f83",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_4_walk_0.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "burgundy shawl, grey skirt; right-facing walking",
+      "tile_axes": [],
+      "sha256": "345ec733d033be69bd9879ea0a9f9a3c0551e1da22ae3f5aab88b6844c068d51",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_4_walk_1.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "burgundy shawl, grey skirt; right-facing walking",
+      "tile_axes": [],
+      "sha256": "59b6bb70b1add491ce0b96641991baafdcd49e6c50cca59fe45e6ad32fa3bae5",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_5_stand.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "grey cap, dark coat, cane; front standing",
+      "tile_axes": [],
+      "sha256": "3acbbf21a9a1bfa36c574030a2611659cd11ae3942c2703e877e15f699f650aa",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_5_walk_0.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "grey cap, dark coat, cane; right-facing walking",
+      "tile_axes": [],
+      "sha256": "c936ad59dbf0677884b4a386255a87ef3e41af589f681e3e4e9d3b0e1de22e8a",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_5_walk_1.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "grey cap, dark coat, cane; right-facing walking",
+      "tile_axes": [],
+      "sha256": "d083ca84d991e87c74313fa889e698d237a6c1146aec97f923c66d0b330bf790",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_6_stand.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "pale scarf, blue coat, lantern; front standing",
+      "tile_axes": [],
+      "sha256": "0ebf5268b6a659765c85ab96c6939736d227d7c31e9a1aaee2efce1d6637a21b",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_6_walk_0.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "pale scarf, blue coat, lantern; right-facing walking",
+      "tile_axes": [],
+      "sha256": "ac3b603602797752cbb94bcab3ffa69dfb2c1865683ae65c6374e1c15f669811",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_6_walk_1.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "pale scarf, blue coat, lantern; right-facing walking",
+      "tile_axes": [],
+      "sha256": "563c9a9fdbf3c7ee182174b7a332e1e54be504a0a73c86568254cc693b3b3868",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_7_stand.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "hood, brown apron, bag; front standing",
+      "tile_axes": [],
+      "sha256": "2a14a25cdd232c3ab89358b101e1e5b2c366715ec968584e73f4f5fd2bf99874",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_7_walk_0.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "hood, brown apron, bag; right-facing walking",
+      "tile_axes": [],
+      "sha256": "5eff4777f2def4ffb3d3ca7f69bd116852a108a991d6c4b9253ddd7b532c3e4e",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_7_walk_1.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "hood, brown apron, bag; right-facing walking",
+      "tile_axes": [],
+      "sha256": "6fe784932375db32834fbecdbfe52a12f68860cf27efcf3582ca33fecea50268",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_8_stand.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "headscarf, green coat, suitcase; front standing",
+      "tile_axes": [],
+      "sha256": "9f470dc48b57266301bc44a786c00802c9778f4c1a252a7abeea84b3fb18830a",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_8_walk_0.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "headscarf, green coat, suitcase; right-facing walking",
+      "tile_axes": [],
+      "sha256": "2e652d90f47bdd4844aded3f754b9f451ebffeda4d230e884e9b4eb23f1bda6a",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/passenger_8_walk_1.png",
+      "size": [
+        32,
+        64
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        64
+      ],
+      "purpose": "headscarf, green coat, suitcase; right-facing walking",
+      "tile_axes": [],
+      "sha256": "368aa3df9860e10be66d1c921d0dff0a1cbc474c375c7847d630a48338bf7b4d",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/platform_top_A.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0,
+        0
+      ],
+      "purpose": "Platform top material A",
+      "tile_axes": [
+        "x",
+        "y"
+      ],
+      "sha256": "13617d9c2eb535f38bf093d61234825e56a1fa9cdb8983ba5330df6981504fa4",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": [
+          "x",
+          "y"
+        ]
+      }
+    },
+    {
+      "file": "assets/sprites/station/platform_edge_A.png",
+      "size": [
+        128,
+        32
+      ],
+      "frames": 1,
+      "pivot": [
+        0,
+        0
+      ],
+      "purpose": "Platform edge material A",
+      "tile_axes": [
+        "x"
+      ],
+      "sha256": "cc2c0fd06fd2a43ca38bbb01d0a79636a00d7e24aee56c544bf04d2a8278e1d6",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": [
+          "x"
+        ]
+      }
+    },
+    {
+      "file": "assets/sprites/station/platform_top_B.png",
+      "size": [
+        128,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        0,
+        0
+      ],
+      "purpose": "Platform top material B",
+      "tile_axes": [
+        "x",
+        "y"
+      ],
+      "sha256": "5e28b085d78eb947ff6fe308097405a5d1134115ac5c033dcc447f8ef3c4b718",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": [
+          "x",
+          "y"
+        ]
+      }
+    },
+    {
+      "file": "assets/sprites/station/platform_edge_B.png",
+      "size": [
+        128,
+        32
+      ],
+      "frames": 1,
+      "pivot": [
+        0,
+        0
+      ],
+      "purpose": "Platform edge material B",
+      "tile_axes": [
+        "x"
+      ],
+      "sha256": "5957485da3c006a6e8ed2c834d2fbecf7408dd2eec7cce93f911084727d23cab",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": [
+          "x"
+        ]
+      }
+    },
+    {
+      "file": "assets/sprites/station/arch_A.png",
+      "size": [
+        384,
+        224
+      ],
+      "frames": 1,
+      "pivot": [
+        192,
+        224
+      ],
+      "purpose": "Rib arch, plain keystone, transparent train opening",
+      "tile_axes": [],
+      "sha256": "c4394784919647135d7d2f987f30e2fd7c74d24eddb92d3c09c78544a6905726",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/brazier_A_0.png",
+      "size": [
+        40,
+        56
+      ],
+      "frames": 1,
+      "pivot": [
+        20,
+        56
+      ],
+      "purpose": "Station prop or HUD pictogram: brazier_A_0",
+      "tile_axes": [],
+      "sha256": "eb5f8f8dc2710266af880326ffc59a5b15290c4e4fc651ff02b7b2009783a61f",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/brazier_A_1.png",
+      "size": [
+        40,
+        56
+      ],
+      "frames": 1,
+      "pivot": [
+        20,
+        56
+      ],
+      "purpose": "Station prop or HUD pictogram: brazier_A_1",
+      "tile_axes": [],
+      "sha256": "71318e7bffaf29f9c96af9d94b99e2492148dc0f730e3354fc5d418c69b3e04b",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/cage_A.png",
+      "size": [
+        32,
+        48
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        48
+      ],
+      "purpose": "Station prop or HUD pictogram: cage_A",
+      "tile_axes": [],
+      "sha256": "f98b1948aced082c7c48a2011a20c094ac5afc01c063a6c9c3c99f441b18fa45",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/column_B_0.png",
+      "size": [
+        32,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        128
+      ],
+      "purpose": "Station prop or HUD pictogram: column_B_0",
+      "tile_axes": [],
+      "sha256": "d52424d37911e08929e21c7fe0d49a352eb7a046f3a8959bf96a38eb1395a286",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/column_B_1.png",
+      "size": [
+        32,
+        128
+      ],
+      "frames": 1,
+      "pivot": [
+        16,
+        128
+      ],
+      "purpose": "Station prop or HUD pictogram: column_B_1",
+      "tile_axes": [],
+      "sha256": "f10754494906c9e07bed5af7a1caba0d3ff3810c194a6959416f9517c582b133",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/sprites/station/plate_post.png",
+      "size": [
+        40,
+        120
+      ],
+      "frames": 1,
+      "pivot": [
+        20,
+        120
+      ],
+      "purpose": "Blank 36x28 sign plate; engine draws number",
+      "tile_axes": [],
+      "sha256": "59179ea272bb24d42f1bf89e3e42727e75aa530fa72c92ccb70fa98fa68e5821",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_repair.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": 1,
+      "pivot": [
+        12,
+        24
+      ],
+      "purpose": "Station prop or HUD pictogram: icon_repair",
+      "tile_axes": [],
+      "sha256": "c32d667e89123df88dcc285038e9e354cde53e734ed41a73e9732ad0c8a3352c",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_token.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": 1,
+      "pivot": [
+        12,
+        24
+      ],
+      "purpose": "Station prop or HUD pictogram: icon_token",
+      "tile_axes": [],
+      "sha256": "1f236261dc08cf3a9b7ba00687c00a85dee0c066138d8a77dda06a1d41a99a37",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_seat.png",
+      "size": [
+        24,
+        24
+      ],
+      "frames": 1,
+      "pivot": [
+        12,
+        24
+      ],
+      "purpose": "Station prop or HUD pictogram: icon_seat",
+      "tile_axes": [],
+      "sha256": "500aabab1c5703dc63a6c998f4375d8c51e68914e1d5bf35eacf54d420d038fc",
+      "checks": {
+        "off_palette_pixels": 0,
+        "soft_alpha_pixels": 0,
+        "integer_upscale_factors": [],
+        "seams_match": []
+      }
+    }
+  ],
+  "processing": "BOX reduction directly to native size; nearest palette; binary alpha; periodic edge strips",
+  "preview": "sprites_preview.png; x3 nearest; tiles also 3x3 repeat",
+  "checks": "40 exact sizes; 32-color palette including hidden RGB; binary alpha; no integer enlargement; tile edge equality; passenger height; arch opening"
+}
