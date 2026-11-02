@@ -61,6 +61,8 @@ const TERRAIN_CELL = 8;                 // px: terrain grid step (mobile — no 
 // --- MODELS (Gltf3D.js) and UI (UI.js) ---
 const MODEL_CLIP_BLEND_SEC = 0.2;       // s: cross-fade between animation clips of a .glb model (idle -> run); 0 — instant
 const UI_REF_HEIGHT = 700;              // px: the screen height the UI layout (UILayout.js) is drawn for; the UI scales with the screen height, 0 — no scaling
+const UI_MAX_WIDTH = 400;               // layout px a tall screen keeps across at most: a wider one (a tablet, a desktop window) grows the UI instead of spreading it
+const UI_MAX_BOOST = 1.25;              // the most the UI grows that way, so a near-square window keeps room for the game
 const UI_REF_HEIGHT_LAND = 520;         // px: the same for ?land: a wide phone is low, the layout there is drawn for a lower screen
 
 // --- SOUND (Sound3D.js): channel volumes; a sound with a place on the map is heard from where

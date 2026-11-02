@@ -33,6 +33,8 @@ interface UIRecord {
     h?: number;
     /** 'h' | 'v' | 'both' — fills the container on that axis: x (y) — the inset, w (h) ignored. */
     stretch?: string;
+    /** A stretched element no wider than that (layout px), centred; 0 — the whole width. */
+    maxW?: number;
     text?: string;
     /** Image file: a path in assets/, '' — none */
     src?: string;

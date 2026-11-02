@@ -15,7 +15,7 @@
 // The server contract version this client expects. Must match
 // EDITOR_API_VERSION in server.mjs — otherwise the editor warns that editor.bat
 // is running old code (Node reads server files only at process start).
-const EDITOR_API_VERSION = 23;
+const EDITOR_API_VERSION = 24;
 
 // Ink edges and outline levels: 0 — off, 1 — main objects (actor), 2 — and environment (prop).
 const SCHEMA_LEVELS = [
@@ -327,6 +327,11 @@ const KIT_SCHEMA = [
               label: { en: 'UI reference height (px)', ru: 'Опорная высота UI (px)' },
               hint: { en: 'The screen height the UI layout is drawn for: on other screens the whole UI scales with the height. 0 — no scaling, layout numbers are CSS px',
                       ru: 'Высота экрана, под которую нарисован UI: на других экранах весь UI масштабируется по высоте. 0 — без масштаба, числа раскладки — CSS px' } },
+            { name: 'UI_MAX_WIDTH', min: 0, max: 1200, step: 10,
+              label: { en: 'UI max width on a tall screen (px)', ru: 'Наибольшая ширина UI на высоком экране (px)' },
+              hint: { en: 'A tall screen wider than this many layout px grows the UI by its width instead of spreading it. 0 — off',
+                      ru: 'Высокий экран шире стольких px раскладки увеличивает UI по ширине, а не растягивает его. 0 — выключено' } },
+            { name: 'UI_MAX_BOOST', min: 1, max: 2, step: 0.05, label: { en: 'UI growth on a wide tall screen, at most', ru: 'Наибольшее увеличение UI на широком высоком экране' } },
             { name: 'UI_REF_HEIGHT_LAND', min: 240, max: 1080, step: 10,
               label: { en: 'UI reference height with ?land (px)', ru: 'Опорная высота UI с ?land (px)' } },
             { name: 'GAME_RUN_SEC', min: 1, max: 60, step: 1,

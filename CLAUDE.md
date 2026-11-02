@@ -152,7 +152,8 @@ assets/           ground_texture_{g,d,s}.jpg — трава, песок, сне�
                   sounds/*.wav, *.mp3 — звуки (step.wav, sfx_*, loop_*, music_tunnel.wav генерирует tools/make-sounds.mjs)
 tools/            dev-server.mjs, build.mjs, asset-scan.mjs, zip.mjs, check.mjs (типы + тесты),
                   build-worker.mjs (функция таблицы одним файлом из js/ и server/),
-                  make-character.mjs, make-sounds.mjs, export-unity.mjs (перенос в Unity);
+                  make-character.mjs, make-sounds.mjs, make-font.mjs (кириллица пиксельного шрифта Alagard),
+                  export-unity.mjs (перенос в Unity);
                   art/ — check-art.mjs (палитра и сетка арта мира, в воротах)
 tsconfig.json     проверка типов игры; globals.d.ts — window.app, material.arcToon, записи объектов
 tests/            *.test.mjs (node --test): Store, heightAt, сканер ассетов, запись редактора, звук,

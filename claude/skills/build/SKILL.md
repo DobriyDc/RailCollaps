@@ -20,6 +20,8 @@ node tools/make-character.mjs          # regenerate assets/models/character.glb 
 node tools/make-character.mjs --check  # exit 1 if the file differs from the generator
 node tools/make-sounds.mjs             # regenerate assets/sounds/*.wav (the sample sounds, skill sound)
 node tools/make-sounds.mjs --check     # exit 1 if a file differs from the generator
+node tools/make-font.mjs               # regenerate assets/fonts/alagard_cyrillic.ttf from art_src/fonts_v1
+node tools/make-font.mjs --check       # exit 1 if the font differs from its source (tests/font.test.mjs)
 ```
 
 ## Phone-size screenshots (`tools/qa-shots.mjs`)

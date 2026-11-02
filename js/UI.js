@@ -31,7 +31,14 @@ const UI = {
         'bottom-left', 'bottom-center', 'bottom-right'],
     KINDS: ['text', 'panel', 'bar', 'button', 'image'],
     DIGITS: ['assets/ui/hud_v3/digit_0.png', 'assets/ui/hud_v3/digit_1.png', 'assets/ui/hud_v3/digit_2.png', 'assets/ui/hud_v3/digit_3.png', 'assets/ui/hud_v3/digit_4.png', 'assets/ui/hud_v3/digit_5.png', 'assets/ui/hud_v3/digit_6.png', 'assets/ui/hud_v3/digit_7.png', 'assets/ui/hud_v3/digit_8.png', 'assets/ui/hud_v3/digit_9.png'],
-    FONT: 'system-ui, "Segoe UI", Roboto, sans-serif',
+    FONT: '"Alagard", system-ui, "Segoe UI", Roboto, sans-serif',
+    // The pixel font, one family of two files by unicode-range: Alagard by Hewett Tsoi as published
+    // ("Give credit if used": the settings screen names him) and its Cyrillic drawn on the same grid
+    // (tools/make-font.mjs). A sign neither file has comes from the system font.
+    FONT_FACES: [
+        { src: 'assets/fonts/alagard.ttf', range: 'U+0020-007E, U+00A2-00A5, U+20AC' },
+        { src: 'assets/fonts/alagard_cyrillic.ttf', range: 'U+0401, U+0410-044F, U+0451, U+00AB, U+00B7, U+00BB, U+2013-2014, U+2026, U+2039-203A, U+2212, U+2713' },
+    ],
 
     /** @type {Set<string>} */
     missedDigits: new Set(),   // numerals whose file would not load: shown as text from then on
@@ -66,10 +73,10 @@ const UI = {
     // Fields of a record by kind and their defaults — a new element in the editor starts from them.
     DEFAULTS: {
         text: { parent: '', anchor: 'top-left', x: 20, y: 20, text: 'Text', fontSize: 24, color: '#ffffff', shadow: '#000000', alpha: 1, visible: 1 },
-        panel: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 80, stretch: '', fill: '#10202c', border: '', radius: 10, alpha: 0.7, visible: 1 },
-        bar: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 18, stretch: '', value: 0.6, color: '#5ad05a', fill: '#10202c', border: '#ffffff', radius: 9, alpha: 1, visible: 1 },
-        button: { parent: '', anchor: 'bottom-center', x: 0, y: 40, w: 180, h: 48, stretch: '', text: 'Button', fontSize: 20, color: '#ffffff', fill: '#2a6fb0', border: '', radius: 10, alpha: 1, visible: 1 },
-        image: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 64, h: 64, stretch: '', src: '', pressedSrc: '', disabledSrc: '', slice: '', sliceScale: 1, columns: 1, rows: 1, frame: 0, digits: 0, text: '', angle: 0, pivotX: 50, pivotY: 50, bleedTop: 0, bleedBottom: 0, fill: '', border: '', radius: 0, alpha: 1, visible: 1 },
+        panel: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 80, stretch: '', maxW: 0, fill: '#10202c', border: '', radius: 10, alpha: 0.7, visible: 1 },
+        bar: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 18, stretch: '', maxW: 0, value: 0.6, color: '#5ad05a', fill: '#10202c', border: '#ffffff', radius: 9, alpha: 1, visible: 1 },
+        button: { parent: '', anchor: 'bottom-center', x: 0, y: 40, w: 180, h: 48, stretch: '', maxW: 0, text: 'Button', fontSize: 20, color: '#ffffff', fill: '#2a6fb0', border: '', radius: 10, alpha: 1, visible: 1 },
+        image: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 64, h: 64, stretch: '', maxW: 0, src: '', pressedSrc: '', disabledSrc: '', slice: '', sliceScale: 1, columns: 1, rows: 1, frame: 0, digits: 0, text: '', angle: 0, pivotX: 50, pivotY: 50, bleedTop: 0, bleedBottom: 0, fill: '', border: '', radius: 0, alpha: 1, visible: 1 },
     },
 
     /** @type {HTMLElement | null} */
@@ -85,14 +92,26 @@ const UI = {
     /** @type {ResizeObserver | null} */
     _observer: null,
 
+    // The @font-face rules of FONT_FACES, once a page. block: no text in the system font for a frame.
+    _fonts() {
+        if (typeof document === 'undefined' || document.getElementById('arc-ui-fonts')) return;
+        const style = document.createElement('style');
+        style.id = 'arc-ui-fonts';
+        style.textContent = this.FONT_FACES.map(f => '@font-face { font-family: "Alagard"; src: url("' + this.assetBase + f.src +
+            '") format("truetype"); unicode-range: ' + f.range + '; font-display: block; }').join('\n');
+        document.head.appendChild(style);
+    },
+
     // canvas — the 3D canvas the UI lies over; layout — records (UI_LAYOUT by default).
     init(canvas, layout) {
         this.dispose();
         this.canvas = canvas;
+        this._fonts();
         const root = this.root = document.createElement('div');
         root.className = 'arc-ui';
+        // No synthesized bold: a pixel font smeared by half a pixel loses its pixels.
         Object.assign(root.style, { position: 'absolute', overflow: 'visible', pointerEvents: 'none', transformOrigin: '0 0',
-            fontFamily: this.FONT, userSelect: 'none', webkitUserSelect: 'none' });
+            fontFamily: this.FONT, fontSynthesis: 'none', userSelect: 'none', webkitUserSelect: 'none' });
         (canvas.parentElement || document.body).appendChild(root);
         if (typeof ResizeObserver !== 'undefined') {
             this._observer = new ResizeObserver(() => this.resize());
@@ -180,12 +199,16 @@ const UI = {
         (parent ? parent.el : this.root).appendChild(e.el);
     },
 
-    // UI px per CSS px: screen height / UI_REF_HEIGHT.
+    // UI px per CSS px: screen height / UI_REF_HEIGHT. A tall screen wider than UI_MAX_WIDTH layout
+    // px grows the UI by its width instead, at most UI_MAX_BOOST times: the HUD keeps a phone's look.
     scale() {
         const land = typeof IS_LAND !== 'undefined' && IS_LAND;
         const ref = land ? UI_REF_HEIGHT_LAND : typeof UI_REF_HEIGHT !== 'undefined' ? UI_REF_HEIGHT : 720;
-        const h = this.canvas ? this.canvas.clientHeight : 0;
-        return ref > 0 && h > 0 ? h / ref : 1;
+        const h = this.canvas ? this.canvas.clientHeight : 0, w = this.canvas ? this.canvas.clientWidth : 0;
+        if (!(ref > 0 && h > 0)) return 1;
+        const s = h / ref, max = typeof UI_MAX_WIDTH !== 'undefined' ? UI_MAX_WIDTH : 0;
+        const boost = typeof UI_MAX_BOOST !== 'undefined' ? UI_MAX_BOOST : 1;
+        return !land && max > 0 && h > w ? Math.min(Math.max(s, w / max), s * boost) : s;
     },
 
     // Telegram insets are CSS px, applied once before the layout scale. CSS expressions keep
@@ -233,7 +256,8 @@ const UI = {
     resolve(def, w, h, W, H) {
         const a = this.parseAnchor(def.anchor), st = this.stretchOf(def), x = Number(def.x) || 0, y = Number(def.y) || 0;
         return {
-            left: st.h ? x : a.h === 'right' ? W - x - w : a.h === 'center' ? W / 2 + x - w / 2 : x,
+            // A stretched element held by maxW stands in the middle.
+            left: st.h ? (Number(def.maxW) > 0 && w < W - 2 * x ? (W - w) / 2 : x) : a.h === 'right' ? W - x - w : a.h === 'center' ? W / 2 + x - w / 2 : x,
             top: st.v ? y : a.v === 'bottom' ? H - y - h : a.v === 'middle' ? H / 2 + y - h / 2 : y,
         };
     },
@@ -371,6 +395,9 @@ class UIElement {
         s.bottom = st.v || a.v === 'bottom' ? px(y) : '';
         this._transform();
         if (sized && !st.h) s.width = px(d.w);
+        // maxW: a stretched element no wider than that, in the middle of its container (a column of
+        // the HUD on a wide screen); 0 — the whole width.
+        if (sized && st.h && Number(d.maxW) > 0) Object.assign(s, { maxWidth: px(d.maxW), marginLeft: 'auto', marginRight: 'auto' });
         if (sized && !st.v) s.height = px(d.h);
         s.opacity = String(d.alpha == null ? 1 : Math.max(0, Math.min(1, Number(d.alpha))));
         s.display = this.visible || UI.editing ? 'block' : 'none';

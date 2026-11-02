@@ -440,6 +440,10 @@ const Lang = {
         "ru": "Щит полон",
         "en": "Shield full"
     },
+    "fontCredit": {
+        "ru": "Шрифт Alagard — Hewett Tsoi",
+        "en": "Font Alagard by Hewett Tsoi"
+    },
     "station.full.rescue": {
         "ru": "Спасение: полно",
         "en": "Rescue full"
@@ -466,6 +470,7 @@ const Lang = {
     "languageRU": "ru",
     "languageEN": "en",
     "settingsBack": "back",
+    "fontCredit": "fontCredit",
     "shopTitle": "shopSupport",
     "challengeTitle": "challengeTitle",
     "challengeAccept": "challengeAccept",

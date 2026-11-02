@@ -118,7 +118,6 @@ class CollapseStationView {
         this.lamp = host.rig.lampCol.slice();
         this.tint = -1;
         this.tints = CollapseStations.tints();
-        for (const url of Art.urls()) host.texture(url);
         // rel: x from the middle of the train's lane, beside: on the side of the number post.
         /** @type {{ mesh: any, x: number, y: number, z: number, look: string, rel: boolean, dx: number, beside?: boolean, wall?: boolean }[]} */
         this.parts = [];

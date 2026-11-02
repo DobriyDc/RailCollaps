@@ -238,7 +238,8 @@ class CollapseScene {
     static preloadUrls() {
         const A = CollapseArt;
         return {
-            mipped: [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoTurn), ...Object.values(A.locoFall), A.locoDamaged, ...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...Object.values(A.demon).flat(), ...Object.values(A.sign), ...Object.values(A.sw), ...A.lava],
+            mipped: [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoTurn), ...Object.values(A.locoFall), A.locoDamaged, ...A.torch, ...A.flow, ...A.shield, A.shieldHit, ...Object.values(A.demon).flat(), ...Object.values(A.sign), ...Object.values(A.sw), ...A.lava,
+                ...(typeof CollapseStationArt !== 'undefined' ? CollapseStationArt.urls() : [])],
             plain: [...Object.values(A.gap), ...A.bg.map(b => b.url),
                 ...Object.values(A.fx).flat(), ...Object.values(A.switches).flatMap(v => Object.values(v))],
         };

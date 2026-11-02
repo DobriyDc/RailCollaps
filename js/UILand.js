@@ -43,7 +43,7 @@ const UI_LAND = {
     boardRow: { h: 30 },
     boardMe: { y: 378 },
     // The settings in two columns: the low screen has no room for the portrait's five rows.
-    settingsScreen: { w: 640, h: 338 },
+    settingsScreen: { w: 640, h: 352 },
     musicLabel: { x: -158 },
     musicValue: { x: -158 },
     musicBar: { x: -158 },
@@ -59,6 +59,7 @@ const UI_LAND = {
     orientationPortrait: { x: 332, y: 194 },
     orientationLand: { y: 194 },
     settingsBack: { y: 266 },
+    fontCredit: { y: 328 },
     // The shop in one row: the low screen has no room for two rows of trains.
     shopScreen: { w: 640, h: 338 },
     shopCard0: { x: 30, y: 54 },

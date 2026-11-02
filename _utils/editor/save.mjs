@@ -253,7 +253,7 @@ export const UI_HEADER = `// UILayout.js — the game's UI layout: every HUD ele
 //   parent (optional) — id of the element this one sits in: anchor, x, y then count from the
 //   parent's box, the parent clips it and hides it together with itself;
 //   stretch (optional) — 'h' | 'v' | 'both': fills the container on that axis, x (y) — the inset
-//   from both edges, w (h) is ignored;
+//   from both edges, w (h) is ignored; maxW (optional) — a stretched width no wider than that, centred;
 //   colors — '#rrggbb', '' — none; visible: 0 — hidden until the game calls show().
 //   Records go in drawing order: later — on top.
 `;
@@ -271,16 +271,16 @@ const UI_COLOR = /^#[0-9a-fA-F]{6}$/;
 const UI_TYPES = {
   x: 'px', y: 'px', w: 'size', h: 'size', radius: 'size', fontSize: 'size', value: 'unit', alpha: 'unit',
   color: 'color', fill: 'color', border: 'color', shadow: 'color', text: 'text', visible: 'flag',
-  parent: 'id', stretch: 'stretch', src: 'image', pressedSrc: 'image', disabledSrc: 'image', slice: 'slice', sliceScale: 'size', columns: 'size', rows: 'size', frame: 'size', digits: 'flag', angle: 'px', pivotX: 'px', pivotY: 'px', bleedTop: 'flag', bleedBottom: 'flag',
+  parent: 'id', stretch: 'stretch', maxW: 'size', src: 'image', pressedSrc: 'image', disabledSrc: 'image', slice: 'slice', sliceScale: 'size', columns: 'size', rows: 'size', frame: 'size', digits: 'flag', angle: 'px', pivotX: 'px', pivotY: 'px', bleedTop: 'flag', bleedBottom: 'flag',
 };
-const UI_OPTIONAL = ['pressedSrc', 'disabledSrc', 'parent', 'stretch', 'slice', 'sliceScale', 'columns', 'rows', 'frame', 'digits', 'text', 'angle', 'pivotX', 'pivotY', 'bleedTop', 'bleedBottom'];
+const UI_OPTIONAL = ['pressedSrc', 'disabledSrc', 'parent', 'stretch', 'maxW', 'slice', 'sliceScale', 'columns', 'rows', 'frame', 'digits', 'text', 'angle', 'pivotX', 'pivotY', 'bleedTop', 'bleedBottom'];
 const UI_STRETCH = ['h', 'v', 'both'];
 export const UI_FIELDS = {
   text: ['parent', 'x', 'y', 'text', 'fontSize', 'color', 'shadow', 'alpha', 'visible'],
-  panel: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'fill', 'border', 'radius', 'alpha', 'visible'],
-  bar: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'value', 'color', 'fill', 'border', 'radius', 'alpha', 'visible'],
-  button: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'text', 'fontSize', 'color', 'fill', 'border', 'radius', 'alpha', 'visible'],
-  image: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'src', 'pressedSrc', 'disabledSrc', 'slice', 'sliceScale', 'columns', 'rows', 'frame', 'digits', 'text', 'angle', 'pivotX', 'pivotY', 'bleedTop', 'bleedBottom', 'fill', 'border', 'radius', 'alpha', 'visible'],
+  panel: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'maxW', 'fill', 'border', 'radius', 'alpha', 'visible'],
+  bar: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'maxW', 'value', 'color', 'fill', 'border', 'radius', 'alpha', 'visible'],
+  button: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'maxW', 'text', 'fontSize', 'color', 'fill', 'border', 'radius', 'alpha', 'visible'],
+  image: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'maxW', 'src', 'pressedSrc', 'disabledSrc', 'slice', 'sliceScale', 'columns', 'rows', 'frame', 'digits', 'text', 'angle', 'pivotX', 'pivotY', 'bleedTop', 'bleedBottom', 'fill', 'border', 'radius', 'alpha', 'visible'],
 };
 
 // A field value -> its literal in the file; invalid — null.
@@ -310,7 +310,7 @@ export function formatUI(elements) {
     ids.add(e.id);
     const parts = [`id: '${e.id}'`, `kind: '${e.kind}'`, `anchor: '${e.anchor}'`];
     for (const f of fields) {
-      if (UI_OPTIONAL.includes(f) && (e[f] == null || e[f] === '')) continue;
+      if (UI_OPTIONAL.includes(f) && (e[f] == null || e[f] === '' || (f === 'maxW' && Number(e[f]) === 0))) continue;
       const lit = fmtUIField(UI_TYPES[f], e[f]);
       if (lit === null) return failure('bad_element', { index: i, field: f });
       parts.push(`${f}: ${lit}`);

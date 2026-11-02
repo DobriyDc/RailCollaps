@@ -63,6 +63,8 @@ Every kind also takes `parent` and, except `text`, `stretch` — see §Nesting.
   `canvas height / UI_REF_HEIGHT`, so the interface keeps its proportions from a phone to 4K.
   `UI.size()` — the screen in layout px (the width depends on the aspect ratio — anchor wide
   things to an edge or the center, do not assume 1280). `UI_REF_HEIGHT = 0` — plain CSS px.
+  A tall screen wider than `UI_MAX_WIDTH` layout px (a tablet, a desktop window) scales the UI by its
+  width instead, at most `UI_MAX_BOOST` times: the layout gets lower than `UI_REF_HEIGHT` there.
 
 ## Nesting (`parent`) and stretch (`stretch`)
 
@@ -94,6 +96,11 @@ container on that axis, `x` (`y`) becomes the inset from BOTH edges and `w` (`h`
 `stretch: 'both', x: 0, y: 0` on the root is a full-screen dim at any aspect ratio; `stretch: 'h',
 x: 16` inside a panel is a row 16 px from each of its sides. Without it a full-width element has
 to be resized from code, and `UI.size()` gives the width only after the canvas exists.
+
+`maxW` (panel, bar, button, image; 0 — off) holds a horizontally stretched element to that width in
+the middle of its container. The HUD uses it as columns: `hudTopCol` and `hudBottomCol` fill the bars
+and keep their contents to a phone's width on a wide screen while the bars' art spans it all; `hudCol`
+does the same for the texts under the top bar.
 
 Rules of the tree:
 - `parent` is the id of another element; missing or `''` — the screen (the root).

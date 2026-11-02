@@ -60,7 +60,9 @@ test('?land: таблица плашек ложится на записи рас
   const before = JSON.stringify(layout), land = UI.overlay(layout, over);
   assert.equal(JSON.stringify(layout), before);
   assert.equal(land.find(d => d.id === 'frameTop').stretch, 'v');
-  assert.equal(land.find(d => d.id === 'dist').parent, 'frameTop');
+  // The HUD's columns fill the plates: on the low screen a plate is narrower than a column.
+  assert.equal(land.find(d => d.id === 'dist').parent, 'hudTopCol');
+  assert.equal(land.find(d => d.id === 'hudTopCol').parent, 'frameTop');
   // Every panel that shows in a menu fits the low screen.
   const H = p.get('UI_REF_HEIGHT_LAND');
   for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen', 'overBox', 'boardBox']) assert.ok(land.find(d => d.id === id).h <= H, id);
@@ -74,7 +76,8 @@ test('?land: таблица плашек ложится на записи рас
   }
   assert.ok(layout.find(d => d.id === 'settingsScreen').h <= (568 - 92) / 568 * p.get('UI_REF_HEIGHT'), 'настройки на низком экране');
   const plate = p.get('UI_LAND_PLATE');
-  for (const d of land) if (d.parent === 'frameTop' || d.parent === 'frameBottom') if (d.w) assert.ok(d.w <= plate, d.id);
+  const plates = ['frameTop', 'frameBottom', 'hudTopCol', 'hudBottomCol'];
+  for (const d of land) if (plates.includes(d.parent) && !d.stretch) if (d.w) assert.ok(d.w <= plate, d.id);
 });
 
 // A client of the given version: the calls it got, in order.
