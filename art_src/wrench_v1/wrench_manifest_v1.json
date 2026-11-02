@@ -1,0 +1,153 @@
+{
+  "assets": [
+    {
+      "file": "assets/ui/hud_v3/icon_rescue.png",
+      "size": [
+        24,
+        24
+      ],
+      "previous_size": [
+        24,
+        24
+      ],
+      "frames": 1,
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "pivot_note": "Canvas center; existing runtime placement unchanged",
+      "purpose": "rescue counter",
+      "opaque_rgb_colors": 7,
+      "visible_rgb_colors": 7,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "partial_alpha_pixels": 0,
+      "visible_bbox": [
+        5,
+        3,
+        21,
+        19
+      ],
+      "bytes": 334
+    },
+    {
+      "file": "assets/ui/hud_v3/pickup_rescue.png",
+      "size": [
+        24,
+        24
+      ],
+      "previous_size": [
+        24,
+        24
+      ],
+      "frames": 1,
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "pivot_note": "Canvas center; existing runtime placement unchanged",
+      "purpose": "rescue lane marker",
+      "opaque_rgb_colors": 8,
+      "visible_rgb_colors": 8,
+      "alpha_values": [
+        0,
+        255
+      ],
+      "partial_alpha_pixels": 0,
+      "visible_bbox": [
+        0,
+        0,
+        24,
+        24
+      ],
+      "bytes": 449
+    },
+    {
+      "file": "assets/px/pickups/rescue.png",
+      "size": [
+        58,
+        96
+      ],
+      "previous_size": [
+        58,
+        96
+      ],
+      "frames": 1,
+      "pivot_normalized": [
+        0.5,
+        0.5
+      ],
+      "pivot_note": "Canvas center; existing runtime placement unchanged",
+      "purpose": "rescue track pickup",
+      "opaque_rgb_colors": 115,
+      "visible_rgb_colors": 874,
+      "alpha_values": {
+        "count": 134,
+        "min": 0,
+        "max": 255
+      },
+      "partial_alpha_pixels": 953,
+      "visible_bbox": [
+        1,
+        20,
+        57,
+        75
+      ],
+      "bytes": 4244
+    }
+  ],
+  "comparison": {
+    "file": "art_src/wrench_v1/compare.png",
+    "background": "#14121a",
+    "ui_scale": 6,
+    "track_scale": 3,
+    "resample": "nearest",
+    "native_review": "art_src/wrench_v1/actual_size.png"
+  },
+  "generation_sources": [
+    "source_track.png",
+    "source_ui.png",
+    "source_ui_final.png"
+  ],
+  "checks": {
+    "node tools/check.mjs --tests": {
+      "exit_code": 0,
+      "wall_seconds": 7.3666907,
+      "tests_passed": 241
+    },
+    "frame_changed_pixels": 0,
+    "ui_glyph_identical": true
+  },
+  "processing": {
+    "ui_crop": [
+      273,
+      259,
+      1104,
+      1046
+    ],
+    "ui_square_padding": 831,
+    "ui_resize": [
+      16,
+      16
+    ],
+    "ui_offset": [
+      5,
+      3
+    ],
+    "ui_alpha_threshold": 128,
+    "track_fit": [
+      56,
+      56
+    ],
+    "track_canvas": [
+      58,
+      96
+    ],
+    "track_offset": [
+      1,
+      20
+    ]
+  }
+}
