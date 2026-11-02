@@ -262,6 +262,16 @@ const LEADERBOARD_MAX_BODY = 65536;     // bytes of one score request
 const LEADERBOARD_NAME_MAX = 24;        // characters of a shown name
 const COLLAPSE_TRAIN_STARS = 100;        // Telegram Stars one train of the shop costs: about 2 $ to a buyer (docs/monetization.md)
 
+// --- ADS: the rewarded ad that continues a run (js/Ads.js, docs/monetization.md). An empty id turns its
+// network off; the ids are public, they go into the page. ---
+const ADS_ADSGRAM_BLOCK = '';           // Adsgram: the id of the Reward block
+const ADS_ADSGRAM_SCRIPT = 'https://sad.adsgram.ai/js/sad.min.js';
+const ADS_MONETAG_ZONE = '';            // Monetag: the zone of the Rewarded Interstitial
+const ADS_MONETAG_SCRIPT = '';          // Monetag: the address of sdk.js from the tag in its dashboard
+const ADS_ADEXIUM_WIDGET = '';          // Adexium: the id of the widget
+const ADS_ADEXIUM_SCRIPT = 'https://cdn.adexium.tech/assets/js/tg-ads-co-widget.min.js';
+const ADS_WAIT_MS = 8000;               // ms: a network's script or ad that takes longer passes the offer on
+
 // --- CAMERA (CameraControl.js): target on the map, azimuth, pitch and zoom. Zoom is
 // screen px per world px at the look-at point; distance is derived from it. Flight
 // (WASD, Q/E) lifts the look-at point off the ground. ---

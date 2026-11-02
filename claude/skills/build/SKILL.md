@@ -45,9 +45,9 @@ byte for byte, no line-ending conversion.
 `node tools/build-worker.mjs` writes `server/leaderboard/dist/worker.js` (not in the repository; wrangler
 runs it before every deploy): the `COLLAPSE_*` and `LEADERBOARD_*` lines of `js/Constants.js` that the
 rules or the function name, all of `js/CollapseRules.js`, then `server/leaderboard/src/index.js`. The
-function has no copy of the rules. `server` is in `BUILD_EXCLUDE`. The one external host a shipped
-file may name is the line `const LEADERBOARD_URL = …` of `js/Constants.js`: `tools/build.mjs` skips
-that line in its external URL check. Changed the rules — raise `COLLAPSE_RULES_VERSION` and redeploy
+function has no copy of the rules. `server` is in `BUILD_EXCLUDE`. The external hosts a shipped
+file may name are the lines `const LEADERBOARD_URL = …` and `const ADS_*_SCRIPT = …` of
+`js/Constants.js`: `tools/build.mjs` skips them in its external URL check. Changed the rules — raise `COLLAPSE_RULES_VERSION` and redeploy
 (`tests/leaderboard.test.mjs` holds a fingerprint per version).
 
 ## Dev server (`tools/dev-server.mjs`)

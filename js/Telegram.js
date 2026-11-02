@@ -1,5 +1,5 @@
-// Telegram.js — the single wrapper over the Telegram Mini Apps SDK (libs/telegram-web-app.js) and
-// the rewarded-ad hook, skill telegram-miniapp. No other file touches window.Telegram.WebApp. Every
+// Telegram.js — the single wrapper over the Telegram Mini Apps SDK (libs/telegram-web-app.js),
+// skill telegram-miniapp. No other file touches window.Telegram.WebApp. Every
 // call is guarded: in a plain browser (TG.inside === false) or on an old client it does nothing.
 
 /** @satisfies {Record<string, any>} */
@@ -83,15 +83,5 @@ const TG = {
     saveBest(meters) {
         if (!this.at('6.9')) return;
         this._call(() => this.app.CloudStorage.setItem('best_m', String(meters)));
-    },
-};
-
-// Rewarded ad to continue a run: resolves true when the viewer earned the reward. The network is
-// the Producer's decision (GDD v3 §7); until then a stub that always grants after a short pause.
-/** @satisfies {Record<string, any>} */
-const Ads = {
-    stub: true,
-    rewarded() {
-        return new Promise(resolve => setTimeout(() => resolve(this.stub), 700));
     },
 };

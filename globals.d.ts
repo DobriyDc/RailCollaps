@@ -14,6 +14,9 @@ interface Window {
     app?: { location: Location3D; camera: CameraController; game: Game | null };
     /** libs/telegram-web-app.js: Telegram Mini Apps SDK; only js/Telegram.js may use it (skill telegram-miniapp). */
     Telegram?: { WebApp?: any };
+    /** The ad networks' scripts, loaded by js/Ads.js on the first offer. */
+    Adsgram?: any;
+    AdexiumWidget?: any;
 }
 
 /** UI_LAYOUT record (UILayout.js, written by the editor's UI tab); fields by kind — UI.DEFAULTS. */

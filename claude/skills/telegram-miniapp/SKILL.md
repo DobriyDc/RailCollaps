@@ -115,10 +115,25 @@ the cloud value and keep the max with the local one; write after a run ends, not
 
 ## Rewarded ad to continue a run
 
-One function, `Ads.rewarded()` → `Promise<boolean>`. In dev and in a plain browser it is a stub
-(resolves after a short fake delay). The ad network is the Producer's decision; its SDK is an
-external script, so it gets the same vendoring question and approval as the Telegram SDK. A failed
-or unavailable ad resolves `false` and the run ends normally — never block the end screen on it.
+One function, `Ads.rewarded()` → `Promise<boolean>` (`js/Ads.js`). In dev, in a plain browser and with
+every network off it grants the reward after a short delay. A failed or unavailable ad resolves `false`
+and the run ends normally — never block the end screen on it.
+
+Networks (`Ads.NETWORKS`) are on when their id in `Constants.js` is set; ids are public. Each offer starts
+from the next network and passes on when it has no ad, so every network gets the same chances and the
+dashboards compare directly. A viewer who closes the ad ends the offer without a reward.
+
+An ad network's script is the one exception to invariant 1: it loads from the network's host, on the first
+offer, inside Telegram only, and its address is an `ADS_*_SCRIPT` line of `Constants.js`, the only lines
+`tools/build.mjs` allows besides `LEADERBOARD_URL`. The networks update these scripts on their side, so
+they are not vendored. Before a network goes on, name it in `privacy.html`.
+
+- Adsgram: `window.Adsgram.init({ blockId }).show()` resolves `{ done }`, rejects with `{ error }` on a skip
+  or a failure; `error` tells them apart.
+- Monetag: the Rewarded Interstitial, not the Rewarded Popup, which leaves for an external page. The
+  promise resolves on an early close too: only `reward_event_type === 'valued'` is a view.
+- Adexium: `AdexiumWidget` events. Its rewarded format is for large apps only, so this is `interstitial`
+  with `adPlaybackCompleted` as the view.
 
 ## Bot setup (the Producer does it in Telegram; agents never handle the token)
 
