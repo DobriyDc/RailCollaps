@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "character": "furnace_mason_01",
+  "palette_source": "docs/STYLE.md",
+  "filter": "nearest",
+  "alpha": [
+    0,
+    255
+  ],
+  "purpose": "Replace only cabin hanging frames and gap warning icon; art metadata only, no runtime registry",
+  "frames": [
+    {
+      "file": "assets/sprites/demon_v3/hang_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        40,
+        56
+      ],
+      "pivot_purpose": "left cabin grip visual reference; runtime unchanged",
+      "frame": 0,
+      "purpose": "hang breathing A",
+      "bbox": [
+        35,
+        21,
+        152,
+        145
+      ]
+    },
+    {
+      "file": "assets/sprites/demon_v3/hang_01.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        40,
+        56
+      ],
+      "pivot_purpose": "left cabin grip visual reference; runtime unchanged",
+      "frame": 1,
+      "purpose": "hang breathing B",
+      "bbox": [
+        35,
+        21,
+        152,
+        145
+      ]
+    },
+    {
+      "file": "assets/sprites/demon_v3/hang_02.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        40,
+        56
+      ],
+      "pivot_purpose": "left cabin grip visual reference; runtime unchanged",
+      "frame": 2,
+      "purpose": "hang wind-up",
+      "bbox": [
+        35,
+        20,
+        156,
+        145
+      ]
+    },
+    {
+      "file": "assets/sprites/demon_v3/hang_03.png",
+      "size": [
+        160,
+        160
+      ],
+      "rect": [
+        0,
+        0,
+        160,
+        160
+      ],
+      "pivot": [
+        40,
+        56
+      ],
+      "pivot_purpose": "left cabin grip visual reference; runtime unchanged",
+      "frame": 3,
+      "purpose": "hang strike",
+      "bbox": [
+        35,
+        20,
+        138,
+        145
+      ]
+    },
+    {
+      "file": "assets/ui/hud_v3/icon_gap.png",
+      "size": [
+        24,
+        24
+      ],
+      "rect": [
+        0,
+        0,
+        24,
+        24
+      ],
+      "pivot": [
+        12,
+        12
+      ],
+      "pivot_purpose": "icon center",
+      "frame": 0,
+      "purpose": "track gap hazard",
+      "bbox": [
+        1,
+        1,
+        23,
+        23
+      ]
+    }
+  ]
+}
