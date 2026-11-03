@@ -153,7 +153,7 @@ test('страница условий: без внешних скриптов, �
 
 test('донат: сумму вписывает игрок, в пределах числа; оплата благодарит и ничего не надевает', async () => {
   const p = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Shop.js'], { localStorage: { getItem: () => null, setItem() {} }, Leaderboard: { enabled: true } });
-  assert.equal(p.get('COLLAPSE_DONATE_OPEN'), 0, 'донаты открываются числом после деплоя функции');
+  assert.equal(p.get('COLLAPSE_DONATE_OPEN'), 1, 'донат открыт 2026-11-03, после деплоя функции с таблицей donations');
   const s = shop({ selling: false, donating: true });
   s.boot();
   s.Shop.open();
