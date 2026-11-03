@@ -57,6 +57,11 @@ $ORCA orchestration worker-start --from <ящик> --run <run> --spec "$(cat с�
   --base-branch main --name <ветка> --setup skip --agent codex --model gpt-6.1-sol --effort medium --json
 ```
 
+Если Orca закрыли и открыли заново, прежний терминал координатора пропадает, и `worker-start` отвечает
+`consumer_fenced` или `stable_pane_required`. Тогда создать новый терминал в `D:/Railgramm/collapse`
+(`orca terminal create --worktree path:D:/Railgramm/collapse --title "coordinator (Claude)" --json`),
+привязать прогон `orca orchestration run-use --id <run> --from <новый терминал> --json` и запускать с этим `--from`.
+
 После запуска проверить `worker-read`: если в хвосте `[Pasted Content … chars]` — спека не отправлена,
 `terminal send --terminal <handle> --enter --text ""`. Так было 1 раз из 3 в волне 1.
 

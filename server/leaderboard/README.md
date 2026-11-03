@@ -115,6 +115,15 @@ npx wrangler d1 execute collapse-leaderboard --remote --command "SELECT * FROM p
 curl.exe -F "user_id=ID" -F "telegram_payment_charge_id=CHARGE_ID" https://api.telegram.org/botТОКЕН/refundStarPayment
 ```
 
+Поезда для теста без оплаты: строка в `purchases` с `charge_id = 'gift'` и нулём звёзд. Игра видит её как покупку при следующем открытии магазина. Номер игрока в Telegram (ID) можно найти по его донату: `SELECT user_id, stars, datetime(at, 'unixepoch') FROM donations`.
+
+```
+npx --yes wrangler@4.156.0 d1 execute collapse-leaderboard --remote -c wrangler.local.toml --command "INSERT OR IGNORE INTO purchases (user_id, item, charge_id, stars, at) VALUES (ID, 'hell', 'gift', 0, CAST(strftime('%s','now') AS INTEGER)), (ID, 'rune', 'gift', 0, CAST(strftime('%s','now') AS INTEGER)), (ID, 'bio', 'gift', 0, CAST(strftime('%s','now') AS INTEGER))"
+npx --yes wrangler@4.156.0 d1 execute collapse-leaderboard --remote -c wrangler.local.toml --command "DELETE FROM purchases WHERE charge_id = 'gift' AND user_id = ID"
+```
+
+Первая команда выдаёт три поезда, вторая забирает их. Подарок не уходит в Telegram, поэтому вернуть по нему нечего.
+
 ## Когда меняются правила
 
 Правила и числа забега встроены в функцию при сборке, новая версия игры без нового деплоя получит отказы.

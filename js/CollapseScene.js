@@ -73,7 +73,7 @@ const CollapseArt = {
             locoTurn: { left: 'assets/px/train/rune/loco_turn_left.png', right: 'assets/px/train/rune/loco_turn_right.png' },
             locoFall: { left: 'assets/px/train/rune/loco_fall_left.png', right: 'assets/px/train/rune/loco_fall_right.png' },
             locoDamaged: 'assets/px/train/rune/loco_damaged.png',
-            full: true, over: true, grip: [115, 92], gripTurn: { left: [98, 96], right: [114, 95] }, nose: { left: -16.5, right: 14.5 },
+            full: true, over: true, grip: [115, 92], gripTurn: { left: [111, 94], right: [113, 94] }, nose: { left: -2.5, right: 4.5 },
         },
         bio: {
             loco: ['assets/px/train/bio/loco_run_0.png', 'assets/px/train/bio/loco_run_1.png',
