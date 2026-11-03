@@ -1,0 +1,77 @@
+{
+  "seed": 9,
+  "pos": 203.4,
+  "ammo": 0,
+  "hp": 1,
+  "seconds": 11,
+  "music": 0.5,
+  "endAt": 8.2,
+  "actions": [
+    {
+      "at": 0.0,
+      "do": "hazard",
+      "kind": "gap",
+      "ahead": 9,
+      "len": 4
+    },
+    {
+      "at": 1.7,
+      "do": "fork"
+    }
+  ],
+  "captions": {
+    "ru": [
+      {
+        "from": 0.0,
+        "to": 1.7,
+        "text": "Две тысячи метров.<br><b>Ноль патронов.</b>"
+      },
+      {
+        "from": 1.7,
+        "to": 4.0,
+        "text": "Рычаг<br>не сдвинуть…"
+      },
+      {
+        "from": 4.4,
+        "to": 6.4,
+        "text": "Мой рекорд —<br><b>{m} м</b>"
+      },
+      {
+        "from": 6.5,
+        "to": 8.2,
+        "text": "Побьёшь?"
+      }
+    ],
+    "en": [
+      {
+        "from": 0.0,
+        "to": 1.7,
+        "text": "Two thousand meters.<br><b>Zero ammo.</b>"
+      },
+      {
+        "from": 1.7,
+        "to": 4.0,
+        "text": "Can't move<br>the lever…"
+      },
+      {
+        "from": 4.4,
+        "to": 6.4,
+        "text": "My record —<br><b>{m} m</b>"
+      },
+      {
+        "from": 6.5,
+        "to": 8.2,
+        "text": "Can you beat it?"
+      }
+    ]
+  },
+  "endLines": {
+    "ru": [
+      "Играй бесплатно в Telegram"
+    ],
+    "en": [
+      "Play free in Telegram"
+    ]
+  },
+  "capTop": "11%"
+}

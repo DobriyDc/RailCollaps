@@ -220,17 +220,45 @@ const Lang = {
         "ru": "Начальный",
         "en": "Starter"
     },
-    "train.soviet": {
-        "ru": "Советский",
-        "en": "Soviet"
+    "train.hell": {
+        "ru": "Адский паровоз",
+        "en": "Infernal Engine"
     },
-    "train.american": {
-        "ru": "Американский",
-        "en": "American"
+    "train.rune": {
+        "ru": "Рунный экспресс",
+        "en": "Rune Express"
     },
-    "train.brazil": {
-        "ru": "Бразильский",
-        "en": "Brazilian"
+    "train.bio": {
+        "ru": "Хитиновый",
+        "en": "Chitin Beast"
+    },
+    "shopDonate": {
+        "ru": "Поддержать",
+        "en": "Donate"
+    },
+    "donateTitle": {
+        "ru": "Поддержать разработчика",
+        "en": "Support the developer"
+    },
+    "donateHint": {
+        "ru": "Сколько звёзд? От {min} до {max}",
+        "en": "How many Stars? {min} to {max}"
+    },
+    "donateSend": {
+        "ru": "Отправить ⭐",
+        "en": "Send ⭐"
+    },
+    "donateCancel": {
+        "ru": "Отмена",
+        "en": "Cancel"
+    },
+    "donateBad": {
+        "ru": "Впиши число от {min} до {max}",
+        "en": "Type a number from {min} to {max}"
+    },
+    "donateThanks": {
+        "ru": "Спасибо за поддержку!",
+        "en": "Thank you for your support!"
     },
     "menu": {
         "ru": "Главное меню",
@@ -472,6 +500,8 @@ const Lang = {
     "settingsBack": "back",
     "fontCredit": "fontCredit",
     "shopTitle": "shopSupport",
+    "donateTitle": "donateTitle",
+    "donateCancel": "donateCancel",
     "challengeTitle": "challengeTitle",
     "challengeAccept": "challengeAccept",
     "challengeLater": "challengeLater",

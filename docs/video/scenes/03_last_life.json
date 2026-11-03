@@ -1,0 +1,86 @@
+{
+  "seed": 5,
+  "pos": 72.4,
+  "ammo": 3,
+  "hp": 1,
+  "seconds": 11,
+  "music": 0.5,
+  "endAt": 8.4,
+  "actions": [
+    {
+      "at": 0.0,
+      "do": "hazard",
+      "kind": "gap",
+      "ahead": 10,
+      "len": 4
+    },
+    {
+      "at": 3.1,
+      "do": "fork"
+    }
+  ],
+  "captions": {
+    "ru": [
+      {
+        "from": 0.0,
+        "to": 1.3,
+        "text": "Одна жизнь."
+      },
+      {
+        "from": 1.3,
+        "to": 3.1,
+        "text": "Впереди <b>провал</b>!"
+      },
+      {
+        "from": 3.1,
+        "to": 4.7,
+        "text": "Выстрел по рычагу —<br><b>стрелка переведена</b>"
+      },
+      {
+        "from": 4.8,
+        "to": 6.6,
+        "text": "В метре<br>от бездны"
+      },
+      {
+        "from": 6.7,
+        "to": 8.4,
+        "text": "А у тебя<br>нервы есть?"
+      }
+    ],
+    "en": [
+      {
+        "from": 0.0,
+        "to": 1.3,
+        "text": "One life left."
+      },
+      {
+        "from": 1.3,
+        "to": 3.1,
+        "text": "A <b>gap</b> ahead!"
+      },
+      {
+        "from": 3.1,
+        "to": 4.7,
+        "text": "Shoot the lever —<br><b>the switch flips</b>"
+      },
+      {
+        "from": 4.8,
+        "to": 6.6,
+        "text": "One meter<br>from the abyss"
+      },
+      {
+        "from": 6.7,
+        "to": 8.4,
+        "text": "Got the nerve?"
+      }
+    ]
+  },
+  "endLines": {
+    "ru": [
+      "Играй бесплатно в Telegram"
+    ],
+    "en": [
+      "Play free in Telegram"
+    ]
+  }
+}

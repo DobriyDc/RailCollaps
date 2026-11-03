@@ -247,7 +247,7 @@ export async function saveObjects(root, objects) {
 export const UI_HEADER = `// UILayout.js — the game's UI layout: every HUD element, placed and styled in the editor (UI tab).
 // The editor rewrites the whole file (POST /api/save-ui) — keep the format. Drawn by js/UI.js;
 // game code takes an element by id: UI.get('score').setText('10') — and never positions HUD itself.
-//   kind — 'text' | 'panel' | 'bar' | 'button' | 'image'; anchor — one of 9 screen points ('top-left' …
+//   kind — 'text' | 'panel' | 'bar' | 'button' | 'image' | 'input'; anchor — one of 9 screen points ('top-left' …
 //   'bottom-right'): x, y go from it to the same point of the element (inward from an edge,
 //   signed from the center); w, h — px; numbers are px of a screen UI_REF_HEIGHT tall;
 //   parent (optional) — id of the element this one sits in: anchor, x, y then count from the
@@ -280,6 +280,7 @@ export const UI_FIELDS = {
   panel: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'maxW', 'fill', 'border', 'radius', 'alpha', 'visible'],
   bar: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'maxW', 'value', 'color', 'fill', 'border', 'radius', 'alpha', 'visible'],
   button: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'maxW', 'text', 'fontSize', 'color', 'fill', 'border', 'radius', 'alpha', 'visible'],
+  input: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'maxW', 'text', 'fontSize', 'color', 'fill', 'border', 'radius', 'alpha', 'visible'],
   image: ['parent', 'x', 'y', 'w', 'h', 'stretch', 'maxW', 'src', 'pressedSrc', 'disabledSrc', 'slice', 'sliceScale', 'columns', 'rows', 'frame', 'digits', 'text', 'angle', 'pivotX', 'pivotY', 'bleedTop', 'bleedBottom', 'fill', 'border', 'radius', 'alpha', 'visible'],
 };
 

@@ -23,6 +23,14 @@ CREATE TABLE IF NOT EXISTS purchases (
 );
 CREATE INDEX IF NOT EXISTS purchases_charge ON purchases (charge_id);
 
+-- Donations: one row per payment, the sum the player chose. They buy nothing; a refund removes the row.
+CREATE TABLE IF NOT EXISTS donations (
+    charge_id TEXT    PRIMARY KEY,
+    user_id   INTEGER NOT NULL,
+    stars     INTEGER NOT NULL,
+    at        INTEGER NOT NULL
+);
+
 -- The request limit: one row per player, the current window and its counter.
 CREATE TABLE IF NOT EXISTS rate (
     user_id INTEGER PRIMARY KEY,

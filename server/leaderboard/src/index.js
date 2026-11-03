@@ -140,22 +140,31 @@ async function wordMenuButton(token, chatId, text) {
 // The shop. /invoice asks Telegram for a link and the game opens it. Telegram then asks /bot whether the
 // order stands, within ten seconds, and reports the payment there. Only that report gives the train; a
 // refund takes it back by its charge id. A train changes only the look of a run, so the table ignores it.
-const TRAINS = ['soviet', 'american', 'brazil'];
+// A donation is the same road with the sum the player typed: it gives nothing and is kept apart.
+const TRAINS = ['hell', 'rune', 'bio'];
+const DONATION = 'donation';
+const donationSum = n => Number.isInteger(n) && n >= COLLAPSE_DONATE_MIN && n <= COLLAPSE_DONATE_MAX;
 const STARS = 'XTR';
 const TERMS_URL = GAME_URL + 'terms.html';
 const SUPPORT_URL = 'https://t.me/PatrKir306';
 const SHOP = {
     ru: {
-        trains: { soviet: 'Советский поезд', american: 'Американский поезд', brazil: 'Бразильский поезд' },
+        trains: { hell: 'Адский паровоз', rune: 'Рунный экспресс', bio: 'Хитиновый поезд' },
         about: 'Новый вид поезда в Rail Link: Collapse. Меняет только внешний вид. Спасибо за поддержку!',
+        donation: 'Поддержка разработчика',
+        donationAbout: 'Добровольная поддержка Rail Link: Collapse. Ничего не покупает, просто спасибо!',
+        donationThanks: 'Спасибо за поддержку! Это очень помогает игре.',
         refused: 'Этот заказ уже не действует. Открой магазин заново.',
         thanks: 'Спасибо за поддержку! Поезд уже в депо.',
         terms: 'Условия покупки: ' + TERMS_URL,
         support: 'Вопрос по покупке? Напиши сюда: ' + SUPPORT_URL + '\n\nПоддержка Telegram не помогает с покупками в этом боте.',
     },
     en: {
-        trains: { soviet: 'Soviet train', american: 'American train', brazil: 'Brazilian train' },
+        trains: { hell: 'Infernal Engine', rune: 'Rune Express', bio: 'Chitin Beast' },
         about: 'A new look for your train in Rail Link: Collapse. It changes only the appearance. Thank you for your support!',
+        donation: 'Support the developer',
+        donationAbout: 'A voluntary tip for Rail Link: Collapse. It buys nothing, it is just a thank-you!',
+        donationThanks: 'Thank you for your support! It really helps the game.',
         refused: 'This order is no longer valid. Open the shop again.',
         thanks: 'Thank you for your support! The train is in the depot.',
         terms: 'Terms of purchase: ' + TERMS_URL,
@@ -168,12 +177,19 @@ const ownsTrain = (db, id, item) => db.prepare('SELECT 1 AS yes FROM purchases W
 async function postInvoice(request, env, me) {
     let body = null;
     try { body = JSON.parse(await request.text()); } catch (e) { /* refused below */ }
-    if (!body || !TRAINS.includes(body.item)) return refuse(400, 'bad_item');
-    if (await ownsTrain(env.DB, me.id, body.item)) return refuse(409, 'owned');
-    const words = body.lang === 'ru' ? SHOP.ru : SHOP.en, title = words.trains[body.item];
+    const words = body?.lang === 'ru' ? SHOP.ru : SHOP.en;
+    let invoice = null;
+    if (body?.item === DONATION) {
+        if (!donationSum(body.stars)) return refuse(400, 'bad_sum');
+        invoice = { title: words.donation, description: words.donationAbout, amount: body.stars };
+    } else {
+        if (!body || !TRAINS.includes(body.item)) return refuse(400, 'bad_item');
+        if (await ownsTrain(env.DB, me.id, body.item)) return refuse(409, 'owned');
+        invoice = { title: words.trains[body.item], description: words.about, amount: COLLAPSE_TRAIN_STARS };
+    }
     const answer = await (await botCall(env.BOT_TOKEN, 'createInvoiceLink', {
-        title, description: words.about, payload: body.item, provider_token: '', currency: STARS,
-        prices: [{ label: title, amount: COLLAPSE_TRAIN_STARS }],
+        title: invoice.title, description: invoice.description, payload: body.item, provider_token: '', currency: STARS,
+        prices: [{ label: invoice.title, amount: invoice.amount }],
     })).json();
     if (!answer.ok) return refuse(502, 'no_invoice');
     return reply(200, { link: answer.result });
@@ -191,8 +207,8 @@ const botAnswer = call => new Response(JSON.stringify(call), { headers: { 'Conte
 const botQuiet = () => new Response(null, { status: 200 });
 
 async function checkoutAnswer(env, query) {
-    const stands = TRAINS.includes(query.invoice_payload) && query.currency === STARS && query.total_amount === COLLAPSE_TRAIN_STARS &&
-        !await ownsTrain(env.DB, query.from.id, query.invoice_payload);
+    const stands = query.currency === STARS && (query.invoice_payload === DONATION ? donationSum(query.total_amount)
+        : TRAINS.includes(query.invoice_payload) && query.total_amount === COLLAPSE_TRAIN_STARS && !await ownsTrain(env.DB, query.from.id, query.invoice_payload));
     const call = { method: 'answerPreCheckoutQuery', pre_checkout_query_id: query.id, ok: stands };
     if (!stands) call.error_message = (query.from.language_code === 'ru' ? SHOP.ru : SHOP.en).refused;
     return botAnswer(call);
@@ -201,7 +217,13 @@ async function checkoutAnswer(env, query) {
 // A retried report of one payment changes nothing: the row is already there.
 async function paymentAnswer(env, message, shop) {
     const paid = message.successful_payment;
-    if (!TRAINS.includes(paid.invoice_payload) || paid.currency !== STARS) return botQuiet();
+    if (paid.currency !== STARS) return botQuiet();
+    if (paid.invoice_payload === DONATION) {
+        await env.DB.prepare('INSERT INTO donations (charge_id, user_id, stars, at) VALUES (?1, ?2, ?3, ?4) ON CONFLICT (charge_id) DO NOTHING')
+            .bind(paid.telegram_payment_charge_id, message.from.id, paid.total_amount, Math.floor(Date.now() / 1000)).run();
+        return botAnswer({ method: 'sendMessage', chat_id: message.chat.id, text: shop.donationThanks });
+    }
+    if (!TRAINS.includes(paid.invoice_payload)) return botQuiet();
     await env.DB.prepare(
         'INSERT INTO purchases (user_id, item, charge_id, stars, at) VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT (user_id, item) DO NOTHING',
     ).bind(message.from.id, paid.invoice_payload, paid.telegram_payment_charge_id, paid.total_amount, Math.floor(Date.now() / 1000)).run();
@@ -220,7 +242,9 @@ async function botUpdate(request, env) {
     const russian = message.from?.language_code === 'ru', shop = russian ? SHOP.ru : SHOP.en, chat_id = message.chat.id;
     if (message.successful_payment) return paymentAnswer(env, message, shop);
     if (message.refunded_payment) {
-        await env.DB.prepare('DELETE FROM purchases WHERE charge_id = ?1').bind(message.refunded_payment.telegram_payment_charge_id).run();
+        const charge = message.refunded_payment.telegram_payment_charge_id;
+        await env.DB.prepare('DELETE FROM purchases WHERE charge_id = ?1').bind(charge).run();
+        await env.DB.prepare('DELETE FROM donations WHERE charge_id = ?1').bind(charge).run();
         return botQuiet();
     }
     const command = asked(message);

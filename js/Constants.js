@@ -264,8 +264,11 @@ const LEADERBOARD_MAX_STEPS = 36000;    // fixed steps a replay may take (10 min
 const LEADERBOARD_MAX_LOG = 4000;       // actions in one journal
 const LEADERBOARD_MAX_BODY = 65536;     // bytes of one score request
 const LEADERBOARD_NAME_MAX = 24;        // characters of a shown name
-const COLLAPSE_TRAIN_STARS = 100;        // Telegram Stars one train of the shop costs: about 2 $ to a buyer (docs/monetization.md)
+const COLLAPSE_TRAIN_STARS = 120;        // Telegram Stars one train of the shop costs (owner, 2026-11-03; docs/monetization.md)
 const COLLAPSE_SHOP_OPEN = 0;           // 1 — the shop sells trains; the table works without it (docs/monetization.md)
+const COLLAPSE_DONATE_OPEN = 0;         // 1 — the shop takes donations of Stars, the sum the player types (docs/monetization.md)
+const COLLAPSE_DONATE_MIN = 1;          // Telegram Stars: the least donation
+const COLLAPSE_DONATE_MAX = 10000;      // Telegram Stars: the most one donation takes
 const TELEGRAM_APP_URL = 'https://t.me/railcollapsebot/play'; // the direct link of the Mini App: a challenge goes through it
 const TELEGRAM_SHARE_URL = 'https://t.me/share/url';          // Telegram's dialog that sends a link to a chat
 

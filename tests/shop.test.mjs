@@ -6,11 +6,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { loadScripts, ROOT } from './browser-scripts.mjs';
 
-function shop({ selling = true, stored = {}, inventory = [], invoice = { link: 'https://t.me/$x' }, status = 'paid' } = {}) {
-  const store = new Map(Object.entries(stored)), worn = [], requests = [], texts = {}, enabled = {};
+function shop({ selling = true, donating = false, stored = {}, inventory = [], invoice = { link: 'https://t.me/$x' }, status = 'paid' } = {}) {
+  const store = new Map(Object.entries(stored)), worn = [], requests = [], texts = {}, enabled = {}, shown = {}, typed = {};
   const element = id => ({
     setText(t) { texts[id] = t; return this; },
     setEnabled(on) { enabled[id] = on; return this; },
+    show(on) { shown[id] = on; return this; },
+    getText() { return typed[id] || ''; },
   });
   const p = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Shop.js'], {
     localStorage: { getItem: k => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, v) },
@@ -27,8 +29,9 @@ function shop({ selling = true, stored = {}, inventory = [], invoice = { link: '
   });
   const Shop = p.get('Shop'), clicks = {};
   Object.defineProperty(Shop, 'salesOpen', { get: () => selling, configurable: true });
+  Object.defineProperty(Shop, 'donating', { get: () => donating, configurable: true });
   const scene = { wearTrain: id => worn.push(id) };
-  return { Shop, scene, store, worn, requests, texts, enabled, clicks, boot: () => Shop.init(scene, (id, fn) => { clicks[id] = fn; }) };
+  return { Shop, scene, store, worn, requests, texts, enabled, shown, typed, clicks, boot: () => Shop.init(scene, (id, fn) => { clicks[id] = fn; }) };
 }
 
 const settle = () => new Promise(resolve => setTimeout(resolve));
@@ -42,7 +45,9 @@ test('магазин без функции: цены не продаются, п
   assert.deepEqual(s.worn, ['base']);
   assert.equal(s.enabled.shopBuy0, false);
   assert.equal(s.texts.shopBuy0, 'Выбран');
-  assert.equal(s.texts.shopName1, 'Советский');
+  assert.equal(s.texts.shopName1, 'Адский паровоз');
+  assert.equal(s.texts.shopDonate, 'Скоро');
+  assert.equal(s.enabled.shopDonate, false);
   assert.equal(s.texts.shopBuy1, 'Скоро');
   assert.equal(s.enabled.shopBuy1, false);
   s.clicks.shopBuy1();
@@ -63,12 +68,12 @@ test('покупка: цена на кнопке, оплата надевает 
   s.Shop.render();
   assert.equal(s.texts.shopBuy1, s.Shop.stars + ' ⭐');
   assert.equal(s.enabled.shopBuy1, true);
-  await s.Shop.press('soviet');
+  await s.Shop.press('hell');
   assert.equal(s.requests.at(-1).route, '/invoice');
-  assert.deepEqual(JSON.parse(s.requests.at(-1).body), { item: 'soviet', lang: 'ru' });
-  assert.equal(s.worn.at(-1), 'soviet');
-  assert.equal(s.store.get('collapse.train'), 'soviet');
-  assert.deepEqual(JSON.parse(s.store.get('collapse.owned')), ['base', 'soviet']);
+  assert.deepEqual(JSON.parse(s.requests.at(-1).body), { item: 'hell', lang: 'ru' });
+  assert.equal(s.worn.at(-1), 'hell');
+  assert.equal(s.store.get('collapse.train'), 'hell');
+  assert.deepEqual(JSON.parse(s.store.get('collapse.owned')), ['base', 'hell']);
   assert.equal(s.texts.shopBuy1, 'Выбран');
   assert.equal(s.texts.shopBuy0, 'Выбрать');
   assert.match(s.texts.shopNote, /Спасибо/);
@@ -78,41 +83,41 @@ test('счёт закрыт или не вышел: поезд не выдан, 
   const closed = shop({ status: 'cancelled' });
   closed.boot();
   await settle();
-  await closed.Shop.press('brazil');
-  assert.ok(!closed.Shop.owned.has('brazil'));
+  await closed.Shop.press('bio');
+  assert.ok(!closed.Shop.owned.has('bio'));
   assert.deepEqual(closed.worn, ['base']);
   assert.match(closed.texts.shopNote, /условия/);
 
   const broken = shop({ invoice: null });
   broken.boot();
   await settle();
-  await broken.Shop.press('brazil');
-  assert.ok(!broken.Shop.owned.has('brazil'));
+  await broken.Shop.press('bio');
+  assert.ok(!broken.Shop.owned.has('bio'));
   assert.match(broken.texts.shopNote, /Не вышло/);
   assert.equal(broken.Shop._buying, '');
 });
 
 test('список функции главнее памяти: возврат снимает поезд, покупка с другого устройства появляется', async () => {
-  const refunded = shop({ stored: { 'collapse.owned': '["base","american"]', 'collapse.train': 'american' }, inventory: [] });
+  const refunded = shop({ stored: { 'collapse.owned': '["base","rune"]', 'collapse.train': 'rune' }, inventory: [] });
   refunded.boot();
-  assert.equal(refunded.worn[0], 'american');
+  assert.equal(refunded.worn[0], 'rune');
   await settle();
   assert.equal(refunded.worn.at(-1), 'base');
   assert.deepEqual(JSON.parse(refunded.store.get('collapse.owned')), ['base']);
 
-  const elsewhere = shop({ inventory: ['brazil'] });
+  const elsewhere = shop({ inventory: ['bio'] });
   elsewhere.boot();
   await settle();
-  assert.ok(elsewhere.Shop.owned.has('brazil'));
+  assert.ok(elsewhere.Shop.owned.has('bio'));
 
-  const offline = shop({ stored: { 'collapse.owned': '["base","soviet"]', 'collapse.train': 'soviet' }, inventory: null });
+  const offline = shop({ stored: { 'collapse.owned': '["base","hell"]', 'collapse.train': 'hell' }, inventory: null });
   offline.boot();
   await settle();
-  assert.equal(offline.worn.at(-1), 'soviet', 'без ответа ничего не отбираем');
+  assert.equal(offline.worn.at(-1), 'hell', 'без ответа ничего не отбираем');
 });
 
 test('испорченная память и чужой поезд: начальный поезд', () => {
-  for (const stored of [{ 'collapse.owned': '{', 'collapse.train': 'soviet' }, { 'collapse.owned': '["tank"]', 'collapse.train': 'tank' }]) {
+  for (const stored of [{ 'collapse.owned': '{', 'collapse.train': 'hell' }, { 'collapse.owned': '["tank"]', 'collapse.train': 'tank' }]) {
     const s = shop({ selling: false, stored });
     s.boot();
     assert.deepEqual(s.worn, ['base']);
@@ -144,4 +149,30 @@ test('страница условий: без внешних скриптов, �
   assert.match(html, /Terms of purchase/);
   const server = fs.readFileSync(path.join(ROOT, 'server/leaderboard/src/index.js'), 'utf8');
   assert.match(server, /TERMS_URL = GAME_URL \+ 'terms\.html'/);
+});
+
+test('донат: сумму вписывает игрок, в пределах числа; оплата благодарит и ничего не надевает', async () => {
+  const p = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Shop.js'], { localStorage: { getItem: () => null, setItem() {} }, Leaderboard: { enabled: true } });
+  assert.equal(p.get('COLLAPSE_DONATE_OPEN'), 0, 'донаты открываются числом после деплоя функции');
+  const s = shop({ selling: false, donating: true });
+  s.boot();
+  s.Shop.open();
+  assert.equal(s.texts.shopDonate, 'Поддержать');
+  assert.equal(s.enabled.shopDonate, true);
+  s.clicks.shopDonate();
+  assert.equal(s.shown.donateBox, true);
+  assert.match(s.texts.donateHint, /От 1 до 10000/);
+  for (const bad of ['', '0', '10001', '1.5']) {
+    s.typed.donateAmount = bad;
+    await s.clicks.donateSend();
+    assert.match(s.texts.shopNote, /Впиши число/, bad);
+  }
+  assert.deepEqual(s.requests, []);
+  s.typed.donateAmount = '50';
+  await s.clicks.donateSend();
+  await settle();
+  assert.deepEqual(JSON.parse(s.requests.at(-1).body), { item: 'donation', stars: 50, lang: 'ru' });
+  assert.equal(s.texts.shopNote, 'Спасибо за поддержку!');
+  assert.equal(s.shown.donateBox, false);
+  assert.deepEqual(s.worn, ['base'], 'донат не поезд');
 });

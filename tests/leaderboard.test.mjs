@@ -254,26 +254,26 @@ test('магазин: поезд выдаёт только сообщение Te
   }), e);
   const items = async () => (await (await call(e, 'GET', '/inventory')).json()).items;
   const from = { id: 111, language_code: 'ru' }, chat = { id: 111, type: 'private' };
-  const query = (over = {}) => ({ id: 'q1', from, currency: 'XTR', total_amount: STARS, invoice_payload: 'soviet', ...over });
+  const query = (over = {}) => ({ id: 'q1', from, currency: 'XTR', total_amount: STARS, invoice_payload: 'hell', ...over });
   const paid = (over = {}) => ({ message: { from, chat, successful_payment: {
-    currency: 'XTR', total_amount: STARS, invoice_payload: 'soviet', telegram_payment_charge_id: 'charge-1', ...over } } });
+    currency: 'XTR', total_amount: STARS, invoice_payload: 'hell', telegram_payment_charge_id: 'charge-1', ...over } } });
 
   assert.deepEqual(await items(), []);
 
-  const invoice = await call(e, 'POST', '/invoice', { body: { item: 'soviet', lang: 'ru' } });
+  const invoice = await call(e, 'POST', '/invoice', { body: { item: 'hell', lang: 'ru' } });
   assert.equal(invoice.status, 200);
   assert.equal((await invoice.json()).link, 'https://t.me/$invoice');
   const made = calls.at(-1);
   assert.equal(made.method, 'createInvoiceLink');
   assert.equal(made.body.currency, 'XTR');
   assert.equal(made.body.provider_token, '');
-  assert.equal(made.body.payload, 'soviet');
-  assert.deepEqual(made.body.prices, [{ label: 'Советский поезд', amount: STARS }]);
+  assert.equal(made.body.payload, 'hell');
+  assert.deepEqual(made.body.prices, [{ label: 'Адский паровоз', amount: STARS }]);
   assert.ok(made.body.title.length <= 32 && made.body.description.length <= 255);
   assert.deepEqual(await items(), [], 'счёт ещё не покупка');
 
   for (const bad of [{ item: 'base' }, { item: 'tank' }, {}]) assert.equal((await call(e, 'POST', '/invoice', { body: bad })).status, 400);
-  assert.equal((await call(e, 'POST', '/invoice', { auth: initData({ token: 'чужой' }), body: { item: 'soviet' } })).status, 401);
+  assert.equal((await call(e, 'POST', '/invoice', { auth: initData({ token: 'чужой' }), body: { item: 'hell' } })).status, 401);
 
   const stands = await (await update({ pre_checkout_query: query() })).json();
   assert.deepEqual([stands.method, stands.pre_checkout_query_id, stands.ok], ['answerPreCheckoutQuery', 'q1', true]);
@@ -291,10 +291,10 @@ test('магазин: поезд выдаёт только сообщение Te
   assert.equal(thanks.method, 'sendMessage');
   assert.match(thanks.text, /Спасибо/);
   await update(paid());
-  assert.deepEqual(await items(), ['soviet'], 'повтор сообщения не дублирует покупку');
+  assert.deepEqual(await items(), ['hell'], 'повтор сообщения не дублирует покупку');
   assert.deepEqual(e.DB.raw.prepare('SELECT user_id, stars FROM purchases').all().map(r => ({ ...r })), [{ user_id: 111, stars: STARS }]);
 
-  assert.equal((await call(e, 'POST', '/invoice', { body: { item: 'soviet' } })).status, 409);
+  assert.equal((await call(e, 'POST', '/invoice', { body: { item: 'hell' } })).status, 409);
   assert.equal((await (await update({ pre_checkout_query: query() })).json()).ok, false, 'второй раз не продаём');
   assert.equal((await call(e, 'GET', '/inventory', { auth: initData({ id: 222 }) }).then(r => r.json())).items.length, 0, 'покупка не чужая');
 
@@ -391,4 +391,44 @@ test('сборка: server/ не едет в архив, Leaderboard.js едет
   const toml = fs.readFileSync(path.join(ROOT, 'server/leaderboard/wrangler.toml'), 'utf8');
   assert.doesNotMatch(toml, /account_id|BOT_TOKEN\s*=|\b\d{6,}:[\w-]{20,}/);
   assert.match(toml, /database_id = "REPLACE_WITH_D1_DATABASE_ID"/);
+});
+
+test('магазин: донат — сумма игрока в пределах, запись после оплаты, возврат её убирает, поездов не даёт', async t => {
+  const p = page(), MIN = p.get('COLLAPSE_DONATE_MIN'), MAX = p.get('COLLAPSE_DONATE_MAX');
+  const calls = [];
+  t.mock.method(globalThis, 'fetch', async (address, init) => {
+    calls.push({ method: address.split('/').pop(), body: JSON.parse(init.body) });
+    return new Response(JSON.stringify({ ok: true, result: 'https://t.me/$tip' }));
+  });
+  const e = { ...env(), BOT_WEBHOOK_SECRET: 'webhook-secret' };
+  const update = body => worker.fetch(new Request('https://collapse.test/bot', {
+    method: 'POST', headers: { 'X-Telegram-Bot-Api-Secret-Token': 'webhook-secret' }, body: JSON.stringify(body),
+  }), e);
+  const from = { id: 111, language_code: 'en' }, chat = { id: 111, type: 'private' };
+  const rows = () => e.DB.raw.prepare('SELECT charge_id, user_id, stars FROM donations').all().map(r => ({ ...r }));
+
+  const invoice = await call(e, 'POST', '/invoice', { body: { item: 'donation', stars: 77, lang: 'en' } });
+  assert.equal(invoice.status, 200);
+  const made = calls.at(-1);
+  assert.equal(made.body.payload, 'donation');
+  assert.deepEqual(made.body.prices, [{ label: 'Support the developer', amount: 77 }]);
+  assert.ok(made.body.title.length <= 32 && made.body.description.length <= 255);
+  for (const stars of [0, MIN - 1, MAX + 1, 1.5, '50', null]) {
+    assert.equal((await call(e, 'POST', '/invoice', { body: { item: 'donation', stars } })).status, 400, String(stars));
+  }
+
+  const query = (over = {}) => ({ pre_checkout_query: { id: 'q2', from, currency: 'XTR', total_amount: 77, invoice_payload: 'donation', ...over } });
+  assert.equal((await (await update(query())).json()).ok, true);
+  assert.equal((await (await update(query({ total_amount: MAX + 1 }))).json()).ok, false);
+  assert.equal((await (await update(query({ currency: 'USD' }))).json()).ok, false);
+
+  const paid = { message: { from, chat, successful_payment: { currency: 'XTR', total_amount: 77, invoice_payload: 'donation', telegram_payment_charge_id: 'tip-1' } } };
+  const thanks = await (await update(paid)).json();
+  assert.match(thanks.text, /Thank you/);
+  await update(paid);
+  assert.deepEqual(rows(), [{ charge_id: 'tip-1', user_id: 111, stars: 77 }], 'повтор сообщения не дублирует донат');
+  assert.deepEqual((await (await call(e, 'GET', '/inventory')).json()).items, [], 'донат не поезд');
+
+  await update({ message: { from, chat, refunded_payment: { telegram_payment_charge_id: 'tip-1' } } });
+  assert.deepEqual(rows(), []);
 });

@@ -15,7 +15,7 @@
 // The server contract version this client expects. Must match
 // EDITOR_API_VERSION in server.mjs — otherwise the editor warns that editor.bat
 // is running old code (Node reads server files only at process start).
-const EDITOR_API_VERSION = 24;
+const EDITOR_API_VERSION = 25;
 
 // Ink edges and outline levels: 0 — off, 1 — main objects (actor), 2 — and environment (prop).
 const SCHEMA_LEVELS = [
@@ -812,6 +812,12 @@ const KIT_SCHEMA = [
               label: { en: 'Price of a train, Telegram Stars', ru: 'Цена поезда, звёзды Telegram' } },
             { name: 'COLLAPSE_SHOP_OPEN', min: 0, max: 1, step: 1,
               label: { en: 'The shop sells trains (0 — no, 1 — yes)', ru: 'Магазин продаёт поезда (0 — нет, 1 — да)' } },
+            { name: 'COLLAPSE_DONATE_OPEN', min: 0, max: 1, step: 1,
+              label: { en: 'The shop takes donations (0 — no, 1 — yes)', ru: 'Магазин принимает донаты (0 — нет, 1 — да)' } },
+            { name: 'COLLAPSE_DONATE_MIN', min: 1, max: 10000, step: 1,
+              label: { en: 'Least donation, Telegram Stars', ru: 'Наименьший донат, звёзды Telegram' } },
+            { name: 'COLLAPSE_DONATE_MAX', min: 1, max: 100000, step: 1,
+              label: { en: 'Largest donation, Telegram Stars', ru: 'Наибольший донат, звёзды Telegram' } },
             { name: 'ADS_WAIT_MS', min: 1000, max: 30000, step: 500,
               label: { en: 'Wait for an ad network, ms', ru: 'Ожидание рекламной сети, мс' } },
         ],

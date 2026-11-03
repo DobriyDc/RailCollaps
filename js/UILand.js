@@ -67,7 +67,8 @@ const UI_LAND = {
     shopCard2: { x: 326, y: 54 },
     shopCard3: { x: 474, y: 54 },
     shopNote: { y: 236 },
-    shopBack: { y: 266 },
+    shopBack: { anchor: 'top-center', x: -146, y: 266, w: 276 },
+    shopDonate: { anchor: 'top-center', x: 146, y: 266, w: 276 },
     // The buttons under the end box stand side by side: the low screen has no room for two rows.
     challengeBtn: { x: -140, y: 222 },
     boardBtn: { x: 140, y: 222 },

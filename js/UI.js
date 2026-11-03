@@ -29,7 +29,7 @@
 const UI = {
     ANCHORS: ['top-left', 'top-center', 'top-right', 'middle-left', 'middle-center', 'middle-right',
         'bottom-left', 'bottom-center', 'bottom-right'],
-    KINDS: ['text', 'panel', 'bar', 'button', 'image'],
+    KINDS: ['text', 'panel', 'bar', 'button', 'image', 'input'],
     DIGITS: ['assets/ui/hud_v3/digit_0.png', 'assets/ui/hud_v3/digit_1.png', 'assets/ui/hud_v3/digit_2.png', 'assets/ui/hud_v3/digit_3.png', 'assets/ui/hud_v3/digit_4.png', 'assets/ui/hud_v3/digit_5.png', 'assets/ui/hud_v3/digit_6.png', 'assets/ui/hud_v3/digit_7.png', 'assets/ui/hud_v3/digit_8.png', 'assets/ui/hud_v3/digit_9.png'],
     FONT: '"Alagard", system-ui, "Segoe UI", Roboto, sans-serif',
     // The pixel font, one family of two files by unicode-range: Alagard by Hewett Tsoi as published
@@ -76,6 +76,7 @@ const UI = {
         panel: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 80, stretch: '', maxW: 0, fill: '#10202c', border: '', radius: 10, alpha: 0.7, visible: 1 },
         bar: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 18, stretch: '', maxW: 0, value: 0.6, color: '#5ad05a', fill: '#10202c', border: '#ffffff', radius: 9, alpha: 1, visible: 1 },
         button: { parent: '', anchor: 'bottom-center', x: 0, y: 40, w: 180, h: 48, stretch: '', maxW: 0, text: 'Button', fontSize: 20, color: '#ffffff', fill: '#2a6fb0', border: '', radius: 10, alpha: 1, visible: 1 },
+        input: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 160, h: 44, stretch: '', maxW: 0, text: '', fontSize: 20, color: '#ffffff', fill: '#10202c', border: '', radius: 0, alpha: 1, visible: 1 },
         image: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 64, h: 64, stretch: '', maxW: 0, src: '', pressedSrc: '', disabledSrc: '', slice: '', sliceScale: 1, columns: 1, rows: 1, frame: 0, digits: 0, text: '', angle: 0, pivotX: 50, pivotY: 50, bleedTop: 0, bleedBottom: 0, fill: '', border: '', radius: 0, alpha: 1, visible: 1 },
     },
 
@@ -308,8 +309,30 @@ class UIElement {
 
     setText(text) { this._text = String(text); this.apply(); return this; }
 
+    // What the player typed into an input; the text of any other element.
+    getText() { return this.def.kind === 'input' ? (this.inner ? /** @type {HTMLInputElement} */ (this.inner).value : '') : this._text; }
+
     // Bar fill 0..1.
     setValue(v) { this._value = Math.max(0, Math.min(1, Number(v) || 0)); this.apply(); return this; }
+
+    // A field for a number the player types (digits only, the phone's number pad): text is the hint
+    // shown while it is empty, setText puts a value in. The editor's UI tab cannot type into it.
+    _input(d) {
+        let f = /** @type {HTMLInputElement} */ (this.inner);
+        if (!f) {
+            f = this.inner = document.createElement('input');
+            f.type = 'text';
+            f.inputMode = 'numeric';
+            f.autocomplete = 'off';
+            f.addEventListener('input', () => { f.value = f.value.replace(/\D/g, '').slice(0, 9); });
+            this.el.appendChild(f);
+        }
+        if (this._text != null) { f.value = this._text; this._text = null; }
+        f.placeholder = String(d.text == null ? '' : d.text);
+        f.disabled = UI.editing;
+        f.style.cssText = 'width: 100%; height: 100%; box-sizing: border-box; border: none; outline: none; background: transparent; text-align: center; ' +
+            'font: inherit; font-weight: 600; font-size: ' + (Number(d.fontSize) || 20) + 'px; color: ' + (d.color || '#ffffff') + '; pointer-events: ' + (UI.editing ? 'none' : 'auto') + ';';
+    }
 
     // Image file: a literal path, so the builder's scanner sees it.
     setSrc(src) { this._src = String(src); this.apply(); return this; }
@@ -402,7 +425,7 @@ class UIElement {
         s.opacity = String(d.alpha == null ? 1 : Math.max(0, Math.min(1, Number(d.alpha))));
         s.display = this.visible || UI.editing ? 'block' : 'none';
         if (UI.editing && !this.visible) s.opacity = String(Number(s.opacity) * 0.35);
-        s.pointerEvents = UI.editing || d.kind === 'button' ? 'auto' : 'none';
+        s.pointerEvents = UI.editing || d.kind === 'button' || d.kind === 'input' ? 'auto' : 'none';
         s.cursor = UI.editing ? 'move' : d.kind === 'button' ? (this._enabled ? 'pointer' : 'default') : '';
         if (d.kind === 'button') this.el.setAttribute('aria-disabled', String(!this._enabled));
 
@@ -413,7 +436,12 @@ class UIElement {
             s.overflow = 'hidden';
         }
         const label = d.kind === 'text' || d.kind === 'button';
-        if (label || d.kind === 'bar' || d.kind === 'image') {
+        if (this.inner && (this.inner.tagName === 'INPUT') !== (d.kind === 'input')) {
+            this.inner.remove();
+            this.inner = null;
+        }
+        if (d.kind === 'input') this._input(d);
+        else if (label || d.kind === 'bar' || d.kind === 'image') {
             if (!this.inner) {
                 this.inner = document.createElement('div');
                 this.el.insertBefore(this.inner, this.el.firstChild);

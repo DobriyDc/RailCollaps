@@ -1,0 +1,31 @@
+{
+  "seed": 7,
+  "pos": 61.3,
+  "ammo": 6,
+  "seconds": 12,
+  "music": 0.5,
+  "endAt": 9.4,
+  "actions": [
+    { "at": 0.0, "do": "demon", "side": 1, "wait": 0.35, "perch": 0.5 },
+    { "at": 3.55, "do": "shoot", "side": 1 },
+    { "at": 5.2, "do": "demon", "side": -1, "wait": 0.35, "perch": 0.9 },
+    { "at": 6.45, "do": "shoot", "side": -1 }
+  ],
+  "captions": {
+    "ru": [
+      { "from": 0.0, "to": 1.8, "text": "Демон лезет<br>из стены…" },
+      { "from": 1.8, "to": 3.55, "text": "Повис на кабине.<br>Удар — <b>минус жизнь</b>" },
+      { "from": 3.55, "to": 5.2, "text": "Один выстрел —<br><b>пепел</b>" },
+      { "from": 5.4, "to": 7.6, "text": "Второго —<br><b>ещё на стене</b>" },
+      { "from": 7.8, "to": 9.4, "text": "А сколько метров<br>продержишься ты?" }
+    ],
+    "en": [
+      { "from": 0.0, "to": 1.8, "text": "A demon crawls<br>out of the wall…" },
+      { "from": 1.8, "to": 3.55, "text": "It grabs the cab.<br>Each hit — <b>a life</b>" },
+      { "from": 3.55, "to": 5.2, "text": "One shot —<br><b>ashes</b>" },
+      { "from": 5.4, "to": 7.6, "text": "The next one —<br><b>still on the wall</b>" },
+      { "from": 7.8, "to": 9.4, "text": "How far<br>will you get?" }
+    ]
+  },
+  "endLines": { "ru": ["Играй бесплатно в Telegram"], "en": ["Play free in Telegram"] }
+}

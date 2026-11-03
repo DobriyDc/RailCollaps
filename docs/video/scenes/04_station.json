@@ -1,0 +1,28 @@
+{
+  "look": "B",
+  "station": 3.0,
+  "ammo": 3,
+  "hp": 2,
+  "seconds": 12,
+  "music": 0.45,
+  "endAt": 9.4,
+  "actions": [
+    { "at": 4.8, "do": "buy", "kind": "repair" },
+    { "at": 7.2, "do": "leave" }
+  ],
+  "captions": {
+    "ru": [
+      { "from": 0.0, "to": 1.8, "text": "Станция<br>в разрушенном соборе" },
+      { "from": 1.8, "to": 4.6, "text": "Довёз пассажиров —<br><b>они платят жетонами</b>" },
+      { "from": 4.8, "to": 7.1, "text": "Жетоны —<br><b>на ремонт поезда</b>" },
+      { "from": 7.3, "to": 9.4, "text": "И дальше,<br>пока не догнал обвал" }
+    ],
+    "en": [
+      { "from": 0.0, "to": 1.8, "text": "A station<br>in a ruined cathedral" },
+      { "from": 1.8, "to": 4.6, "text": "Bring the passengers —<br><b>they pay in tokens</b>" },
+      { "from": 4.8, "to": 7.1, "text": "Tokens —<br><b>fix the train</b>" },
+      { "from": 7.3, "to": 9.4, "text": "Then on,<br>before the collapse catches up" }
+    ]
+  },
+  "endLines": { "ru": ["Играй бесплатно в Telegram"], "en": ["Play free in Telegram"] }
+}

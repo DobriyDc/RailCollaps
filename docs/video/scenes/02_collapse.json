@@ -1,0 +1,29 @@
+{
+  "seed": 11,
+  "pos": 95.2,
+  "ammo": 6,
+  "seconds": 12,
+  "music": 0.45,
+  "endAt": 9.6,
+  "rumble": { "from": 0.0, "to": 12, "volume": 0.9 },
+  "actions": [
+    { "at": 0.0, "do": "collapse" },
+    { "at": 2.4, "do": "front", "till": 6.0, "from": 6, "gap": 1.0, "ease": 3.0 },
+    { "at": 4.7, "do": "pickup", "kind": "boost", "ahead": 3 }
+  ],
+  "captions": {
+    "ru": [
+      { "from": 0.0, "to": 2.4, "text": "Сзади рушится<br>тоннель" },
+      { "from": 2.4, "to": 5.4, "text": "Он догоняет…<br><b>ещё метр</b>" },
+      { "from": 5.6, "to": 7.8, "text": "Ускоритель —<br><b>и ты впереди</b>" },
+      { "from": 7.9, "to": 9.6, "text": "Обгонишь обвал?" }
+    ],
+    "en": [
+      { "from": 0.0, "to": 2.4, "text": "The tunnel collapses<br>behind you" },
+      { "from": 2.4, "to": 5.4, "text": "It's catching up…<br><b>one more meter</b>" },
+      { "from": 5.6, "to": 7.8, "text": "Speed boost —<br><b>you pull away</b>" },
+      { "from": 7.9, "to": 9.6, "text": "Can you outrun it?" }
+    ]
+  },
+  "endLines": { "ru": ["Играй бесплатно в Telegram"], "en": ["Play free in Telegram"] }
+}
