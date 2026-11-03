@@ -55,10 +55,11 @@ test('магазин без функции: цены не продаются, п
   assert.deepEqual(s.requests, []);
 });
 
-test('продажи закрыты числом: адрес таблицы их не открывает', () => {
-  const p = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Shop.js'], { localStorage: { getItem: () => null, setItem() {} }, Leaderboard: { enabled: true } });
-  assert.equal(p.get('COLLAPSE_SHOP_OPEN'), 0);
-  assert.equal(p.get('Shop').selling, false);
+test('продажи открывает число, и только с функцией: без адреса таблицы ничего не продаётся', () => {
+  const load = enabled => loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Shop.js'], { localStorage: { getItem: () => null, setItem() {} }, Leaderboard: { enabled } });
+  assert.equal(load(true).get('COLLAPSE_SHOP_OPEN'), 1, 'продажи открыты 2026-11-03, когда нарисованы все три поезда');
+  assert.equal(load(true).get('Shop').selling, true);
+  assert.equal(load(false).get('Shop').selling, false);
 });
 
 test('покупка: цена на кнопке, оплата надевает поезд и запоминает его', async () => {
@@ -77,6 +78,22 @@ test('покупка: цена на кнопке, оплата надевает 
   assert.equal(s.texts.shopBuy1, 'Выбран');
   assert.equal(s.texts.shopBuy0, 'Выбрать');
   assert.match(s.texts.shopNote, /Спасибо/);
+});
+
+test('поезд без полного набора кадров не продаётся: «Скоро», счёт не просят', async () => {
+  const s = shop();
+  s.Shop.drawn = id => id === 'hell';
+  s.boot();
+  await settle();
+  s.Shop.render();
+  assert.equal(s.texts.shopBuy1, s.Shop.stars + ' ⭐');
+  for (const i of [2, 3]) {
+    assert.equal(s.texts['shopBuy' + i], 'Скоро');
+    assert.equal(s.enabled['shopBuy' + i], false);
+  }
+  await s.Shop.press('rune');
+  assert.ok(!s.requests.some(r => r.route === '/invoice'));
+  assert.ok(!s.Shop.owned.has('rune'));
 });
 
 test('счёт закрыт или не вышел: поезд не выдан, ошибка только при сбое', async () => {

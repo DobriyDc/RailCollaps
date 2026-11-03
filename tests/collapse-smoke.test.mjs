@@ -54,7 +54,7 @@ test('каждый адрес CollapseArt и каждый список пред�
   const walk = (v, at) => {
     assert.notEqual(v, undefined, at);
     if (typeof v === 'string') { if (/\.png$/.test(v)) urls.push([at, v]); } else if (typeof v === 'object') for (const [k, x] of Object.entries(v)) walk(x, at + '.' + k);
-    else assert.equal(typeof v, 'number', at);
+    else assert.ok(typeof v === 'number' || typeof v === 'boolean', at);
   };
   walk(p.get('CollapseArt'), 'CollapseArt');
   const { mipped, plain } = p.get('CollapseScene').preloadUrls();

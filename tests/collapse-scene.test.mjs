@@ -112,6 +112,35 @@ test('поезд на стрелке стоит на рельсах: нос ро
   }
 });
 
+test('поезда магазина: полный набор — свои кадры на диске, передний слой того же холста, демон держит свою точку', async () => {
+  const path = await import('node:path');
+  const { ROOT } = await import('./browser-scripts.mjs');
+  const { decodePng } = await import('../tools/art/check-art.mjs');
+  const p = page(), S = p.get('CollapseScene'), A = p.get('CollapseArt');
+  const size = url => { const { w, h } = decodePng(fs.readFileSync(path.join(ROOT, url))); return w + 'x' + h; };
+  const px = S.LOCO.w / S.LOCO_PX;
+  const base = S.trainLook(A.trains.base).cab, corner = [S.CAB_SIDE[0], 0, S.CAB_SIDE[1], S.CAB_SIDE[2]];
+  for (const turn of ['', 'left', 'right']) assert.deepEqual([...base[turn]], corner, 'начальный паровоз держат за угол крыши');
+  for (const [id, T] of Object.entries(A.trains)) {
+    const frames = [...T.loco, ...Object.values(T.locoShot), ...Object.values(T.locoTurn), ...Object.values(T.locoFall), T.locoDamaged];
+    for (const url of frames) assert.ok(fs.existsSync(path.join(ROOT, url)), url);
+    if (T.full) assert.equal(new Set(frames).size, 11, id + ': одиннадцать разных кадров');
+    const look = S.trainLook(T);
+    if (T.over) assert.equal(look.over.size, 8, id + ': слой у хода, выстрела и поворота');
+    for (const [frame, over] of look.over) assert.equal(size(over), size(frame), over);
+    if (T.grip) {
+      // [x of the right side, shift of both sides, y, z]: the right hand lands on the drawn detail in every frame.
+      for (const [turn, g] of [['', T.grip], ['left', T.gripTurn.left], ['right', T.gripTurn.right]]) {
+        const c = look.cab[turn];
+        assert.ok(Math.abs(c[0] + c[1] - (g[0] - S.LOCO_PX / 2) * px) < 1e-9 && Math.abs(S.LOCO.h - c[2] - g[1] * px) < 1e-9, id + ' ' + turn);
+        assert.ok(c[0] > 0 && c[2] > 0 && c[2] < S.LOCO.h, id + ': хват на правой стороне кабины');
+      }
+      for (const side of ['left', 'right']) assert.ok(Math.abs(T.nose[side]) < 20, id + ': нос поворота у края кривой');
+    }
+  }
+  for (const id of ['hell', 'rune', 'bio']) assert.ok(A.trains[id].full, id + ' нарисован целиком');
+});
+
 test('поезд едет по нарисованному ответвлению: кривая растра = кривая laneX, перевод не заходит на опасный сегмент', async () => {
   const fs = await import('node:fs');
   const path = await import('node:path');

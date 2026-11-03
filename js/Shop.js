@@ -19,6 +19,8 @@ const Shop = {
     get salesOpen() { return typeof COLLAPSE_SHOP_OPEN !== 'undefined' && COLLAPSE_SHOP_OPEN > 0; },
     get selling() { return this.salesOpen && Leaderboard.enabled; },
     get donating() { return typeof COLLAPSE_DONATE_OPEN !== 'undefined' && COLLAPSE_DONATE_OPEN > 0 && Leaderboard.enabled; },
+    // A skin is sold once all its frames are drawn (CollapseArt.trains[id].full); till then its card says "soon".
+    drawn(id) { return typeof CollapseArt === 'undefined' || !!(CollapseArt.trains[id] || {}).full; },
     get donateRange() {
         const U = 'undefined';
         return [typeof COLLAPSE_DONATE_MIN !== U ? COLLAPSE_DONATE_MIN : 1, typeof COLLAPSE_DONATE_MAX !== U ? COLLAPSE_DONATE_MAX : 10000];
@@ -72,7 +74,7 @@ const Shop = {
     },
 
     async buy(id) {
-        if (this._buying || !this.selling) return;
+        if (this._buying || !this.selling || !this.drawn(id)) return;
         this._buying = id;
         this._note = 'shopTerms';
         this.render();
@@ -132,7 +134,7 @@ const Shop = {
         if (this._buying === id) return { text: Lang.t('shopWait'), on: false };
         if (this.worn === id) return { text: Lang.t('shopChosen'), on: false };
         if (this.owned.has(id)) return { text: Lang.t('shopChoose'), on: true };
-        if (this.selling) return { text: Lang.t('shopPrice', { value: this.stars }), on: !this._buying };
+        if (this.selling && this.drawn(id)) return { text: Lang.t('shopPrice', { value: this.stars }), on: !this._buying };
         return { text: Lang.t('soon'), on: false };
     },
 

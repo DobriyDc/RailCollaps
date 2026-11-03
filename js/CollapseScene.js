@@ -51,28 +51,38 @@ const CollapseArt = {
             locoFall: { left: 'assets/px/train/loco_fall_left.png', right: 'assets/px/train/loco_fall_right.png' },
             locoDamaged: 'assets/px/train/loco_damaged.png',
         },
-        // The three sold skins (art_src/skins_v2, v3 on branch art-skins): only the key frame is drawn yet,
-        // so every frame of a skin is that one until the owner approves the full sets; sales stay shut.
+        // The three sold skins (key frames art_src/skins_v2, v3; full sets art_src/skins_full_v1, v2 on the
+        // art-skins branches). full — every frame is drawn, and the shop sells it; a skin with its key frame
+        // alone shows that one in every pose. over — run, shot and turn frames have a *_over front layer:
+        // what is nearer the camera than a demon on the cab. grip — where the demon's hand holds the cab on its
+        // right side, gripTurn — that detail in the turn frames, nose — the tip of the turn frames against the
+        // run frames, art px (trainLook).
         hell: {
-            loco: ['assets/px/train/hell/loco_run_0.png', 'assets/px/train/hell/loco_run_0.png', 'assets/px/train/hell/loco_run_0.png', 'assets/px/train/hell/loco_run_0.png'],
-            locoShot: { left: 'assets/px/train/hell/loco_run_0.png', right: 'assets/px/train/hell/loco_run_0.png' },
-            locoTurn: { left: 'assets/px/train/hell/loco_run_0.png', right: 'assets/px/train/hell/loco_run_0.png' },
-            locoFall: { left: 'assets/px/train/hell/loco_run_0.png', right: 'assets/px/train/hell/loco_run_0.png' },
-            locoDamaged: 'assets/px/train/hell/loco_run_0.png',
+            loco: ['assets/px/train/hell/loco_run_0.png', 'assets/px/train/hell/loco_run_1.png',
+                'assets/px/train/hell/loco_run_2.png', 'assets/px/train/hell/loco_run_3.png'],
+            locoShot: { left: 'assets/px/train/hell/loco_shot_left.png', right: 'assets/px/train/hell/loco_shot_right.png' },
+            locoTurn: { left: 'assets/px/train/hell/loco_turn_left.png', right: 'assets/px/train/hell/loco_turn_right.png' },
+            locoFall: { left: 'assets/px/train/hell/loco_fall_left.png', right: 'assets/px/train/hell/loco_fall_right.png' },
+            locoDamaged: 'assets/px/train/hell/loco_damaged.png',
+            full: true, over: true, grip: [109, 89], gripTurn: { left: [112, 79], right: [109, 85] }, nose: { left: -7.5, right: 9.5 },
         },
         rune: {
-            loco: ['assets/px/train/rune/loco_run_0.png', 'assets/px/train/rune/loco_run_0.png', 'assets/px/train/rune/loco_run_0.png', 'assets/px/train/rune/loco_run_0.png'],
-            locoShot: { left: 'assets/px/train/rune/loco_run_0.png', right: 'assets/px/train/rune/loco_run_0.png' },
-            locoTurn: { left: 'assets/px/train/rune/loco_run_0.png', right: 'assets/px/train/rune/loco_run_0.png' },
-            locoFall: { left: 'assets/px/train/rune/loco_run_0.png', right: 'assets/px/train/rune/loco_run_0.png' },
-            locoDamaged: 'assets/px/train/rune/loco_run_0.png',
+            loco: ['assets/px/train/rune/loco_run_0.png', 'assets/px/train/rune/loco_run_1.png',
+                'assets/px/train/rune/loco_run_2.png', 'assets/px/train/rune/loco_run_3.png'],
+            locoShot: { left: 'assets/px/train/rune/loco_shot_left.png', right: 'assets/px/train/rune/loco_shot_right.png' },
+            locoTurn: { left: 'assets/px/train/rune/loco_turn_left.png', right: 'assets/px/train/rune/loco_turn_right.png' },
+            locoFall: { left: 'assets/px/train/rune/loco_fall_left.png', right: 'assets/px/train/rune/loco_fall_right.png' },
+            locoDamaged: 'assets/px/train/rune/loco_damaged.png',
+            full: true, over: true, grip: [115, 92], gripTurn: { left: [98, 96], right: [114, 95] }, nose: { left: -16.5, right: 14.5 },
         },
         bio: {
-            loco: ['assets/px/train/bio/loco_run_0.png', 'assets/px/train/bio/loco_run_0.png', 'assets/px/train/bio/loco_run_0.png', 'assets/px/train/bio/loco_run_0.png'],
-            locoShot: { left: 'assets/px/train/bio/loco_run_0.png', right: 'assets/px/train/bio/loco_run_0.png' },
-            locoTurn: { left: 'assets/px/train/bio/loco_run_0.png', right: 'assets/px/train/bio/loco_run_0.png' },
-            locoFall: { left: 'assets/px/train/bio/loco_run_0.png', right: 'assets/px/train/bio/loco_run_0.png' },
-            locoDamaged: 'assets/px/train/bio/loco_run_0.png',
+            loco: ['assets/px/train/bio/loco_run_0.png', 'assets/px/train/bio/loco_run_1.png',
+                'assets/px/train/bio/loco_run_2.png', 'assets/px/train/bio/loco_run_3.png'],
+            locoShot: { left: 'assets/px/train/bio/loco_shot_left.png', right: 'assets/px/train/bio/loco_shot_right.png' },
+            locoTurn: { left: 'assets/px/train/bio/loco_turn_left.png', right: 'assets/px/train/bio/loco_turn_right.png' },
+            locoFall: { left: 'assets/px/train/bio/loco_fall_left.png', right: 'assets/px/train/bio/loco_fall_right.png' },
+            locoDamaged: 'assets/px/train/bio/loco_damaged.png',
+            full: true, over: true, grip: [111, 56], gripTurn: { left: [108, 58], right: [116, 58] }, nose: { left: -13.5, right: 14.5 },
         },
     },
     torch: ['assets/px/fx/torch_0.png', 'assets/px/fx/torch_1.png', 'assets/px/fx/torch_2.png', 'assets/px/fx/torch_3.png'],
@@ -246,8 +256,26 @@ class CollapseScene {
 
     // The train the player wears: its frames are loaded here, so none of them blinks on its first show.
     wearTrain(id) {
-        const A = Object.assign(CollapseArt, CollapseArt.trains[id] || CollapseArt.trains.base);
-        for (const url of [...A.loco, ...Object.values(A.locoShot), ...Object.values(A.locoTurn), ...Object.values(A.locoFall), A.locoDamaged]) this.texture(url);
+        const T = CollapseArt.trains[id] || CollapseArt.trains.base;
+        for (const k of ['loco', 'locoShot', 'locoTurn', 'locoFall', 'locoDamaged']) CollapseArt[k] = T[k];
+        this._look = CollapseScene.trainLook(T);
+        for (const url of [...T.loco, ...Object.values(T.locoShot), ...Object.values(T.locoTurn), ...Object.values(T.locoFall), T.locoDamaged, ...this._look.over.values()]) this.texture(url);
+    }
+
+    // What a train changes besides its frames: the point of the cab a demon hangs on (as CAB_SIDE: x for the
+    // right side, mirrored on the left, plus a shift both sides take, y, z) in the run and in each turn frame,
+    // the nose of its turn frames (as LOCO_NOSE) and the front layer of each frame that has one. A turn frame
+    // shows the hull's side: its grip is a shift of the whole hull, read on the right side. Pure.
+    static trainLook(T) {
+        const S = CollapseScene, px = S.LOCO.w / S.LOCO_PX, z = S.CAB_SIDE[2];
+        const run = T.grip ? [(T.grip[0] - S.LOCO_PX / 2) * px, 0, S.LOCO.h - T.grip[1] * px, z] : [S.CAB_SIDE[0], 0, S.CAB_SIDE[1], z];
+        const turned = turn => {
+            const g = T.gripTurn && T.gripTurn[turn];
+            return g ? [run[0], (g[0] - T.grip[0]) * px, S.LOCO.h - g[1] * px, z] : run;
+        };
+        const over = new Map();
+        if (T.over) for (const url of [...T.loco, ...Object.values(T.locoShot), ...Object.values(T.locoTurn)]) over.set(url, url.replace(/\.png$/, '_over.png'));
+        return { cab: { '': run, left: turned('left'), right: turned('right') }, nose: T.nose || S.LOCO_NOSE, over };
     }
 
     // Render COLLAPSE_RENDER_HEIGHT px tall whatever the screen; CSS scales it up pixelated.
@@ -777,6 +805,13 @@ class CollapseScene {
         // center. The camera sees the plane's back (no culling), which is the art as drawn: a half turn
         // to the front mirrors it, and the driver shoots out of the wrong side.
         this.train.billboardMode = BABYLON.Mesh.BILLBOARDMODE_NONE;
+        // A skin's front layer rides the loco and is drawn after the demons (group 3 clears depth), only
+        // while one hangs on the cab: a post or a jet of steam in front of its legs.
+        this.trainOver = this.sprite('loco-over', 'loco-over', CollapseArt.loco[0], S.LOCO.w, S.LOCO.h, false);
+        this.trainOver.parent = this.train;
+        this.trainOver.renderingGroupId = 3;
+        this.trainOver.setEnabled(false);
+        this._look = S.trainLook(CollapseArt.trains.base);
         this.shieldFx = this.sprite('shield', 'shield', CollapseArt.shield[0], 460, 352);
         this.shieldFx.position.set(0, 10, 20);
         this._buildDemons();
@@ -793,7 +828,7 @@ class CollapseScene {
     }
 
     // Where the sprite stands for its nose to be at x: a turn frame draws the nose off its center.
-    static trainAt(x, turn) { return x - (turn ? CollapseScene.LOCO_NOSE[turn] * CollapseScene.LOCO.w / CollapseScene.LOCO_PX : 0); }
+    static trainAt(x, turn, nose = CollapseScene.LOCO_NOSE) { return x - (turn ? nose[turn] * CollapseScene.LOCO.w / CollapseScene.LOCO_PX : 0); }
 
     // A point given from the sprite's bottom center (x to the screen right, +z toward the camera) in
     // the world, as the sprite stands now: rides its lean, squeeze, tip and fall.
@@ -1253,7 +1288,8 @@ class CollapseScene {
                 frame = CollapseArt.locoDamaged;
             }
         }
-        this.train.position.set(S.trainAt(x, turn), fall, 0);
+        this._turn = turn;
+        this.train.position.set(S.trainAt(x, turn, this._look.nose), fall, 0);
         this.train.rotation.z = -roll;
         this.train.rotation.x = tip;
         this.train.scaling.x = turn ? 1 : 1 - Math.abs(bend) * this.trainSqueeze;
@@ -1262,6 +1298,12 @@ class CollapseScene {
         const heat = Math.max(0, 1 - (this.time - this._heatAt) / this.heatSec);
         this.train.material.emissiveColor.set(heat * 0.9, heat * 0.3, heat * 0.05);
         this._setSpriteTex(this.train.material, frame);
+        const over = run.shootable().some(d => d.on) && this._look.over.get(frame);
+        this.trainOver.setEnabled(!!over);
+        if (over) {
+            this._setSpriteTex(this.trainOver.material, over);
+            this.trainOver.material.emissiveColor.copyFrom(this.train.material.emissiveColor);
+        }
         this._followCamera(x, dt);
         this.shieldFx.setEnabled(run.shield > 0 && run.state === 'run');
         this.shieldFx.position.x = this.train.position.x;
@@ -1286,7 +1328,7 @@ class CollapseScene {
                 const y = D.footY + (D.contact[1] - D.px) * D.art;
                 view.setEnabled(true);
                 // Where it holds the cab: the leap ends there, and from then on it rides the train.
-                const art = D.art * hang, at = this._onTrain([side * S.CAB_SIDE[0], S.CAB_SIDE[1], S.CAB_SIDE[2]], cab);
+                const art = D.art * hang, C = this._look.cab[this._turn || ''], at = this._onTrain([side * C[0] + C[1], C[2], C[3]], cab);
                 const hx = at.x - side * (D.hold[0] - D.px / 2) * art, hy = at.y - (D.px - D.hold[1]) * art;
                 view.metadata.trail = null;
                 if (d.on) {
