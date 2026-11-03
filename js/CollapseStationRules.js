@@ -23,6 +23,8 @@ const CollapseStationRules = {
             brake: typeof COLLAPSE_STATION_BRAKE !== U ? COLLAPSE_STATION_BRAKE : 6,
             crawl: typeof COLLAPSE_STATION_CRAWL !== U ? COLLAPSE_STATION_CRAWL : 0.25,
             hardStep: typeof COLLAPSE_STATION_HARD_STEP !== U ? COLLAPSE_STATION_HARD_STEP : 0.4,
+            demonStep: typeof COLLAPSE_STATION_DEMON_STEP !== U ? COLLAPSE_STATION_DEMON_STEP : 0.1,
+            eventStep: typeof COLLAPSE_STATION_EVENT_STEP !== U ? COLLAPSE_STATION_EVENT_STEP : 0.04,
             frontStep: typeof COLLAPSE_STATION_FRONT_STEP !== U ? COLLAPSE_STATION_FRONT_STEP : 0.1,
             seats: typeof COLLAPSE_STATION_SEATS !== U ? COLLAPSE_STATION_SEATS : 3,
             fare: typeof COLLAPSE_STATION_FARE !== U ? COLLAPSE_STATION_FARE : 10,
@@ -45,6 +47,7 @@ class CollapseStationTrack extends CollapseTrack {
         this.st = CollapseStationRules.cfg();
         /** @type {number[]} */
         this.stations = [];                // the boundary of each stop, in order
+        this.demonBase = this.cfg.demonChance;
     }
 
     // Boundary of stop k. The generator goes as far as it takes: one seed, one place of every stop.
@@ -63,9 +66,10 @@ class CollapseStationTrack extends CollapseTrack {
         const s = this.st;
         for (let i = 0; i < s.approach + s.after; i++) this._push(collapseSegment('station'));
         this.stations.push(at + s.approach);
-        // The next stretch: the generator is that much farther along, demons are that much likelier.
-        const k = 1 + s.hardStep, base = this.cfg;
-        this.cfg = Object.assign({}, base, { difficultySegs: base.difficultySegs / k, demonChance: Math.min(1, base.demonChance * k) });
+        // The next stretch: the generator is that much farther along; past every second stop demons are
+        // demonStep likelier than at the depot (the owner, 2026-11-03: no more than 10 %).
+        const k = 1 + s.hardStep, base = this.cfg, n = this.stations.length;
+        this.cfg = Object.assign({}, base, { difficultySegs: base.difficultySegs / k, demonChance: Math.min(1, this.demonBase * (1 + s.demonStep * Math.floor(n / 2))) });
     }
 }
 
@@ -87,6 +91,7 @@ class CollapseStationRun extends CollapseRun {
         this.stopLeft = 0;            // s of the stop left, 0 — on the way
         this.stationAt = /** @type {CollapseStationTrack} */ (this.track).station(0);
         this.leftAt = -1e9;           // the boundary of the last stop
+        this.eventBase = this.c.eventChance;
     }
 
     get atStation() { return this.stopLeft > 0; }
@@ -153,6 +158,8 @@ class CollapseStationRun extends CollapseRun {
         this.stopLeft = 0;
         this.leftAt = this.stationAt;
         this.stage++;
+        // Past every second stop a collapse is likelier (the owner, 2026-11-03).
+        this.c.eventChance = Math.min(1, this.eventBase + this.st.eventStep * Math.floor(this.stage / 2));
         this.stationAt = /** @type {CollapseStationTrack} */ (this.track).station(this.stage);
         this.events.push({ type: 'departed', stage: this.stage });
     }

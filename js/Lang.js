@@ -509,6 +509,7 @@ const Lang = {
     "shopBack": "back",
     "overMenu": "menu",
     "boardBtn": "board",
+    "menuBoard": "board",
     "boardTitle": "board",
     "boardClose": "close",
     "boardRowName": "player",

@@ -48,6 +48,7 @@ class Game {
         on('menuStart', () => this.openMenu('modeScreen'));
         on('menuSettings', () => this.openMenu('settingsScreen'));
         on('menuShop', () => { Shop.open(); this.openMenu('shopScreen'); });
+        on('menuBoard', () => Leaderboard.open());
         Shop.init(this.scene, on);
         on('challengeAccept', () => this.startChallenge());
         on('challengeLater', () => this.openMenu());
@@ -103,6 +104,7 @@ class Game {
         for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen', 'challengeScreen']) this._show(id, id === screen);
         for (const id of ['frameTop', 'frameBottom', 'iconStrip', 'stationShop', 'collapseNote', 'runTime', 'challengeGoal']) this._show(id, false);
         this._show('menuExit', TG.inside);
+        this._show('menuBoard', Leaderboard.enabled);
     }
 
     refreshLanguage() {

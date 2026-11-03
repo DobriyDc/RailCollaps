@@ -90,6 +90,8 @@ const CollapseRules = {
             ammoPickup: typeof COLLAPSE_AMMO_PICKUP !== U ? COLLAPSE_AMMO_PICKUP : 4,
             shieldMax: typeof COLLAPSE_SHIELD_MAX !== U ? COLLAPSE_SHIELD_MAX : 2,
             rescueMax: typeof COLLAPSE_RESCUE_MAX !== U ? COLLAPSE_RESCUE_MAX : 2,
+            rescueCap: typeof COLLAPSE_RESCUE_CAP !== U ? COLLAPSE_RESCUE_CAP : 3,
+            eventBoostMax: typeof COLLAPSE_EVENT_BOOST_MAX !== U ? COLLAPSE_EVENT_BOOST_MAX : 4,
             shieldGap: typeof COLLAPSE_SHIELD_GAP !== U ? COLLAPSE_SHIELD_GAP : 6,
             demonWarn: typeof COLLAPSE_DEMON_WARN_SEC !== U ? COLLAPSE_DEMON_WARN_SEC : 1,
             demonPerch: typeof COLLAPSE_DEMON_PERCH_SEC !== U ? COLLAPSE_DEMON_PERCH_SEC : 1,
@@ -194,6 +196,7 @@ class CollapseTrack {
         this.segs = [];
         this.lastDemon = -1e9;
         this.lastFork = -1e9;   // boundary of the last generated fork
+        this.rescues = 0;       // rescues laid so far: no more than cfg.rescueCap
         this._calm(5);          // the depot: a quiet start to read the screen
     }
 
@@ -223,12 +226,19 @@ class CollapseTrack {
         for (let i = 0; i < n; i++) this._push(collapseSegment('calm'));
     }
 
-    // A pickup kind, or null: the dice left this place empty.
+    // A pickup kind, or null: the dice left this place empty. Past rescueCap rescues on a track (the
+    // owner, 2026-11-03) a rescue face leaves its place empty too. The track is laid in order, so the
+    // first rescueCap are always the same ones, however far ahead anyone looked.
     _pickupKind() {
         const w = this.cfg.pickupOdds;
         let r = this.rand() * w.reduce((a, b) => a + b, 0);
         for (let i = 0; i < w.length; i++) {
-            if ((r -= w[i]) < 0) return CollapseRules.PICKUP_DICE[i];
+            if ((r -= w[i]) >= 0) continue;
+            const kind = CollapseRules.PICKUP_DICE[i];
+            if (kind !== 'rescue') return kind;
+            if (this.rescues >= this.cfg.rescueCap) return null;
+            this.rescues++;
+            return kind;
         }
         return null;
     }
@@ -362,6 +372,7 @@ class CollapseRun {
         this.front = -1e9;            // where the collapse stands: far behind until the first one starts
         this.collapseEnd = -1e9;      // the segment the running collapse stops at
         this.collapseAt = -1;         // the segment the next one starts at
+        this.eventBoosts = 0;         // accelerators the collapses of this run have laid
         this.collapseFrom = 0;        // run time it started
         this.collapseDice = CollapseRules.rng(this.seed ^ 0x9E3779B9);
         this.ammo = this.c.startAmmo;
@@ -437,6 +448,8 @@ class CollapseRun {
     // over a stretch with no hazard and no pickup on both lanes and no other fork closer than the generator
     // keeps forks apart; no room for that either — no accelerator. 'laid' tells the view to build again.
     _layBoost() {
+        if (this.eventBoosts >= this.c.eventBoostMax) return;      // no more than eventBoostMax a run (the owner, 2026-11-03)
+        this.eventBoosts++;
         const R = CollapseRules, L = R.SWITCH_LEAD, a = this.lane, track = this.track, apart = L + 1;
         const first = Math.floor(this.pos) + this.c.eventBoostAhead - L;
         // The lane's icon shows its nearest object: nothing else on that lane for a while, or its warning comes late.

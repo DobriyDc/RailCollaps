@@ -141,12 +141,38 @@ test('ускорители и спасения в 2,5–3 раза реже, о�
     for (let i = 0; i < 3000; i++) for (const kind of t.seg(i).pickup) if (kind) count[kind]++;
   }
   for (const kind of ['ammo', 'slow', 'shield']) assert.equal(count[kind], PICKUPS_BEFORE[kind], kind);
-  for (const kind of ['boost', 'rescue']) {
-    const rarer = PICKUPS_BEFORE[kind] / count[kind];
-    assert.ok(rarer >= 2.5 && rarer <= 3, `${kind}: реже в ${rarer.toFixed(2)} раза`);
-  }
+  const rarer = PICKUPS_BEFORE.boost / count.boost;
+  assert.ok(rarer >= 2.5 && rarer <= 3, `boost: реже в ${rarer.toFixed(2)} раза`);
+  assert.equal(count.rescue, 20 * p.get('COLLAPSE_RESCUE_CAP'), 'спасений на каждой трассе ровно предел');
   const m = median(series(p, dodgeBot).map(r => r.m));
   assert.ok(m >= 0.8 * DODGER_BEFORE, `медиана уклониста ${m} м, было ${DODGER_BEFORE}`);
+});
+
+test('предел за забег: спасений на путях не больше 3, ускорителей обвала не больше 4 (владелец, 2026-11-03)', () => {
+  const p = page(), Track = p.get('CollapseTrack'), Run = p.get('CollapseRun'), c = p.get('CollapseRules').cfg();
+  assert.deepEqual([c.rescueCap, c.eventBoostMax], [3, 4]);
+  for (let seed = 1; seed <= 30; seed++) {
+    const t = new Track(seed);
+    let rescues = 0;
+    for (let i = 0; i < 4000; i++) rescues += t.seg(i).pickup.filter(k => k === 'rescue').length;
+    assert.ok(rescues <= c.rescueCap, `зерно ${seed}: спасений ${rescues}`);
+    // How far ahead the track was laid does not move them: a fresh one, read backwards, has the same.
+    const back = new Track(seed);
+    back.seg(4000);
+    for (const i of [10, 500, 1500, 3999]) assert.deepEqual(back.seg(i).pickup, t.seg(i).pickup, `зерно ${seed}, сегмент ${i}`);
+  }
+  const run = new Run(3);
+  run.invuln = 1e9;
+  let laid = 0;
+  for (let k = 0; k < 9; k++) {
+    run.pos = run._seg = 200 + k * 80;
+    run.collapseEnd = -1e9;
+    run.events.length = 0;
+    run.startCollapse();
+    laid += run.events.filter(e => e.type === 'laid' && e.kind === 'boost').length;
+  }
+  assert.ok(laid <= c.eventBoostMax && laid >= 3, `ускорителей обвала ${laid}`);
+  assert.equal(run.eventBoosts, c.eventBoostMax);
 });
 
 test('объезд без ресурса — тихий участок без стрелок: табличка не ведёт в никуда', () => {

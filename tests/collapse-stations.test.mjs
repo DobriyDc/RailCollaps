@@ -119,6 +119,22 @@ test('лавка: четыре товара, ремонт до полной, п�
   assert.equal(run.buy('boost'), 'closed', 'ускорителя в лавке нет');
 });
 
+test('каждые две станции демоны на 10 % вероятнее, обвал на 10 пунктов; спасение в лавке за 300 (владелец, 2026-11-03)', () => {
+  const p = page(), Run = p.get('CollapseStationRun'), st = p.get('CollapseStationRules').cfg();
+  assert.equal(st.price.rescue, 300);
+  assert.ok(st.demonStep <= 0.1, 'демоны не больше 10 %');
+  const run = new Run(5), t = run.track, base = t.demonBase, chance0 = run.c.eventChance;
+  const chances = [], demons = [];
+  for (let k = 0; k < 6; k++) {
+    t.station(k);
+    demons.push(+(t.cfg.demonChance / base).toFixed(4));
+    if (k) { run.stopLeft = 1; run._depart(); }
+    chances.push(+(run.c.eventChance - chance0).toFixed(4));
+  }
+  assert.deepEqual(demons, [1, 1.1, 1.1, 1.2, 1.2, 1.3]);
+  assert.deepEqual(chances, [0, 0, 0.1, 0.1, 0.2, 0.2]);
+});
+
 test('реплей учитывает покупки и кнопку «Дальше»: тот же финиш, а без покупки другой или никакой', () => {
   const p = page(), Run = p.get('CollapseStationRun');
   let bought = 0, differs = 0;
