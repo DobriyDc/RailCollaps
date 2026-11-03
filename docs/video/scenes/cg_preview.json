@@ -1,0 +1,16 @@
+{
+  "seed": 7,
+  "pos": 61.3,
+  "ammo": 6,
+  "seconds": 17,
+  "endAt": 999,
+  "actions": [
+    { "at": 0.0, "do": "demon", "side": 1, "wait": 0.35, "perch": 0.5 },
+    { "at": 3.55, "do": "shoot", "side": 1 },
+    { "at": 5.0, "do": "hazard", "kind": "gap", "ahead": 10, "len": 4 },
+    { "at": 8.1, "do": "fork" },
+    { "at": 10.0, "do": "collapse" },
+    { "at": 12.4, "do": "front", "till": 16.0, "from": 6, "gap": 1.0, "ease": 3.0 },
+    { "at": 14.7, "do": "pickup", "kind": "boost", "ahead": 3 }
+  ]
+}

@@ -28,7 +28,7 @@ function fakeAudio() {
 function page() {
   const listeners = [], document = { hidden: false, handler: null, documentElement: {}, addEventListener(type, fn) { this.handler = fn; } };
   const audio = fakeAudio(), fetched = [];
-  const p = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/Game.js'], {
+  const p = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/CrazyGames.js', 'js/Game.js'], {
     document, AudioContext: audio.AudioContext,
     addEventListener(type, fn) { listeners.push(fn); }, removeEventListener(type, fn) { listeners.splice(listeners.indexOf(fn), 1); },
     fetch(src) { fetched.push(src); return Promise.resolve({ ok: true, arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)) }); },

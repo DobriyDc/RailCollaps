@@ -24,6 +24,24 @@ test('словарь: каждый ключ переведён, параметр
   }
 });
 
+test('первый запуск — язык игрока: Telegram главнее браузера, русский только читающим по-русски, выбор в настройках главнее всего', () => {
+  const code = (globals, saved) => {
+    const localStorage = storage();
+    if (saved) localStorage.setItem('collapse.language', saved);
+    return loadScripts(files, { localStorage, ...globals }).get('Lang').code;
+  };
+  const tg = language_code => ({ Telegram: { WebApp: { initDataUnsafe: { user: { language_code } } } } });
+  const nav = language => ({ navigator: { userAgent: 'x', platform: 'Win32', maxTouchPoints: 0, language } });
+  assert.equal(code(nav('en-US')), 'en', 'CrazyGames и браузер');
+  assert.equal(code(nav('de')), 'en');
+  assert.equal(code(nav('ru-RU')), 'ru');
+  assert.equal(code(nav('kk-KZ')), 'ru');
+  assert.equal(code({ ...nav('ru-RU'), ...tg('en') }), 'en', 'язык Telegram главнее браузера');
+  assert.equal(code({ ...nav('en-US'), ...tg('ru') }), 'ru');
+  assert.equal(code(nav('en-US'), 'ru'), 'ru', 'выбор в настройках');
+  assert.equal(code({}), 'ru', 'ничего не известно');
+});
+
 test('язык меняется сразу и сохраняется при повторной загрузке скриптов', () => {
   const localStorage = storage();
   const texts = new Map();
@@ -54,7 +72,7 @@ test('настройки: громкость обоих каналов пере�
       });
       return elements.get(id);
     }};
-    const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/Game.js'], {
+    const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/CrazyGames.js', 'js/Game.js'], {
       localStorage, UI, Image: class {}, CollapseScene: { LANE_W: 180 },
       TG: { inside: false, loadBest() {}, runEnded() {}, runStarted() {} },
       Leaderboard: { close() {}, refreshLanguage() {} },
@@ -96,7 +114,7 @@ test('ориентация: выбор в настройках хранится,
       });
       return elements.get(id);
     }};
-    const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/Game.js'], {
+    const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/CrazyGames.js', 'js/Game.js'], {
       localStorage, UI, Image: class {}, CollapseScene: { LANE_W: 180 }, URL, URLSearchParams,
       TG: { inside: false, loadBest() {}, runEnded() {}, runStarted() {}, holdOrientation: v => holds.push(v) },
       Leaderboard: { close() {}, refreshLanguage() {} },

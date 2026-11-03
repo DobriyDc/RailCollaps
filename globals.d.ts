@@ -16,6 +16,8 @@ interface Window {
     Telegram?: { WebApp?: any };
     /** The ad networks' scripts, loaded by js/Ads.js on the first offer. */
     Adsgram?: any;
+    /** CrazyGames HTML5 SDK v3, loaded on their portal only; only js/CrazyGames.js may use it. */
+    CrazyGames?: { SDK?: any };
 }
 
 /** UI_LAYOUT record (UILayout.js, written by the editor's UI tab); fields by kind — UI.DEFAULTS. */

@@ -1,7 +1,7 @@
 // Lang.js — all player-facing copy, with Store as the language owner.
 /** @satisfies {Record<string, any>} */
 const Lang = {
-    code: Store.get('collapse.language') === 'en' ? 'en' : 'ru',
+    code: 'ru',                   // set under the dictionary: the first start needs Lang.of
     listeners: new Set(),
     words: {
     "title": {
@@ -296,6 +296,10 @@ const Lang = {
         "ru": "Продолжить за рекламу",
         "en": "Continue with an ad"
     },
+    "adNone": {
+        "ru": "Рекламы сейчас нет. Попробуй в следующем рейсе",
+        "en": "No ad right now. Try again next run"
+    },
     "reason.gap": {
         "ru": "Поезд ушёл в провал.",
         "en": "The train fell into a gap."
@@ -526,10 +530,14 @@ const Lang = {
         if (text == null) throw new Error('Missing translation: ' + key);
         return text.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
     },
-    set(code) {
+    // A locale like 'en-US' -> the game's language: Russian for those who read it, English for the rest;
+    // Russian when nothing is known (node tests).
+    of(own) { return !own || /^(ru|be|kk)\b/i.test(own) ? 'ru' : 'en'; },
+    // save false — a guess of the portal, not the player's choice: the next start guesses again.
+    set(code, save = true) {
         if (code !== 'ru' && code !== 'en') return;
         this.code = code;
-        Store.set('collapse.language', code);
+        if (save) Store.set('collapse.language', code);
         this.apply();
         for (const fn of this.listeners) fn();
     },
@@ -542,3 +550,12 @@ const Lang = {
         }
     },
 };
+
+// The settings' choice; on the first start the player's own language: Telegram's, else the browser's
+// (on CrazyGames the portal's locale follows, js/CrazyGames.js).
+Lang.code = (() => {
+    const saved = Store.get('collapse.language');
+    if (saved === 'ru' || saved === 'en') return saved;
+    const tg = typeof window !== 'undefined' && window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
+    return Lang.of(tg || (typeof navigator !== 'undefined' && navigator.language));
+})();

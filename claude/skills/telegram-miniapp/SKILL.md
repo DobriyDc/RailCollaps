@@ -124,7 +124,8 @@ from the next network and passes on when it has no ad, so every network gets the
 dashboards compare directly. A viewer who closes the ad ends the offer without a reward.
 
 An ad network's script is the one exception to invariant 1: it loads from the network's host, on the first
-offer, inside Telegram only, and its address is an `ADS_*_SCRIPT` line of `Constants.js`, the only lines
+offer, inside Telegram only (the CrazyGames SDK: on their portal only, at boot, see Portals), and its address
+is an `ADS_*_SCRIPT` line of `Constants.js`, the only lines
 `tools/build.mjs` allows besides `LEADERBOARD_URL`. The networks update these scripts on their side, so
 they are not vendored. Before a network goes on, name it in `privacy.html`.
 
@@ -132,6 +133,46 @@ they are not vendored. Before a network goes on, name it in `privacy.html`.
   or a failure; `error` tells them apart.
 - Monetag: the Rewarded Interstitial, not the Rewarded Popup, which leaves for an external page. The
   promise resolves on an early close too: only `reward_event_type === 'valued'` is a view.
+
+## Portals
+
+The same build also goes to CrazyGames (`_handoff/crazygames`, made by `tools/build.mjs`). Their HTML5 SDK v3 is
+an ad network's script like the others: its address is `ADS_CRAZYGAMES_SCRIPT`, it loads through
+`Ads._script`, and one wrapper, `js/CrazyGames.js` (global `CG`), is the only file that touches
+`window.CrazyGames`.
+
+- **Where it loads.** Only when the page's own host is `crazygames.com` or under it (their sitelock check), and
+  never when `TG.inside`. `?useLocalSdk=true`, the SDK's own switch to its local mode, loads it on any host for a
+  check: on the dev server the SDK logs every call and shows a stand-in ad. `CG.ready` is true only after
+  `init()` resolved in the `crazygames` or `local` environment; `disabled` or a failed script leave the game as
+  it is everywhere else.
+- **Events.** `loadingStart` when the SDK comes while the loading screen is up, `loadingStop` in `hideLoader`;
+  `Game.update` tells `CG.gameplay(mode === 'play')` every frame and the wrapper sends only changes, so start,
+  pause, resume, the end of a run and the menu are all covered; `happytime` on a beaten record, never on the
+  first run's.
+- **The rewarded continue.** On CrazyGames `Ads.rewarded()` asks only `requestAd('rewarded')`; Adsgram and
+  Monetag never load there. `adFinished` is the reward; `adblock` and any `adsDisabled…` code (SDK 3.8 answers `adsDisabledBasicLaunch` at once in the basic launch) mean no ad comes this
+  session, and since the portal rejects a rewarded button that does nothing, the reward is free then;
+  `unfilled` and the rest end the offer, and the end dialog says to try next run instead of offering it again.
+  The dialog's buttons wait while the ad is pending. The game is muted only from `adStarted` to the answer.
+- **The ad between runs.** Their rules allow either a rewarded "keep playing" or a midgame ad with the restart
+  at one end of a run, never both, and never on navigation buttons. So `Ads.midgame()` asks
+  `requestAd('midgame')` only from "Again" of an end dialog whose run already used its continue
+  (`ADS_CRAZYGAMES_MIDGAME`, 1 — on); the SDK keeps midgame ads 3 minutes apart and answers `adCooldown` in
+  between, and any answer lets the new run start. Telegram has no ad between runs.
+- **The leaderboard.** CrazyGames keeps its own table (invited games only, weekly seasons from Monday 09:00
+  UTC, shown on their site), so the game shows none there. With `LEADERBOARD_CRAZYGAMES` on, the end of a run
+  of a player logged in to CrazyGames goes to `POST /crazygames/score` of the leaderboard function with
+  `Authorization: cg <getUserToken({ signingKeyType: 'IN_GAME_AUTH' })>`, only when it beats that player's
+  best of the week on this device. The function checks the token against
+  `https://userportal.crazygames.com/.well-known/jwks.json` (RS256, by `kid`), replays the run and posts the
+  meters to their Leaderboard API with the secret `CRAZYGAMES_API_KEY`. Guests are not sent; the auth prompt
+  is never opened by the game. Setup steps: `server/leaderboard/README.md`.
+- **Their rules the game follows there.** `muteAudio` of the portal's settings overrules the game's volumes
+  (`Sound3D.setMuted`); the portal's `systemInfo.locale` picks the language until the player chooses one, and
+  that guess is not saved; Start goes straight into a run (the tutorial until it is passed), because a full
+  launch allows at most one click before gameplay. The shop, donation, leaderboard, friend challenge and exit
+  stay hidden off Telegram.
 
 ## Bot setup (the Producer does it in Telegram; agents never handle the token)
 

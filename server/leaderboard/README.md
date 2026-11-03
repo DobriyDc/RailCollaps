@@ -11,8 +11,11 @@
 | `POST /invoice` | `{ item, lang }`: ссылка на счёт в звёздах за поезд, отвечает `{ link }` |
 | `GET /inventory` | купленные поезда игрока: `{ items }` |
 | `POST /bot` | сообщения Telegram для бота: `/start`, `/terms`, `/paysupport`, подтверждение и запись оплаты, возврат |
+| `POST /crazygames/score` | `{ rules, seed, meters, log }` игрока CrazyGames: проверяет и передаёт метры в таблицу CrazyGames, отвечает `{ meters }` |
 
 Запросы таблицы — с заголовком `Authorization: tma <initData>` и только с сайта `https://dobriydc.github.io`.
+Запрос CrazyGames — с заголовком `Authorization: cg <токен аккаунта CrazyGames>` и только с их домена
+(`https://….crazygames.com`).
 
 ## Деплой
 
@@ -124,6 +127,35 @@ npx --yes wrangler@4.156.0 d1 execute collapse-leaderboard --remote -c wrangler.
 
 Первая команда выдаёт три поезда, вторая забирает их. Подарок не уходит в Telegram, поэтому вернуть по нему нечего.
 
+## Таблица CrazyGames
+
+На CrazyGames таблицу ведёт сам портал: недельные сезоны (с понедельника 09:00 UTC), кубки, витрины на
+сайте. Свою таблицу игра там не показывает. Игрок, вошедший в аккаунт CrazyGames, после рейса шлёт
+функции запись рейса и токен аккаунта; функция проверяет токен ключами CrazyGames, переигрывает рейс и
+передаёт метры в их таблицу ключом API. Игра шлёт только лучший рейс игрока за неделю. Гости в таблицу
+не попадают: она знает только аккаунты.
+
+Таблицы CrazyGames — только для игр, которые они пригласили. Пока приглашения нет, всё выключено
+(`LEADERBOARD_CRAZYGAMES = 0`).
+
+1. Попроси CrazyGames включить таблицу для игры. Когда в кабинете разработчика появится вкладка
+   Leaderboard, заполни её:
+   - Leaderboard Guide: `Outrun the collapse: most meters wins`;
+   - Metric Type: `POINTS`; Incremental Scoring: нет; Score Sorting: `DESC` (больше — лучше);
+   - Min Allowed Score: `1`, Max Allowed Score: `100000`;
+   - API Key: нажми «сгенерировать» и скопируй. Encryption Key не нужен: очки шлёт функция, не игра.
+2. Ключ API в секреты функции, команда спросит значение и не покажет его:
+
+   ```
+   npx wrangler secret put CRAZYGAMES_API_KEY
+   ```
+
+3. Выложи функцию: `npx wrangler deploy`.
+4. В `js/Constants.js` поставь `const LEADERBOARD_CRAZYGAMES = 1;`, затем `node tools/check.mjs --tests`,
+   `node tools/build.mjs` и загрузи новый архив на CrazyGames.
+5. Приёмка: войди в аккаунт CrazyGames в превью их кабинета, пройди рейс и открой их таблицу.
+   В логах функции (`npx wrangler tail`) — `POST /crazygames/score` с ответом `200`.
+
 ## Когда меняются правила
 
 Правила и числа забега встроены в функцию при сборке, новая версия игры без нового деплоя получит отказы.
@@ -150,6 +182,11 @@ npx --yes wrangler@4.156.0 d1 execute collapse-leaderboard --remote -c wrangler.
 | 422 | `bad_replay`, `meters_mismatch` | журнал не сходится с правилами, метры не сходятся с реплеем |
 | 429 | `rate_limited` | больше `LEADERBOARD_RATE_MAX` запросов за окно |
 | 502 | `no_invoice` | Telegram не выдал счёт |
+| 401 | `no_auth`, `bad_auth`, `expired` | (CrazyGames) нет токена, подпись не их ключом, токен старше часа |
+| 403 | `bad_origin` | (CrazyGames) запрос не с домена `crazygames.com` |
+| 500 | `not_configured` | (CrazyGames) нет секрета `CRAZYGAMES_API_KEY` |
+| 502 | `crazygames_<причина>` | (CrazyGames) их таблица не приняла: `no-active-season`, `user-not-found`, `privacy-disabled`… |
+| 503 | `no_keys` | (CrazyGames) не удалось получить их ключи подписи |
 
 ## Если упирается в лимит
 
@@ -167,7 +204,7 @@ Workers: там предел 30 с. Результат, на котором фу
   чисел `js/Constants.js`, всего `js/CollapseRules.js` и этого файла. `dist/` не в репозитории,
   wrangler сам пересобирает её перед каждым деплоем.
 - `schema.sql` — таблицы. В базе только id Telegram, имя для показа, метры, сезон и дата; в таблице
-  `rate` — id и счётчик запросов за текущее окно; в таблице `purchases` — id, поезд, номер платежа,
-  сумма и дата.
+  `rate` — id и счётчик запросов за текущее окно (у игроков CrazyGames — отрицательное число из хэша их id,
+  сам id не хранится); в таблице `purchases` — id, поезд, номер платежа, сумма и дата.
 - `server/` не едет в архив игры (`BUILD_EXCLUDE` в `tools/asset-scan.mjs`).
 - Пробы — `tests/leaderboard.test.mjs`: настоящая сборка функции поверх настоящего SQLite в памяти.

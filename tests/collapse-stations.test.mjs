@@ -186,7 +186,7 @@ test('Game: забег всегда со станциями, идёт в рек�
     TG: { inside: false, loadBest() {}, runEnded() {}, runStarted() {}, haptic() {}, saveBest() {} },
     Leaderboard: { enabled: false, close() {}, refreshLanguage() {}, submit: r => submitted.push(r) },
     Shop: { init() {}, open() {}, render() {} }, Challenge: { parse: () => null } };
-  const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/Game.js'], globals);
+  const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/CrazyGames.js', 'js/Game.js'], globals);
   vm.runInContext(fs.readFileSync(path.join(ROOT, 'js/CollapseStations.js'), 'utf8').replace(/^class CollapseStationView[\s\S]*?^}\n/m, 'class CollapseStationView { sync() {} }\n').replace(/^CollapseStationView\..*$/gm, ''), ctx.ctx);
   const scene = { canvas: { addEventListener() {} }, sync() {}, reset() {}, onEvent() {} };
   const game = new (ctx.get('Game'))({ scene });

@@ -160,7 +160,7 @@ function boot() {
     });
     return elements.get(id);
   } };
-  const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/Game.js'], {
+  const ctx = loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Sound3D.js', 'js/CollapseRules.js', 'js/CollapseStationRules.js', 'js/CrazyGames.js', 'js/Game.js'], {
     localStorage, UI, Image: class {}, CollapseScene: { LANE_W: 180 },
     TG: { inside: false, loadBest() {}, runEnded() {}, runStarted() {}, haptic() {}, saveBest: m => saves.push(m) },
     Leaderboard: { close() {}, refreshLanguage() {}, submit: r => submits.push(r), enabled: true },

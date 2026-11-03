@@ -1,13 +1,20 @@
 // index.js — the leaderboard function (Cloudflare Worker + D1). POST /score replays the run with the
 // game's own rules and keeps the player's best of the season; GET /top gives the top and the player's
 // place. A request proves who sent it with the signed initData of Telegram, nothing else is trusted.
+// POST /crazygames/score is the same replay for the game on CrazyGames: the player proves who they are with
+// the token of their CrazyGames account, and the meters go on to the CrazyGames table, which keeps them.
 //
 // tools/build-worker.mjs puts this file after the numbers of js/Constants.js and js/CollapseRules.js
 // into dist/worker.js: COLLAPSE_RULES_VERSION, LEADERBOARD_* and CollapseRun are its neighbours there.
-// Secret BOT_TOKEN (wrangler secret put), database DB (wrangler.toml, schema.sql).
+// Secrets BOT_TOKEN and CRAZYGAMES_API_KEY (wrangler secret put), database DB (wrangler.toml, schema.sql).
 
 const ORIGIN = 'https://dobriydc.github.io';
 const CORS = { 'Access-Control-Allow-Origin': ORIGIN, 'Vary': 'Origin' };
+// The game on CrazyGames is served from their domain, a subdomain per game: only its route takes it.
+const PORTAL_ORIGIN = /^https:\/\/([a-z0-9-]+\.)*crazygames\.com$/;
+const PORTAL_ROUTE = '/crazygames/score';
+const PORTAL_KEYS = 'https://userportal.crazygames.com/.well-known/jwks.json';
+const PORTAL_SCORES = 'https://leaderboard.crazygames.com/leaderboard/scores';
 
 const reply = (status, body, headers = {}) => new Response(JSON.stringify(body), {
     status,
@@ -47,6 +54,63 @@ async function player(request, env) {
     return { id: user.id, name: showName(user) };
 }
 
+// The CrazyGames user token (RS256 by one of their keys): { userId, rateId } or a refusal.
+const fromB64url = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+let portalKeys = null;          // { at, keys: Map kid -> CryptoKey }
+
+async function loadPortalKeys() {
+    const res = await fetch(PORTAL_KEYS);
+    if (!res.ok) throw new Error('keys ' + res.status);
+    const keys = new Map();
+    for (const jwk of (await res.json()).keys || []) {
+        if (jwk.kty !== 'RSA' || !jwk.kid) continue;
+        const key = { kty: 'RSA', n: jwk.n, e: jwk.e };
+        keys.set(jwk.kid, await crypto.subtle.importKey('jwk', key, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']));
+    }
+    portalKeys = { at: Date.now(), keys };
+}
+
+// Signed by CrazyGames: the key of its kid, every key for a token without one. The keys are kept an hour;
+// a signature none of them takes reloads them, at most once a minute: a rotation brings new ones, a stream
+// of forgeries does not hammer their server.
+async function portalSigned(kid, sig, data) {
+    const age = () => (portalKeys ? Date.now() - portalKeys.at : Infinity);
+    if (age() > 3600e3) await loadPortalKeys();
+    for (let round = 0; round < 2; round++) {
+        const keys = kid ? [portalKeys.keys.get(kid)].filter(Boolean) : [...portalKeys.keys.values()];
+        for (const key of keys) {
+            try {
+                if (await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, sig, data)) return true;
+            } catch (e) { /* not this key */ }
+        }
+        if (round || age() < 60e3) return false;
+        await loadPortalKeys();
+    }
+    return false;
+}
+
+async function portalPlayer(request) {
+    const header = request.headers.get('Authorization') || '';
+    if (!header.startsWith('cg ')) return { error: 'no_auth' };
+    const [head, body, sig] = header.slice(3).split('.');
+    let h = null, claims = null;
+    try {
+        h = JSON.parse(new TextDecoder().decode(fromB64url(head)));
+        claims = JSON.parse(new TextDecoder().decode(fromB64url(body)));
+    } catch (e) { return { error: 'bad_auth' }; }
+    if (!sig || !h || !claims || h.alg !== 'RS256' || (h.kid !== undefined && typeof h.kid !== 'string')) return { error: 'bad_auth' };
+    let valid = false;
+    try {
+        valid = await portalSigned(h.kid, fromB64url(sig), bytes(head + '.' + body));
+    } catch (e) { return { error: 'no_keys' }; }
+    if (!valid || typeof claims.userId !== 'string' || !claims.userId) return { error: 'bad_auth' };
+    if (!(claims.exp > Date.now() / 1000)) return { error: 'expired' };
+    // The rate table counts by an integer: a negative one from the hash of the id, never a Telegram id.
+    const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes('crazygames:' + claims.userId)));
+    const rateId = -1 - hash.slice(0, 6).reduce((n, b) => n * 256 + b, 0);
+    return { userId: claims.userId, rateId };
+}
+
 // One row per player, the counter of the current window: true while the player is under the limit.
 async function underLimit(db, id) {
     const win = Math.floor(Date.now() / 1000 / LEADERBOARD_RATE_WINDOW_SEC);
@@ -69,17 +133,24 @@ const isScore = b => !!b && Number.isInteger(b.rules) && Number.isInteger(b.mete
     Number.isInteger(b.seed) && b.seed >= 0 && b.seed <= 0xffffffff &&
     Array.isArray(b.log) && b.log.length <= LEADERBOARD_MAX_LOG && b.log.every(Array.isArray);
 
-async function postScore(request, env, me) {
+// The run of the body, replayed with the game's rules: { run } or { refused } — the answer to give.
+async function replayed(request) {
     const text = await request.text();
-    if (bytes(text).length > LEADERBOARD_MAX_BODY) return refuse(413, 'too_large');
+    if (bytes(text).length > LEADERBOARD_MAX_BODY) return { refused: refuse(413, 'too_large') };
     let body = null;
     try { body = JSON.parse(text); } catch (e) { /* refused below */ }
-    if (!isScore(body)) return refuse(400, 'bad_request');
-    const season = COLLAPSE_RULES_VERSION;
-    if (body.rules !== season) return refuse(409, 'rules_version');
+    if (!isScore(body)) return { refused: refuse(400, 'bad_request') };
+    if (body.rules !== COLLAPSE_RULES_VERSION) return { refused: refuse(409, 'rules_version') };
     const run = CollapseStationRun.replay(body.seed, body.log, LEADERBOARD_MAX_STEPS);
-    if (!run) return refuse(422, 'bad_replay');
-    if (run.meters !== body.meters) return refuse(422, 'meters_mismatch');
+    if (!run) return { refused: refuse(422, 'bad_replay') };
+    if (run.meters !== body.meters) return { refused: refuse(422, 'meters_mismatch') };
+    return { run };
+}
+
+async function postScore(request, env, me) {
+    const { run, refused } = await replayed(request);
+    if (refused) return refused;
+    const season = COLLAPSE_RULES_VERSION;
     await env.DB.prepare(
         'INSERT INTO scores (season, user_id, name, meters, at) VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT (season, user_id) ' +
         'DO UPDATE SET name = excluded.name, meters = excluded.meters, at = excluded.at WHERE excluded.meters > scores.meters',
@@ -87,6 +158,48 @@ async function postScore(request, env, me) {
     const best = await scoreOf(env.DB, season, me.id);
     const { place } = await placeOf(env.DB, season, best, me.id);
     return reply(200, { season, meters: run.meters, best: best.meters, place });
+}
+
+// CrazyGames keeps its table itself, by weekly seasons: the replayed meters go there as they are, the
+// table keeps the player's best. A score it did not take (no season, the player's privacy) is a 502.
+async function portalScore(request, env, me) {
+    const { run, refused } = await replayed(request);
+    if (refused) return refused;
+    const res = await fetch(PORTAL_SCORES, {
+        method: 'POST',
+        headers: { 'X-API-Key': env.CRAZYGAMES_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scores: [{ userId: me.userId, score: run.meters, timestamp: new Date(Date.now()).toISOString() }] }),
+    });
+    let answer = null;
+    try { answer = await res.json(); } catch (e) { /* no answer: below */ }
+    if (!res.ok || !answer || answer.successCount !== 1) {
+        const why = (answer && answer.errors && answer.errors[0] && answer.errors[0].type) || 'status_' + res.status;
+        return refuse(502, 'crazygames_' + why);
+    }
+    return reply(200, { meters: run.meters });
+}
+
+// The route of the game on CrazyGames: its origin, its proof, its secret, the same limit.
+async function portal(request, env) {
+    const origin = request.headers.get('Origin') || '';
+    if (!PORTAL_ORIGIN.test(origin)) {
+        return new Response(JSON.stringify({ error: 'bad_origin' }), { status: 403, headers: { 'Content-Type': 'application/json', 'Vary': 'Origin' } });
+    }
+    const answer = await (async () => {
+        if (request.method === 'OPTIONS') {
+            return new Response(null, { status: 204, headers: { 'Access-Control-Allow-Methods': 'POST',
+                'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Max-Age': '86400' } });
+        }
+        if (request.method !== 'POST') return refuse(404, 'not_found');
+        if (!env.CRAZYGAMES_API_KEY || !env.DB) return refuse(500, 'not_configured');
+        const me = await portalPlayer(request);
+        if (me.error) return refuse(me.error === 'no_keys' ? 503 : 401, me.error);
+        if (!await underLimit(env.DB, me.rateId)) return refuse(429, 'rate_limited', { 'Retry-After': String(LEADERBOARD_RATE_WINDOW_SEC) });
+        return portalScore(request, env, me);
+    })();
+    answer.headers.set('Access-Control-Allow-Origin', origin);
+    answer.headers.set('Vary', 'Origin');
+    return answer;
 }
 
 async function getTop(env, me) {
@@ -262,6 +375,7 @@ async function botUpdate(request, env) {
 export default {
     async fetch(request, env) {
         if (new URL(request.url).pathname === '/bot') return botUpdate(request, env);
+        if (new URL(request.url).pathname === PORTAL_ROUTE) return portal(request, env);
         if (request.headers.get('Origin') !== ORIGIN) {
             return new Response(JSON.stringify({ error: 'bad_origin' }), { status: 403, headers: { 'Content-Type': 'application/json', 'Vary': 'Origin' } });
         }

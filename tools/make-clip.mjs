@@ -3,6 +3,9 @@
 //  in headless Edge, frame by frame, 1080x1920 at 30 fps, with the game's own sounds and music.
 // ----------------------------------------------------------------------------
 //  node tools/make-clip.mjs docs/video/scenes/01_demon.json [--lang=ru,en] [--out=build/clips]
+//    --size=960x540   the page in CSS px (doubled in the video; default 540x960), e.g. a portal's preview
+//    --query=land     added to the game's address
+//    --silent         no sound track (portal previews)
 //
 //  The page runs at 540x960 CSS px with devicePixelRatio 2; tools/clip-page.js stops the frame loop,
 //  stages the scene and makes each frame on request, the driver takes a screenshot of every one.
@@ -27,6 +30,7 @@ const BROWSERS = [
   '/usr/bin/microsoft-edge', '/usr/bin/google-chrome', '/usr/bin/chromium',
 ];
 const FPS = 30;
+const [VW, VH] = arg('size', '540x960').split('x').map(Number);   // the page, CSS px; the video is twice that
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const freePort = () => new Promise((res, rej) => { const s = net.createServer(); s.once('error', rej); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => res(p)); }); });
 async function waitFor(fn, ms, what) {
@@ -61,7 +65,7 @@ async function capture(scene, lang, dir) {
   if (!browser) throw new Error('нет Edge или Chrome');
   const port = await freePort();
   const server = spawn(process.execPath, [path.join(ROOT, 'tools', 'dev-server.mjs'), '--port=' + port, '--no-open'], { stdio: 'ignore' });
-  const pageUrl = `http://127.0.0.1:${port}/`;
+  const pageUrl = `http://127.0.0.1:${port}/` + (arg('query', '') ? '?' + arg('query', '') : '');
   const profile = await fsp.mkdtemp(path.join(os.tmpdir(), 'clip-profile-'));
   let edge = null, cdp = null;
   try {
@@ -82,7 +86,7 @@ async function capture(scene, lang, dir) {
     });
     await S('Page.enable');
     await S('Runtime.enable');
-    await S('Emulation.setDeviceMetricsOverride', { width: 540, height: 960, deviceScaleFactor: 2, mobile: true, screenWidth: 540, screenHeight: 960 });
+    await S('Emulation.setDeviceMetricsOverride', { width: VW, height: VH, deviceScaleFactor: 2, mobile: VW < VH, screenWidth: VW, screenHeight: VH });
     await S('Page.navigate', { url: pageUrl });
     await waitFor(() => loaded, 30000, 'загрузка');
     await sleep(3500);
@@ -118,6 +122,12 @@ async function capture(scene, lang, dir) {
 // The frames and the sound into one MP4: the music, the wheels, the steam, the rumble while the
 // scene says, every logged effect at its time.
 function encode(scene, dir, sounds, out) {
+  if (process.argv.includes('--silent')) {
+    const ff = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-i', path.join(dir, 'f%04d.png'), '-t', String(scene.seconds),
+      '-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-pix_fmt', 'yuv420p', '-r', String(FPS), '-an', '-movflags', '+faststart', out], { stdio: ['ignore', 'ignore', 'pipe'] });
+    if (ff.status !== 0) throw new Error('ffmpeg: ' + String(ff.stderr).split('\n').slice(-6).join('\n'));
+    return;
+  }
   const snd = p => path.join(ROOT, p);
   const inputs = ['-framerate', String(FPS), '-i', path.join(dir, 'f%04d.png'),
     '-stream_loop', '-1', '-i', snd('assets/sounds/music_tunnel.wav'),
@@ -154,7 +164,7 @@ async function main() {
     try {
       const t0 = Date.now();
       const sounds = await capture(scene, lang, dir);
-      const out = path.join(outDir, `${name}_${lang}.mp4`);
+      const out = path.join(outDir, `${name}_${lang}` + (arg('size', '') ? `_${VW * 2}x${VH * 2}` : '') + '.mp4');
       encode(scene, dir, sounds, out);
       console.log(`${path.relative(ROOT, out) || out}: ${scene.seconds} с, звуков ${sounds.length}, ${Math.round((Date.now() - t0) / 1000)} с работы`);
     } finally {

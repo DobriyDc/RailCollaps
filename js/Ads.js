@@ -3,6 +3,7 @@
 // directly (docs/monetization.md). A network with no ad passes to the next one, a player who closes the
 // ad ends the offer. A network with an empty id in Constants.js is off. The scripts live on the networks'
 // own hosts and load on the first offer, inside Telegram only; with no network on the reward is free.
+// On CrazyGames their SDK is the only network (js/CrazyGames.js): Adsgram and Monetag stay in Telegram.
 
 /** @satisfies {Record<string, any>} */
 const Ads = {
@@ -28,7 +29,7 @@ const Ads = {
     },
     get waitMs() { return typeof ADS_WAIT_MS !== 'undefined' ? ADS_WAIT_MS : 8000; },
     get active() { const ids = this._ids(); return this.NETWORKS.filter(n => ids[n]); },
-    get live() { return TG.inside && this.active.length > 0; },
+    get live() { return CG.ready || (TG.inside && this.active.length > 0); },
 
     // The networks for this offer, the next one first. The turn survives a reload.
     order() {
@@ -41,12 +42,17 @@ const Ads = {
     // true when the viewer earned the reward. Never rejects: a failed ad ends the run as usual.
     async rewarded() {
         if (!this.live) return new Promise(resolve => setTimeout(() => resolve(true), 700));
+        if (CG.ready) return (await CG.rewarded()) !== 'empty';
         for (const network of this.order()) {
             const outcome = await this._offer(network);
             if (outcome !== 'empty') return outcome === 'reward';
         }
         return false;
     },
+
+    // An ad between runs: CrazyGames only, the Telegram networks have none. Resolves when the game may go on.
+    get midgameLive() { return CG.ready && (typeof ADS_CRAZYGAMES_MIDGAME !== 'undefined' ? ADS_CRAZYGAMES_MIDGAME : 1) > 0; },
+    async midgame() { if (this.midgameLive) await CG.midgame(); },
 
     // 'reward', 'skip' or 'empty': no ad, or the network failed.
     async _offer(network) {

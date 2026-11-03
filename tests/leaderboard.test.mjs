@@ -432,3 +432,129 @@ test('магазин: донат — сумма игрока в пределах
   await update({ message: { from, chat, refunded_payment: { telegram_payment_charge_id: 'tip-1' } } });
   assert.deepEqual(rows(), []);
 });
+
+// CrazyGames: the function takes the run of a player logged in there by the token of their account (RS256,
+// the key of its kid among CrazyGames' keys), replays it and hands the meters to the CrazyGames table.
+const CG_ORIGIN = 'https://rail-collapse.game-files.crazygames.com';
+const CG_KEYS = 'https://userportal.crazygames.com/.well-known/jwks.json';
+const CG_SCORES = 'https://leaderboard.crazygames.com/leaderboard/scores';
+const cgPair = kid => ({ kid, ...crypto.generateKeyPairSync('rsa', { modulusLength: 2048 }) });
+const CG_KEY = cgPair('ingame-auth'), CG_NEXT = cgPair('ingame-auth-2'), CG_STRANGER = cgPair('ingame-auth');
+let cgPublished = [CG_KEY];
+const b64url = b => Buffer.from(b).toString('base64url');
+function cgToken({ pair = CG_KEY, userId = 'UOuZBKgjwpY9k4TSBB2NPugbsHD3', exp = Date.now() / 1000 + 3600, alg = 'RS256', kid = pair.kid } = {}) {
+  const head = b64url(JSON.stringify({ alg, kid, typ: 'JWT' }));
+  const body = b64url(JSON.stringify({ userId, username: 'RustyCake.ZU9H', gameId: 'rail-collapse', iat: Math.floor(Date.now() / 1000), exp: Math.floor(exp) }));
+  return head + '.' + body + '.' + b64url(crypto.sign('RSA-SHA256', Buffer.from(head + '.' + body), pair.privateKey));
+}
+// fetch of the function: CrazyGames' keys and their table; sent — what reached the table.
+function cgNet(t, answer = { success: true, total: 1, successCount: 1, failureCount: 0, errors: [] }) {
+  const sent = [];
+  t.mock.method(globalThis, 'fetch', async (address, init) => {
+    if (address === CG_KEYS) return Response.json({ keys: cgPublished.map(p => ({ ...p.publicKey.export({ format: 'jwk' }), kid: p.kid, alg: 'RS256', use: 'sig' })) });
+    if (address === CG_SCORES) { sent.push({ key: init.headers['X-API-Key'], ...JSON.parse(init.body) }); return Response.json(answer); }
+    throw new Error('unexpected fetch ' + address);
+  });
+  return sent;
+}
+const cgEnv = () => ({ ...env(), CRAZYGAMES_API_KEY: 'cg-api-key' });
+const cgCall = (e, { token = cgToken(), body, origin = CG_ORIGIN, method = 'POST', auth } = {}) => {
+  const headers = {};
+  if (origin) headers.Origin = origin;
+  if (auth !== undefined) { if (auth) headers.Authorization = auth; } else if (token) headers.Authorization = 'cg ' + token;
+  return worker.fetch(new Request('https://collapse.test/crazygames/score', { method, headers, body: body === undefined ? undefined : JSON.stringify(body) }), e);
+};
+
+test('CrazyGames: честный рейс по токену их аккаунта уходит в их таблицу: id, метры, время; ответ с их Origin', async t => {
+  const sent = cgNet(t), p = page(), run = live(p, 7), e = cgEnv();
+  const res = await cgCall(e, { body: { rules: p.get('COLLAPSE_RULES_VERSION'), seed: 7, meters: run.meters, log: run.log } });
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), { meters: run.meters });
+  assert.equal(res.headers.get('Access-Control-Allow-Origin'), CG_ORIGIN);
+  assert.equal(sent.length, 1);
+  const [score] = sent[0].scores;
+  assert.equal(sent[0].key, 'cg-api-key');
+  assert.deepEqual([score.userId, score.score], ['UOuZBKgjwpY9k4TSBB2NPugbsHD3', run.meters]);
+  assert.match(score.timestamp, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/);
+  assert.deepEqual(e.DB.rows(), [], 'своя таблица не тронута: эта — их');
+
+  const pre = await worker.fetch(new Request('https://collapse.test/crazygames/score', { method: 'OPTIONS', headers: { Origin: 'https://www.crazygames.com' } }), e);
+  assert.equal(pre.status, 204);
+  assert.equal(pre.headers.get('Access-Control-Allow-Origin'), 'https://www.crazygames.com');
+  assert.match(pre.headers.get('Access-Control-Allow-Headers'), /Authorization/);
+});
+
+test('CrazyGames: подделки не доходят до их таблицы', async t => {
+  const sent = cgNet(t), p = page(), run = live(p, 7), rules = p.get('COLLAPSE_RULES_VERSION');
+  const honest = { rules, seed: 7, meters: run.meters, log: run.log };
+  const [head, claims] = cgToken().split('.');
+  const forged = [
+    ['подпись чужим ключом с тем же kid', { token: cgToken({ pair: CG_STRANGER }), body: honest }, 401, 'bad_auth'],
+    ['ключ не CrazyGames', { token: cgToken({ pair: cgPair('nobody') }), body: honest }, 401, 'bad_auth'],
+    ['подменённый игрок в подписанном токене', { token: [head, b64url(JSON.stringify({ userId: 'thief', exp: Date.now() / 1000 + 60 })), cgToken().split('.')[2]].join('.'), body: honest }, 401, 'bad_auth'],
+    ['alg не RS256', { token: cgToken({ alg: 'HS256' }), body: honest }, 401, 'bad_auth'],
+    ['токен без подписи', { token: head + '.' + claims + '.', body: honest }, 401, 'bad_auth'],
+    ['мусор вместо токена', { token: 'x.y.z', body: honest }, 401, 'bad_auth'],
+    ['просроченный токен', { token: cgToken({ exp: Date.now() / 1000 - 1 }), body: honest }, 401, 'expired'],
+    ['нет токена', { auth: null, body: honest }, 401, 'no_auth'],
+    ['подпись Telegram вместо токена', { auth: 'tma ' + initData(), body: honest }, 401, 'no_auth'],
+    ['подделанные метры', { body: { ...honest, meters: run.meters + 10 } }, 422, 'meters_mismatch'],
+    ['журнал другого зерна', { body: { ...honest, seed: 8 } }, 422, 'bad_replay'],
+    ['другая версия правил', { body: { ...honest, rules: rules + 1 } }, 409, 'rules_version'],
+    ['сайт игры в Telegram', { origin: ORIGIN, body: honest }, 403, 'bad_origin'],
+    ['чужой сайт', { origin: 'https://evil.example', body: honest }, 403, 'bad_origin'],
+    ['чужой сайт с crazygames.com внутри', { origin: 'https://crazygames.com.evil.example', body: honest }, 403, 'bad_origin'],
+    ['не https', { origin: 'http://www.crazygames.com', body: honest }, 403, 'bad_origin'],
+    ['без Origin', { origin: null, body: honest }, 403, 'bad_origin'],
+  ];
+  for (const [name, opts, status, error] of forged) {
+    const res = await cgCall(cgEnv(), opts);
+    assert.equal(res.status, status, name);
+    assert.equal((await res.json()).error, error, name);
+  }
+  assert.equal(sent.length, 0);
+  const off = await cgCall(env(), { body: honest });
+  assert.deepEqual([off.status, (await off.json()).error], [500, 'not_configured'], 'без ключа их API — отказ');
+  assert.equal((await cgCall(cgEnv(), { body: honest })).status, 200, 'тот же рейс без подделки проходит');
+  assert.equal(sent.length, 1);
+  assert.equal((await call(cgEnv(), 'POST', '/score', { origin: CG_ORIGIN, body: honest })).status, 403, 'таблица Telegram с портала закрыта');
+});
+
+test('CrazyGames: токен без kid проверяется всеми их ключами; новый ключ подтягивается сам, но не чаще раза в минуту; отказ их таблицы — 502 с причиной', async t => {
+  let now = Date.now();
+  t.mock.method(Date, 'now', () => now);
+  const p = page(), run = live(p, 3), body = { rules: p.get('COLLAPSE_RULES_VERSION'), seed: 3, meters: run.meters, log: run.log };
+  cgNet(t);
+  assert.equal((await cgCall(cgEnv(), { body })).status, 200);
+  assert.equal((await cgCall(cgEnv(), { token: cgToken({ kid: undefined }), body })).status, 200, 'без kid — как локальный токен SDK');
+  assert.equal((await cgCall(cgEnv(), { token: cgToken({ pair: CG_STRANGER, kid: undefined }), body })).status, 401, 'без kid чужой ключ не проходит');
+  now += 3700e3;                                   // the keys are reloaded: a minute since the last load counts from here
+  assert.equal((await cgCall(cgEnv(), { body })).status, 200);
+  cgPublished = [CG_KEY, CG_NEXT];
+  try {
+    assert.equal((await cgCall(cgEnv(), { token: cgToken({ pair: CG_NEXT }), body })).status, 401, 'ключи загружены меньше минуты назад: не перезагружаем');
+    now += 61e3;
+    assert.equal((await cgCall(cgEnv(), { token: cgToken({ pair: CG_NEXT }), body })).status, 200, 'ротация ключей');
+  } finally {
+    cgPublished = [CG_KEY];
+  }
+  t.mock.restoreAll();
+  cgNet(t, { success: true, total: 1, successCount: 0, failureCount: 1, errors: [{ score: {}, type: 'no-active-season' }] });
+  const res = await cgCall(cgEnv(), { body });
+  assert.deepEqual([res.status, (await res.json()).error], [502, 'crazygames_no-active-season']);
+});
+
+test('CrazyGames: предел запросов на игрока, счётчик не пересекается с игроками Telegram', async t => {
+  cgNet(t);
+  const p = page(), limit = p.get('LEADERBOARD_RATE_MAX'), e = cgEnv();
+  const run = live(p, 2), body = { rules: p.get('COLLAPSE_RULES_VERSION'), seed: 2, meters: run.meters, log: run.log };
+  for (let i = 0; i < limit; i++) assert.equal((await cgCall(e, { body })).status, 200, `запрос ${i + 1}`);
+  const over = await cgCall(e, { body });
+  assert.equal(over.status, 429);
+  assert.equal(over.headers.get('Access-Control-Allow-Origin'), CG_ORIGIN);
+  assert.equal((await cgCall(e, { token: cgToken({ userId: 'another' }), body })).status, 200);
+  const ids = e.DB.raw.prepare('SELECT user_id FROM rate').all().map(r => r.user_id);
+  assert.equal(ids.length, 2);
+  assert.ok(ids.every(id => Number.isSafeInteger(id) && id < 0), 'номера счётчика CrazyGames — отрицательные, у Telegram — положительные');
+  assert.equal((await call(e, 'GET', '/top')).status, 200, 'игрок Telegram не задет');
+});

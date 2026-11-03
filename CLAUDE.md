@@ -136,10 +136,12 @@ js/               код игры — классические скрипты:
                   hold(pose)/release() — вид мимо контроллера камеры, frames(n), bench()/benchToggle(), setMode()
   UI.js           интерфейс игры: DOM поверх холста по UI_LAYOUT; UI.get(id).setText/setValue/show/onClick,
                   якоря 9 точек, масштаб по UI_REF_HEIGHT
-  Ads.js          реклама за продолжение: сети по очереди, скрипты с их хостов только в Telegram и только с идентификатором
+  Ads.js          реклама за продолжение: сети по очереди, скрипты с их хостов только в Telegram и только с идентификатором; на CrazyGames — только их rewarded
+  CrazyGames.js   обёртка SDK CrazyGames (CG): грузится только на их домене, не в Telegram; загрузка, gameplay start/stop, happytime, muteAudio, язык портала
   Challenge.js    вызов другу: ссылка с зерном и дистанцией, разбор start_param
   Shop.js         магазин поездов: карточки, покупка за Stars через функцию, выбранный поезд
-  Leaderboard.js  общая таблица: отправка конца забега и экран таблицы; без LEADERBOARD_URL и вне Telegram ни запроса, ни кнопки
+  Leaderboard.js  общая таблица: отправка конца забега и экран таблицы; без LEADERBOARD_URL и вне Telegram ни запроса, ни кнопки;
+                  на CrazyGames (LEADERBOARD_CRAZYGAMES) лучший рейс недели вошедшего игрока уходит через функцию в их таблицу
   CollapseRuin.js что рухнуло и когда, в мировых координатах: фронт правил -> удары, стенды слоёв, куски, пыль, вздрагивание камеры; только вид
   CollapseStations.js станции на экране: лавка и панель, вид остановки (два стиля по зерну, платформы, пассажиры); правила — CollapseStationRules.js
   Game.js         пример игры: место игровой логики (кнопка Run — клипы idle/run персонажа, шкала

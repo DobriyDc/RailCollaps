@@ -18,7 +18,7 @@ function ads({ ids = {}, inside = true, scripts = {} } = {}) {
       },
     },
   };
-  const p = loadScripts(['js/Constants.js', 'js/Ads.js'], {
+  const p = loadScripts(['js/Constants.js', 'js/Ads.js', 'js/CrazyGames.js'], {
     document, TG: { inside }, setTimeout, clearTimeout, console,
     localStorage: { getItem: k => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, v) },
   });
@@ -42,7 +42,7 @@ test('сеть выключена без идентификатора: скри�
 });
 
 test('включённая сеть названа в политике, id Reward-блока Adsgram без префикса другого формата', () => {
-  const p = loadScripts(['js/Constants.js', 'js/Ads.js'], { TG: { inside: true } });
+  const p = loadScripts(['js/Constants.js', 'js/Ads.js', 'js/CrazyGames.js'], { TG: { inside: true } });
   const Ads = p.get('Ads'), html = fs.readFileSync(path.join(ROOT, 'privacy.html'), 'utf8');
   for (const network of Ads.active) assert.match(html, new RegExp(network, 'i'), network);
   assert.doesNotMatch(p.get('ADS_ADSGRAM_BLOCK'), /^(int|task)-/);

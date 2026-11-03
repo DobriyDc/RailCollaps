@@ -3,6 +3,8 @@
 // what the function returns. While LEADERBOARD_URL is empty or the game runs outside Telegram there
 // is nothing to sign a request with: no requests, no button, no screen. A request that fails leaves
 // the run as it was; only the table screen, which the player opened, says so.
+// On CrazyGames the table is theirs and their site shows it (LEADERBOARD_CRAZYGAMES): the function replays
+// the run of a player logged in there and hands the meters on; the game shows no table of its own there.
 
 /** @satisfies {Record<string, any>} */
 const Leaderboard = {
@@ -17,6 +19,7 @@ const Leaderboard = {
 
     get url() { return typeof LEADERBOARD_URL !== 'undefined' ? LEADERBOARD_URL : ''; },
     get enabled() { return !!this.url && !!TG.initData; },
+    get portal() { return !!this.url && CG.ready && (typeof LEADERBOARD_CRAZYGAMES !== 'undefined' ? LEADERBOARD_CRAZYGAMES : 0) > 0; },
     get pageRows() { return typeof LEADERBOARD_PAGE_ROWS !== 'undefined' ? LEADERBOARD_PAGE_ROWS : 10; },
 
     // The answer's JSON, or null on any failure: no network, a timeout, a refusal of the function.
@@ -40,9 +43,29 @@ const Leaderboard = {
 
     // The end of a run: the journal is serialized here, before anything can touch the run.
     submit(run) {
-        if (!this.enabled) return;
+        if (!this.enabled) { if (this.portal) this._toPortal(run); return; }
         const body = JSON.stringify({ rules: COLLAPSE_RULES_VERSION, seed: run.seed, meters: run.meters, log: run.log });
         this._sending = this._request('/score', { method: 'POST', headers: this._headers(), body });
+    },
+
+    // The CrazyGames season of a moment: their seasons start on Mondays at 09:00 UTC (the first one after
+    // the epoch — 1970-01-05).
+    portalWeek(ms) { return Math.floor((ms / 1000 - 378000) / 604800); },
+
+    // Only a better run of the player's week goes: their table keeps the best, the rest would be
+    // requests for nothing. A guest is not in it: their table knows accounts only.
+    async _toPortal(run) {
+        const meters = run.meters, week = this.portalWeek(Date.now());
+        const body = JSON.stringify({ rules: COLLAPSE_RULES_VERSION, seed: run.seed, meters, log: run.log });
+        const id = meters > 0 ? await CG.userId() : null;
+        if (!id) return;
+        const key = 'collapse.crazygamesWeek.' + id, [was, best] = (Store.get(key) || '').split(':').map(Number);
+        if (was === week && meters <= best) return;
+        const token = await CG.userToken();
+        if (!token) return;
+        const headers = { 'Authorization': 'cg ' + token, 'Content-Type': 'application/json' };
+        this._sending = this._request('/crazygames/score', { method: 'POST', headers, body });
+        if (await this._sending) Store.set(key, week + ':' + meters);
     },
 
     // { season, rows: [{ place, name, meters, me }], me: { place, meters } | null } or null.

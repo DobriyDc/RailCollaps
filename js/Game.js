@@ -18,6 +18,8 @@ class Game {
         this.newRecord = false;
         this._chase = -1;             // the chase bar value shown
         this.adPending = false;
+        /** @type {CollapseRun | null} */
+        this.adMissed = null;         // the run whose offer found no ad (CrazyGames): its end says to try later
         this.portrait = 'calm';
         this.portraitLeft = 0;
         this.flashLeft = 0;           // s the red flash of a demon hit stays up (hitFlash)
@@ -45,7 +47,12 @@ class Game {
 
         this.run = new CollapseRun(Game.newSeed());
         this.scene.sync(this.run, 0);
-        on('menuStart', () => this.openMenu('modeScreen'));
+        // CrazyGames allows one click between the menu and a run: Start goes straight in, through the
+        // tutorial until it is passed (it goes on to the endless run by itself).
+        on('menuStart', () => {
+            if (!CG.portal) this.openMenu('modeScreen');
+            else this.start(this.tutorialPassed ? undefined : new CollapseTutorial());
+        });
         on('menuSettings', () => this.openMenu('settingsScreen'));
         on('menuShop', () => { Shop.open(); this.openMenu('shopScreen'); });
         on('menuBoard', () => Leaderboard.open());
@@ -83,8 +90,17 @@ class Game {
     // The tunnel of the link: the same seed gives the same track.
     startChallenge() { this.start(new CollapseStationRun(this.challenge.seed), this.challenge.meters); }
 
-    // "Again": a challenge is raced until the player leaves it.
-    _again() {
+    // "Again": a challenge is raced until the player leaves it. The end of a run that already used its
+    // continue may show an ad between runs first: CrazyGames allows either that or the rewarded offer.
+    async _again() {
+        if (this.adPending && CG.ready) return;   // the portal's ad holds the dialog until it answers
+        const run = this.run;
+        if (this.mode === 'over' && run.continued && Ads.midgameLive) {
+            this.adPending = true;
+            await Ads.midgame();
+            this.adPending = false;
+            if (this.run !== run || this.mode !== 'over') return;
+        }
         if (this.run.tutorial) this.start(new CollapseTutorial());
         else if (this.goal) this.startChallenge();
         else this.start();
@@ -105,6 +121,7 @@ class Game {
         for (const id of ['frameTop', 'frameBottom', 'iconStrip', 'stationShop', 'collapseNote', 'runTime', 'challengeGoal']) this._show(id, false);
         this._show('menuExit', TG.inside);
         this._show('menuBoard', Leaderboard.enabled);
+        this._show('menuShop', Leaderboard.enabled);   // sales and the donation need the function and Telegram: a portal build has no shop
     }
 
     refreshLanguage() {
@@ -352,11 +369,15 @@ class Game {
             this.mode = 'play';
             this._show('over', false);
             TG.runStarted();
+        } else if (!granted && CG.ready) {
+            this.adMissed = run;
+            this._showOver();
         }
     }
 
     update(dt) {
         const run = this.run;
+        CG.gameplay(this.mode === 'play');
         this._mix(run);
         if (!run || this.mode === 'menu') return;
         if (this.mode === 'play') {
@@ -398,6 +419,7 @@ class Game {
             this.overIn = typeof COLLAPSE_OVER_DELAY_SEC !== 'undefined' ? COLLAPSE_OVER_DELAY_SEC : 0.7;
             if (run.tutorial) return;     // neither the record nor the table: _showOver sends it back to its step
             if (run.meters > this.best) {
+                if (this.best > 0) CG.happytime();   // the first run's record is no feat
                 this.best = run.meters;
                 this.newRecord = true;
                 Store.set('collapse.best', String(this.best));
@@ -500,10 +522,11 @@ class Game {
         const why = run.reason ? Lang.t('reason.' + run.reason) : '';
         const beat = run.meters - this.goal;
         const race = this.goal ? '\n' + Lang.t(beat > 0 ? 'challengeWon' : 'challengeLost', { value: Math.abs(beat) }) : '';
+        const missed = this.adMissed === run;
         this._dialog(Lang.t(this.newRecord ? 'recordTitle' : 'overTitle'),
-            why + '\n' + Lang.t('result', { meters: run.meters, best: this.best }) + '\n' + Lang.t('runTime', { value: Game.clock(run.time) }) + Game.stationsLine(run) + race,
+            why + '\n' + Lang.t('result', { meters: run.meters, best: this.best }) + '\n' + Lang.t('runTime', { value: Game.clock(run.time) }) + Game.stationsLine(run) + race + (missed ? '\n' + Lang.t('adNone') : ''),
             [Lang.t('restart'), () => this._again()],
-            run.canContinue && !this.adPending ? [Lang.t('continue'), () => this.continueForAd()] : null);
+            run.canContinue && !this.adPending && !missed ? [Lang.t('continue'), () => this.continueForAd()] : null);
         this._show('overMenu', true);
         this._show('challengeBtn', TG.inside);
     }

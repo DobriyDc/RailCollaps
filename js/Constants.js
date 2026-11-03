@@ -269,6 +269,7 @@ const LEADERBOARD_MAX_STEPS = 36000;    // fixed steps a replay may take (10 min
 const LEADERBOARD_MAX_LOG = 4000;       // actions in one journal
 const LEADERBOARD_MAX_BODY = 65536;     // bytes of one score request
 const LEADERBOARD_NAME_MAX = 24;        // characters of a shown name
+const LEADERBOARD_CRAZYGAMES = 0;       // 1 — on CrazyGames the run of a player logged in there goes to their table through the function (their table is for invited games; the function needs CRAZYGAMES_API_KEY)
 const COLLAPSE_TRAIN_STARS = 120;        // Telegram Stars one train of the shop costs (owner, 2026-11-03; docs/monetization.md)
 const COLLAPSE_SHOP_OPEN = 1;           // 1 — the shop sells trains; the table works without it (docs/monetization.md)
 const COLLAPSE_DONATE_OPEN = 1;         // 1 — the shop takes donations of Stars, the sum the player types (docs/monetization.md)
@@ -284,6 +285,8 @@ const ADS_ADSGRAM_SCRIPT = 'https://sad.adsgram.ai/js/sad.min.js';
 const ADS_MONETAG_ZONE = '12172659';    // Monetag: the zone of the Rewarded Interstitial
 const ADS_MONETAG_SCRIPT = 'https://libtl.com/sdk.js'; // Monetag: the address of sdk.js from the tag in its dashboard
 const ADS_WAIT_MS = 8000;               // ms: a network's script or ad that takes longer passes the offer on
+const ADS_CRAZYGAMES_SCRIPT = 'https://sdk.crazygames.com/crazygames-sdk-v3.js'; // CrazyGames HTML5 SDK v3: loads on their portal only (js/CrazyGames.js)
+const ADS_CRAZYGAMES_MIDGAME = 1;       // 1 — on CrazyGames "Again" after a run that used its continue asks a midgame ad (their SDK keeps them 3 min apart)
 
 // --- CAMERA (CameraControl.js): target on the map, azimuth, pitch and zoom. Zoom is
 // screen px per world px at the look-at point; distance is derived from it. Flight
