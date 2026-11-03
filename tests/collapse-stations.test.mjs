@@ -92,7 +92,7 @@ test('пассажиры: садятся в депо, платят по приб
   assert.equal(run.delivered, riders);
   assert.equal(run.passengers, s.seats, 'места заполнились');
   run.leave();
-  assert.equal(run.fare, s.fare + s.fareStep, 'на следующем перегоне платят больше');
+  assert.equal(run.fare, s.fare + s.fareStep, 'плата перегона по COLLAPSE_STATION_FARE_STEP, сейчас та же');
 });
 
 test('лавка: четыре товара, ремонт до полной, пределы, только на стоянке', () => {
