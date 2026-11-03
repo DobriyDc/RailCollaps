@@ -89,7 +89,7 @@ const GAME_STEP_SEC = 0.35;             // s: between footstep sounds while the 
 
 // --- RAIL LINK: COLLAPSE (CollapseRules.js — the run, CollapseScene.js — the tunnel). Distance is
 // counted in track SEGMENTS; the first numbers of the prototype, tuned in playtests (GDD v3 §8) ---
-const COLLAPSE_RULES_VERSION = 7;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
+const COLLAPSE_RULES_VERSION = 8;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
 const COLLAPSE_SEG_METERS = 10;         // m of distance shown per segment
 const COLLAPSE_SPEED = 2.2;             // segments/s: train speed at the start
 const COLLAPSE_SPEED_GROWTH = 0.0025;   // segments/s added per segment travelled
@@ -104,6 +104,7 @@ const COLLAPSE_EVENT_CHANCE = 0.12;     // 0..1: chance that a stretch has a col
 const COLLAPSE_EVENT_LEN = 50;          // segments the collapse runs before it stops (500 m)
 const COLLAPSE_EVENT_GAP = 15;          // segments behind the train it starts at: out of the dark, under CollapseScene.BEHIND
 const COLLAPSE_EVENT_RUSH_SEC = 4;      // s it takes to come in from that gap to COLLAPSE_FRONT_MAX_GAP: the player's warning
+const COLLAPSE_EVENT_BOOST_AHEAD = 10;  // segments ahead of the train an accelerator is laid when a collapse starts (100 m; owner, 2026-11-03)
 const COLLAPSE_EVENT_PACE = 1.12;       // at least this share of the train's own speed: a plain ride ends the event about 1.5 segments ahead of it
 const COLLAPSE_BOOST_MULT = 1.5;        // accelerator: speed multiplier
 const COLLAPSE_BOOST_SEC = 4;           // s: accelerator duration
@@ -161,7 +162,7 @@ const COLLAPSE_ICON_LEAD_SEC = 1;       // s: an icon over the bottom plate ligh
 const COLLAPSE_STATION_FIRST = 130;     // segments to the first station (130 — 1300 m, the owner's choice); the stop stands at the first pattern boundary after that
 const COLLAPSE_STATION_STRETCH = 100;   // segments of a stretch between the next stations (100 — 1 km)
 const COLLAPSE_STATION_APPROACH = 12;   // segments before a stop free of hazards; the collapse stands still from here on: the gap grows by this much
-const COLLAPSE_STATION_AFTER = 4;       // segments free of hazards after a stop
+const COLLAPSE_STATION_AFTER = 12;      // segments free of hazards after a stop: the shop hides the track while the train stands, so the first fork must come well after it (owner, 2026-11-03)
 const COLLAPSE_STATION_STOP_SEC = 8;    // s the train stands at a station unless the player goes on earlier
 const COLLAPSE_STATION_RESPITE_SEC = 10; // s after the stop until the collapse is back at its usual farthest gap
 const COLLAPSE_STATION_BRAKE = 6;       // segments the train brakes before a stop and speeds up after it

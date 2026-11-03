@@ -55,7 +55,10 @@ test('каждое событие забега даёт свой звук: ти�
   assert.ok(types.length >= 14, `событий ${types.length}`);
   const made = MADE;
   const missing = [];
-  for (const type of types) {
+  // Events with no sound of their own: 'laid' (the collapse's accelerator) comes in the same step as
+  // 'collapse', whose sound covers it.
+  const SILENT = new Set(['laid']);
+  for (const type of types.filter(t => !SILENT.has(t))) {
     for (const reason of type === 'crash' || type === 'shielded' ? REASONS : ['']) {
       const files = Array.from(Game.soundsOf({ type, reason }));
       if (!files.length) missing.push(type + ' ' + reason);

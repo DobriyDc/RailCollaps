@@ -96,15 +96,19 @@ test('зерно задаёт обвалы и не меняет трассу', (
 test('обвал выходит из темноты, идёт свою длину и останавливается; поезд уходит от него', () => {
   const p = page(), CollapseRun = p.get('CollapseRun');
   const clear = { kind: 'calm', gap: [false, false, false], lava: [false, false, false], pickup: [null, null, null], forks: [], demon: null };
-  const run = new CollapseRun(1), c = run.c;
-  run.track.seg = () => clear;
+  const run = new CollapseRun(1), c = run.c, segs = new Map();
+  run.track.seg = i => segs.get(i) || segs.set(i, JSON.parse(JSON.stringify(clear))).get(i);
   run.pos = run._seg = 100;
   runFrames(run, 60);
   assert.ok(run.pos - run.front > 1e8, 'до события обвала нет');
   assert.equal(run.collapsing, false);
   run.events.length = 0;
+  const boostAt = Math.floor(run.pos) + c.eventBoostAhead;
   run.startCollapse();
-  assert.deepEqual([...run.events].map(e => e.type), ['collapse']);
+  // With it comes an accelerator about 100 m ahead on the train's lane (owner, 2026-11-03).
+  assert.deepEqual([...run.events].map(e => e.type), ['collapse', 'laid']);
+  assert.deepEqual({ ...run.events[1] }, { type: 'laid', at: boostAt, lane: run.lane, kind: 'boost' });
+  assert.equal(run.track.seg(boostAt).pickup[run.lane], 'boost');
   assert.ok(Math.abs(run.pos - run.front - c.eventGap) < 1e-9);
   assert.equal(run.collapseRush, true);
   runFrames(run, Math.ceil(60 * c.eventRushSec) + 1);
@@ -159,10 +163,11 @@ test('замедлитель подпускает обвал до поезда, 
   // Past the rush of a collapse on a clear track, then a decelerator: the gap before and the
   // smallest gap while slowed.
   const slowAt = (from, on) => {
-    const run = new CollapseRun(1);
-    run.track.seg = () => clear;
+    const run = new CollapseRun(1), segs = new Map();
+    run.track.seg = i => segs.get(i) || segs.set(i, JSON.parse(JSON.stringify(clear))).get(i);
     run.pos = from; run._seg = from; run.invuln = 1e9;
     if (on) run.startCollapse();
+    for (const s of segs.values()) s.pickup = [null, null, null];   // the collapse's own accelerator: not this test's
     runFrames(run, 60 * 5);
     const before = run.pos - run.front;
     run.slow = run.c.slowSec;

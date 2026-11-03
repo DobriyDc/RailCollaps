@@ -1376,6 +1376,10 @@ class CollapseScene {
             // The driver fires out of the cab, on the side of the fork: the frame draws the muzzle flash.
             this._shotFrame = e.to < run.lane ? CollapseArt.locoShot.left : CollapseArt.locoShot.right;
             this._shotUntil = this.time + 0.18;
+        } else if (e.type === 'laid') {
+            // A pickup the rules laid on a segment already built: build it again with the pickup.
+            const v = this.segViews.get(e.at);
+            if (v) { this._disposeSeg(v); this.segViews.delete(e.at); }
         } else if (e.type === 'switched') {
             // Sparks under both wheel sets, the smoke blown against the move (the art drifts right).
             const dir = e.to > run.prevLane ? 1 : -1;

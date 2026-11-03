@@ -79,6 +79,7 @@ const CollapseRules = {
             eventChance: typeof COLLAPSE_EVENT_CHANCE !== U ? COLLAPSE_EVENT_CHANCE : 0.12,
             eventLen: typeof COLLAPSE_EVENT_LEN !== U ? COLLAPSE_EVENT_LEN : 50,
             eventGap: typeof COLLAPSE_EVENT_GAP !== U ? COLLAPSE_EVENT_GAP : 15,
+            eventBoostAhead: typeof COLLAPSE_EVENT_BOOST_AHEAD !== U ? COLLAPSE_EVENT_BOOST_AHEAD : 10,
             eventRushSec: typeof COLLAPSE_EVENT_RUSH_SEC !== U ? COLLAPSE_EVENT_RUSH_SEC : 4,
             eventPace: typeof COLLAPSE_EVENT_PACE !== U ? COLLAPSE_EVENT_PACE : 1.12,
             boostMult: typeof COLLAPSE_BOOST_MULT !== U ? COLLAPSE_BOOST_MULT : 1.5,
@@ -424,8 +425,24 @@ class CollapseRun {
             this.front = Math.max(this.front, this.pos - c.eventGap);
             this.collapseFrom = this.time;
             this.events.push({ type: 'collapse' });
+            this._layBoost();
         }
         this.collapseEnd = this.pos + c.eventLen;
+    }
+
+    // A collapse comes with a way out (owner, 2026-11-03): an accelerator eventBoostAhead segments ahead,
+    // on the train's lane or the nearest one free there — no hazard, no other pickup — on the first
+    // segment from there that has room. 'laid' tells the view to draw a segment it may have built already.
+    _layBoost() {
+        const from = Math.floor(this.pos) + this.c.eventBoostAhead;
+        for (let i = from; i < from + 4; i++) {
+            const s = this.track.seg(i);
+            const lane = [this.lane, ...CollapseRules.neighbors(this.lane)].find(l => !s.gap[l] && !s.lava[l] && !s.pickup[l]);
+            if (lane === undefined) continue;
+            s.pickup[lane] = 'boost';
+            this.events.push({ type: 'laid', at: i, lane, kind: 'boost' });
+            return;
+        }
     }
 
     // The next fork the train can take from its lane: { at, to: [lanes], armed } or null within `range`.

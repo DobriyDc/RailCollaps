@@ -17,7 +17,7 @@ const CollapseStationRules = {
             first: typeof COLLAPSE_STATION_FIRST !== U ? COLLAPSE_STATION_FIRST : 130,
             stretch: typeof COLLAPSE_STATION_STRETCH !== U ? COLLAPSE_STATION_STRETCH : 100,
             approach: typeof COLLAPSE_STATION_APPROACH !== U ? COLLAPSE_STATION_APPROACH : 12,
-            after: typeof COLLAPSE_STATION_AFTER !== U ? COLLAPSE_STATION_AFTER : 4,
+            after: typeof COLLAPSE_STATION_AFTER !== U ? COLLAPSE_STATION_AFTER : 12,
             stopSec: typeof COLLAPSE_STATION_STOP_SEC !== U ? COLLAPSE_STATION_STOP_SEC : 8,
             respiteSec: typeof COLLAPSE_STATION_RESPITE_SEC !== U ? COLLAPSE_STATION_RESPITE_SEC : 10,
             brake: typeof COLLAPSE_STATION_BRAKE !== U ? COLLAPSE_STATION_BRAKE : 6,

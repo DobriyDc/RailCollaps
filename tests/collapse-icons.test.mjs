@@ -47,7 +47,7 @@ function drive(p, seed, cam, opts) {
   const reach = Game.frameTable(cam, null, follow), tables = new Map();
   const lit = new Map(), entered = new Map(), wrong = [];
   const byKey = new Map(list.map(o => [o.key, o]));
-  let lo = 0, third = 0, enter = null;
+  let lo = 0, third = 0, enter = null, seen = 0;
   // A demon is in the frame from its phase on the wall, the rest by where the camera catches them.
   const inFrame = o => o.body ? o.pos - run.pos <= enter[o.body][o.lane]
     : run.demons.some(d => o.key === `demon:${d.side}:${d.at}` && d.wait <= 0);
@@ -70,6 +70,14 @@ function drive(p, seed, cam, opts) {
       if (!entered.has(o.key) && inFrame(o)) entered.set(o.key, f ? run.time : -1);
     }
     run.update(1 / 60);
+    // A pickup the rules lay during the run (the accelerator of a collapse) joins the track's objects.
+    for (; seen < run.events.length; seen++) {
+      const e = run.events[seen];
+      if (e.type !== 'laid') continue;
+      const o = { key: `${e.kind}:${e.lane}:${e.at}`, kind: e.kind, body: 'pickup', lane: e.lane, pos: e.at + 0.5 };
+      byKey.set(o.key, o);
+      list.splice(list.findIndex(x => x.pos > o.pos) >>> 0, 0, o);
+    }
   }
   return { byKey, lit, entered, wrong, third, lead, pos: run.pos };
 }
