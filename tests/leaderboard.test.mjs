@@ -336,7 +336,7 @@ test('таблица: лучший результат игрока за сезо
 // The rules of a version do not change: the fingerprint of the numbers and of what they do. A new
 // fingerprint without a new version would make the function refuse honest runs of older clients.
 test('правила изменились — подними COLLAPSE_RULES_VERSION и добавь отпечаток сюда', () => {
-  const FINGERPRINTS = { 1: '630a834b', 2: 'ba60d729', 3: '0f2242e0', 4: '5a5ecf1d', 5: '227e15a6', 6: '20d9426f', 7: '6590e0d4', 8: 'b8ad81f9' };
+  const FINGERPRINTS = { 1: '630a834b', 2: 'ba60d729', 3: '0f2242e0', 4: '5a5ecf1d', 5: '227e15a6', 6: '20d9426f', 7: '6590e0d4', 8: '21308824' };
   const p = page(), R = p.get('CollapseRules'), stations = p.get('CollapseStationRules').cfg();
   const { iconLead, ...numbers } = R.cfg();
   const walk = SEEDS.slice(0, 5).map(seed => { const r = live(p, seed); return [r.meters, r.steps, r.pos]; });

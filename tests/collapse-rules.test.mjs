@@ -105,10 +105,16 @@ test('обвал выходит из темноты, идёт свою длин�
   run.events.length = 0;
   const boostAt = Math.floor(run.pos) + c.eventBoostAhead;
   run.startCollapse();
-  // With it comes an accelerator about 100 m ahead on the train's lane (owner, 2026-11-03).
+  // With it comes an accelerator about 100 m ahead beside the train's lane, behind a fork: on a clear
+  // track the side trip is laid — a fork out, the accelerator, a fork back (owner, 2026-11-03).
   assert.deepEqual([...run.events].map(e => e.type), ['collapse', 'laid']);
-  assert.deepEqual({ ...run.events[1] }, { type: 'laid', at: boostAt, lane: run.lane, kind: 'boost' });
-  assert.equal(run.track.seg(boostAt).pickup[run.lane], 'boost');
+  const laid = run.events[1], L = p.get('CollapseRules').SWITCH_LEAD;
+  assert.equal(laid.at, boostAt);
+  assert.notEqual(laid.lane, run.lane, 'никогда не на пути поезда');
+  assert.equal(run.track.seg(laid.at).pickup[laid.lane], 'boost');
+  assert.deepEqual({ ...run.track.seg(laid.from).forks[0] }, { from: run.lane, to: laid.lane });
+  assert.deepEqual({ ...run.track.seg(laid.to).forks[0] }, { from: laid.lane, to: run.lane });
+  assert.equal(laid.to - laid.from, L + 1);
   assert.ok(Math.abs(run.pos - run.front - c.eventGap) < 1e-9);
   assert.equal(run.collapseRush, true);
   runFrames(run, Math.ceil(60 * c.eventRushSec) + 1);

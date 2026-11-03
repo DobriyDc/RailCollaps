@@ -79,7 +79,7 @@ const CollapseRules = {
             eventChance: typeof COLLAPSE_EVENT_CHANCE !== U ? COLLAPSE_EVENT_CHANCE : 0.12,
             eventLen: typeof COLLAPSE_EVENT_LEN !== U ? COLLAPSE_EVENT_LEN : 50,
             eventGap: typeof COLLAPSE_EVENT_GAP !== U ? COLLAPSE_EVENT_GAP : 15,
-            eventBoostAhead: typeof COLLAPSE_EVENT_BOOST_AHEAD !== U ? COLLAPSE_EVENT_BOOST_AHEAD : 10,
+            eventBoostAhead: typeof COLLAPSE_EVENT_BOOST_AHEAD !== U ? COLLAPSE_EVENT_BOOST_AHEAD : 12,
             eventRushSec: typeof COLLAPSE_EVENT_RUSH_SEC !== U ? COLLAPSE_EVENT_RUSH_SEC : 4,
             eventPace: typeof COLLAPSE_EVENT_PACE !== U ? COLLAPSE_EVENT_PACE : 1.12,
             boostMult: typeof COLLAPSE_BOOST_MULT !== U ? COLLAPSE_BOOST_MULT : 1.5,
@@ -430,17 +430,40 @@ class CollapseRun {
         this.collapseEnd = this.pos + c.eventLen;
     }
 
-    // A collapse comes with a way out (owner, 2026-11-03): an accelerator eventBoostAhead segments ahead,
-    // on the train's lane or the nearest one free there — no hazard, no other pickup — on the first
-    // segment from there that has room. 'laid' tells the view to draw a segment it may have built already.
+    // A collapse comes with a way out (owner, 2026-11-03): an accelerator on a lane beside the train's,
+    // behind a fork, about eventBoostAhead segments ahead — never on the train's own lane: the player has
+    // to switch for it. A fork the track already has from the train's lane to a safe one serves: the
+    // accelerator lies on that lane where the crossing ends. With none near, the track's own detour is laid
+    // over a stretch with no hazard and no pickup on both lanes and no other fork closer than the generator
+    // keeps forks apart; no room for that either — no accelerator. 'laid' tells the view to build again.
     _layBoost() {
-        const from = Math.floor(this.pos) + this.c.eventBoostAhead;
-        for (let i = from; i < from + 4; i++) {
-            const s = this.track.seg(i);
-            const lane = [this.lane, ...CollapseRules.neighbors(this.lane)].find(l => !s.gap[l] && !s.lava[l] && !s.pickup[l]);
+        const R = CollapseRules, L = R.SWITCH_LEAD, a = this.lane, track = this.track, apart = L + 1;
+        const first = Math.floor(this.pos) + this.c.eventBoostAhead - L;
+        // The lane's icon shows its nearest object: nothing else on that lane for a while, or its warning comes late.
+        const roomy = (lane, i) => {
+            for (let k = i; k <= i + L + 2; k++) { const s = track.seg(k); if (s.gap[lane] || s.lava[lane] || s.pickup[lane]) return false; }
+            return true;
+        };
+        for (let f = first - 2; f <= first + 16; f++) {
+            const to = track.seg(f).forks.filter(k => k.from === a && this.forkSafe(f, k.to)).map(k => k.to);
+            const s = track.seg(f + L), lane = to.find(l => roomy(l, f + L));
             if (lane === undefined) continue;
             s.pickup[lane] = 'boost';
-            this.events.push({ type: 'laid', at: i, lane, kind: 'boost' });
+            this.events.push({ type: 'laid', at: f + L, lane, kind: 'boost', from: f + L, to: f + L });
+            return;
+        }
+        const side = R.neighbors(a), b = side[Math.floor(this.collapseDice() * side.length)];
+        const clear = i => { const s = track.seg(i); return [a, b].every(l => !s.gap[l] && !s.lava[l] && !s.pickup[l]); };
+        for (let at = first; at < first + 16; at++) {
+            let ok = true;
+            for (let i = at - apart; i <= at + L + 1 + apart && ok; i++) ok = !track.seg(i).forks.length;
+            for (let i = at; i <= at + L + 1 && ok; i++) ok = clear(i);
+            if (!ok || !roomy(b, at + L)) continue;
+            for (let i = at; i <= at + L + 1; i++) track.seg(i).kind = 'detour';
+            track.seg(at).forks.push({ from: a, to: b });
+            track.seg(at + L).pickup[b] = 'boost';
+            track.seg(at + L + 1).forks.push({ from: b, to: a });
+            this.events.push({ type: 'laid', at: at + L, lane: b, kind: 'boost', from: at, to: at + L + 1 });
             return;
         }
     }
