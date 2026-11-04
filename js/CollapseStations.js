@@ -283,7 +283,9 @@ class CollapseStationView {
 CollapseStationView.WALL = { w: 1440, h: 720, z: -1600, fade: 840 };
 // A platform: its inner edge from the middle of the lane, width, height, near and far end from the stop, one tile of its art,
 // the brightness of its art by look (the cathedral's stone is drawn pale: in the tunnel it would shine like snow).
-CollapseStationView.PLATFORM = { inner: 170, w: 330, h: 60, near: 80, far: -1500, tile: 240, level: { A: 1, B: 0.5 } };
+// The width runs under the tunnel wall whatever lane the train stands in (WALL_X + LANE_W - inner = 770): a wide
+// screen sees the floor up to the walls, and no lava may show beside a platform.
+CollapseStationView.PLATFORM = { inner: 170, w: 800, h: 60, near: 1000, far: -1500, tile: 240, level: { A: 1, B: 0.5 } };
 CollapseStationView.ARCH = { w: 1280, h: 747, z: [-300, -900] };            // the ribs of A over all three lanes
 CollapseStationView.CAGE = { w: 80, h: 120, x: 330, y: 480 };               // a cage under each rib, both sides
 CollapseStationView.FIRE = { A: { w: 88, h: 123 }, B: { w: 80, h: 320 }, x: 215, z: [-150, -700, -1250], fps: 6 };

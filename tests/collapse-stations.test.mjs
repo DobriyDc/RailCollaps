@@ -219,3 +219,13 @@ test('Game: забег всегда со станциями, идёт в рек�
   assert.equal(submitted.length, 1, 'забег со станциями идёт в таблицу');
   assert.equal(store.get('collapse.best'), String(run.meters));
 });
+
+test('перрон идёт до стены тоннеля и к камере при любой полосе: на широком экране у станции нет лавы (владелец, 2026-11-04)', () => {
+  const p = loadScripts(['js/Constants.js', 'js/CollapseRules.js', 'js/CollapseScene.js', 'js/CollapseStations.js']);
+  const S = p.get('CollapseScene'), P = p.get('CollapseStationView').PLATFORM;
+  for (const lane of [0, 1, 2]) for (const side of [-1, 1]) {
+    const from = S.laneX(lane) + side * P.inner, to = from + side * P.w;
+    if (Math.abs(from) < S.WALL_X) assert.ok(side * to >= S.WALL_X, `полоса ${lane}, сторона ${side}: перрон кончается на ${to}`);
+  }
+  assert.ok(P.near >= 1000, 'перед стоящим поездом до низа кадра — перрон, а не лава');
+});
