@@ -832,6 +832,8 @@ const KIT_SCHEMA = [
               label: { en: 'Largest donation, Telegram Stars', ru: 'Наибольший донат, звёзды Telegram' } },
             { name: 'ADS_WAIT_MS', min: 1000, max: 30000, step: 500,
               label: { en: 'Wait for an ad network, ms', ru: 'Ожидание рекламной сети, мс' } },
+            { name: 'ADS_AFTER_LOSS', min: 0, max: 1, step: 1,
+              label: { en: 'Telegram: an ad after every lost run (0 — no, 1 — yes)', ru: 'Telegram: реклама после каждого проигрыша (0 — нет, 1 — да)' } },
             { name: 'LEADERBOARD_CRAZYGAMES', min: 0, max: 1, step: 1,
               label: { en: 'CrazyGames: runs go to their leaderboard (0 — no, 1 — yes)', ru: 'CrazyGames: рейсы идут в их таблицу лидеров (0 — нет, 1 — да)' } },
             { name: 'ADS_CRAZYGAMES_MIDGAME', min: 0, max: 1, step: 1,

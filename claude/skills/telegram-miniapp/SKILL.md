@@ -134,6 +134,12 @@ they are not vendored. Before a network goes on, name it in `privacy.html`.
 - Monetag: the Rewarded Interstitial, not the Rewarded Popup, which leaves for an external page. The
   promise resolves on an early close too: only `reward_event_type === 'valued'` is a view.
 
+In Telegram every lost run also ends with an ad (`ADS_AFTER_LOSS`, 1 — on): `Ads.afterLoss()` asks the same
+networks in turn with nothing to earn. `Game._lossAd` shows it when the player leaves the end dialog by "Again"
+or "Menu", once per run, so it never stacks with the continue offer of that dialog; the tutorial and a restart
+from pause show none, and the dialog's buttons wait while it plays. Not on CrazyGames: their rules allow one ad
+at an end of a run, and the portal has its own midgame (see Portals).
+
 ## Portals
 
 The same build also goes to CrazyGames (`_handoff/crazygames`, made by `tools/build.mjs`). Their HTML5 SDK v3 is
@@ -159,7 +165,7 @@ an ad network's script like the others: its address is `ADS_CRAZYGAMES_SCRIPT`, 
   at one end of a run, never both, and never on navigation buttons. So `Ads.midgame()` asks
   `requestAd('midgame')` only from "Again" of an end dialog whose run already used its continue
   (`ADS_CRAZYGAMES_MIDGAME`, 1 — on); the SDK keeps midgame ads 3 minutes apart and answers `adCooldown` in
-  between, and any answer lets the new run start. Telegram has no ad between runs.
+  between, and any answer lets the new run start. In Telegram the ad between runs is the after-loss ad below.
 - **The leaderboard.** CrazyGames keeps its own table (invited games only, weekly seasons from Monday 09:00
   UTC, shown on their site), so the game shows none there. With `LEADERBOARD_CRAZYGAMES` on, the end of a run
   of a player logged in to CrazyGames goes to `POST /crazygames/score` of the leaderboard function with

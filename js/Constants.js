@@ -285,6 +285,7 @@ const ADS_ADSGRAM_SCRIPT = 'https://sad.adsgram.ai/js/sad.min.js';
 const ADS_MONETAG_ZONE = '12172659';    // Monetag: the zone of the Rewarded Interstitial
 const ADS_MONETAG_SCRIPT = 'https://libtl.com/sdk.js'; // Monetag: the address of sdk.js from the tag in its dashboard
 const ADS_WAIT_MS = 8000;               // ms: a network's script or ad that takes longer passes the offer on
+const ADS_AFTER_LOSS = 1;               // 1 — in Telegram every lost run shows an ad when the player leaves its end dialog ("Again" or "Menu"), once per run
 const ADS_CRAZYGAMES_SCRIPT = 'https://sdk.crazygames.com/crazygames-sdk-v3.js'; // CrazyGames HTML5 SDK v3: loads on their portal only (js/CrazyGames.js)
 const ADS_CRAZYGAMES_MIDGAME = 1;       // 1 — on CrazyGames "Again" after a run that used its continue asks a midgame ad (their SDK keeps them 3 min apart)
 

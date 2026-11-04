@@ -191,7 +191,7 @@ test('в Telegram очередь сетей прежняя: CrazyGames не уч
 
 // The game on the portal: one click from the menu into a run, a record calls happytime, an offer with
 // no ad says so and does not come back, the dialog waits for the ad.
-function game({ portal = true, tutorial = false, granted = true } = {}) {
+function game({ portal = true, tutorial = false, granted = true, lossAd = false } = {}) {
   const elements = new Map(), localStorage = storage(), events = [];
   if (tutorial) localStorage.setItem('collapse.tutorial', '1');
   const UI = { get(id) {
@@ -205,7 +205,8 @@ function game({ portal = true, tutorial = false, granted = true } = {}) {
     localStorage, UI, Image: class {}, CollapseScene: { LANE_W: 180 },
     TG: { inside: false, loadBest() {}, saveBest() {}, runEnded() {}, runStarted() {}, haptic() {} },
     CG: { portal: portal, ready: portal, gameplay: on => events.push(on ? 'start' : 'stop'), happytime: () => events.push('happytime') },
-    Ads: { rewarded: async () => granted, midgameLive: portal, midgame: () => { events.push('midgame'); return new Promise(r => setTimeout(r)); } },
+    Ads: { rewarded: async () => granted, midgameLive: portal, midgame: () => { events.push('midgame'); return new Promise(r => setTimeout(r)); },
+      afterLossLive: lossAd, afterLoss: () => { events.push('loss-ad'); return new Promise(r => setTimeout(r)); } },
     Leaderboard: { close() {}, refreshLanguage() {}, submit() {}, enabled: false },
     Shop: { init() {}, open() {}, render() {} }, Challenge: { parse: () => null }, CollapseStations: { dress() {}, hud() {}, onDeparted() {} },
   });
@@ -323,6 +324,45 @@ test('портал: «Ещё раз» после рейса, где продол
   telegram.UI.get('restartBtn').click();
   assert.equal(telegram.g.mode, 'play', 'вне портала «Ещё раз» сразу');
   assert.ok(!telegram.events.includes('midgame'));
+});
+
+test('Telegram: проигрыш всегда кончается рекламой — по «Ещё раз» или «В меню», одной на рейс, не поверх предложения продолжить', async () => {
+  const { g, UI, events, crash, end } = game({ portal: false, tutorial: true, lossAd: true });
+  crash();
+  assert.equal(UI.get('continueBtn').visible, true, 'предложение продолжить остаётся');
+  assert.ok(!events.includes('loss-ad'), 'на экране поражения реклама не всплывает сама');
+  const run = g.run;
+  UI.get('restartBtn').click();
+  assert.equal(events.filter(e => e === 'loss-ad').length, 1);
+  assert.equal(g.adPending, true);
+  UI.get('restartBtn').click();
+  UI.get('overMenu').click();
+  assert.equal(g.run, run, 'пока идёт реклама, диалог не жмётся');
+  await new Promise(r => setTimeout(r, 5));
+  assert.notEqual(g.run, run, 'после рекламы — новый рейс');
+  assert.equal(g.mode, 'play');
+  assert.equal(events.filter(e => e === 'loss-ad').length, 1, 'одна реклама на одно поражение');
+
+  crash();
+  await g.continueForAd();
+  assert.equal(g.mode, 'play', 'продолжил за рекламу');
+  g.run._crash('gap');
+  end();
+  UI.get('overMenu').click();
+  await new Promise(r => setTimeout(r, 5));
+  assert.equal(g.mode, 'menu');
+  assert.equal(events.filter(e => e === 'loss-ad').length, 2, 'и в меню — через рекламу');
+
+  g.start();
+  g.setPaused(true);
+  UI.get('restartBtn').click();
+  assert.equal(g.mode, 'play', 'перезапуск из паузы — не проигрыш');
+  assert.equal(events.filter(e => e === 'loss-ad').length, 2);
+
+  const off = game({ portal: false, tutorial: true });
+  off.crash();
+  off.UI.get('restartBtn').click();
+  assert.equal(off.g.mode, 'play', 'без рекламы — сразу');
 });
 
 // The table on CrazyGames (js/Leaderboard.js): a better run of the player's week goes to the function with

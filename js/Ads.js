@@ -1,4 +1,5 @@
-// Ads.js — the rewarded ad that continues a run, skill telegram-miniapp. The networks take turns: each
+// Ads.js — the rewarded ad that continues a run and, in Telegram, the ad that ends a lost one, skill
+// telegram-miniapp. The networks take turns: each
 // offer starts from the next one, so all of them get the same chances and their dashboards compare
 // directly (docs/monetization.md). A network with no ad passes to the next one, a player who closes the
 // ad ends the offer. A network with an empty id in Constants.js is off. The scripts live on the networks'
@@ -53,6 +54,16 @@ const Ads = {
     // An ad between runs: CrazyGames only, the Telegram networks have none. Resolves when the game may go on.
     get midgameLive() { return CG.ready && (typeof ADS_CRAZYGAMES_MIDGAME !== 'undefined' ? ADS_CRAZYGAMES_MIDGAME : 1) > 0; },
     async midgame() { if (this.midgameLive) await CG.midgame(); },
+
+    // The ad of a lost run in Telegram (ADS_AFTER_LOSS): the same networks in turn, nothing to earn; the first
+    // that has an ad shows it, a closed or missing one lets the game go on. Never rejects.
+    get afterLossLive() {
+        return !CG.ready && TG.inside && this.active.length > 0 && (typeof ADS_AFTER_LOSS !== 'undefined' ? ADS_AFTER_LOSS : 1) > 0;
+    },
+    async afterLoss() {
+        if (!this.afterLossLive) return;
+        for (const network of this.order()) if ((await this._offer(network)) !== 'empty') return;
+    },
 
     // 'reward', 'skip' or 'empty': no ad, or the network failed.
     async _offer(network) {

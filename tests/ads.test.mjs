@@ -103,3 +103,18 @@ test('скрипт не загрузился: ход дальше, следую�
   assert.equal(await s.Ads.rewarded(), true);
   assert.equal(s.added.filter(tag => tag.src === 'adsgram.js').length, 2);
 });
+
+test('реклама после проигрыша: только в Telegram и только с сетью; первая сеть с роликом показывает, награды нет', async () => {
+  const s = ads({ ids: { adsgram: '11', monetag: '22' }, scripts: { 'adsgram.js': false } });
+  let shown = 0;
+  s.window.show_22 = async () => { shown++; return { reward_event_type: 'non_valued' }; };
+  assert.equal(s.Ads.afterLossLive, true);
+  await s.Ads.afterLoss();
+  assert.equal(shown, 1, 'Adsgram не загрузился — показал Monetag');
+
+  for (const quiet of [ads({ ids: { monetag: '22' }, inside: false }), ads()]) {
+    assert.equal(quiet.Ads.afterLossLive, false);
+    await quiet.Ads.afterLoss();
+    assert.equal(quiet.added.length, 0, 'вне Telegram и без сети ничего не грузится');
+  }
+});

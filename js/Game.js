@@ -20,6 +20,7 @@ class Game {
         this.adPending = false;
         /** @type {CollapseRun | null} */
         this.adMissed = null;         // the run whose offer found no ad (CrazyGames): its end says to try later
+        this._lossAdRun = null;       // the lost run whose ad was shown (Telegram): one per run
         this.portrait = 'calm';
         this.portraitLeft = 0;
         this.flashLeft = 0;           // s the red flash of a demon hit stays up (hitFlash)
@@ -63,7 +64,8 @@ class Game {
         on('menuExit', () => TG.close());
         on('modeEndless', () => this.start());
         on('modeTutorial', () => this.start(new CollapseTutorial()));
-        for (const id of ['modeBack', 'settingsBack', 'shopBack', 'overMenu']) on(id, () => this.openMenu());
+        for (const id of ['modeBack', 'settingsBack', 'shopBack']) on(id, () => this.openMenu());
+        on('overMenu', async () => { if (!this._lossAdDue() || await this._lossAd()) this.openMenu(); });
         this.volumes = {};
         const audio = Sound3D.cfg();
         for (const channel of Sound3D.CHANNELS) {
@@ -93,7 +95,8 @@ class Game {
     // "Again": a challenge is raced until the player leaves it. The end of a run that already used its
     // continue may show an ad between runs first: CrazyGames allows either that or the rewarded offer.
     async _again() {
-        if (this.adPending && CG.ready) return;   // the portal's ad holds the dialog until it answers
+        // The portal's ads and a lost run's ad hold the dialog until they answer.
+        if (this.adPending && (CG.ready || this._lossAdRun === this.run)) return;
         const run = this.run;
         if (this.mode === 'over' && run.continued && Ads.midgameLive) {
             this.adPending = true;
@@ -101,9 +104,29 @@ class Game {
             this.adPending = false;
             if (this.run !== run || this.mode !== 'over') return;
         }
+        if (this._lossAdDue() && !(await this._lossAd())) return;
         if (this.run.tutorial) this.start(new CollapseTutorial());
         else if (this.goal) this.startChallenge();
         else this.start();
+    }
+
+    // In Telegram a lost run ends with an ad (Ads.afterLoss): "Again" or "Menu" of its end dialog show it
+    // first, once per run, so it never stacks with the continue offer of the same dialog. Without one due
+    // the tap acts at once; with one, false — the tap waits: an ad is on, or the game moved on while it played.
+    _lossAdDue() {
+        const run = this.run;
+        return this.mode === 'over' && !!run && !run.tutorial && this._lossAdRun !== run && !!Ads.afterLossLive;
+    }
+
+    async _lossAd() {
+        const run = this.run;
+        if (!this._lossAdDue()) return true;
+        if (this.adPending) return false;
+        this._lossAdRun = run;
+        this.adPending = true;
+        await Ads.afterLoss();
+        this.adPending = false;
+        return this.run === run && this.mode === 'over';
     }
 
     openMenu(screen = 'mainScreen') {
