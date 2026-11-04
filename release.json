@@ -1,7 +1,8 @@
 {
   "version": "0.1.4-depot",
   "rules": 12,
-  "source": "4058cd29b2aabedc98a357ddf51a4d00b4cc0c3f",
+  "source": "6c3ed02210091d2989dea69957b2c5c8510c0d91",
   "monetagZone": "12172659",
-  "builtAt": "2026-11-04T19:13:31.859Z"
+  "builtAt": "2026-11-04T19:13:31.859Z",
+  "workerVersion": "54da9324-ac6a-4c4b-8538-fd18469c7574"
 }
