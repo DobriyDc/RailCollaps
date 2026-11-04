@@ -2,7 +2,8 @@
 // (server/leaderboard, it replays the journal and keeps the meters itself), the table screen shows
 // what the function returns. While LEADERBOARD_URL is empty or the game runs outside Telegram there
 // is nothing to sign a request with: no requests, no button, no screen. A request that fails leaves
-// the run as it was; only the table screen, which the player opened, says so.
+// the run as it was; only the table screen, which the player opened, says so. Two tables: the season's
+// and the daily run's (CollapseDaily), one switch between them on the screen.
 // On CrazyGames the table is theirs and their site shows it (LEADERBOARD_CRAZYGAMES): the function replays
 // the run of a player logged in there and hands the meters on; the game shows no table of its own there.
 
@@ -16,6 +17,7 @@ const Leaderboard = {
     _opened: 0,                   // counts openings: an answer to an earlier one is dropped
     _built: false,
     _status: '',
+    _board: 'season',             // 'season' | 'daily': the table on the screen
 
     get url() { return typeof LEADERBOARD_URL !== 'undefined' ? LEADERBOARD_URL : ''; },
     get enabled() { return !!this.url && !!TG.initData; },
@@ -44,7 +46,9 @@ const Leaderboard = {
     // The end of a run: the journal is serialized here, before anything can touch the run.
     submit(run) {
         if (!this.enabled) { if (this.portal) this._toPortal(run); return; }
-        const body = JSON.stringify({ rules: COLLAPSE_RULES_VERSION, seed: run.seed, meters: run.meters, log: run.log });
+        // A run of the daily track names its day: the function puts it in that day's table as well.
+        const body = JSON.stringify(Object.assign({ rules: COLLAPSE_RULES_VERSION, seed: run.seed, meters: run.meters, log: run.log },
+            Number.isInteger(run.daily) ? { daily: run.daily } : {}));
         this._sending = this._request('/score', { method: 'POST', headers: this._headers(), body });
     },
 
@@ -68,11 +72,17 @@ const Leaderboard = {
         if (await this._sending) Store.set(key, week + ':' + meters);
     },
 
-    // { season, rows: [{ place, name, meters, me }], me: { place, meters } | null } or null.
-    async top() {
+    // { season, day?, rows: [{ place, name, meters, me }], me: { place, meters } | null } or null.
+    async top(board = 'season') {
         if (!this.enabled) return null;
         await this._sending;
-        return this._request('/top', { headers: this._headers() });
+        return this._request(board === 'daily' ? '/top?board=daily' : '/top', { headers: this._headers() });
+    },
+
+    // The date of a daily run's day, dd.mm.
+    dayDate(day) {
+        const d = new Date(day * 86400e3);
+        return String(d.getUTCDate()).padStart(2, '0') + '.' + String(d.getUTCMonth() + 1).padStart(2, '0');
     },
 
     // The screen: one record per row is a template of UILayout.js, the copies stand a row of boardList
@@ -94,18 +104,20 @@ const Leaderboard = {
         on('boardClose', () => this.close());
         on('boardPrev', () => this._turn(-1));
         on('boardNext', () => this._turn(1));
+        on('boardSwitch', () => this.open(this._board === 'daily' ? 'season' : 'daily'));
     },
 
     _text(id, text) { const e = UI.get(id); if (e) e.setText(text); },
     _show(id, on) { const e = UI.get(id); if (e) e.show(on); },
 
-    async open() {
+    async open(board = 'season') {
         this._build();
+        this._board = board;
         const opened = ++this._opened;
         this._data = null;
         this._render('loading');
         this._show('board', true);
-        const data = await this.top();
+        const data = await this.top(board);
         if (opened !== this._opened) return;
         this._data = data;
         const mine = data ? data.rows.findIndex(r => r.me) : -1;
@@ -141,7 +153,9 @@ const Leaderboard = {
             this._text('boardRowName' + i, r.name);
             this._text('boardRowMeters' + i, Lang.t('meters', { value: r.meters }));
         }
-        if (data) this._text('boardSeason', Lang.t('season', { value: data.season }));
+        if (data) this._text('boardSeason', Number.isInteger(data.day) ? Lang.t('dayOf', { date: this.dayDate(data.day) }) : Lang.t('season', { value: data.season }));
+        else this._text('boardSeason', this._board === 'daily' ? Lang.t('daily') : '');
+        this._text('boardSwitch', Lang.t(this._board === 'daily' ? 'toSeason' : 'toDaily'));
         this._text('boardMe', !data ? '' : data.me ? Lang.t('boardMe', data.me) : Lang.t('boardAbsent'));
         this._show('boardPrev', this._page > 0);
         this._show('boardNext', this._page < pages - 1);

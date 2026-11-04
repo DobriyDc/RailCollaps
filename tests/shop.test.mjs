@@ -58,6 +58,7 @@ test('магазин без функции: цены не продаются, п
 test('продажи открывает число, и только с функцией: без адреса таблицы ничего не продаётся', () => {
   const load = enabled => loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Shop.js'], { localStorage: { getItem: () => null, setItem() {} }, Leaderboard: { enabled } });
   assert.equal(load(true).get('COLLAPSE_SHOP_OPEN'), 1, 'продажи открыты 2026-11-03, когда нарисованы все три поезда');
+  assert.equal(load(true).get('COLLAPSE_TRAIN_STARS'), 45, 'поезд за 45 ⭐ (владелец, 2026-11-04)');
   assert.equal(load(true).get('Shop').selling, true);
   assert.equal(load(false).get('Shop').selling, false);
 });

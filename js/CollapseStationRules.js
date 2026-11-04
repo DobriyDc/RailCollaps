@@ -81,6 +81,8 @@ class CollapseStationRun extends CollapseRun {
         super(seed, new CollapseStationTrack(seed));
         this.st = CollapseStationRules.cfg();
         this.stations = true;
+        /** @type {number | null} */
+        this.daily = null;            // the day of a daily run (CollapseDaily), set by the game; the rules never read it
         this.gapBase = this.c.frontMaxGap;
         this.money = 0;               // tokens
         this.passengers = this.st.seats;
@@ -220,3 +222,24 @@ class CollapseStationRun extends CollapseRun {
         return run.state === 'over' ? run : null;
     }
 }
+
+// The daily run (owner, 2026-11-04): one track a day for everyone, with a table of its own. The day turns at
+// midnight UTC + COLLAPSE_DAILY_SHIFT_H hours (Moscow), its seed is the day's number mixed. Pure: the game
+// and the function count the same day and the same seed.
+/** @satisfies {Record<string, any>} */
+const CollapseDaily = {
+    day(ms) {
+        const shift = typeof COLLAPSE_DAILY_SHIFT_H !== 'undefined' ? COLLAPSE_DAILY_SHIFT_H : 3;
+        return Math.floor((ms + shift * 3600e3) / 86400e3);
+    },
+    seed(day) {
+        let h = Math.imul((day ^ 0x5bd1e995) >>> 0, 0x9e3779b1) >>> 0;
+        h = Math.imul(h ^ (h >>> 15), 0x85ebca6b) >>> 0;
+        return (h ^ (h >>> 13)) >>> 0 || 1;
+    },
+    // The day of a run's seed: today or yesterday (a run may cross midnight), otherwise -1.
+    dayOf(seed, ms) {
+        const today = CollapseDaily.day(ms);
+        return [today, today - 1].find(d => CollapseDaily.seed(d) === seed) ?? -1;
+    },
+};

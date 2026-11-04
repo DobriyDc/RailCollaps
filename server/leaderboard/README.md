@@ -6,8 +6,8 @@
 
 | Запрос | Что делает |
 |---|---|
-| `POST /score` | `{ rules, seed, meters, log }`: проверяет и записывает, отвечает `{ season, meters, best, place }` |
-| `GET /top` | топ-100 сезона и место игрока: `{ season, rows, me }` |
+| `POST /score` | `{ rules, seed, meters, log, daily? }`: проверяет и записывает, отвечает `{ season, meters, best, place }`; `daily` — день рейса дня, если сид — его (сегодня или вчера): результат идёт и в таблицу дня |
+| `GET /top` | топ-100 сезона и место игрока: `{ season, rows, me }`; `?board=daily` — таблица рейса дня: `{ season, day, rows, me }` |
 | `POST /invoice` | `{ item, lang }`: ссылка на счёт в звёздах за поезд, отвечает `{ link }` |
 | `GET /inventory` | купленные поезда игрока: `{ items }` |
 | `POST /bot` | сообщения Telegram для бота: `/start`, `/terms`, `/paysupport`, подтверждение и запись оплаты, возврат |

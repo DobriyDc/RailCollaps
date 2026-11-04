@@ -558,3 +558,54 @@ test('CrazyGames: предел запросов на игрока, счётчи�
   assert.ok(ids.every(id => Number.isSafeInteger(id) && id < 0), 'номера счётчика CrazyGames — отрицательные, у Telegram — положительные');
   assert.equal((await call(e, 'GET', '/top')).status, 200, 'игрок Telegram не задет');
 });
+
+test('рейс дня: один сид на день для всех, день сменяется в полночь по Москве, вчерашний рейс ещё принимается', () => {
+  const p = page(), D = p.get('CollapseDaily');
+  assert.equal(p.get('COLLAPSE_DAILY_SHIFT_H'), 3);
+  const d = D.day(Date.parse('2026-11-04T20:59:59Z'));          // 23:59:59 по Москве
+  assert.equal(D.day(Date.parse('2026-11-04T21:00:00Z')), d + 1, 'полночь по Москве — новый день');
+  assert.equal(D.day(Date.parse('2026-11-04T00:00:00Z')), d);
+  const seeds = Array.from({ length: 60 }, (_, i) => D.seed(d + i));
+  assert.equal(new Set(seeds).size, 60, 'каждый день своя трасса');
+  for (const s of seeds) assert.ok(Number.isInteger(s) && s > 0 && s <= 0xffffffff);
+  const now = Date.parse('2026-11-04T12:00:00Z');
+  assert.equal(D.dayOf(D.seed(d), now), d);
+  assert.equal(D.dayOf(D.seed(d - 1), now), d - 1, 'рейс, начатый до полуночи');
+  assert.equal(D.dayOf(D.seed(d - 2), now), -1);
+  assert.equal(D.dayOf(5, now), -1);
+});
+
+test('рейс дня в функции: своя таблица дня и сезон; чужой сид или не тот день в таблицу дня не попадают', async () => {
+  const p = page(), rules = p.get('COLLAPSE_RULES_VERSION'), D = p.get('CollapseDaily'), e = env();
+  const day = D.day(Date.now()), seed = D.seed(day), run = live(p, seed), other = live(p, 5);
+  const send = (id, s, r, daily) => call(e, 'POST', '/score', { auth: initData({ id, first: 'Игрок' + id }), body: { rules, seed: s, meters: r.meters, log: r.log, daily } });
+  assert.equal((await send(111, seed, run, day)).status, 200);
+  assert.equal((await send(222, 5, other, day)).status, 200, 'чужой сид — только сезон');
+  assert.equal((await send(333, seed, run, day - 5)).status, 200, 'не тот день — только сезон');
+  assert.deepEqual(e.DB.raw.prepare('SELECT day, user_id, meters FROM daily').all().map(r => ({ ...r })), [{ day, user_id: 111, meters: run.meters }]);
+  assert.equal(e.DB.rows().filter(r => r.season === rules).length, 3, 'все трое в сезоне');
+  const top = await (await call(e, 'GET', '/top?board=daily', { auth: initData({ id: 111 }) })).json();
+  assert.deepEqual(top, { season: rules, day, rows: [{ place: 1, name: 'Игрок111', meters: run.meters, me: true }], me: { place: 1, meters: run.meters } });
+  const season = await (await call(e, 'GET', '/top', { auth: initData({ id: 111 }) })).json();
+  assert.equal(season.day, undefined);
+  assert.equal(season.rows.length, 3);
+});
+
+test('игра: рейс дня называет свой день при отправке, таблица дня — свой запрос, дата дня', async () => {
+  const calls = [];
+  const fetchStub = async (...a) => { calls.push(a); return new Response('{"season":9,"day":1,"rows":[],"me":null}'); };
+  const p = loadScripts(['js/Constants.js', 'js/UILayout.js', 'js/Telegram.js', 'js/CollapseRules.js', 'js/Leaderboard.js'],
+    { fetch: fetchStub, AbortController, setTimeout, clearTimeout, Telegram: { WebApp: { initData: 'auth_date=1&hash=x' } } });
+  const L = p.get('Leaderboard');
+  Object.defineProperty(L, 'url', { get: () => 'https://collapse.test' });
+  const day = Math.floor(Date.parse('2026-11-04T12:00:00Z') / 86400e3), run = live(page(), 4);
+  run.daily = day;
+  L.submit(run);
+  assert.equal(JSON.parse(calls[0][1].body).daily, day);
+  await L.top('daily');
+  assert.equal(calls[1][0], 'https://collapse.test/top?board=daily');
+  assert.equal(L.dayDate(day), '04.11');
+  run.daily = null;
+  L.submit(run);
+  assert.equal(JSON.parse(calls[2][1].body).daily, undefined, 'обычный рейс дня не называет');
+});

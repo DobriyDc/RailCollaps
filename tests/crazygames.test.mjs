@@ -207,7 +207,7 @@ function game({ portal = true, tutorial = false, granted = true, lossAd = false 
     CG: { portal: portal, ready: portal, gameplay: on => events.push(on ? 'start' : 'stop'), happytime: () => events.push('happytime') },
     Ads: { rewarded: async () => granted, midgameLive: portal, midgame: () => { events.push('midgame'); return new Promise(r => setTimeout(r)); },
       afterLossLive: lossAd, afterLoss: () => { events.push('loss-ad'); return new Promise(r => setTimeout(r)); } },
-    Leaderboard: { close() {}, refreshLanguage() {}, submit() {}, enabled: false },
+    Leaderboard: { close() {}, refreshLanguage() {}, submit() {}, open: board => events.push('board:' + board), enabled: false },
     Shop: { init() {}, open() {}, render() {} }, Challenge: { parse: () => null }, CollapseStations: { dress() {}, hud() {}, onDeparted() {} },
   });
   const g = new (ctx.get('Game'))({ scene: { canvas: { addEventListener() {} }, sync() {}, reset() {}, onEvent() {} } });
@@ -220,7 +220,7 @@ function game({ portal = true, tutorial = false, granted = true, lossAd = false 
     g.run._crash('gap');
     end();
   };
-  return { g, UI, events, crash, end, lang: ctx.get('Lang') };
+  return { g, UI, events, crash, end, ctx, lang: ctx.get('Lang') };
 }
 
 test('портал: одна кнопка от меню до рейса — обучение, пока не пройдено, потом бесконечный', () => {
@@ -363,6 +363,26 @@ test('Telegram: проигрыш всегда кончается рекламо�
   off.crash();
   off.UI.get('restartBtn').click();
   assert.equal(off.g.mode, 'play', 'без рекламы — сразу');
+});
+
+test('рейс дня: кнопка в выборе режима — сегодняшняя трасса, «Ещё раз» — снова она, таблица — дня', () => {
+  const { g, UI, events, end, ctx } = game({ portal: false, tutorial: true });
+  const D = ctx.get('CollapseDaily'), day = D.day(Date.now());
+  UI.get('modeDaily').click();
+  assert.equal(g.mode, 'play');
+  assert.equal(g.run.daily, day);
+  assert.equal(g.run.seed, D.seed(day));
+  const first = g.run;
+  g.run._crash('gap');
+  end();
+  UI.get('boardBtn').click();
+  assert.deepEqual(events.filter(e => e.startsWith('board:')), ['board:daily']);
+  UI.get('restartBtn').click();
+  assert.notEqual(g.run, first);
+  assert.equal(g.run.seed, D.seed(day), 'та же трасса');
+  assert.equal(g.run.daily, day);
+  UI.get('modeEndless').click();
+  assert.equal(g.run.daily, null, 'бесконечный — не рейс дня');
 });
 
 // The table on CrazyGames (js/Leaderboard.js): a better run of the player's week goes to the function with

@@ -39,8 +39,8 @@ const UI_LAND = {
     stationRescueIcon: { x: 10, w: 28, h: 28 },
     stationGo: { y: 234, w: 268, h: 56, fontSize: 18 },
     boardBox: { h: 510 },
-    boardList: { h: 310 },
-    boardRow: { h: 30 },
+    boardList: { y: 92, h: 280 },
+    boardRow: { h: 25 },
     boardMe: { y: 378 },
     // The settings in two columns: the low screen has no room for the portrait's five rows.
     settingsScreen: { w: 640, h: 352 },

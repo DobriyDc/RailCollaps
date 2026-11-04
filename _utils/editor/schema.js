@@ -571,6 +571,8 @@ const KIT_SCHEMA = [
               label: { en: 'Calm before a stop, the collapse stands (segments)', ru: 'Покой перед станцией, обвал стоит (сегм.)' } },
             { name: 'COLLAPSE_STATION_AFTER', min: 0, max: 12, step: 1,
               label: { en: 'Calm after a stop (segments)', ru: 'Покой после станции (сегм.)' } },
+            { name: 'COLLAPSE_DAILY_SHIFT_H', min: -12, max: 14, step: 1,
+              label: { en: 'Daily run: its day turns at midnight of UTC + this, h', ru: 'Рейс дня: день сменяется в полночь UTC + столько часов' } },
             { name: 'COLLAPSE_STATION_STOP_SEC', min: 3, max: 15, step: 0.5,
               label: { en: 'Stop at a station (s)', ru: 'Стоянка на станции (с)' } },
             { name: 'COLLAPSE_STATION_RESPITE_SEC', min: 1, max: 30, step: 1,

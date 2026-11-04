@@ -43,7 +43,8 @@ class Game {
 
         const on = (id, fn) => { const el = UI.get(id); if (el) el.onClick(this._clicked(fn)); };
         on('pauseBtn', () => this.setPaused(this.mode !== 'pause'));
-        on('boardBtn', () => { if (!this.adPending) Leaderboard.open(); });
+        // The end of a daily run opens the daily table, any other the season's.
+        on('boardBtn', () => { if (!this.adPending) Leaderboard.open(this.run && Number.isInteger(this.run.daily) ? 'daily' : 'season'); });
         this.scene.canvas.addEventListener('pointerdown', e => this.tap(e));
 
         this.run = new CollapseRun(Game.newSeed());
@@ -63,6 +64,7 @@ class Game {
         on('challengeBtn', () => Challenge.share(this.run));
         on('menuExit', () => TG.close());
         on('modeEndless', () => this.start());
+        on('modeDaily', () => this.startDaily());
         on('modeTutorial', () => this.start(new CollapseTutorial()));
         for (const id of ['modeBack', 'settingsBack', 'shopBack']) on(id, () => this.openMenu());
         on('overMenu', async () => { if (!this._lossAdDue() || await this._lossAd()) this.openMenu(); });
@@ -92,6 +94,13 @@ class Game {
     // The tunnel of the link: the same seed gives the same track.
     startChallenge() { this.start(new CollapseStationRun(this.challenge.seed), this.challenge.meters); }
 
+    // The daily run: today's track for everyone (CollapseDaily); the run carries its day to the table.
+    startDaily() {
+        const day = CollapseDaily.day(Date.now()), run = new CollapseStationRun(CollapseDaily.seed(day));
+        run.daily = day;
+        this.start(run);
+    }
+
     // "Again": a challenge is raced until the player leaves it. The end of a run that already used its
     // continue may show an ad between runs first: CrazyGames allows either that or the rewarded offer.
     async _again() {
@@ -106,6 +115,7 @@ class Game {
         }
         if (this._lossAdDue() && !(await this._lossAd())) return;
         if (this.run.tutorial) this.start(new CollapseTutorial());
+        else if (Number.isInteger(this.run.daily)) this.startDaily();     // after midnight — the new day's track
         else if (this.goal) this.startChallenge();
         else this.start();
     }

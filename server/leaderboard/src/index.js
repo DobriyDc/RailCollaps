@@ -1,5 +1,6 @@
 // index.js — the leaderboard function (Cloudflare Worker + D1). POST /score replays the run with the
-// game's own rules and keeps the player's best of the season; GET /top gives the top and the player's
+// game's own rules and keeps the player's best of the season (and of the day, for a run of the daily
+// track: "daily" in the body); GET /top gives the top and the player's
 // place. A request proves who sent it with the signed initData of Telegram, nothing else is trusted.
 // POST /crazygames/score is the same replay for the game on CrazyGames: the player proves who they are with
 // the token of their CrazyGames account, and the meters go on to the CrazyGames table, which keeps them.
@@ -144,13 +145,29 @@ async function replayed(request) {
     const run = CollapseStationRun.replay(body.seed, body.log, LEADERBOARD_MAX_STEPS);
     if (!run) return { refused: refuse(422, 'bad_replay') };
     if (run.meters !== body.meters) return { refused: refuse(422, 'meters_mismatch') };
-    return { run };
+    return { run, body };
 }
 
+// The best of one board: the season's table (scores) or the daily run's (daily), keyed by season or day.
+const BOARDS = { season: { table: 'scores', key: 'season' }, daily: { table: 'daily', key: 'day' } };
+const placeIn = (db, b, key, row, id) => db.prepare(
+    `SELECT COUNT(*) + 1 AS place FROM ${b.table} WHERE ${b.key} = ?1 AND ` +
+    '(meters > ?2 OR (meters = ?2 AND (at < ?3 OR (at = ?3 AND user_id < ?4))))',
+).bind(key, row.meters, row.at, id).first();
+const bestIn = (db, b, key, id) => db.prepare(`SELECT meters, at FROM ${b.table} WHERE ${b.key} = ?1 AND user_id = ?2`).bind(key, id).first();
+
 async function postScore(request, env, me) {
-    const { run, refused } = await replayed(request);
+    const { run, body, refused } = await replayed(request);
     if (refused) return refused;
     const season = COLLAPSE_RULES_VERSION;
+    // The daily track: its day from the seed, today or yesterday; any other seed keeps to the season.
+    const day = Number.isInteger(body.daily) ? CollapseDaily.dayOf(body.seed, Date.now()) : -1;
+    if (day >= 0 && day === body.daily) {
+        await env.DB.prepare(
+            'INSERT INTO daily (day, user_id, name, meters, at) VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT (day, user_id) ' +
+            'DO UPDATE SET name = excluded.name, meters = excluded.meters, at = excluded.at WHERE excluded.meters > daily.meters',
+        ).bind(day, me.id, me.name, run.meters, Math.floor(Date.now() / 1000)).run();
+    }
     await env.DB.prepare(
         'INSERT INTO scores (season, user_id, name, meters, at) VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT (season, user_id) ' +
         'DO UPDATE SET name = excluded.name, meters = excluded.meters, at = excluded.at WHERE excluded.meters > scores.meters',
@@ -202,15 +219,17 @@ async function portal(request, env) {
     return answer;
 }
 
-async function getTop(env, me) {
-    const season = COLLAPSE_RULES_VERSION;
+// ?board=daily — today's daily run instead of the season; the answer says which day.
+async function getTop(request, env, me) {
+    const season = COLLAPSE_RULES_VERSION, daily = new URL(request.url).searchParams.get('board') === 'daily';
+    const b = daily ? BOARDS.daily : BOARDS.season, key = daily ? CollapseDaily.day(Date.now()) : season;
     const { results } = await env.DB.prepare(
-        'SELECT user_id, name, meters FROM scores WHERE season = ?1 ORDER BY meters DESC, at ASC, user_id ASC LIMIT ?2',
-    ).bind(season, LEADERBOARD_TOP).all();
+        `SELECT user_id, name, meters FROM ${b.table} WHERE ${b.key} = ?1 ORDER BY meters DESC, at ASC, user_id ASC LIMIT ?2`,
+    ).bind(key, LEADERBOARD_TOP).all();
     const rows = results.map((r, i) => ({ place: i + 1, name: r.name, meters: r.meters, me: r.user_id === me.id }));
-    const mine = await scoreOf(env.DB, season, me.id);
-    const place = mine ? (await placeOf(env.DB, season, mine, me.id)).place : 0;
-    return reply(200, { season, rows, me: mine ? { place, meters: mine.meters } : null });
+    const mine = await bestIn(env.DB, b, key, me.id);
+    const place = mine ? (await placeIn(env.DB, b, key, mine, me.id)).place : 0;
+    return reply(200, Object.assign({ season, rows, me: mine ? { place, meters: mine.meters } : null }, daily ? { day: key } : {}));
 }
 
 // The bot's welcome. Telegram posts updates to /bot with the secret of setWebhook in a header. The answer
@@ -392,6 +411,6 @@ export default {
         if (!await underLimit(env.DB, me.id)) return refuse(429, 'rate_limited', { 'Retry-After': String(LEADERBOARD_RATE_WINDOW_SEC) });
         if (route === 'GET /inventory') return getInventory(env, me);
         if (route === 'POST /invoice') return postInvoice(request, env, me);
-        return route === 'GET /top' ? getTop(env, me) : postScore(request, env, me);
+        return route === 'GET /top' ? getTop(request, env, me) : postScore(request, env, me);
     },
 };

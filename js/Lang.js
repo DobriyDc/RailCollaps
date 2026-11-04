@@ -360,6 +360,22 @@ const Lang = {
         "ru": "Сезон {value}",
         "en": "Season {value}"
     },
+    "daily": {
+        "ru": "Рейс дня",
+        "en": "Daily run"
+    },
+    "dayOf": {
+        "ru": "Рейс дня · {date}",
+        "en": "Daily run · {date}"
+    },
+    "toSeason": {
+        "ru": "Таблица сезона",
+        "en": "Season table"
+    },
+    "toDaily": {
+        "ru": "Таблица рейса дня",
+        "en": "Daily run table"
+    },
     "loading": {
         "ru": "Загрузка…",
         "en": "Loading…"
@@ -494,6 +510,7 @@ const Lang = {
     "modeTitle": "modes",
     "modeTutorial": "tutorial",
     "modeEndless": "endless",
+    "modeDaily": "daily",
     "modeBack": "back",
     "settingsTitle": "settings",
     "musicLabel": "music",
