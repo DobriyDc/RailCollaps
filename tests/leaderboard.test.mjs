@@ -58,9 +58,9 @@ const call = (e, method, route, { auth = initData(), body, origin = ORIGIN } = {
 // A live run as the game drives it: frames of an uneven length through update(), taps between them,
 // shots at forks and demons, one continue after the first crash; at every stop a cartridge crate when
 // it can be paid, then "go on".
-function live(p, seed) {
+function live(p, seed, levels) {
   const CollapseRun = p.get('CollapseStationRun'), R = p.get('CollapseRules');
-  const run = new CollapseRun(seed), dice = R.rng(seed ^ 0x51ed);
+  const run = new CollapseRun(seed, levels), dice = R.rng(seed ^ 0x51ed);
   for (let f = 0; f < 60 * 900; f++) {
     if (run.state === 'over') { if (!run.continueRun()) break; }
     if (run.atStation) { run.buy('ammo'); run.leave(); }
@@ -333,14 +333,40 @@ test('таблица: лучший результат игрока за сезо
   assert.deepEqual(Object.keys(e.DB.rows()[0]).sort(), ['at', 'meters', 'name', 'season', 'user_id']);
 });
 
+test('депо: сервер воспроизводит комплект, отказывает неверным уровням и замене в середине рейса', async () => {
+  const p = page(), Run = p.get('CollapseStationRun'), max = p.get('LEADERBOARD_MAX_STEPS'), rules = p.get('COLLAPSE_RULES_VERSION'), e = env();
+  const run = live(p, 77, [3, 2, 1]), body = { rules, seed: run.seed, meters: run.meters, log: run.log };
+  const replay = Run.replay(run.seed, run.log, max);
+  assert.ok(replay); assert.equal(replay.meters, run.meters); assert.equal(replay.ammo, run.ammo);
+  assert.equal(replay.money, run.money); assert.deepEqual([...replay.upgrades], [3, 2, 1]);
+  assert.equal((await call(e, 'POST', '/score', { body })).status, 200);
+  for (const first of [[1, 'u', 3, 2, 1], [0, 'u', 4, 2, 1], [0, 'u', -1, 2, 1], [0, 'u', 0.5, 2, 1], [0, 'u', 1, 2], [0, 'u', 0, 0, 0]]) {
+    const log = [first, ...run.log.slice(1)];
+    assert.equal(Run.replay(run.seed, log, max), null);
+    assert.equal((await call(e, 'POST', '/score', { body: { ...body, log } })).status, 422);
+  }
+  assert.equal(Run.replay(run.seed, [run.log[0], run.log[0], ...run.log.slice(1)], max), null);
+  assert.equal(Run.replay(run.seed, [...run.log, [run.steps, 'u', 1, 1, 1]], max), null);
+});
+
+test('депо: улучшенный поезд не попадает в равный рейс дня', async () => {
+  const p = page(), D = p.get('CollapseDaily'), day = D.day(Date.now()), seed = D.seed(day), e = env();
+  const run = live(p, seed, [1, 1, 1]);
+  const res = await call(e, 'POST', '/score', { body: { rules: p.get('COLLAPSE_RULES_VERSION'), seed, meters: run.meters, log: run.log, daily: day } });
+  assert.equal(res.status, 422); assert.equal((await res.json()).error, 'daily_upgrades');
+  assert.equal(e.DB.rows().length, 0);
+});
+
 // The rules of a version do not change: the fingerprint of the numbers and of what they do. A new
 // fingerprint without a new version would make the function refuse honest runs of older clients.
 test('правила изменились — подними COLLAPSE_RULES_VERSION и добавь отпечаток сюда', () => {
-  const FINGERPRINTS = { 1: '630a834b', 2: 'ba60d729', 3: '0f2242e0', 4: '5a5ecf1d', 5: '227e15a6', 6: '20d9426f', 7: '6590e0d4', 8: '21308824', 9: '2f1ccabf', 10: '956e640a', 11: '4270642e' };
+  const FINGERPRINTS = { 1: '630a834b', 2: 'ba60d729', 3: '0f2242e0', 4: '5a5ecf1d', 5: '227e15a6', 6: '20d9426f', 7: '6590e0d4', 8: '21308824', 9: '2f1ccabf', 10: '956e640a', 11: '4270642e', 12: '0d0f7d33' };
   const p = page(), R = p.get('CollapseRules'), stations = p.get('CollapseStationRules').cfg();
   const { iconLead, ...numbers } = R.cfg();
   const walk = SEEDS.slice(0, 5).map(seed => { const r = live(p, seed); return [r.meters, r.steps, r.pos]; });
-  const print = crypto.createHash('sha256').update(JSON.stringify(p.get('COLLAPSE_RULES_VERSION') >= 7 ? [numbers, stations, walk] : [numbers, walk])).digest('hex').slice(0, 8);
+  const S = p.get('CollapseStationRules');
+  const depot = [S.maxLevel, [0, 1, 2, 3].map(n => S.upgradeStats([n, n, n])), SEEDS.slice(0, 5).map(seed => { const r = live(p, seed, [1, 2, 3]); return [r.meters, r.steps, r.pos]; })];
+  const print = crypto.createHash('sha256').update(JSON.stringify([numbers, stations, walk, depot])).digest('hex').slice(0, 8);
   assert.equal(print, FINGERPRINTS[p.get('COLLAPSE_RULES_VERSION')]);
 });
 

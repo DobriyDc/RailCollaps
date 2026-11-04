@@ -58,6 +58,9 @@ class Game {
         on('menuSettings', () => this.openMenu('settingsScreen'));
         on('menuCareer', () => this.openMenu('careerScreen'));
         on('careerBack', () => this.openMenu());
+        on('careerDepot', () => { this.depotNote = ''; this.openMenu('depotScreen'); });
+        on('depotBack', () => this.openMenu('careerScreen'));
+        if (typeof Career !== 'undefined') Career.goods.forEach(kind => on('depotBuy_' + kind, () => this.buyUpgrade(kind)));
         on('menuShop', () => { Shop.open(); this.openMenu('shopScreen'); });
         on('menuBoard', () => Leaderboard.open());
         Shop.init(this.scene, on);
@@ -97,7 +100,7 @@ class Game {
     }
 
     // The tunnel of the link: the same seed gives the same track.
-    startChallenge() { this.start(new CollapseStationRun(this.challenge.seed), this.challenge.meters); }
+    startChallenge() { this.start(new CollapseStationRun(this.challenge.seed, this.challenge.upgrades || [0, 0, 0]), this.challenge.meters); }
 
     // The daily run: today's track for everyone (CollapseDaily); the run carries its day to the table.
     startDaily() {
@@ -174,7 +177,7 @@ class Game {
         if (screen === 'mainScreen' && this.pendingChallenge) {
             this.challenge = this.pendingChallenge;
             this.pendingChallenge = null;
-            this._set('challengeText', Lang.t('challengeText', { meters: this.challenge.meters }));
+            this._set('challengeText', this.challengeText());
             screen = 'challengeScreen';
         }
         this.mode = 'menu';
@@ -186,7 +189,7 @@ class Game {
         this._show('hitFlash', false);
         this._show('menu', true);
         this._show('tutorialBox', false);
-        for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen', 'challengeScreen', 'careerScreen']) this._show(id, id === screen);
+        for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen', 'challengeScreen', 'careerScreen', 'depotScreen']) this._show(id, id === screen);
         for (const id of ['frameTop', 'frameBottom', 'iconStrip', 'stationShop', 'collapseNote', 'runTime', 'challengeGoal']) this._show(id, false);
         this._show('menuExit', TG.inside);
         this._show('menuBoard', Leaderboard.enabled);
@@ -206,7 +209,12 @@ class Game {
         this._settingsView();
         this._tutorialLabel();
         this._careerView();
-        if (this.challenge) this._set('challengeText', Lang.t('challengeText', { meters: this.challenge.meters }));
+        if (this.challenge) this._set('challengeText', this.challengeText());
+    }
+
+    challengeText() {
+        return Lang.t('challengeText', { meters: this.challenge.meters }) +
+            ((this.challenge.upgrades || []).some(n => n > 0) ? '\n' + Lang.t('challengeKit') : '');
     }
 
     _tutorialLabel() { this._set('modeTutorial', (this.tutorialPassed ? '✓ ' : '') + Lang.t('tutorial')); }
@@ -227,6 +235,38 @@ class Game {
         this._set('overCareer', Lang.t(c.saveFailed ? 'careerRunFailed' : 'careerRun', { points: this.run ? c.points(this.run.meters) : 0, total: s.balance }));
         const bar = UI.get('careerBar');
         if (bar) bar.setValue(c.progress);
+        this._depotView();
+    }
+
+    async buyUpgrade(kind) {
+        if (this.mode !== 'menu' || this.adPending) return;
+        const pending = Career.buy(kind);
+        this._depotView();
+        const result = await pending;
+        this.depotNote = result === 'ok' ? 'depotBought' : result === 'failed' ? 'depotSaveFailed' : '';
+        this._careerView();
+    }
+
+    _depotView() {
+        if (typeof Career === 'undefined') return;
+        const c = Career, levels = c.state.upgrades, max = CollapseStationRules.maxLevel;
+        this._set('depotBalance', Lang.t('depotBalance', { points: c.state.balance }));
+        this._set('depotRank', Lang.t('career.rank.' + c.rank));
+        this._set('depotNote', Lang.t(this.depotNote || (c.saveFailed ? 'careerSaveFailed' : 'depotNextRun')));
+        c.goods.forEach((kind, index) => {
+            const level = levels[index], next = [...levels];
+            next[index] = Math.min(max, level + 1);
+            const now = CollapseStationRules.upgradeStats(levels), after = CollapseStationRules.upgradeStats(next);
+            const value = stats => kind === 'ammo' ? stats.ammo : kind === 'fare' ? stats.fare :
+                (stats.wagonSlow * 100).toFixed(1).replace(/\.0$/, '').replace('.', Lang.code === 'ru' ? ',' : '.');
+            this._set('depotTitle_' + kind, Lang.t('depot.' + kind) + ' · ' + level + '/' + max);
+            this._set('depotEffect_' + kind, Lang.t('depotEffect.' + kind, { value: level === max ? value(now) : value(now) + ' → ' + value(after) }));
+            const price = c.price(index), enough = c.state.balance >= price;
+            this._set('depotBuy_' + kind, level === max ? Lang.t('depotMax') :
+                Lang.t(enough ? 'depotBuy' : 'depotNeed', { price, points: enough ? price : price - c.state.balance }));
+            const button = UI.get('depotBuy_' + kind);
+            if (button) button.setEnabled(!c.buying && level < max && enough);
+        });
     }
 
     changeVolume(channel, direction) {
@@ -354,7 +394,10 @@ class Game {
 
     // The endless run goes through stations (CollapseStationRules.js).
     /** @returns {CollapseRun} */
-    static newRun() { return new CollapseStationRun(Game.newSeed()); }
+    static newRun() {
+        if (typeof Career !== 'undefined') Career.load();
+        return new CollapseStationRun(Game.newSeed(), typeof Career !== 'undefined' ? Career.state.upgrades : [0, 0, 0]);
+    }
 
     /** @param {any} run */
     static stationsLine(run) { return run.stations ? '\n' + Lang.t('stationsPassed', { value: run.stage, riders: run.delivered }) : ''; }

@@ -28,7 +28,7 @@ test('продолжение: дубли и повторный итог не н�
   assert.equal(c.state.balance, 1);
   run.meters = 4500; run.delivered = 6;
   await c.record(run); await c.record(run);
-  assert.deepEqual({ ...c.state }, { version: 1, meters: 4500, passengers: 6, earned: 2, balance: 2 });
+  assert.deepEqual(JSON.parse(JSON.stringify(c.state)), { version: 2, meters: 4500, passengers: 6, earned: 2, balance: 2, upgrades: [0, 0, 0] });
   await c.record({ seed: 42, meters: 4500, delivered: 6 });
   assert.equal(c.state.earned, 4, 'новая попытка на том же маршруте считается отдельно');
 });
@@ -86,4 +86,78 @@ test('Game: первая смерть и продолжение одного р�
   run.continueRun(); run.pos = 450; run._crash('gap'); game._onEvent({ type: 'crash', reason: 'gap' });
   await p.career.queue;
   assert.equal(p.career.state.balance, 2); assert.equal(p.career.state.meters, 4500);
+});
+
+test('депо: старые баллы переносятся, покупка и уровни переживают загрузку', async () => {
+  const data = new Map([['collapse.career.v1', JSON.stringify({ version: 1, meters: 25000, passengers: 12, earned: 12, balance: 12 })]]);
+  const { career: c } = page(data);
+  assert.equal(c.state.balance, 12); assert.equal(c.rank, 1);
+  assert.equal(await c.buy('ammo'), 'ok');
+  const again = page(data).career;
+  assert.equal(again.state.balance, 10); assert.equal(again.state.earned, 12);
+  assert.deepEqual([...again.state.upgrades], [1, 0, 0]);
+  assert.equal(again.state.meters, 25000); assert.equal(again.rank, 1);
+});
+
+test('депо: девять покупок стоят 68 баллов; пределы и новые начисления сохраняют уровни', async () => {
+  const { career: c } = page();
+  await c.record({ meters: 200000 });
+  for (const kind of c.goods) for (let level = 0; level < 3; level++) assert.equal(await c.buy(kind), 'ok');
+  assert.equal(c.state.balance, 32); assert.equal(c.state.earned, 100); assert.equal(c.rank, 3);
+  assert.deepEqual([...c.state.upgrades], [3, 3, 3]);
+  assert.equal(await c.buy('ammo'), 'max'); assert.equal(await c.buy('bogus'), 'unknown');
+  await c.record({ meters: 4000 });
+  assert.equal(c.state.balance, 34); assert.deepEqual([...c.state.upgrades], [3, 3, 3]);
+});
+
+test('депо: двойное нажатие, нехватка баллов и отказ хранения не списывают лишнее', async () => {
+  const p = page(), c = p.career;
+  assert.equal(await c.buy('ammo'), 'no-money');
+  await c.record({ meters: 10000 });
+  const raw = p.data.get(c.KEY), write = p.storage.setItem;
+  p.storage.setItem = () => { throw new Error('quota'); };
+  assert.equal(await c.buy('ammo'), 'failed');
+  assert.equal(c.state.balance, 5); assert.equal(c.state.upgrades[0], 0); assert.equal(p.data.get(c.KEY), raw);
+  p.storage.setItem = write;
+  assert.deepEqual(await Promise.all([c.buy('ammo'), c.buy('ammo')]), ['ok', 'busy']);
+  assert.equal(c.state.balance, 3); assert.equal(c.state.upgrades[0], 1);
+  assert.equal(await c.buy('ammo'), 'no-money'); assert.equal(c.state.balance, 3);
+});
+
+test('депо: две вкладки не покупают два разных уровня по одной показанной цене', async () => {
+  let queue = Promise.resolve(); const data = new Map();
+  const navigator = { locks: { request(key, fn) { const p = queue.then(fn); queue = p.catch(() => {}); return p; } } };
+  const a = page(data, { navigator }); await a.career.record({ meters: 20000 });
+  const b = page(data, { navigator });
+  assert.deepEqual(await Promise.all([a.career.buy('ammo'), b.career.buy('ammo')]), ['ok', 'changed']);
+  assert.equal(page(data).career.state.balance, 8);
+  await Promise.all([a.career.record({ meters: 2000 }), b.career.buy('fare')]);
+  const saved = page(data).career.state;
+  assert.equal(saved.balance, 6); assert.deepEqual([...saved.upgrades], [1, 1, 0]);
+  assert.equal(a.get('Game').newRun().fare, 11, 'новый рейс видит покупку из другой вкладки');
+});
+
+test('депо: комплект фиксируется на старте; рейс дня базовый, вызов даёт комплект друга', async () => {
+  const p = page(), Game = p.get('Game'), c = p.career;
+  const before = Game.newRun();
+  await c.record({ meters: 4000 }); await c.buy('ammo');
+  assert.equal(before.ammo, 8); assert.equal(Game.newRun().ammo, 10);
+  before._crash('gap'); before.continueRun();
+  assert.equal(before.ammo, 8); assert.deepEqual([...before.upgrades], [0, 0, 0]);
+  const game = Object.assign(Object.create(Game.prototype), { start(run) { this.run = run; } });
+  game.startDaily(); assert.deepEqual([...game.run.upgrades], [0, 0, 0]);
+  game.challenge = { seed: 42, meters: 2000, upgrades: [2, 1, 3] };
+  game.startChallenge(); assert.equal(game.run.ammo, 12); assert.equal(game.run.fare, 11);
+  assert.deepEqual([...game.run.upgrades], [2, 1, 3]); assert.deepEqual([...c.state.upgrades], [1, 0, 0]);
+});
+
+test('депо: уровни действительно меняют плату и штраф вагонов, конфигурация копируется', () => {
+  const p = page(), Run = p.get('CollapseStationRun'), profile = [3, 3, 3];
+  const run = new Run(42, profile); profile[0] = 0;
+  assert.equal(run.ammo, 14); assert.equal(run.fare, 13);
+  run._arrive(); assert.equal(run.money, 39);
+  run.money = 240; run.stopLeft = 1;
+  for (let i = 0; i < 3; i++) assert.equal(run.buy('wagon'), 'ok');
+  assert.ok(Math.abs(run.speedFactor - 0.986 ** 3) < 1e-12);
+  const base = new Run(42); assert.equal(base.ammo, 8); assert.equal(base.fare, 10);
 });

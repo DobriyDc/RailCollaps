@@ -152,6 +152,7 @@ const Lang = {
         "ru": "Друг проехал {meters} м.\nОбгони его на том же тоннеле.",
         "en": "A friend went {meters} m.\nBeat them in the same tunnel."
     },
+    "challengeKit": { "ru": "Комплектация друга на этот рейс.", "en": "Their upgrades apply to this race." },
     "challengeAccept": {
         "ru": "Принять вызов",
         "en": "Accept the challenge"
@@ -457,6 +458,20 @@ const Lang = {
         "en": "{value}%"
     },
     "careerTitle": { "ru": "Карьера", "en": "Career" },
+    "depotTitle": { "ru": "Депо", "en": "Depot" },
+    "depotBalance": { "ru": "Баллы: {points}", "en": "Points: {points}" },
+    "depot.ammo": { "ru": "Боезапас", "en": "Ammunition" },
+    "depot.fare": { "ru": "Контракт перевозчика", "en": "Passenger contract" },
+    "depot.gear": { "ru": "Ходовая часть", "en": "Running gear" },
+    "depotEffect.ammo": { "ru": "Патроны на старте:\n{value}", "en": "Starting ammo:\n{value}" },
+    "depotEffect.fare": { "ru": "Жетоны за пассажира:\n{value}", "en": "Tokens per passenger:\n{value}" },
+    "depotEffect.gear": { "ru": "Замедление за вагон:\n{value}%", "en": "Slowdown per wagon:\n{value}%" },
+    "depotBuy": { "ru": "Улучшить · {points} балл.", "en": "Upgrade · {points} pts" },
+    "depotNeed": { "ru": "{price} балл. · нужно ещё {points}", "en": "{price} pts · need {points} more" },
+    "depotMax": { "ru": "Максимум", "en": "Maximum" },
+    "depotNextRun": { "ru": "Улучшения действуют со следующего забега.\nПокупки сохраняются на этом устройстве.", "en": "Upgrades apply to your next run.\nPurchases are saved on this device." },
+    "depotBought": { "ru": "Улучшение куплено!\nОно действует со следующего забега.", "en": "Upgrade purchased!\nIt applies to your next run." },
+    "depotSaveFailed": { "ru": "Не удалось сохранить покупку.\nБаллы не списаны. Попробуй ещё раз.", "en": "Purchase could not be saved.\nPoints were not spent. Try again." },
     "careerButton": { "ru": "Карьера · {points} баллов\n{rank}", "en": "Career · {points} points\n{rank}" },
     "careerNext": { "ru": "Следующее: {rank}\nОсталось {meters} м", "en": "Next: {rank}\n{meters} m to go" },
     "careerMax": { "ru": "Высшее звание достигнуто!", "en": "Highest rank reached!" },
@@ -538,6 +553,9 @@ const Lang = {
 },
     bindings: {
     "careerTitle": "careerTitle",
+    "careerDepot": "depotTitle",
+    "depotTitle": "depotTitle",
+    "depotBack": "back",
     "careerBack": "back",
     "menuTitle": "title",
     "menuStart": "start",

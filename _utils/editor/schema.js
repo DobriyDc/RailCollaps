@@ -560,6 +560,23 @@ const KIT_SCHEMA = [
         ],
     },
     {
+        id: 'depot', label: { en: 'Depot upgrades', ru: 'Улучшения депо' }, fields: [
+            { name: 'CAREER_AMMO_PRICE_1', min: 1, max: 100, step: 1, label: { en: 'Ammo I: points', ru: 'Боезапас I: баллы' } },
+            { name: 'CAREER_AMMO_PRICE_2', min: 1, max: 100, step: 1, label: { en: 'Ammo II: points', ru: 'Боезапас II: баллы' } },
+            { name: 'CAREER_AMMO_PRICE_3', min: 1, max: 100, step: 1, label: { en: 'Ammo III: points', ru: 'Боезапас III: баллы' } },
+            { name: 'CAREER_FARE_PRICE_1', min: 1, max: 100, step: 1, label: { en: 'Contract I: points', ru: 'Контракт I: баллы' } },
+            { name: 'CAREER_FARE_PRICE_2', min: 1, max: 100, step: 1, label: { en: 'Contract II: points', ru: 'Контракт II: баллы' } },
+            { name: 'CAREER_FARE_PRICE_3', min: 1, max: 100, step: 1, label: { en: 'Contract III: points', ru: 'Контракт III: баллы' } },
+            { name: 'CAREER_GEAR_PRICE_1', min: 1, max: 100, step: 1, label: { en: 'Gear I: points', ru: 'Ходовая I: баллы' } },
+            { name: 'CAREER_GEAR_PRICE_2', min: 1, max: 100, step: 1, label: { en: 'Gear II: points', ru: 'Ходовая II: баллы' } },
+            { name: 'CAREER_GEAR_PRICE_3', min: 1, max: 100, step: 1, label: { en: 'Gear III: points', ru: 'Ходовая III: баллы' } },
+            { name: 'COLLAPSE_DEPOT_MAX_LEVEL', min: 1, max: 3, step: 1, label: { en: 'Maximum level', ru: 'Максимальный уровень' } },
+            { name: 'COLLAPSE_DEPOT_AMMO_STEP', min: 1, max: 10, step: 1, label: { en: 'Ammo per level', ru: 'Патронов за уровень' } },
+            { name: 'COLLAPSE_DEPOT_FARE_STEP', min: 1, max: 5, step: 1, label: { en: 'Fare per level', ru: 'Добавка к плате за уровень' } },
+            { name: 'COLLAPSE_DEPOT_GEAR_STEP', min: 0, max: 0.006, step: 0.001, label: { en: 'Wagon slowdown reduction', ru: 'Снижение штрафа вагона' } },
+        ],
+    },
+    {
         id: 'career', label: { en: 'Career', ru: 'Карьера' }, fields: [
             { name: 'CAREER_POINT_METERS', min: 100, max: 10000, step: 100, label: { en: 'Meters per point', ru: 'Метров за балл' } },
             { name: 'CAREER_RANK_1', min: 1000, max: 2000000, step: 1000, label: { en: 'Rank 1: total meters', ru: 'Звание 1: общий пробег, м' } },

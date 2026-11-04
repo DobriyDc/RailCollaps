@@ -9,6 +9,20 @@
 /** @satisfies {Record<string, any>} */
 const CollapseStationRules = {
     GOODS: ['repair', 'ammo', 'shield', 'rescue', 'wagon'],
+    UPGRADES: ['ammo', 'fare', 'gear'],
+    get maxLevel() { return typeof COLLAPSE_DEPOT_MAX_LEVEL !== 'undefined' ? COLLAPSE_DEPOT_MAX_LEVEL : 3; },
+    profile(levels = [0, 0, 0]) {
+        return Array.isArray(levels) && levels.length === this.UPGRADES.length &&
+            levels.every(n => Number.isInteger(n) && n >= 0 && n <= this.maxLevel) ? [...levels] : null;
+    },
+    upgradeStats(levels) {
+        const [ammo, fare, gear] = levels, s = this.cfg();
+        return {
+            ammo: CollapseRules.cfg().startAmmo + ammo * (typeof COLLAPSE_DEPOT_AMMO_STEP !== 'undefined' ? COLLAPSE_DEPOT_AMMO_STEP : 2),
+            fare: s.fare + fare * (typeof COLLAPSE_DEPOT_FARE_STEP !== 'undefined' ? COLLAPSE_DEPOT_FARE_STEP : 1),
+            wagonSlow: Math.max(0, s.wagonSlow - gear * (typeof COLLAPSE_DEPOT_GEAR_STEP !== 'undefined' ? COLLAPSE_DEPOT_GEAR_STEP : 0.002)),
+        };
+    },
 
     // All the numbers of Constants.js with defaults.
     cfg() {
@@ -92,9 +106,17 @@ class CollapseStationTrack extends CollapseTrack {
 // from the approach on, so the gap grows by itself, and catches up over respiteSec after the stop.
 // The journal gains [step, 'b', kind] a purchase and [step, 'n'] the "go on" button.
 class CollapseStationRun extends CollapseRun {
-    constructor(seed) {
+    constructor(seed, levels = [0, 0, 0]) {
         super(seed, new CollapseStationTrack(seed));
         this.st = CollapseStationRules.cfg();
+        const profile = CollapseStationRules.profile(levels);
+        if (!profile) throw new RangeError('Invalid upgrade profile');
+        this.upgrades = Object.freeze(profile);
+        const stats = CollapseStationRules.upgradeStats(profile);
+        this.ammo = stats.ammo;
+        this.st.fare = stats.fare;
+        this.st.wagonSlow = stats.wagonSlow;
+        if (profile.some(n => n > 0)) this.log.push([0, 'u', ...profile]);
         this.stations = true;
         /** @type {number | null} */
         this.daily = null;            // the day of a daily run (CollapseDaily), set by the game; the rules never read it
@@ -219,14 +241,21 @@ class CollapseStationRun extends CollapseRun {
 
     // CollapseRun.replay for this journal, with the same contract: the ended run or null.
     static replay(seed, log, maxSteps) {
-        const run = new CollapseStationRun(seed);
+        let levels = [0, 0, 0], from = 0;
+        if (log[0] && log[0][1] === 'u') {
+            const entry = log[0];
+            levels = CollapseStationRules.profile(entry.slice(2));
+            if (entry[0] !== 0 || !levels || !levels.some(n => n > 0)) return null;
+            from = 1;
+        }
+        const run = new CollapseStationRun(seed, levels);
         const advance = to => {
             while (run.state === 'run' && run.steps < to) {
                 run._step(CollapseRules.STEP);
                 run.events.length = 0;
             }
         };
-        for (const [step, act, a, b] of log) {
+        for (const [step, act, a, b] of log.slice(from)) {
             if (!Number.isInteger(step) || step < run.steps || step > maxSteps) return null;
             advance(step);
             if (run.steps !== step) return null;

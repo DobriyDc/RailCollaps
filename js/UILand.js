@@ -4,6 +4,21 @@
 // Not in the editor: its UI tab shows the portrait layout, this table is edited by hand.
 const UI_LAND_PLATE = 156;
 const UI_LAND = {
+    depotScreen: { w: 620, h: 366 },
+    'depotCard_ammo': { x: -196, y: 110, w: 188, h: 132 },
+    'depotCard_fare': { x: 0, y: 110, w: 188, h: 132 },
+    'depotCard_gear': { x: 196, y: 110, w: 188, h: 132 },
+    'depotTitle_ammo': { y: 8, fontSize: 13 },
+    'depotTitle_fare': { y: 8, fontSize: 13 },
+    'depotTitle_gear': { y: 8, fontSize: 13 },
+    'depotEffect_ammo': { y: 36 },
+    'depotEffect_fare': { y: 36 },
+    'depotEffect_gear': { y: 36 },
+    'depotBuy_ammo': { y: 78, w: 174 },
+    'depotBuy_fare': { y: 78, w: 174 },
+    'depotBuy_gear': { y: 78, w: 174 },
+    depotNote: { y: 266 },
+    depotBack: { y: 304 },
     mainScreen: { w: 620, h: 330 },
     menuStart: { x: -146, y: 92 },
     menuSettings: { x: 146, y: 92 },

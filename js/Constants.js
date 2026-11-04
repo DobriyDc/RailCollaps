@@ -53,6 +53,15 @@ const CAREER_RANK_2 = 75000;
 const CAREER_RANK_3 = 150000;
 const CAREER_RANK_4 = 300000;
 const CAREER_RANK_5 = 600000;
+const CAREER_AMMO_PRICE_1 = 2;
+const CAREER_AMMO_PRICE_2 = 5;
+const CAREER_AMMO_PRICE_3 = 10;
+const CAREER_FARE_PRICE_1 = 3;
+const CAREER_FARE_PRICE_2 = 7;
+const CAREER_FARE_PRICE_3 = 12;
+const CAREER_GEAR_PRICE_1 = 4;
+const CAREER_GEAR_PRICE_2 = 9;
+const CAREER_GEAR_PRICE_3 = 16;
 
 // --- LOCATION (Location3D.js, Terrain3D.js). World units are px: x to the right, y down
 // the map, height up (skill world3d, §Coordinates). ---
@@ -97,7 +106,7 @@ const GAME_STEP_SEC = 0.35;             // s: between footstep sounds while the 
 
 // --- RAIL LINK: COLLAPSE (CollapseRules.js — the run, CollapseScene.js — the tunnel). Distance is
 // counted in track SEGMENTS; the first numbers of the prototype, tuned in playtests (GDD v3 §8) ---
-const COLLAPSE_RULES_VERSION = 11;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
+const COLLAPSE_RULES_VERSION = 12;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
 const COLLAPSE_SEG_METERS = 10;         // m of distance shown per segment
 const COLLAPSE_SPEED = 2.2;             // segments/s: train speed at the start
 const COLLAPSE_SPEED_GROWTH = 0.0025;   // segments/s added per segment travelled
@@ -185,6 +194,10 @@ const COLLAPSE_STATION_EVENT_STEP = 0.1; // chance of a collapse added past ever
 const COLLAPSE_STATION_FRONT_STEP = 0.1;  // segments/s the collapse gains with every station
 const COLLAPSE_WAGON_SEATS = 3;         // seats added by one wagon, filled at purchase
 const COLLAPSE_WAGON_SLOW = 0.02;       // each wagon multiplies running speed by 1 minus this share
+const COLLAPSE_DEPOT_MAX_LEVEL = 3;     // permanent levels per upgrade branch
+const COLLAPSE_DEPOT_AMMO_STEP = 2;     // extra starting cartridges per level
+const COLLAPSE_DEPOT_FARE_STEP = 1;     // extra tokens per delivered passenger per level
+const COLLAPSE_DEPOT_GEAR_STEP = 0.002; // reduction in the per-wagon slowdown per level
 const COLLAPSE_STATION_PRICE_WAGON = 80; // tokens per wagon, for the current run
 const COLLAPSE_STATION_SEATS = 3;       // passengers the train carries; all seats fill at the depot and at every stop
 const COLLAPSE_STATION_FARE = 10;       // tokens a passenger delivered whole pays at a stop

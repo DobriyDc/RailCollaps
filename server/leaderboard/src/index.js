@@ -144,6 +144,7 @@ async function replayed(request) {
     if (body.rules !== COLLAPSE_RULES_VERSION) return { refused: refuse(409, 'rules_version') };
     const run = CollapseStationRun.replay(body.seed, body.log, LEADERBOARD_MAX_STEPS);
     if (!run) return { refused: refuse(422, 'bad_replay') };
+    if (Number.isInteger(body.daily) && run.upgrades.some(n => n > 0)) return { refused: refuse(422, 'daily_upgrades') };
     if (run.meters !== body.meters) return { refused: refuse(422, 'meters_mismatch') };
     return { run, body };
 }

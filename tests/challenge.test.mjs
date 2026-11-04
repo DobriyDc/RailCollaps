@@ -41,11 +41,27 @@ test('ссылка: только c<зерно>_<метры>, всё осталь
 test('отправка: ссылка на приложение с зерном и дистанцией, текст с дистанцией', () => {
   const sent = [];
   const p = challenge({ TG: { share: (url, text) => sent.push({ url, text }) } }), C = p.get('Challenge');
-  assert.equal(C.link({ seed: 77, meters: 1740 }), p.get('TELEGRAM_APP_URL') + '?startapp=c77_1740');
+  assert.equal(C.link({ seed: 77, meters: 1740 }), p.get('TELEGRAM_APP_URL') + '?startapp=c77_1740_v' + p.get('COLLAPSE_RULES_VERSION') + '_000');
   C.share({ seed: 77, meters: 1740 });
-  assert.equal(sent[0].url, p.get('TELEGRAM_APP_URL') + '?startapp=c77_1740');
+  assert.equal(sent[0].url, C.link({ seed: 77, meters: 1740 }));
   assert.match(sent[0].text, /1740 м/);
   assert.ok(sent[0].url.length < 512);
+});
+
+test('вызов с улучшениями: версия, три уровня и одинаковая временная комплектация', () => {
+  const p = challenge(), C = p.get('Challenge'), rules = p.get('COLLAPSE_RULES_VERSION');
+  const token = C.token({ seed: 42, meters: 4000, upgrades: [1, 2, 3] });
+  assert.ok(token.length <= 64);
+  const parsed = C.parse(token);
+  assert.deepEqual(JSON.parse(JSON.stringify(parsed)), { seed: 42, meters: 4000, upgrades: [1, 2, 3] });
+  assert.equal(C.parse('c42_4000_v' + (rules - 1) + '_123'), null);
+  for (const bad of ['444', '12', '1234', '-12', '1.2']) assert.equal(C.parse('c42_4000_v' + rules + '_' + bad), null);
+  const { game, UI } = boot({ startParam: token });
+  assert.match(UI.get('challengeText').text, /Комплектация друга/);
+  UI.get('challengeAccept').click();
+  assert.equal(game.run.ammo, 10); assert.equal(game.run.fare, 12);
+  assert.deepEqual([...game.run.upgrades], [1, 2, 3]);
+  game.startChallenge(); assert.deepEqual([...game.run.upgrades], [1, 2, 3]);
 });
 
 test('без ссылки и с битой ссылкой игра открывает обычное меню', () => {
@@ -115,7 +131,7 @@ test('кнопка отправляет свой забег, даже если �
   UI.get('challengeAccept').click();
   game.run.pos = 300;
   UI.get('challengeBtn').click();
-  assert.equal(shared[0].url, ctx.get('TELEGRAM_APP_URL') + '?startapp=c4242_' + game.run.meters);
+  assert.equal(shared[0].url, ctx.get('Challenge').link(game.run));
 });
 
 test('CrazyGames: поздний SDK открывает вызов, тот же маршрут и цель сохраняются при повторе', async () => {
@@ -165,7 +181,7 @@ test('CrazyGames: кнопка копирует ссылку SDK с резуль
   p.game.mode = 'over';
   p.game._showOver();
   await p.game.shareChallenge();
-  assert.equal(sent.challenge, 'c' + p.game.run.seed + '_' + p.game.run.meters);
+  assert.equal(sent.challenge, p.ctx.get('Challenge').token(p.game.run));
   assert.equal(sent.rules, String(p.ctx.get('COLLAPSE_RULES_VERSION')));
   assert.equal(copied[0], 'https://www.crazygames.com/game/example?invite=abc');
   assert.equal(p.UI.get('challengeBtn').text, 'Ссылка скопирована!');
