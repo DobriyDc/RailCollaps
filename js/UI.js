@@ -1,0 +1,521 @@
+// UI.js — the game's UI (HUD): DOM elements over the 3D canvas, laid out by UILayout.js.
+//
+// RULE: every UI element is a UI_LAYOUT record (js/UILayout.js), placed and styled in the
+// editor's UI tab. Game code does not create, position or style HUD DOM itself — it takes an
+// element by id and feeds it data:
+//     UI.get('score').setText('10');  UI.get('hp').setValue(0.7);
+//     UI.get('start').onClick(() => …);  UI.get('hint').show(false);  UI.get('icon').setSrc(url);
+//     UI.get('icon').setX(12);  UI.get('icon').setLook('frameRecord', 'sizeRecord');  UI.get('icon').setPulse(1.1);
+// Many elements of one kind (inventory slots): a template record in UILayout.js +
+//     UI.add(Object.assign({}, UI.def('slot'), { id: 'slot2', x: 140 }));
+//
+// Record: { id, kind, anchor, x, y, w, h, … } (the full field list — UI.DEFAULTS).
+//   kind   — 'text' | 'panel' | 'bar' | 'button' | 'image' (src — a picture fitted into w × h).
+//   anchor — one of 9 screen points ('top-left' … 'bottom-right'): x and y go from it to THE
+//            SAME point of the element — inward from a screen edge, signed from the center.
+//            A 'bottom-right' element at x 20, y 20 keeps its bottom right corner 20 px from
+//            the screen corner at any screen size.
+//   w, h   — size in px; a text sizes itself by its content.
+//   parent — id of the element this one sits in ('' or none — the screen): anchor, x and y then
+//            count from the PARENT's box, the parent clips it, and hiding the parent hides it too.
+//   stretch — 'h' | 'v' | 'both' (sized kinds): the element fills its container on that axis,
+//            x (y) is the inset from BOTH edges, w (h) is ignored. A full-screen dim:
+//            { kind: 'panel', stretch: 'both', x: 0, y: 0 }.
+//   Colors — '#rrggbb' strings, '' — none. Records go in drawing order: later — on top.
+// SCALE: layout numbers are px of a screen UI_REF_HEIGHT tall — the whole UI scales with the
+//   real height (a 1440 px screen draws a 720 px layout twice as big). UI_REF_HEIGHT = 0 — CSS px.
+
+/** @satisfies {Record<string, any>} */
+const UI = {
+    ANCHORS: ['top-left', 'top-center', 'top-right', 'middle-left', 'middle-center', 'middle-right',
+        'bottom-left', 'bottom-center', 'bottom-right'],
+    KINDS: ['text', 'panel', 'bar', 'button', 'image', 'input'],
+    DIGITS: ['assets/ui/hud_v3/digit_0.png', 'assets/ui/hud_v3/digit_1.png', 'assets/ui/hud_v3/digit_2.png', 'assets/ui/hud_v3/digit_3.png', 'assets/ui/hud_v3/digit_4.png', 'assets/ui/hud_v3/digit_5.png', 'assets/ui/hud_v3/digit_6.png', 'assets/ui/hud_v3/digit_7.png', 'assets/ui/hud_v3/digit_8.png', 'assets/ui/hud_v3/digit_9.png'],
+    FONT: '"Alagard", system-ui, "Segoe UI", Roboto, sans-serif',
+    // The pixel font, one family of two files by unicode-range: Alagard by Hewett Tsoi as published
+    // ("Give credit if used": the settings screen names him) and its Cyrillic drawn on the same grid
+    // (tools/make-font.mjs). A sign neither file has comes from the system font.
+    FONT_FACES: [
+        { src: 'assets/fonts/alagard.ttf', range: 'U+0020-007E, U+00A2-00A5, U+20AC' },
+        { src: 'assets/fonts/alagard_cyrillic.ttf', range: 'U+0401, U+0410-044F, U+0451, U+00AB, U+00B7, U+00BB, U+2013-2014, U+2026, U+2039-203A, U+2212, U+2713' },
+    ],
+
+    /** @type {Set<string>} */
+    missedDigits: new Set(),   // numerals whose file would not load: shown as text from then on
+
+    // One raster numeral of an element h px tall. A file that would not load is asked for once more,
+    // then the digit stands as text: a number never leaves the frame without a trace.
+    digitNode(digit, h) {
+        const asText = () => {
+            const el = document.createElement('span');
+            el.textContent = digit;
+            el.style.cssText = 'font: 700 ' + h + 'px/1 monospace; color: #e8d0a8; text-shadow: 0 0 2px #0b0a10;';
+            return el;
+        };
+        if (this.missedDigits.has(digit)) return asText();
+        const img = document.createElement('img');
+        let tried = false;
+        img.onerror = () => {
+            if (!tried) { tried = true; img.src = img.src; return; }
+            this.missedDigits.add(digit);
+            img.replaceWith(asText());
+        };
+        img.src = UI.assetBase + UI.DIGITS[Number(digit)];
+        img.alt = '';
+        img.style.cssText = 'height: 100%; min-width: 0; object-fit: contain; image-rendering: pixelated;';
+        return img;
+    },
+
+    // Images: slice is left,top,right,bottom in source pixels; sliceScale sets the drawn edge size.
+    // columns/rows/frame crop a sheet; digits uses the raster numerals; angle rotates around pivotX/Y (%).
+    // bleedTop / bleedBottom extend only the artwork through the Telegram safe area above / below the
+    // layout (the header, the home indicator), keeping children inside it.
+    // Fields of a record by kind and their defaults — a new element in the editor starts from them.
+    DEFAULTS: {
+        text: { parent: '', anchor: 'top-left', x: 20, y: 20, text: 'Text', fontSize: 24, color: '#ffffff', shadow: '#000000', alpha: 1, visible: 1 },
+        panel: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 80, stretch: '', maxW: 0, fill: '#10202c', border: '', radius: 10, alpha: 0.7, visible: 1 },
+        bar: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 240, h: 18, stretch: '', maxW: 0, value: 0.6, color: '#5ad05a', fill: '#10202c', border: '#ffffff', radius: 9, alpha: 1, visible: 1 },
+        button: { parent: '', anchor: 'bottom-center', x: 0, y: 40, w: 180, h: 48, stretch: '', maxW: 0, text: 'Button', fontSize: 20, color: '#ffffff', fill: '#2a6fb0', border: '', radius: 10, alpha: 1, visible: 1 },
+        input: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 160, h: 44, stretch: '', maxW: 0, text: '', fontSize: 20, color: '#ffffff', fill: '#10202c', border: '', radius: 0, alpha: 1, visible: 1 },
+        image: { parent: '', anchor: 'top-left', x: 20, y: 20, w: 64, h: 64, stretch: '', maxW: 0, src: '', pressedSrc: '', disabledSrc: '', slice: '', sliceScale: 1, columns: 1, rows: 1, frame: 0, digits: 0, text: '', angle: 0, pivotX: 50, pivotY: 50, bleedTop: 0, bleedBottom: 0, fill: '', border: '', radius: 0, alpha: 1, visible: 1 },
+    },
+
+    /** @type {HTMLElement | null} */
+    root: null,
+    /** @type {HTMLCanvasElement | null} */
+    canvas: null,
+    /** @type {UIRecord[]} */
+    layout: [],
+    /** @type {Map<string, UIElement>} */
+    elements: new Map(),
+    editing: false,          // the editor's UI tab: every element catches the pointer, buttons do not fire
+    assetBase: '',           // prefix of an image src: '' — game (paths from index.html) | '/' — editor (from the server root)
+    /** @type {ResizeObserver | null} */
+    _observer: null,
+
+    // The @font-face rules of FONT_FACES, once a page. block: no text in the system font for a frame.
+    _fonts() {
+        if (typeof document === 'undefined' || document.getElementById('arc-ui-fonts')) return;
+        const style = document.createElement('style');
+        style.id = 'arc-ui-fonts';
+        style.textContent = this.FONT_FACES.map(f => '@font-face { font-family: "Alagard"; src: url("' + this.assetBase + f.src +
+            '") format("truetype"); unicode-range: ' + f.range + '; font-display: block; }').join('\n');
+        document.head.appendChild(style);
+    },
+
+    // canvas — the 3D canvas the UI lies over; layout — records (UI_LAYOUT by default).
+    init(canvas, layout) {
+        this.dispose();
+        this.canvas = canvas;
+        this._fonts();
+        const root = this.root = document.createElement('div');
+        root.className = 'arc-ui';
+        // No synthesized bold: a pixel font smeared by half a pixel loses its pixels.
+        Object.assign(root.style, { position: 'absolute', overflow: 'visible', pointerEvents: 'none', transformOrigin: '0 0',
+            fontFamily: this.FONT, fontSynthesis: 'none', userSelect: 'none', webkitUserSelect: 'none' });
+        (canvas.parentElement || document.body).appendChild(root);
+        if (typeof ResizeObserver !== 'undefined') {
+            this._observer = new ResizeObserver(() => this.resize());
+            this._observer.observe(canvas);
+        }
+        this.applyLayout(layout || (typeof UI_LAYOUT !== 'undefined' ? UI_LAYOUT : []));
+        return this;
+    },
+
+    dispose() {
+        if (this._observer) this._observer.disconnect();
+        if (this.root) this.root.remove();
+        this._observer = null;
+        this.root = null;
+        this.canvas = null;
+        this.elements.clear();
+    },
+
+    get(id) {
+        return this.elements.get(id) || null;
+    },
+
+    // The record of an element — a template for UI.add.
+    def(id) {
+        return this.layout.find(d => d.id === id) || null;
+    },
+
+    // Rebuild every element from the records (the editor — after an edit). What the game has
+    // set — text, value, visibility, click handler — survives by id.
+    applyLayout(layout) {
+        if (layout) this.layout = layout;
+        if (!this.root) return;
+        const old = this.elements;
+        this.elements = new Map();
+        this.root.textContent = '';
+        // All elements first, then the nesting: a child may stand before its parent in the file.
+        for (const def of this.layout) this.elements.set(def.id, new UIElement(def, old.get(def.id)));
+        for (const def of this.layout) this._attach(this.elements.get(def.id));
+        for (const def of this.layout) this.elements.get(def.id).apply();
+        this.resize();
+    },
+
+    // A runtime element from a record that is not in UILayout.js (a copy of a template).
+    add(def) {
+        if (!this.root || !def || !def.id) return null;
+        this.remove(def.id);
+        const e = new UIElement(def, null);
+        this.elements.set(def.id, e);
+        this._attach(e);
+        e.apply();
+        return e;
+    },
+
+    // Removes the element together with everything nested in it.
+    remove(id) {
+        const e = this.elements.get(id);
+        if (!e) return;
+        const inside = [...this.elements.values()].filter(c => this.isInside(c.def, id));
+        for (const c of inside) this.elements.delete(c.def.id);
+        e.el.remove();
+        this.elements.delete(id);
+    },
+
+    // The element def sits in (def.parent), null — the screen. A missing parent or a cycle in
+    // the chain also gives null: a bad record lands on the screen instead of breaking the tree.
+    parentOf(def) {
+        const seen = new Set([def.id]);
+        for (let id = def.parent; id; ) {
+            const e = this.elements.get(id);
+            if (!e || seen.has(id)) return null;
+            seen.add(id);
+            id = e.def.parent;
+        }
+        return def.parent ? this.elements.get(def.parent) : null;
+    },
+
+    // Is def nested in the element id — directly or through its ancestors?
+    isInside(def, id) {
+        for (let e = this.parentOf(def); e; e = this.parentOf(e.def)) if (e.def.id === id) return true;
+        return false;
+    },
+
+    _attach(e) {
+        const parent = this.parentOf(e.def);
+        (parent ? parent.el : this.root).appendChild(e.el);
+    },
+
+    // UI px per CSS px: screen height / UI_REF_HEIGHT. A tall screen wider than UI_MAX_WIDTH layout
+    // px grows the UI by its width instead, at most UI_MAX_BOOST times: the HUD keeps a phone's look.
+    scale() {
+        const land = typeof IS_LAND !== 'undefined' && IS_LAND;
+        const ref = land ? UI_REF_HEIGHT_LAND : typeof UI_REF_HEIGHT !== 'undefined' ? UI_REF_HEIGHT : 720;
+        const h = this.canvas ? this.canvas.clientHeight : 0, w = this.canvas ? this.canvas.clientWidth : 0;
+        if (!(ref > 0 && h > 0)) return 1;
+        const s = h / ref, max = typeof UI_MAX_WIDTH !== 'undefined' ? UI_MAX_WIDTH : 0;
+        const boost = typeof UI_MAX_BOOST !== 'undefined' ? UI_MAX_BOOST : 1;
+        return !land && max > 0 && h > w ? Math.min(Math.max(s, w / max), s * boost) : s;
+    },
+
+    // Telegram insets are CSS px, applied once before the layout scale. CSS expressions keep
+    // SDK safe-area updates live even when the canvas itself has not resized.
+    resize() {
+        const c = this.canvas, r = this.root;
+        if (!c || !r) return;
+        const s = this.scale();
+        const inset = side => '(var(--tg-safe-area-inset-' + side + ', 0px) + var(--tg-content-safe-area-inset-' + side + ', 0px))';
+        const top = inset('top'), right = inset('right'), bottom = inset('bottom'), left = inset('left');
+        r.style.left = 'calc(' + c.offsetLeft + 'px + ' + left + ')';
+        r.style.top = 'calc(' + c.offsetTop + 'px + ' + top + ')';
+        r.style.width = 'max(0px, calc((' + c.clientWidth + 'px - ' + left + ' - ' + right + ') * ' + (1 / s) + '))';
+        r.style.height = 'max(0px, calc((' + c.clientHeight + 'px - ' + top + ' - ' + bottom + ') * ' + (1 / s) + '))';
+        r.style.transform = 'scale(' + s + ')';
+    },
+
+    // The layout with the fields of `over` (id -> fields) on top of its records; pure, the records stay.
+    overlay(layout, over) {
+        return layout.map(d => over[d.id] ? Object.assign({}, d, over[d.id]) : d);
+    },
+
+    // Screen size in layout px.
+    size() {
+        const s = this.scale(), rect = this.root ? this.root.getBoundingClientRect() : null;
+        return { w: rect ? rect.width / s : 0, h: rect ? rect.height / s : 0 };
+    },
+
+    // --- Anchor math (no DOM — tests/ui.test.mjs) -------------------------------------
+
+    // 'bottom-right' -> { v: 'bottom', h: 'right' }; garbage -> top-left.
+    parseAnchor(anchor) {
+        const a = this.ANCHORS.includes(anchor) ? anchor : 'top-left', p = a.split('-');
+        return { v: p[0], h: p[1] };
+    },
+
+    // def.stretch -> the stretched axes; a text has no size of its own to stretch.
+    stretchOf(def) {
+        const s = def.kind === 'text' ? '' : def.stretch;
+        return { h: s === 'h' || s === 'both', v: s === 'v' || s === 'both' };
+    },
+
+    // Record -> the top left corner of an element of size w × h in a container W × H (the screen
+    // or the parent's inside). On a stretched axis x (y) is the inset, whatever the anchor.
+    resolve(def, w, h, W, H) {
+        const a = this.parseAnchor(def.anchor), st = this.stretchOf(def), x = Number(def.x) || 0, y = Number(def.y) || 0;
+        return {
+            // A stretched element held by maxW stands in the middle.
+            left: st.h ? (Number(def.maxW) > 0 && w < W - 2 * x ? (W - w) / 2 : x) : a.h === 'right' ? W - x - w : a.h === 'center' ? W / 2 + x - w / 2 : x,
+            top: st.v ? y : a.v === 'bottom' ? H - y - h : a.v === 'middle' ? H / 2 + y - h / 2 : y,
+        };
+    },
+
+    // The inverse: where the element stands -> x, y of the record for the given anchor. The editor
+    // changes the anchor through it, so the element stays where it was.
+    toStored(anchor, left, top, w, h, W, H) {
+        const a = this.parseAnchor(anchor);
+        return {
+            x: a.h === 'right' ? W - left - w : a.h === 'center' ? left + w / 2 - W / 2 : left,
+            y: a.v === 'bottom' ? H - top - h : a.v === 'middle' ? top + h / 2 - H / 2 : top,
+        };
+    },
+};
+
+// One UI element: a record (def) + its DOM + what the game has set at run time.
+class UIElement {
+    /** @param {UIRecord} def @param {UIElement | null} prev — the same id before a rebuild */
+    constructor(def, prev) {
+        this.def = def;
+        this.el = document.createElement('div');
+        this.el.dataset.ui = def.id;
+        /** @type {HTMLElement | null} */
+        this.inner = null;       // bar: the filled part; text and button: the label; image: the picture
+        this._text = prev ? prev._text : null;
+        this._value = prev ? prev._value : null;
+        this._shown = prev ? prev._shown : null;
+        this._click = prev ? prev._click : null;
+        this._enabled = prev ? prev._enabled : true;
+        this._src = prev ? prev._src : null;
+        this._frame = prev ? prev._frame : null;
+        this._angle = prev ? prev._angle : null;
+        this._x = prev ? prev._x : null;
+        this._pulse = prev ? prev._pulse : 1;
+        /** @type {[string, string] | null} */
+        this._look = prev ? prev._look : null;
+        this._pressed = false;
+        for (const name of ['pointerdown', 'pointerup', 'pointercancel', 'pointerleave']) this.el.addEventListener(name, () => {
+            this._pressed = name === 'pointerdown' && this._enabled;
+            this._skins();
+        });
+        this.el.addEventListener('click', (e) => {
+            if (UI.editing || !this._enabled || this.def.kind !== 'button' || !this._click) return;
+            e.stopPropagation();
+            this._click(this);
+        });
+    }
+
+    setText(text) { this._text = String(text); this.apply(); return this; }
+
+    // What the player typed into an input; the text of any other element.
+    getText() { return this.def.kind === 'input' ? (this.inner ? /** @type {HTMLInputElement} */ (this.inner).value : '') : this._text; }
+
+    // Bar fill 0..1.
+    setValue(v) { this._value = Math.max(0, Math.min(1, Number(v) || 0)); this.apply(); return this; }
+
+    // A field for a number the player types (digits only, the phone's number pad): text is the hint
+    // shown while it is empty, setText puts a value in. The editor's UI tab cannot type into it.
+    _input(d) {
+        let f = /** @type {HTMLInputElement} */ (this.inner);
+        if (!f) {
+            f = this.inner = document.createElement('input');
+            f.type = 'text';
+            f.inputMode = 'numeric';
+            f.autocomplete = 'off';
+            f.addEventListener('input', () => { f.value = f.value.replace(/\D/g, '').slice(0, 9); });
+            this.el.appendChild(f);
+        }
+        if (this._text != null) { f.value = this._text; this._text = null; }
+        f.placeholder = String(d.text == null ? '' : d.text);
+        f.disabled = UI.editing;
+        f.style.cssText = 'width: 100%; height: 100%; box-sizing: border-box; border: none; outline: none; background: transparent; text-align: center; ' +
+            'font: inherit; font-weight: 600; font-size: ' + (Number(d.fontSize) || 20) + 'px; color: ' + (d.color || '#ffffff') + '; pointer-events: ' + (UI.editing ? 'none' : 'auto') + ';';
+    }
+
+    // Image file: a literal path, so the builder's scanner sees it.
+    setSrc(src) { this._src = String(src); this.apply(); return this; }
+
+    setFrame(frame) { this._frame = Math.max(0, Math.floor(Number(frame) || 0)); this.apply(); return this; }
+
+    setAngle(angle) { this._angle = Number(angle) || 0; this.apply(); return this; }
+
+    // Where the element stands on its anchor's axis at run time, instead of the record's x; null — the
+    // record's x again. For what follows the 3D view: the record still owns y and the size.
+    setX(x) {
+        if (this._x === x) return this;
+        this._x = x;
+        this._placeX();
+        return this;
+    }
+
+    // A scale around the element's center, 1 — none. Written alone: it changes every frame.
+    setPulse(k) {
+        if (this._pulse === k) return this;
+        this._pulse = k;
+        this._transform();
+        return this;
+    }
+
+    // An element of many roles: fill, border, radius and alpha from the record `frame`, w and h from
+    // the record `size`, so a role stays a record the editor sees. No arguments — its own record again.
+    setLook(frame, size) {
+        const same = this._look ? this._look[0] === frame && this._look[1] === size : !frame;
+        if (same) return this;
+        this._look = frame ? [frame, size] : null;
+        this.apply();
+        return this;
+    }
+
+    // The record with the look on top.
+    _styled() {
+        if (!this._look) return this.def;
+        const f = UI.def(this._look[0]), z = UI.def(this._look[1]);
+        if (!f || !z) return this.def;
+        return Object.assign({}, this.def, { w: z.w, h: z.h, fill: f.fill, border: f.border, radius: f.radius, alpha: f.alpha });
+    }
+
+    _placeX() {
+        const d = this.def, s = this.el.style, a = UI.parseAnchor(d.anchor), st = UI.stretchOf(d);
+        const x = (this._x != null ? this._x : Number(d.x) || 0) + 'px';
+        s.left = st.h || a.h === 'left' ? x : a.h === 'center' ? 'calc(50% + ' + x + ')' : '';
+        s.right = st.h || a.h === 'right' ? x : '';
+    }
+
+    _transform() {
+        const d = this.def, a = UI.parseAnchor(d.anchor), st = UI.stretchOf(d);
+        this.el.style.transform = 'translate(' + (!st.h && a.h === 'center' ? '-50%' : '0') + ', ' + (!st.v && a.v === 'middle' ? '-50%' : '0') + ')' + (this._pulse !== 1 ? ' scale(' + this._pulse + ')' : '');
+    }
+
+    show(on) { this._shown = on !== false; this.apply(); return this; }
+
+    setEnabled(on) { this._enabled = on !== false; this._skins(); this.apply(); return this; }
+
+    _skins() {
+        if (this.def.kind !== 'button') return;
+        for (const child of UI.elements.values()) if (child.def.parent === this.def.id && child.def.kind === 'image') child.apply();
+    }
+
+    onClick(fn) { this._click = fn || null; return this; }
+
+    get visible() {
+        return this._shown != null ? this._shown : this.def.visible !== 0;
+    }
+
+    // Record + run-time state -> DOM. Cheap: called on every edit and every setText.
+    apply() {
+        const d = this._styled(), s = this.el.style, a = UI.parseAnchor(d.anchor);
+        const y = Number(d.y) || 0, px = (v) => (Number(v) || 0) + 'px';
+        const sized = d.kind !== 'text', st = UI.stretchOf(d);
+        s.cssText = '';
+        s.position = 'absolute';
+        s.boxSizing = 'border-box';
+        // The container is the parent's box (an absolute element positions its children) or the
+        // root. A stretched axis pins both edges with the same inset; w (h) is not used there.
+        this._placeX();
+        s.top = st.v || a.v === 'top' ? px(y) : a.v === 'middle' ? 'calc(50% + ' + px(y) + ')' : '';
+        s.bottom = st.v || a.v === 'bottom' ? px(y) : '';
+        this._transform();
+        if (sized && !st.h) s.width = px(d.w);
+        // maxW: a stretched element no wider than that, in the middle of its container (a column of
+        // the HUD on a wide screen); 0 — the whole width.
+        if (sized && st.h && Number(d.maxW) > 0) Object.assign(s, { maxWidth: px(d.maxW), marginLeft: 'auto', marginRight: 'auto' });
+        if (sized && !st.v) s.height = px(d.h);
+        s.opacity = String(d.alpha == null ? 1 : Math.max(0, Math.min(1, Number(d.alpha))));
+        s.display = this.visible || UI.editing ? 'block' : 'none';
+        if (UI.editing && !this.visible) s.opacity = String(Number(s.opacity) * 0.35);
+        s.pointerEvents = UI.editing || d.kind === 'button' || d.kind === 'input' ? 'auto' : 'none';
+        s.cursor = UI.editing ? 'move' : d.kind === 'button' ? (this._enabled ? 'pointer' : 'default') : '';
+        if (d.kind === 'button') this.el.setAttribute('aria-disabled', String(!this._enabled));
+
+        if (sized) {
+            s.background = d.fill || 'transparent';
+            s.border = d.border ? '2px solid ' + d.border : 'none';
+            s.borderRadius = px(d.radius);
+            s.overflow = 'hidden';
+        }
+        const label = d.kind === 'text' || d.kind === 'button';
+        if (this.inner && (this.inner.tagName === 'INPUT') !== (d.kind === 'input')) {
+            this.inner.remove();
+            this.inner = null;
+        }
+        if (d.kind === 'input') this._input(d);
+        else if (label || d.kind === 'bar' || d.kind === 'image') {
+            if (!this.inner) {
+                this.inner = document.createElement('div');
+                this.el.insertBefore(this.inner, this.el.firstChild);
+            }
+        } else if (this.inner) {
+            this.inner.remove();
+            this.inner = null;
+        }
+        if (label) {
+            const t = this.inner.style;
+            t.cssText = '';
+            this.inner.textContent = this._text != null ? this._text : String(d.text == null ? '' : d.text);
+            // Keep explicit line breaks, but let long hints and result lines fit their panel.
+            if (d.kind === 'text') {
+                s.width = 'max-content';
+                s.maxWidth = '100%';
+            }
+            t.position = 'relative';
+            t.zIndex = '1';
+            t.pointerEvents = 'none';
+            t.whiteSpace = 'pre-wrap';
+            t.overflowWrap = 'anywhere';
+            t.fontSize = px(d.fontSize || 20);
+            t.fontWeight = '600';
+            t.lineHeight = '1.2';
+            t.color = d.color || '#ffffff';
+            t.textAlign = a.h === 'center' ? 'center' : a.h;
+            if (d.shadow) t.textShadow = '0 1px 2px ' + d.shadow + ', 0 0 3px ' + d.shadow;
+            if (d.kind === 'button') Object.assign(t, { display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' });
+        } else if (d.kind === 'bar') {
+            const v = this._value != null ? this._value : Math.max(0, Math.min(1, Number(d.value) || 0));
+            this.inner.textContent = '';
+            this.inner.style.cssText = 'height: 100%; width: ' + (v * 100) + '%; background: ' + (d.color || '#5ad05a') + ';';
+        } else if (d.kind === 'image') {
+            const parent = UI.parentOf(d);
+            const src = parent && !parent._enabled && d.disabledSrc ? d.disabledSrc
+                : parent && parent._pressed && d.pressedSrc ? d.pressedSrc : this._src != null ? this._src : d.src || '';
+            const t = this.inner.style;
+            t.cssText = 'position: absolute; inset: 0; image-rendering: pixelated; pointer-events: none; box-sizing: border-box;';
+            if (d.bleedTop) {
+                s.overflow = 'visible';
+                t.top = 'calc(-1 * (var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)) / ' + UI.scale() + ')';
+            }
+            if (d.bleedBottom) {
+                s.overflow = 'visible';
+                t.bottom = 'calc(-1 * (var(--tg-safe-area-inset-bottom, 0px) + var(--tg-content-safe-area-inset-bottom, 0px)) / ' + UI.scale() + ')';
+            }
+            const angle = this._angle != null ? this._angle : d.angle || 0;
+            t.transform = 'rotate(' + angle + 'deg)';
+            t.transformOrigin = (d.pivotX == null ? 50 : d.pivotX) + '% ' + (d.pivotY == null ? 50 : d.pivotY) + '%';
+            if (d.digits) {
+                const text = this._text != null ? this._text : d.text || '0';
+                if (this.inner.dataset.text !== text) {
+                    this.inner.dataset.text = text;
+                    this.inner.textContent = '';
+                    for (const digit of text.replace(/[^0-9]/g, '')) this.inner.appendChild(UI.digitNode(digit, d.h));
+                }
+                t.display = 'flex';
+                t.justifyContent = 'flex-end';
+                this.el.setAttribute('aria-label', text);
+            } else if (d.slice) {
+                const [left, top, right, bottom] = d.slice.split(',').map(Number);
+                const slice = [top, right, bottom, left];
+                t.borderStyle = 'solid';
+                t.borderWidth = slice.map(v => v * (d.sliceScale || 1) + 'px').join(' ');
+                t.borderImage = 'url("' + UI.assetBase + src + '") ' + slice.join(' ') + ' fill / ' + slice.map(v => v * (d.sliceScale || 1) + 'px').join(' ') + ' / 0 stretch';
+            } else {
+                const columns = Math.max(1, d.columns || 1), rows = Math.max(1, d.rows || 1);
+                const frame = Math.floor(this._frame != null ? this._frame : d.frame || 0) % (columns * rows);
+                t.backgroundImage = src ? 'url("' + UI.assetBase + src + '")' : '';
+                t.backgroundRepeat = 'no-repeat';
+                t.backgroundSize = columns > 1 || rows > 1 ? columns * 100 + '% ' + rows * 100 + '%' : '100% 100%';
+                t.backgroundPosition = (columns > 1 ? (frame % columns) * 100 / (columns - 1) : 0) + '% ' + (rows > 1 ? Math.floor(frame / columns) * 100 / (rows - 1) : 0) + '%';
+            }
+        }
+    }
+}

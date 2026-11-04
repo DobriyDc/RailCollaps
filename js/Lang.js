@@ -1,0 +1,637 @@
+// Lang.js — all player-facing copy, with Store as the language owner.
+/** @satisfies {Record<string, any>} */
+const Lang = {
+    code: 'ru',                   // set under the dictionary: the first start needs Lang.of
+    listeners: new Set(),
+    words: {
+    "title": {
+        "ru": "Rail Link: Collapse",
+        "en": "Rail Link: Collapse"
+    },
+    "start": {
+        "ru": "Старт",
+        "en": "Start"
+    },
+    "rotate": {
+        "ru": "Поверни телефон горизонтально",
+        "en": "Turn the phone sideways"
+    },
+    "runTime": {
+        "ru": "Время {value}",
+        "en": "Time {value}"
+    },
+    "rotateBack": {
+        "ru": "Оставить вертикаль",
+        "en": "Keep it upright"
+    },
+    "collapseNow": {
+        "ru": "Обвал сзади!",
+        "en": "Collapse behind you!"
+    },
+    "orientation": {
+        "ru": "Ориентация",
+        "en": "Orientation"
+    },
+    "portrait": {
+        "ru": "Вертикаль",
+        "en": "Portrait"
+    },
+    "landscape": {
+        "ru": "Горизонталь",
+        "en": "Landscape"
+    },
+    "settings": {
+        "ru": "Настройки",
+        "en": "Settings"
+    },
+    "shop": {
+        "ru": "Магазин",
+        "en": "Shop"
+    },
+    "exit": {
+        "ru": "Выход",
+        "en": "Exit"
+    },
+    "modes": {
+        "ru": "Выбор режима",
+        "en": "Choose a mode"
+    },
+    "tutorial": {
+        "ru": "Обучение",
+        "en": "Tutorial"
+    },
+    "tutorial.progress": {
+        "ru": "Обучение {value} / {total}",
+        "en": "Tutorial {value} / {total}"
+    },
+    "tutorial.retry": {
+        "ru": "Ещё раз.",
+        "en": "Once more."
+    },
+    "tutorial.sign": {
+        "ru": "Тап по рычагу — машинист стреляет по стрелке, и поезд меняет полосу",
+        "en": "Tap the lever: the driver shoots the switch and the train changes lane"
+    },
+    "tutorial.ammo": {
+        "ru": "Выстрел стоит патрон, без патронов стрелку не перевести. Стреляй и забери ящик",
+        "en": "A shot costs a cartridge; no ammo, no switching. Shoot and grab the crate"
+    },
+    "tutorial.cross": {
+        "ru": "На этой полосе впереди опасность. Иконки внизу покажут какая",
+        "en": "Danger ahead on this lane. The icons below show what is coming"
+    },
+    "tutorial.gap": {
+        "ru": "Провал: колеи нет. Сверни заранее, иначе поезд упадёт",
+        "en": "A gap: the track is gone. Switch lanes early or the train falls"
+    },
+    "tutorial.lava": {
+        "ru": "Лава льётся сверху, на этой полосе не проехать. Сверни",
+        "en": "Lava pours from above and blocks this lane. Switch"
+    },
+    "tutorial.slow": {
+        "ru": "Завал: поезд разобьёт его и сбавит ход. Решать проще, но обвал ближе",
+        "en": "Rubble: the train smashes through and slows down, the collapse gets closer"
+    },
+    "tutorial.shield": {
+        "ru": "Щит прощает один удар: поезд пройдёт сквозь лаву",
+        "en": "A shield forgives one hit: the train goes through the lava"
+    },
+    "tutorial.rescue": {
+        "ru": "Спасение вытаскивает из провала на целую полосу",
+        "en": "A rescue pulls the train out of a gap onto a whole lane"
+    },
+    "tutorial.demon": {
+        "ru": "Значок внизу — стена демона. Встал на ней — тап, пока не прыгнул на поезд",
+        "en": "The icon below is the demon's wall. Once it stands there, tap before it leaps"
+    },
+    "tutorial.collapse": {
+        "ru": "Обвал догоняет! Сверни за ускорителем: он оторвёт поезд от обвала",
+        "en": "The collapse is catching up! Switch to the accelerator and pull away"
+    },
+    "tutorial.done": {
+        "ru": "Обучение пройдено! Дальше — бесконечный забег",
+        "en": "Tutorial complete! The endless run is next"
+    },
+    "endless": {
+        "ru": "Бесконечный режим",
+        "en": "Endless mode"
+    },
+    "back": {
+        "ru": "Назад",
+        "en": "Back"
+    },
+    "music": {
+        "ru": "Музыка",
+        "en": "Music"
+    },
+    "sfx": {
+        "ru": "Эффекты",
+        "en": "Effects"
+    },
+    "language": {
+        "ru": "Язык",
+        "en": "Language"
+    },
+    "ru": {
+        "ru": "Русский",
+        "en": "Russian"
+    },
+    "en": {
+        "ru": "Английский",
+        "en": "English"
+    },
+    "soon": {
+        "ru": "Скоро",
+        "en": "Coming soon"
+    },
+    "challengeTitle": {
+        "ru": "Вызов!",
+        "en": "Challenge!"
+    },
+    "challengeText": {
+        "ru": "Друг проехал {meters} м.\nОбгони его на том же тоннеле.",
+        "en": "A friend went {meters} m.\nBeat them in the same tunnel."
+    },
+    "challengeKit": { "ru": "Комплектация друга на этот рейс.", "en": "Their upgrades apply to this race." },
+    "challengeAccept": {
+        "ru": "Принять вызов",
+        "en": "Accept the challenge"
+    },
+    "challengeLater": {
+        "ru": "Потом",
+        "en": "Later"
+    },
+    "challengeGoal": {
+        "ru": "Цель: {value} м",
+        "en": "Goal: {value} m"
+    },
+    "challengeBeaten": {
+        "ru": "Цель взята!",
+        "en": "Goal reached!"
+    },
+    "challengeWon": {
+        "ru": "Вызов выигран: на {value} м дальше",
+        "en": "Challenge won: {value} m farther"
+    },
+    "challengeLost": {
+        "ru": "До цели не хватило {value} м",
+        "en": "{value} m short of the goal"
+    },
+    "challengeSend": {
+        "ru": "Вызвать друга",
+        "en": "Challenge a friend"
+    },
+    "challengeSharing": {
+        "ru": "Готовим ссылку…",
+        "en": "Preparing link…"
+    },
+    "challenge.copied": {
+        "ru": "Ссылка скопирована!",
+        "en": "Link copied!"
+    },
+    "challenge.shared": {
+        "ru": "Вызов отправлен!",
+        "en": "Challenge shared!"
+    },
+    "challenge.failed": {
+        "ru": "Не вышло. Ещё раз?",
+        "en": "Try sharing again"
+    },
+    "challengeShare": {
+        "ru": "Я проехал {meters} м в Rail Link: Collapse. Обгони меня на этом же тоннеле!",
+        "en": "I went {meters} m in Rail Link: Collapse. Beat me in this very tunnel!"
+    },
+    "shopSupport": {
+        "ru": "Поддержи разработчика!",
+        "en": "Support the developer!"
+    },
+    "shopChoose": {
+        "ru": "Выбрать",
+        "en": "Choose"
+    },
+    "shopChosen": {
+        "ru": "Выбран",
+        "en": "Chosen"
+    },
+    "shopPrice": {
+        "ru": "{value} ⭐",
+        "en": "{value} ⭐"
+    },
+    "shopWait": {
+        "ru": "Минуту…",
+        "en": "One moment…"
+    },
+    "shopTerms": {
+        "ru": "Покупая поезд, ты принимаешь условия:\nкоманда /terms в боте",
+        "en": "By buying a train you accept the terms:\nthe /terms command in the bot"
+    },
+    "shopError": {
+        "ru": "Не вышло. Попробуй ещё раз позже.",
+        "en": "That did not work. Try again later."
+    },
+    "shopThanks": {
+        "ru": "Спасибо! Поезд уже в депо.",
+        "en": "Thank you! The train is in the depot."
+    },
+    "train.base": {
+        "ru": "Начальный",
+        "en": "Starter"
+    },
+    "train.hell": {
+        "ru": "Адский паровоз",
+        "en": "Infernal Engine"
+    },
+    "train.rune": {
+        "ru": "Рунный экспресс",
+        "en": "Rune Express"
+    },
+    "train.bio": {
+        "ru": "Хитиновый",
+        "en": "Chitin Beast"
+    },
+    "shopDonate": {
+        "ru": "Поддержать",
+        "en": "Donate"
+    },
+    "donateTitle": {
+        "ru": "Поддержать разработчика",
+        "en": "Support the developer"
+    },
+    "donateHint": {
+        "ru": "Сколько звёзд? От {min} до {max}",
+        "en": "How many Stars? {min} to {max}"
+    },
+    "donateSend": {
+        "ru": "Отправить ⭐",
+        "en": "Send ⭐"
+    },
+    "donateCancel": {
+        "ru": "Отмена",
+        "en": "Cancel"
+    },
+    "donateBad": {
+        "ru": "Впиши число от {min} до {max}",
+        "en": "Type a number from {min} to {max}"
+    },
+    "donateThanks": {
+        "ru": "Спасибо за поддержку!",
+        "en": "Thank you for your support!"
+    },
+    "menu": {
+        "ru": "Главное меню",
+        "en": "Main menu"
+    },
+    "pause": {
+        "ru": "Пауза",
+        "en": "Paused"
+    },
+    "pauseText": {
+        "ru": "Забег стоит.\nОбвал тоже.",
+        "en": "The train is paused.\nSo is the collapse."
+    },
+    "resume": {
+        "ru": "Дальше",
+        "en": "Resume"
+    },
+    "restart": {
+        "ru": "Заново",
+        "en": "Restart"
+    },
+    "recordTitle": {
+        "ru": "Новый рекорд!",
+        "en": "New record!"
+    },
+    "overTitle": {
+        "ru": "Обвал",
+        "en": "Collapse"
+    },
+    "result": {
+        "ru": "Пройдено {meters} м.\nРекорд {best} м.",
+        "en": "Distance {meters} m.\nBest {best} m."
+    },
+    "continue": {
+        "ru": "Продолжить за рекламу",
+        "en": "Continue with an ad"
+    },
+    "adNone": {
+        "ru": "Рекламы сейчас нет. Попробуй в следующем рейсе",
+        "en": "No ad right now. Try again next run"
+    },
+    "reason.gap": {
+        "ru": "Поезд ушёл в провал.",
+        "en": "The train fell into a gap."
+    },
+    "reason.lava": {
+        "ru": "Поток лавы накрыл паровоз.",
+        "en": "Lava engulfed the train."
+    },
+    "reason.demon": {
+        "ru": "Демон добрался до кабины.",
+        "en": "A demon reached the cab."
+    },
+    "reason.caught": {
+        "ru": "Обвал догнал поезд.",
+        "en": "The collapse caught the train."
+    },
+    "meters": {
+        "ru": "{value} м",
+        "en": "{value} m"
+    },
+    "best": {
+        "ru": "Рекорд {value} м",
+        "en": "Best {value} m"
+    },
+    "ammo": {
+        "ru": "Патроны {value}",
+        "en": "Ammo {value}"
+    },
+    "rescue": {
+        "ru": "Спасение {value}",
+        "en": "Rescue {value}"
+    },
+    "shield": {
+        "ru": "Щит {value}",
+        "en": "Shield {value}"
+    },
+    "boost": {
+        "ru": "Ускоритель {value} с",
+        "en": "Speed boost {value} s"
+    },
+    "slow": {
+        "ru": "Завал: ход сбит {value} с",
+        "en": "Rubble: slowed {value} s"
+    },
+    "noAmmo": {
+        "ru": "Патроны кончились — ищи ящик с патронами",
+        "en": "Out of ammo — look for an ammo crate"
+    },
+    "hint": {
+        "ru": "Тап по рычагу — выстрел по стрелке",
+        "en": "Tap a lever to shoot the switch"
+    },
+    "board": {
+        "ru": "Таблица лидеров",
+        "en": "Leaderboard"
+    },
+    "season": {
+        "ru": "Сезон {value}",
+        "en": "Season {value}"
+    },
+    "daily": {
+        "ru": "Рейс дня",
+        "en": "Daily run"
+    },
+    "dayOf": {
+        "ru": "Рейс дня · {date}",
+        "en": "Daily run · {date}"
+    },
+    "toSeason": {
+        "ru": "Таблица сезона",
+        "en": "Season table"
+    },
+    "toDaily": {
+        "ru": "Таблица рейса дня",
+        "en": "Daily run table"
+    },
+    "loading": {
+        "ru": "Загрузка…",
+        "en": "Loading…"
+    },
+    "boardError": {
+        "ru": "Таблица недоступна.\nПроверь связь.",
+        "en": "Leaderboard unavailable.\nCheck your connection."
+    },
+    "boardEmpty": {
+        "ru": "Пока никого.\nПервый забег — твой.",
+        "en": "No runs yet.\nBe the first."
+    },
+    "boardMe": {
+        "ru": "Твоё место {place}, {meters} м",
+        "en": "Your rank {place}, {meters} m"
+    },
+    "boardAbsent": {
+        "ru": "Тебя ещё нет в таблице",
+        "en": "You are not ranked yet"
+    },
+    "close": {
+        "ru": "Закрыть",
+        "en": "Close"
+    },
+    "player": {
+        "ru": "Имя игрока",
+        "en": "Player name"
+    },
+    "bootError": {
+        "ru": "3D недоступен: нет libs/babylon.js или WebGL",
+        "en": "3D unavailable: libs/babylon.js or WebGL missing"
+    },
+    "minus": {
+        "ru": "−",
+        "en": "−"
+    },
+    "plus": {
+        "ru": "+",
+        "en": "+"
+    },
+    "pauseIcon": {
+        "ru": "II",
+        "en": "II"
+    },
+    "resumeIcon": {
+        "ru": "▶",
+        "en": "▶"
+    },
+    "prev": {
+        "ru": "‹",
+        "en": "‹"
+    },
+    "next": {
+        "ru": "›",
+        "en": "›"
+    },
+    "page": {
+        "ru": "{value} / {total}",
+        "en": "{value} / {total}"
+    },
+    "percent": {
+        "ru": "{value}%",
+        "en": "{value}%"
+    },
+    "careerTitle": { "ru": "Карьера", "en": "Career" },
+    "depotTitle": { "ru": "Депо", "en": "Depot" },
+    "depotBalance": { "ru": "Баллы: {points}", "en": "Points: {points}" },
+    "depot.ammo": { "ru": "Боезапас", "en": "Ammunition" },
+    "depot.fare": { "ru": "Контракт перевозчика", "en": "Passenger contract" },
+    "depot.gear": { "ru": "Ходовая часть", "en": "Running gear" },
+    "depotEffect.ammo": { "ru": "Патроны на старте:\n{value}", "en": "Starting ammo:\n{value}" },
+    "depotEffect.fare": { "ru": "Жетоны за пассажира:\n{value}", "en": "Tokens per passenger:\n{value}" },
+    "depotEffect.gear": { "ru": "Замедление за вагон:\n{value}%", "en": "Slowdown per wagon:\n{value}%" },
+    "depotBuy": { "ru": "Улучшить · {points} балл.", "en": "Upgrade · {points} pts" },
+    "depotNeed": { "ru": "{price} балл. · нужно ещё {points}", "en": "{price} pts · need {points} more" },
+    "depotMax": { "ru": "Максимум", "en": "Maximum" },
+    "depotNextRun": { "ru": "Улучшения действуют со следующего забега.\nПокупки сохраняются на этом устройстве.", "en": "Upgrades apply to your next run.\nPurchases are saved on this device." },
+    "depotBought": { "ru": "Улучшение куплено!\nОно действует со следующего забега.", "en": "Upgrade purchased!\nIt applies to your next run." },
+    "depotSaveFailed": { "ru": "Не удалось сохранить покупку.\nБаллы не списаны. Попробуй ещё раз.", "en": "Purchase could not be saved.\nPoints were not spent. Try again." },
+    "careerButton": { "ru": "Карьера · {points} баллов\n{rank}", "en": "Career · {points} points\n{rank}" },
+    "careerNext": { "ru": "Следующее: {rank}\nОсталось {meters} м", "en": "Next: {rank}\n{meters} m to go" },
+    "careerMax": { "ru": "Высшее звание достигнуто!", "en": "Highest rank reached!" },
+    "careerStats": { "ru": "Баллы: {points}\nВсего пройдено: {meters} м\nДовезено пассажиров: {passengers}", "en": "Points: {points}\nTotal distance: {meters} m\nPassengers delivered: {passengers}" },
+    "careerLocal": { "ru": "Прогресс хранится на этом устройстве.\n1 балл за каждые {step} м одного забега.", "en": "Progress is saved on this device.\n1 point per {step} m in a single run." },
+    "careerRunFailed": { "ru": "Не удалось сохранить баллы", "en": "Points could not be saved" },
+    "careerSaveFailed": { "ru": "Прогресс не сохранён.\nПроверь разрешение на хранение данных.", "en": "Progress could not be saved.\nCheck your browser storage settings." },
+    "careerRun": { "ru": "За забег: {points} баллов · баланс: {total}", "en": "This run: {points} points · balance: {total}" },
+    "career.rank.0": { "ru": "Кочегар", "en": "Fireman" },
+    "career.rank.1": { "ru": "Старший кочегар", "en": "Senior Fireman" },
+    "career.rank.2": { "ru": "Помощник машиниста", "en": "Assistant Driver" },
+    "career.rank.3": { "ru": "Машинист", "en": "Train Driver" },
+    "career.rank.4": { "ru": "Старший машинист", "en": "Senior Driver" },
+    "career.rank.5": { "ru": "Главный машинист", "en": "Chief Driver" },
+    "stationNext": {
+        "ru": "До станции {value} м\nПассажиров: {riders}/{seats}",
+        "en": "Next station in {value} m\nPassengers: {riders}/{seats}"
+    },
+    "stationTitle": {
+        "ru": "Станция {value} · жетонов {money}",
+        "en": "Station {value} · {money} tokens"
+    },
+    "stationPaid": {
+        "ru": "Довезли {riders} из {seats}: +{amount}",
+        "en": "Delivered {riders} of {seats}: +{amount}"
+    },
+    "stationTip": {
+        "ru": "Пассажиры платят жетонами на станции.\nКаждый удар высаживает одного.",
+        "en": "Passengers pay tokens at the station.\nEvery hit drops one off."
+    },
+    "stationGo": {
+        "ru": "Дальше (через {value} с)",
+        "en": "Go on (in {value} s)"
+    },
+    "stationsPassed": {
+        "ru": "Станций: {value}, пассажиров довезено: {riders}",
+        "en": "Stations: {value}, passengers delivered: {riders}"
+    },
+    "station.repair": {
+        "ru": "Ремонт +{value} · {price}",
+        "en": "Repair +{value} · {price}"
+    },
+    "station.full.repair": {
+        "ru": "Поезд цел",
+        "en": "Train whole"
+    },
+    "station.ammo": {
+        "ru": "Патроны +{value} · {price}",
+        "en": "Ammo +{value} · {price}"
+    },
+    "station.shield": {
+        "ru": "Щит · {price}",
+        "en": "Shield · {price}"
+    },
+    "station.wagon": {
+        "ru": "Вагон · {price} жетонов\n+{value} места · скорость −{slow}%",
+        "en": "Wagon · {price} tokens\n+{value} seats · speed −{slow}%"
+    },
+    "stationTrain": {
+        "ru": "Вагоны: {wagons} · места: {seats} · ход: {speed}%",
+        "en": "Wagons: {wagons} · seats: {seats} · speed: {speed}%"
+    },
+    "station.rescue": {
+        "ru": "Спасение · {price}",
+        "en": "Rescue · {price}"
+    },
+    "station.full.shield": {
+        "ru": "Щит полон",
+        "en": "Shield full"
+    },
+    "fontCredit": {
+        "ru": "Шрифт Alagard — Hewett Tsoi",
+        "en": "Font Alagard by Hewett Tsoi"
+    },
+    "station.full.rescue": {
+        "ru": "Спасение: полно",
+        "en": "Rescue full"
+    }
+},
+    bindings: {
+    "careerTitle": "careerTitle",
+    "careerDepot": "depotTitle",
+    "depotTitle": "depotTitle",
+    "depotBack": "back",
+    "careerBack": "back",
+    "menuTitle": "title",
+    "menuStart": "start",
+    "rotateNote": "rotate",
+    "rotateBack": "rotateBack",
+    "collapseNote": "collapseNow",
+    "orientationLabel": "orientation",
+    "menuSettings": "settings",
+    "menuShop": "shop",
+    "menuExit": "exit",
+    "modeTitle": "modes",
+    "modeTutorial": "tutorial",
+    "modeEndless": "endless",
+    "modeDaily": "daily",
+    "modeBack": "back",
+    "settingsTitle": "settings",
+    "musicLabel": "music",
+    "sfxLabel": "sfx",
+    "languageLabel": "language",
+    "languageRU": "ru",
+    "languageEN": "en",
+    "settingsBack": "back",
+    "fontCredit": "fontCredit",
+    "shopTitle": "shopSupport",
+    "donateTitle": "donateTitle",
+    "donateCancel": "donateCancel",
+    "challengeTitle": "challengeTitle",
+    "challengeAccept": "challengeAccept",
+    "challengeLater": "challengeLater",
+    "challengeBtn": "challengeSend",
+    "shopBack": "back",
+    "overMenu": "menu",
+    "boardBtn": "board",
+    "menuBoard": "board",
+    "boardTitle": "board",
+    "boardClose": "close",
+    "boardRowName": "player",
+    "pauseBtn": "pauseIcon",
+    "boardPrev": "prev",
+    "boardNext": "next",
+    "musicMinus": "minus",
+    "sfxMinus": "minus",
+    "musicPlus": "plus",
+    "sfxPlus": "plus"
+},
+    t(key, values = {}) {
+        const text = this.words[key]?.[this.code];
+        if (text == null) throw new Error('Missing translation: ' + key);
+        return text.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
+    },
+    // A locale like 'en-US' -> the game's language: Russian for those who read it, English for the rest;
+    // Russian when nothing is known (node tests).
+    of(own) { return !own || /^(ru|be|kk)\b/i.test(own) ? 'ru' : 'en'; },
+    // save false — a guess of the portal, not the player's choice: the next start guesses again.
+    set(code, save = true) {
+        if (code !== 'ru' && code !== 'en') return;
+        this.code = code;
+        if (save) Store.set('collapse.language', code);
+        this.apply();
+        for (const fn of this.listeners) fn();
+    },
+    apply() {
+        if (typeof document !== 'undefined') document.documentElement.lang = this.code;
+        if (typeof UI === 'undefined') return;
+        for (const [id, key] of Object.entries(this.bindings)) {
+            const el = UI.get(id);
+            if (el) el.setText(this.t(key));
+        }
+    },
+};
+
+// The settings' choice; on the first start the player's own language: Telegram's, else the browser's
+// (on CrazyGames the portal's locale follows, js/CrazyGames.js).
+Lang.code = (() => {
+    const saved = Store.get('collapse.language');
+    if (saved === 'ru' || saved === 'en') return saved;
+    const tg = typeof window !== 'undefined' && window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
+    return Lang.of(tg || (typeof navigator !== 'undefined' && navigator.language));
+})();

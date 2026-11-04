@@ -1,0 +1,59 @@
+// main.js — entry point of Rail Link: Collapse: 3D engine -> the tunnel (CollapseScene.js) ->
+// UI (UILayout.js) -> game (Game.js) -> frame loop. window.app = { scene, game } — for the console
+// and for Debug3D. The kit's Location3D (terrain and Objects.js) is not used by this game.
+
+function updateLoadingProgress(percent) {
+    const bar = /** @type {HTMLElement | null} */ (document.querySelector('.loading-progress'));
+    if (bar) bar.style.width = percent + '%';
+}
+
+// The loading screen goes away when the tunnel's textures are ready.
+function hideLoader() {
+    updateLoadingProgress(100);
+    CG.loaded();
+    setTimeout(() => {
+        const screen = document.getElementById('loading-screen');
+        if (screen) screen.style.display = 'none';
+    }, 300);
+}
+
+function showBootError(text) {
+    console.error(text);
+    const el = document.querySelector('.loading-text');
+    if (el) el.textContent = text;
+}
+
+function startGame() {
+    if (window.app) return;                 // guard against a repeated start
+    const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('world3d'));
+    Lang.apply();
+    const loading = document.querySelector('.loading-text');
+    if (loading) loading.textContent = Lang.t('loading');
+    updateLoadingProgress(40);
+    // Telegram first (skill telegram-miniapp, launch sequence): our loading screen replaces its
+    // placeholder; minimizing the app pauses the run and stops all sound until it comes back.
+    TG.boot(() => { if (window.app && window.app.game) window.app.game.setPaused(true); }, on => Sound3D.setHeld(!on));
+    const portalBoot = CG.boot();           // load alongside the scene; never hold gameplay on the SDK
+    if (!World3D.init(canvas)) { showBootError(Lang.t('bootError')); return; }
+
+    const scene = new CollapseScene(canvas);
+    UI.init(canvas, IS_LAND ? UI.overlay(UI_LAYOUT, UI_LAND) : undefined);
+    window.app = { scene, game: null };
+    const game = window.app.game = new Game(window.app);
+    document.addEventListener('visibilitychange', () => { if (document.hidden && game.mode !== 'menu') game._saveCareer(); });
+    portalBoot.then(() => game.portalReady());
+    game.fitOrientation();
+    updateLoadingProgress(70);
+
+    let last = performance.now();
+    World3D.engine.runRenderLoop(() => {
+        const now = performance.now(), dt = (now - last) / 1000;
+        last = now;
+        game.update(Math.min(0.1, dt));
+        World3D.renderFrame();
+    });
+    window.addEventListener('resize', () => { scene.applyResolution(); game.fitOrientation(); });
+    scene.ready.then(hideLoader);
+}
+
+window.onload = () => startGame();
