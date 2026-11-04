@@ -70,7 +70,7 @@ const UI_LAND = {
     shopBack: { anchor: 'top-center', x: -146, y: 266, w: 276 },
     shopDonate: { anchor: 'top-center', x: 146, y: 266, w: 276 },
     // The buttons under the end box stand side by side: the low screen has no room for two rows.
-    challengeBtn: { x: -140, y: 222 },
-    boardBtn: { x: 140, y: 222 },
+    challengeBtn: { x: -140, y: 232 },
+    boardBtn: { x: 140, y: 232 },
     challengeGoal: { anchor: 'top-center', x: 0, y: 74 },
 };

@@ -61,7 +61,7 @@ class Game {
         Shop.init(this.scene, on);
         on('challengeAccept', () => this.startChallenge());
         on('challengeLater', () => this.openMenu());
-        on('challengeBtn', () => Challenge.share(this.run));
+        on('challengeBtn', () => this.shareChallenge());
         on('menuExit', () => TG.close());
         on('modeEndless', () => this.start());
         on('modeDaily', () => this.startDaily());
@@ -86,6 +86,8 @@ class Game {
         this.tutorialPassed = Store.get('collapse.tutorial') === '1';
         Lang.listeners.add(() => this.refreshLanguage());
         this.challenge = Challenge.parse(TG.startParam);
+        this.pendingChallenge = null;
+        this.sharingChallenge = false;
         this.goal = 0;                // m to beat in this run, 0 — no challenge
         this.refreshLanguage();
         this.openMenu(this.challenge ? 'challengeScreen' : 'mainScreen');
@@ -99,6 +101,30 @@ class Game {
         const day = CollapseDaily.day(Date.now()), run = new CollapseStationRun(CollapseDaily.seed(day));
         run.daily = day;
         this.start(run);
+    }
+
+    portalReady() {
+        CG.listenInvites(params => {
+            const race = Challenge.fromPortal(params);
+            if (!race) return;
+            this.pendingChallenge = race;
+            if (this.mode === 'menu' && !this.adPending) this.openMenu();
+        });
+        if (this.mode === 'over' && this.overIn < 0) this._showOver();
+    }
+
+    async shareChallenge() {
+        if (this.adPending || this.sharingChallenge) return;
+        if (TG.inside) { Challenge.share(this.run); return; }
+        if (!CG.canInvite || this.mode !== 'over') return;
+        const run = this.run;
+        this.sharingChallenge = true;
+        this._set('challengeBtn', Lang.t('challengeSharing'));
+        const outcome = await Challenge.sharePortal(run);
+        this.sharingChallenge = false;
+        if (this.run === run && this.mode === 'over') {
+            this._set('challengeBtn', Lang.t(outcome === 'cancelled' ? 'challengeSend' : 'challenge.' + outcome));
+        }
     }
 
     // "Again": a challenge is raced until the player leaves it. The end of a run that already used its
@@ -141,6 +167,12 @@ class Game {
 
     openMenu(screen = 'mainScreen') {
         if (this.adPending) return;
+        if (screen === 'mainScreen' && this.pendingChallenge) {
+            this.challenge = this.pendingChallenge;
+            this.pendingChallenge = null;
+            this._set('challengeText', Lang.t('challengeText', { meters: this.challenge.meters }));
+            screen = 'challengeScreen';
+        }
         this.mode = 'menu';
         this.overIn = -1;
         this.flashLeft = 0;
@@ -561,7 +593,8 @@ class Game {
             [Lang.t('restart'), () => this._again()],
             run.canContinue && !this.adPending && !missed ? [Lang.t('continue'), () => this.continueForAd()] : null);
         this._show('overMenu', true);
-        this._show('challengeBtn', TG.inside);
+        this._set('challengeBtn', Lang.t('challengeSend'));
+        this._show('challengeBtn', TG.inside || (!!CG.canInvite && run.meters > 0));
     }
 
     // The dialog: title, text, the main button and an optional second one ([label, handler]).

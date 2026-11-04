@@ -6,7 +6,7 @@ import { loadScripts } from './browser-scripts.mjs';
 
 const challenge = (globals = {}) => loadScripts(['js/Constants.js', 'js/Lang.js', 'js/Challenge.js'], { localStorage: { getItem: () => null, setItem() {} }, ...globals });
 
-function boot({ startParam = '', inside = true } = {}) {
+function boot({ startParam = '', inside = true, globals = {} } = {}) {
   const elements = new Map(), shared = [];
   const UI = { get(id) {
     if (!elements.has(id)) elements.set(id, {
@@ -19,7 +19,9 @@ function boot({ startParam = '', inside = true } = {}) {
     localStorage: { getItem: () => null, setItem() {} }, UI, Image: class {}, CollapseScene: { LANE_W: 180 },
     TG: { inside, startParam, loadBest() {}, saveBest() {}, runEnded() {}, runStarted() {}, haptic() {}, share: (url, text) => shared.push({ url, text }) },
     Leaderboard: { enabled: false, close() {}, refreshLanguage() {}, submit() {} },
+    Ads: { afterLossLive: false, midgameLive: false },
     Shop: { init() {}, open() {}, render() {} }, CollapseStations: { dress() {}, hud() {}, onDeparted() {} },
+    ...globals,
   });
   const Game = ctx.get('Game');
   const game = new Game({ scene: { canvas: { addEventListener() {} }, sync() {}, reset() {} } });
@@ -114,4 +116,78 @@ test('кнопка отправляет свой забег, даже если �
   game.run.pos = 300;
   UI.get('challengeBtn').click();
   assert.equal(shared[0].url, ctx.get('TELEGRAM_APP_URL') + '?startapp=c4242_' + game.run.meters);
+});
+
+test('CrazyGames: поздний SDK открывает вызов, тот же маршрут и цель сохраняются при повторе', async () => {
+  const p = boot({ inside: false }), cg = p.ctx.get('CG');
+  const rules = String(p.ctx.get('COLLAPSE_RULES_VERSION'));
+  let join;
+  cg.sdk = { game: { inviteLink() {}, inviteParams: { challenge: 'c4242_50', rules }, addJoinRoomListener(fn) { join = fn; } } };
+  p.game.portalReady();
+  assert.equal(p.UI.get('challengeScreen').visible, true);
+  p.UI.get('challengeAccept').click();
+  assert.equal(p.game.run.seed, 4242);
+  assert.equal(p.game.goal, 50);
+  const current = p.game.run;
+  join({ challenge: 'c777_90', rules });
+  assert.equal(p.game.run, current, 'новое приглашение не прерывает рейс');
+  p.game.run.pos = 100;
+  p.game.mode = 'over';
+  p.game._showOver();
+  assert.equal(p.UI.get('challengeBtn').visible, true);
+  await p.game._again();
+  assert.equal(p.game.run.seed, 4242, 'повтор относится к текущему вызову');
+  p.game.openMenu();
+  assert.equal(p.game.challenge.seed, 777, 'в меню предложен отложенный вызов');
+  p.UI.get('challengeAccept').click();
+  assert.equal(p.game.run.seed, 777);
+  assert.equal(p.game.goal, 90);
+});
+
+test('CrazyGames: битые, старые и нулевые вызовы оставляют обычное меню', () => {
+  const p = boot({ inside: false }), cg = p.ctx.get('CG');
+  const rules = String(p.ctx.get('COLLAPSE_RULES_VERSION'));
+  for (const inviteParams of [null, {}, { challenge: 'c1_50', rules: 'old' }, { challenge: 'c1_0', rules }, { challenge: 'c4294967296_1', rules }]) {
+    cg.sdk = { game: { inviteParams } };
+    p.game.portalReady();
+    assert.equal(p.game.challenge, null);
+    assert.equal(p.UI.get('mainScreen').visible, true);
+  }
+});
+
+test('CrazyGames: кнопка копирует ссылку SDK с результатом и не уводит в Telegram', async () => {
+  const copied = [], p = boot({ inside: false, globals: { navigator: { clipboard: { async writeText(url) { copied.push(url); } } } } });
+  const cg = p.ctx.get('CG');
+  let sent;
+  cg.sdk = { game: { inviteLink(params) { sent = params; return 'https://www.crazygames.com/game/example?invite=abc'; } } };
+  p.game.start();
+  p.game.run.pos = 100;
+  p.game.mode = 'over';
+  p.game._showOver();
+  await p.game.shareChallenge();
+  assert.equal(sent.challenge, 'c' + p.game.run.seed + '_' + p.game.run.meters);
+  assert.equal(sent.rules, String(p.ctx.get('COLLAPSE_RULES_VERSION')));
+  assert.equal(copied[0], 'https://www.crazygames.com/game/example?invite=abc');
+  assert.equal(p.UI.get('challengeBtn').text, 'Ссылка скопирована!');
+  assert.deepEqual(p.shared, []);
+});
+
+test('CrazyGames: отмена отправки не копирует, запрет Clipboard использует резерв и убирает буфер', async () => {
+  let copies = 0, removed = 0;
+  const navigator = { share: async () => { throw Object.assign(new Error(), { name: 'AbortError' }); }, clipboard: { async writeText() { throw new Error('denied'); } } };
+  const p = boot({ inside: false, globals: {
+    navigator,
+    document: { documentElement: {}, activeElement: null, body: { appendChild() {} }, createElement: () => ({ style: {}, select() {}, remove() { removed++; } }), execCommand: () => { copies++; return true; } },
+  } });
+  p.ctx.get('CG').sdk = { game: { inviteLink: () => 'https://www.crazygames.com/game/example?invite=abc' } };
+  const C = p.ctx.get('Challenge'), run = { seed: 77, meters: 100 };
+  assert.equal(await C.sharePortal(run), 'cancelled');
+  assert.equal(copies, 0);
+  delete navigator.share;
+  assert.equal(await C.sharePortal(run), 'copied');
+  assert.equal(copies, 1);
+  assert.equal(removed, 1);
+  p.ctx.ctx.document.execCommand = () => false;
+  assert.equal(await C.sharePortal(run), 'failed');
+  assert.equal(removed, 2);
 });

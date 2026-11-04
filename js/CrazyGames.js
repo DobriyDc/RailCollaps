@@ -71,6 +71,20 @@ const CG = {
     // The portal's celebration: a beaten record, nothing smaller.
     happytime() { if (this.sdk) this._call(() => this.sdk.game.happytime()); },
 
+    get canInvite() { return !!this.sdk && typeof this.sdk.game.inviteLink === 'function'; },
+    inviteLink(params) {
+        try { return this.canInvite ? this.sdk.game.inviteLink(params) : null; }
+        catch (e) { console.warn('CG:', e); return null; }
+    },
+    // Called after boot: covers both the launch URL and invitations received while the game is open.
+    // This is an asynchronous score challenge, not a joinable live multiplayer room.
+    listenInvites(listener) {
+        if (!this.sdk) return;
+        const game = this.sdk.game;
+        this._call(() => listener(game.inviteParams));
+        if (typeof game.addJoinRoomListener === 'function') this._call(() => game.addJoinRoomListener(listener));
+    },
+
     // 'reward' — watched to the end; 'free' — this session has no ads at all (the basic launch, an ad
     // blocker), and the portal forbids a rewarded button that does nothing; 'empty' — no ad right now.
     // The sound stops only while an ad really plays.

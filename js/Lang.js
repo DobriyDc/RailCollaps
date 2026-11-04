@@ -180,6 +180,22 @@ const Lang = {
         "ru": "Вызвать друга",
         "en": "Challenge a friend"
     },
+    "challengeSharing": {
+        "ru": "Готовим ссылку…",
+        "en": "Preparing link…"
+    },
+    "challenge.copied": {
+        "ru": "Ссылка скопирована!",
+        "en": "Link copied!"
+    },
+    "challenge.shared": {
+        "ru": "Вызов отправлен!",
+        "en": "Challenge shared!"
+    },
+    "challenge.failed": {
+        "ru": "Не вышло. Ещё раз?",
+        "en": "Try sharing again"
+    },
     "challengeShare": {
         "ru": "Я проехал {meters} м в Rail Link: Collapse. Обгони меня на этом же тоннеле!",
         "en": "I went {meters} m in Rail Link: Collapse. Beat me in this very tunnel!"

@@ -33,13 +33,14 @@ function startGame() {
     // Telegram first (skill telegram-miniapp, launch sequence): our loading screen replaces its
     // placeholder; minimizing the app pauses the run and stops all sound until it comes back.
     TG.boot(() => { if (window.app && window.app.game) window.app.game.setPaused(true); }, on => Sound3D.setHeld(!on));
-    CG.boot();                              // CrazyGames only: their SDK, its loading and gameplay events
+    const portalBoot = CG.boot();           // load alongside the scene; never hold gameplay on the SDK
     if (!World3D.init(canvas)) { showBootError(Lang.t('bootError')); return; }
 
     const scene = new CollapseScene(canvas);
     UI.init(canvas, IS_LAND ? UI.overlay(UI_LAYOUT, UI_LAND) : undefined);
     window.app = { scene, game: null };
     const game = window.app.game = new Game(window.app);
+    portalBoot.then(() => game.portalReady());
     game.fitOrientation();
     updateLoadingProgress(70);
 
