@@ -40,6 +40,7 @@ function startGame() {
     UI.init(canvas, IS_LAND ? UI.overlay(UI_LAYOUT, UI_LAND) : undefined);
     window.app = { scene, game: null };
     const game = window.app.game = new Game(window.app);
+    document.addEventListener('visibilitychange', () => { if (document.hidden && game.mode !== 'menu') game._saveCareer(); });
     portalBoot.then(() => game.portalReady());
     game.fitOrientation();
     updateLoadingProgress(70);

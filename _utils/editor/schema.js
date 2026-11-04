@@ -560,6 +560,16 @@ const KIT_SCHEMA = [
         ],
     },
     {
+        id: 'career', label: { en: 'Career', ru: 'Карьера' }, fields: [
+            { name: 'CAREER_POINT_METERS', min: 100, max: 10000, step: 100, label: { en: 'Meters per point', ru: 'Метров за балл' } },
+            { name: 'CAREER_RANK_1', min: 1000, max: 2000000, step: 1000, label: { en: 'Rank 1: total meters', ru: 'Звание 1: общий пробег, м' } },
+            { name: 'CAREER_RANK_2', min: 1000, max: 2000000, step: 1000, label: { en: 'Rank 2: total meters', ru: 'Звание 2: общий пробег, м' } },
+            { name: 'CAREER_RANK_3', min: 1000, max: 2000000, step: 1000, label: { en: 'Rank 3: total meters', ru: 'Звание 3: общий пробег, м' } },
+            { name: 'CAREER_RANK_4', min: 1000, max: 2000000, step: 1000, label: { en: 'Rank 4: total meters', ru: 'Звание 4: общий пробег, м' } },
+            { name: 'CAREER_RANK_5', min: 1000, max: 2000000, step: 1000, label: { en: 'Rank 5: total meters', ru: 'Звание 5: общий пробег, м' } },
+        ],
+    },
+    {
         id: 'collapse-stations',
         label: { en: 'Rail Link: Collapse — stations', ru: 'Rail Link: Collapse — станции' },
         fields: [

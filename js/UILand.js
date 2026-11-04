@@ -4,6 +4,13 @@
 // Not in the editor: its UI tab shows the portrait layout, this table is edited by hand.
 const UI_LAND_PLATE = 156;
 const UI_LAND = {
+    mainScreen: { w: 620, h: 330 },
+    menuStart: { x: -146, y: 92 },
+    menuSettings: { x: 146, y: 92 },
+    menuCareer: { x: -146, y: 164 },
+    menuShop: { x: 146, y: 164 },
+    menuBoard: { x: -146, y: 236 },
+    menuExit: { x: 146, y: 236 },
     frameTop: { w: UI_LAND_PLATE, h: 520, stretch: 'v', bleedBottom: 1 },
     frameBottom: { anchor: 'top-right', w: UI_LAND_PLATE, h: 520, stretch: 'v', bleedTop: 1, bleedBottom: 1 },
     distanceIcon: { x: 14, y: 26 },

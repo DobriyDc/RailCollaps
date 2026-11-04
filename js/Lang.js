@@ -456,6 +456,21 @@ const Lang = {
         "ru": "{value}%",
         "en": "{value}%"
     },
+    "careerTitle": { "ru": "Карьера", "en": "Career" },
+    "careerButton": { "ru": "Карьера · {points} баллов\n{rank}", "en": "Career · {points} points\n{rank}" },
+    "careerNext": { "ru": "Следующее: {rank}\nОсталось {meters} м", "en": "Next: {rank}\n{meters} m to go" },
+    "careerMax": { "ru": "Высшее звание достигнуто!", "en": "Highest rank reached!" },
+    "careerStats": { "ru": "Баллы: {points}\nВсего пройдено: {meters} м\nДовезено пассажиров: {passengers}", "en": "Points: {points}\nTotal distance: {meters} m\nPassengers delivered: {passengers}" },
+    "careerLocal": { "ru": "Прогресс хранится на этом устройстве.\n1 балл за каждые {step} м одного забега.", "en": "Progress is saved on this device.\n1 point per {step} m in a single run." },
+    "careerRunFailed": { "ru": "Не удалось сохранить баллы", "en": "Points could not be saved" },
+    "careerSaveFailed": { "ru": "Прогресс не сохранён.\nПроверь разрешение на хранение данных.", "en": "Progress could not be saved.\nCheck your browser storage settings." },
+    "careerRun": { "ru": "За забег: {points} баллов · баланс: {total}", "en": "This run: {points} points · balance: {total}" },
+    "career.rank.0": { "ru": "Кочегар", "en": "Fireman" },
+    "career.rank.1": { "ru": "Старший кочегар", "en": "Senior Fireman" },
+    "career.rank.2": { "ru": "Помощник машиниста", "en": "Assistant Driver" },
+    "career.rank.3": { "ru": "Машинист", "en": "Train Driver" },
+    "career.rank.4": { "ru": "Старший машинист", "en": "Senior Driver" },
+    "career.rank.5": { "ru": "Главный машинист", "en": "Chief Driver" },
     "stationNext": {
         "ru": "До станции {value} м\nПассажиров: {riders}/{seats}",
         "en": "Next station in {value} m\nPassengers: {riders}/{seats}"
@@ -522,6 +537,8 @@ const Lang = {
     }
 },
     bindings: {
+    "careerTitle": "careerTitle",
+    "careerBack": "back",
     "menuTitle": "title",
     "menuStart": "start",
     "rotateNote": "rotate",

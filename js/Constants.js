@@ -46,6 +46,14 @@ const IS_MOBILE = (() => {
 // COLLAPSE_LAND_*, plates at the sides (UILand.js).
 const IS_LAND = Store.get('collapse.orientation') === 'land' || (typeof location !== 'undefined' && new URLSearchParams(location.search).has('land'));
 
+// Career: points per completed distance in each run; ranks use lifetime meters.
+const CAREER_POINT_METERS = 2000;
+const CAREER_RANK_1 = 25000;
+const CAREER_RANK_2 = 75000;
+const CAREER_RANK_3 = 150000;
+const CAREER_RANK_4 = 300000;
+const CAREER_RANK_5 = 600000;
+
 // --- LOCATION (Location3D.js, Terrain3D.js). World units are px: x to the right, y down
 // the map, height up (skill world3d, §Coordinates). ---
 const LOCATION_WIDTH = 2048;            // px: location width (the area the game camera stays within)

@@ -56,6 +56,8 @@ class Game {
             else this.start(this.tutorialPassed ? undefined : new CollapseTutorial());
         });
         on('menuSettings', () => this.openMenu('settingsScreen'));
+        on('menuCareer', () => this.openMenu('careerScreen'));
+        on('careerBack', () => this.openMenu());
         on('menuShop', () => { Shop.open(); this.openMenu('shopScreen'); });
         on('menuBoard', () => Leaderboard.open());
         Shop.init(this.scene, on);
@@ -89,6 +91,7 @@ class Game {
         this.pendingChallenge = null;
         this.sharingChallenge = false;
         this.goal = 0;                // m to beat in this run, 0 — no challenge
+        if (typeof Career !== 'undefined') Career.load();
         this.refreshLanguage();
         this.openMenu(this.challenge ? 'challengeScreen' : 'mainScreen');
     }
@@ -167,6 +170,7 @@ class Game {
 
     openMenu(screen = 'mainScreen') {
         if (this.adPending) return;
+        if (this.mode !== 'menu') this._saveCareer();
         if (screen === 'mainScreen' && this.pendingChallenge) {
             this.challenge = this.pendingChallenge;
             this.pendingChallenge = null;
@@ -182,11 +186,12 @@ class Game {
         this._show('hitFlash', false);
         this._show('menu', true);
         this._show('tutorialBox', false);
-        for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen', 'challengeScreen']) this._show(id, id === screen);
+        for (const id of ['mainScreen', 'modeScreen', 'settingsScreen', 'shopScreen', 'challengeScreen', 'careerScreen']) this._show(id, id === screen);
         for (const id of ['frameTop', 'frameBottom', 'iconStrip', 'stationShop', 'collapseNote', 'runTime', 'challengeGoal']) this._show(id, false);
         this._show('menuExit', TG.inside);
         this._show('menuBoard', Leaderboard.enabled);
         this._show('menuShop', Leaderboard.enabled);   // sales and the donation need the function and Telegram: a portal build has no shop
+        this._careerView();
     }
 
     refreshLanguage() {
@@ -200,10 +205,29 @@ class Game {
         else if (this.mode === 'over' && this.overIn < 0) this._showOver();
         this._settingsView();
         this._tutorialLabel();
+        this._careerView();
         if (this.challenge) this._set('challengeText', Lang.t('challengeText', { meters: this.challenge.meters }));
     }
 
     _tutorialLabel() { this._set('modeTutorial', (this.tutorialPassed ? '✓ ' : '') + Lang.t('tutorial')); }
+
+    _saveCareer() {
+        if (typeof Career === 'undefined') return Promise.resolve();
+        return Career.record(this.run).then(() => this._careerView());
+    }
+
+    _careerView() {
+        if (typeof Career === 'undefined') return;
+        const c = Career, rank = Lang.t('career.rank.' + c.rank), s = c.state;
+        this._set('menuCareer', Lang.t('careerButton', { rank, points: s.balance }));
+        this._set('careerRank', rank);
+        this._set('careerNext', c.remaining ? Lang.t('careerNext', { rank: Lang.t('career.rank.' + (c.rank + 1)), meters: c.remaining }) : Lang.t('careerMax'));
+        this._set('careerStats', Lang.t('careerStats', { points: s.balance, meters: s.meters, passengers: s.passengers }));
+        this._set('careerSave', Lang.t(c.saveFailed ? 'careerSaveFailed' : 'careerLocal', { step: c.pointMeters }));
+        this._set('overCareer', Lang.t(c.saveFailed ? 'careerRunFailed' : 'careerRun', { points: this.run ? c.points(this.run.meters) : 0, total: s.balance }));
+        const bar = UI.get('careerBar');
+        if (bar) bar.setValue(c.progress);
+    }
 
     changeVolume(channel, direction) {
         const step = typeof AUDIO_VOLUME_STEP !== 'undefined' ? AUDIO_VOLUME_STEP : 0.1;
@@ -337,6 +361,7 @@ class Game {
 
     // A run: a new endless one unless given another (the tutorial, a retry of its step).
     start(run = Game.newRun(), goal = 0) {
+        if (this.mode !== 'menu') this._saveCareer();
         this.goal = goal;
         this._show('menu', false);
         this._show('challengeGoal', goal > 0);
@@ -447,6 +472,7 @@ class Game {
         if (!run || this.mode === 'menu') return;
         if (this.mode === 'play') {
             run.update(dt);
+            if (typeof Career !== 'undefined' && Career.checkpointDue(run)) this._saveCareer();
             this.portraitLeft = Math.max(0, this.portraitLeft - dt);
         }
         for (const ev of run.takeEvents()) this._onEvent(ev);
@@ -483,6 +509,7 @@ class Game {
             this.mode = 'over';
             this.overIn = typeof COLLAPSE_OVER_DELAY_SEC !== 'undefined' ? COLLAPSE_OVER_DELAY_SEC : 0.7;
             if (run.tutorial) return;     // neither the record nor the table: _showOver sends it back to its step
+            this._saveCareer();
             if (run.meters > this.best) {
                 if (this.best > 0) CG.happytime();   // the first run's record is no feat
                 this.best = run.meters;
@@ -593,6 +620,8 @@ class Game {
             [Lang.t('restart'), () => this._again()],
             run.canContinue && !this.adPending && !missed ? [Lang.t('continue'), () => this.continueForAd()] : null);
         this._show('overMenu', true);
+        this._show('overCareer', typeof Career !== 'undefined');
+        this._careerView();
         this._set('challengeBtn', Lang.t('challengeSend'));
         this._show('challengeBtn', TG.inside || (!!CG.canInvite && run.meters > 0));
     }
@@ -611,6 +640,7 @@ class Game {
         }
         this._show('boardBtn', Leaderboard.enabled);
         this._show('challengeBtn', false);
+        this._show('overCareer', false);
         this._show('hint', false);
         this._show('over', true);
     }
