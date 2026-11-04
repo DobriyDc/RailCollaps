@@ -4,18 +4,19 @@
 //
 // The loop: three passengers board at the depot, the train carries them to the next stop, each one
 // who gets there pays in tokens, and a lost life puts one off the train unpaid. At the stop the tokens
-// buy repairs and supplies. Tokens end with the run: nothing is stored.
+// buy repairs, supplies and wagons. Tokens and wagons end with the run: nothing is stored.
 
 /** @satisfies {Record<string, any>} */
 const CollapseStationRules = {
-    GOODS: ['repair', 'ammo', 'shield', 'rescue'],
+    GOODS: ['repair', 'ammo', 'shield', 'rescue', 'wagon'],
 
     // All the numbers of Constants.js with defaults.
     cfg() {
         const U = 'undefined';
         return {
             first: typeof COLLAPSE_STATION_FIRST !== U ? COLLAPSE_STATION_FIRST : 130,
-            stretch: typeof COLLAPSE_STATION_STRETCH !== U ? COLLAPSE_STATION_STRETCH : 100,
+            stretch: typeof COLLAPSE_STATION_STRETCH !== U ? COLLAPSE_STATION_STRETCH : 125,
+            stretchMax: typeof COLLAPSE_STATION_STRETCH_MAX !== U ? COLLAPSE_STATION_STRETCH_MAX : 225,
             approach: typeof COLLAPSE_STATION_APPROACH !== U ? COLLAPSE_STATION_APPROACH : 12,
             after: typeof COLLAPSE_STATION_AFTER !== U ? COLLAPSE_STATION_AFTER : 12,
             stopSec: typeof COLLAPSE_STATION_STOP_SEC !== U ? COLLAPSE_STATION_STOP_SEC : 8,
@@ -27,6 +28,8 @@ const CollapseStationRules = {
             eventStep: typeof COLLAPSE_STATION_EVENT_STEP !== U ? COLLAPSE_STATION_EVENT_STEP : 0.04,
             frontStep: typeof COLLAPSE_STATION_FRONT_STEP !== U ? COLLAPSE_STATION_FRONT_STEP : 0.1,
             seats: typeof COLLAPSE_STATION_SEATS !== U ? COLLAPSE_STATION_SEATS : 3,
+            wagonSeats: typeof COLLAPSE_WAGON_SEATS !== U ? COLLAPSE_WAGON_SEATS : 3,
+            wagonSlow: typeof COLLAPSE_WAGON_SLOW !== U ? COLLAPSE_WAGON_SLOW : 0.02,
             fare: typeof COLLAPSE_STATION_FARE !== U ? COLLAPSE_STATION_FARE : 10,
             fareStep: typeof COLLAPSE_STATION_FARE_STEP !== U ? COLLAPSE_STATION_FARE_STEP : 2,
             price: {
@@ -34,13 +37,14 @@ const CollapseStationRules = {
                 ammo: typeof COLLAPSE_STATION_PRICE_AMMO !== U ? COLLAPSE_STATION_PRICE_AMMO : 15,
                 shield: typeof COLLAPSE_STATION_PRICE_SHIELD !== U ? COLLAPSE_STATION_PRICE_SHIELD : 30,
                 rescue: typeof COLLAPSE_STATION_PRICE_RESCUE !== U ? COLLAPSE_STATION_PRICE_RESCUE : 45,
+                wagon: typeof COLLAPSE_STATION_PRICE_WAGON !== U ? COLLAPSE_STATION_PRICE_WAGON : 80,
             },
         };
     },
 };
 
-// The track with stations: the plain generator between them, on the same dice; a station is a calm
-// stretch laid at the first pattern boundary after its planned place, so nothing hangs over it.
+// The track with stations: seeded spacing independent of obstacle generation; a station is a calm
+// stretch at an exact planned position. Whole obstacle patterns fit before its approach.
 class CollapseStationTrack extends CollapseTrack {
     constructor(seed) {
         super(seed);
@@ -48,6 +52,8 @@ class CollapseStationTrack extends CollapseTrack {
         /** @type {number[]} */
         this.stations = [];                // the boundary of each stop, in order
         this.demonBase = this.cfg.demonChance;
+        this.stationDice = CollapseRules.rng(this.seed ^ 0x51ed270b);
+        this.nextStation = this.st.first;
     }
 
     // Boundary of stop k. The generator goes as far as it takes: one seed, one place of every stop.
@@ -57,15 +63,24 @@ class CollapseStationTrack extends CollapseTrack {
     }
 
     _pattern() {
-        const at = this.segs.length, s = this.st, n = this.stations.length;
-        if (at + s.approach >= (n ? this.stations[n - 1] + s.stretch : s.first)) { this._station(at); return; }
+        const at = this.segs.length, approachAt = this.nextStation - this.st.approach;
+        if (at >= approachAt) { this._station(at); return; }
+        const saved = [this.lastFork, this.lastDemon, this.rescues];
         super._pattern();
+        // Reject the entire last pattern if it crosses the station approach. Cutting a hazard in
+        // half could leave its escape fork without a return. Fill the remaining distance safely.
+        if (this.segs.length > approachAt) {
+            this.segs.length = at;
+            [this.lastFork, this.lastDemon, this.rescues] = saved;
+            this._calm(approachAt - at);
+        }
     }
 
     _station(at) {
         const s = this.st;
         for (let i = 0; i < s.approach + s.after; i++) this._push(collapseSegment('station'));
         this.stations.push(at + s.approach);
+        this.nextStation = at + s.approach + s.stretch + Math.floor(this.stationDice() * (s.stretchMax - s.stretch + 1));
         // The next stretch: the generator is that much farther along; past every second stop demons are
         // demonStep likelier than at the depot (the owner, 2026-11-03: no more than 10 %).
         const k = 1 + s.hardStep, base = this.cfg, n = this.stations.length;
@@ -85,9 +100,10 @@ class CollapseStationRun extends CollapseRun {
         this.daily = null;            // the day of a daily run (CollapseDaily), set by the game; the rules never read it
         this.gapBase = this.c.frontMaxGap;
         this.money = 0;               // tokens
+        this.wagons = 0;              // bought for this run only
         this.passengers = this.st.seats;
         this.delivered = 0;           // passengers paid for over the run
-        /** @type {{ riders: number, amount: number } | null} */
+        /** @type {{ riders: number, amount: number, seats: number } | null} */
         this.paid = null;             // what the last stop paid
         this.stage = 0;               // stations passed, the stretch the train is on
         this.stopLeft = 0;            // s of the stop left, 0 — on the way
@@ -97,6 +113,8 @@ class CollapseStationRun extends CollapseRun {
     }
 
     get atStation() { return this.stopLeft > 0; }
+    get seats() { return this.st.seats + this.wagons * this.st.wagonSeats; }
+    get speedFactor() { return Math.pow(1 - this.st.wagonSlow, this.wagons); }
 
     // m to the next stop: the HUD's number.
     get toStation() { return Math.max(0, Math.ceil((this.stationAt - this.pos) * this.c.segMeters)); }
@@ -107,7 +125,7 @@ class CollapseStationRun extends CollapseRun {
     speed() {
         if (this.stopLeft > 0) return 0;
         const s = this.st, near = Math.min(this.stationAt - this.pos, this.pos - this.leftAt);
-        return super.speed() * Math.max(s.crawl, Math.min(1, near / s.brake));
+        return super.speed() * this.speedFactor * Math.max(s.crawl, Math.min(1, near / s.brake));
     }
 
     frontSpeed() {
@@ -150,8 +168,8 @@ class CollapseStationRun extends CollapseRun {
         const riders = this.passengers, amount = riders * this.fare;
         this.money += amount;
         this.delivered += riders;
-        this.paid = { riders, amount };
-        this.passengers = this.st.seats;
+        this.paid = { riders, amount, seats: this.seats };
+        this.passengers = this.seats;
         this.events.push({ type: 'station', at: this.stationAt });
         if (amount) this.events.push({ type: 'paid', riders, amount });
     }
@@ -167,7 +185,7 @@ class CollapseStationRun extends CollapseRun {
     }
 
     // What one purchase gives.
-    goods(kind) { return kind === 'ammo' ? this.c.ammoPickup : 1; }
+    goods(kind) { return kind === 'ammo' ? this.c.ammoPickup : kind === 'wagon' ? this.st.wagonSeats : 1; }
 
     // Why `kind` cannot be bought now: '' — it can. The shop only shows this.
     refusal(kind) {
@@ -184,6 +202,7 @@ class CollapseStationRun extends CollapseRun {
         if (kind === 'ammo') this.ammo += this.goods(kind);
         else if (kind === 'repair') this.hp++;
         else if (kind === 'shield') this.shield++;
+        else if (kind === 'wagon') { this.wagons++; this.passengers += this.st.wagonSeats; }
         else this.rescue++;
         this.log.push([this.steps, 'b', kind]);
         this.events.push({ type: 'bought', kind });

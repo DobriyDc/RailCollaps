@@ -89,7 +89,7 @@ const GAME_STEP_SEC = 0.35;             // s: between footstep sounds while the 
 
 // --- RAIL LINK: COLLAPSE (CollapseRules.js — the run, CollapseScene.js — the tunnel). Distance is
 // counted in track SEGMENTS; the first numbers of the prototype, tuned in playtests (GDD v3 §8) ---
-const COLLAPSE_RULES_VERSION = 9;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
+const COLLAPSE_RULES_VERSION = 11;       // the version of the run rules, one season of the leaderboard: raise it when a replay of an old journal can end differently
 const COLLAPSE_SEG_METERS = 10;         // m of distance shown per segment
 const COLLAPSE_SPEED = 2.2;             // segments/s: train speed at the start
 const COLLAPSE_SPEED_GROWTH = 0.0025;   // segments/s added per segment travelled
@@ -161,8 +161,9 @@ const COLLAPSE_ICON_PULSE_HZ = 2;       // 1/s: pulse of the icon of a hazard on
 const COLLAPSE_ICON_PULSE_AMP = 0.1;    // share of its size the icon of a hazard on the train's lane grows at the top of the pulse
 const COLLAPSE_ICON_GAP = 4;            // layout px between icons lined up at the edge of the frame
 const COLLAPSE_ICON_LEAD_SEC = 1;       // s: an icon over the bottom plate lights at least this long before its object enters the frame
-const COLLAPSE_STATION_FIRST = 130;     // segments to the first station (130 — 1300 m, the owner's choice); the stop stands at the first pattern boundary after that
-const COLLAPSE_STATION_STRETCH = 100;   // segments of a stretch between the next stations (100 — 1 km)
+const COLLAPSE_STATION_FIRST = 130;     // exact segments to the first station (1300 m)
+const COLLAPSE_STATION_STRETCH = 125;   // minimum station spacing in segments (1250 m)
+const COLLAPSE_STATION_STRETCH_MAX = 225; // maximum station spacing in segments (2250 m)
 const COLLAPSE_STATION_APPROACH = 12;   // segments before a stop free of hazards; the collapse stands still from here on: the gap grows by this much
 const COLLAPSE_STATION_AFTER = 12;      // segments free of hazards after a stop: the shop hides the track while the train stands, so the first fork must come well after it (owner, 2026-11-03)
 const COLLAPSE_DAILY_SHIFT_H = 3;       // h east of UTC where the daily run turns to the next day at midnight: 3 — Moscow (owner, 2026-11-04)
@@ -174,6 +175,9 @@ const COLLAPSE_STATION_HARD_STEP = 0.4; // every station shortens the generator'
 const COLLAPSE_STATION_DEMON_STEP = 0.1; // share the chance of demons grows past every second station (the owner: no more than 10 %)
 const COLLAPSE_STATION_EVENT_STEP = 0.1; // chance of a collapse added past every second station
 const COLLAPSE_STATION_FRONT_STEP = 0.1;  // segments/s the collapse gains with every station
+const COLLAPSE_WAGON_SEATS = 3;         // seats added by one wagon, filled at purchase
+const COLLAPSE_WAGON_SLOW = 0.02;       // each wagon multiplies running speed by 1 minus this share
+const COLLAPSE_STATION_PRICE_WAGON = 80; // tokens per wagon, for the current run
 const COLLAPSE_STATION_SEATS = 3;       // passengers the train carries; all seats fill at the depot and at every stop
 const COLLAPSE_STATION_FARE = 10;       // tokens a passenger delivered whole pays at a stop
 const COLLAPSE_STATION_FARE_STEP = 0;   // tokens the fare grows with every stretch: none, 10 for every passenger delivered whole (the owner, 2026-11-03)

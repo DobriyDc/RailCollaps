@@ -4,7 +4,7 @@
 
 /** @satisfies {Record<string, any>} */
 const CollapseStations = {
-    GOODS: ['repair', 'ammo', 'shield', 'rescue'],
+    get GOODS() { return CollapseStationRules.GOODS; },
     /** @type {CollapseStationView | null} */
     view: null,
     _bound: false,
@@ -46,17 +46,18 @@ const CollapseStations = {
 
     // The way to the stop and the shop of a stop, every frame; the rules decide, this only shows.
     hud(game, run) {
-        game._set('stationNext', Lang.t('stationNext', { value: run.toStation, riders: run.passengers }));
+        game._set('stationNext', Lang.t('stationNext', { value: run.toStation, riders: run.passengers, seats: run.seats }));
         game._show('stationNext', !run.atStation);
         game._show('stationShop', run.atStation);
         if (run.atStation) {
             game._set('stationTitle', Lang.t('stationTitle', { value: run.stage + 1, money: run.money }));
             const paid = run.paid;
-            game._set('stationPaid', paid ? Lang.t('stationPaid', { riders: paid.riders, seats: run.st.seats, amount: paid.amount }) : '');
+            game._set('stationPaid', paid ? Lang.t('stationPaid', { riders: paid.riders, seats: paid.seats, amount: paid.amount }) : '');
+            game._set('stationTrain', Lang.t('stationTrain', { wagons: run.wagons, seats: run.seats, speed: +(run.speedFactor * 100).toFixed(2) }));
             game._set('stationTip', this.tipSeen ? '' : Lang.t('stationTip'));
             for (const kind of this.GOODS) {
                 const id = 'station' + this._id(kind), why = run.refusal(kind);
-                game._set(id, Lang.t(why === 'full' ? 'station.full.' + kind : 'station.' + kind, { value: run.goods(kind), price: run.st.price[kind] }));
+                game._set(id, Lang.t(why === 'full' ? 'station.full.' + kind : 'station.' + kind, { value: run.goods(kind), price: run.st.price[kind], slow: run.st.wagonSlow * 100 }));
                 const b = UI.get(id);
                 if (b && b._enabled !== !why) b.setEnabled(!why);
             }

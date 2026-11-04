@@ -52,10 +52,68 @@ test('станции: первая на COLLAPSE_STATION_FIRST, дальше ч�
       const seg = run.track.seg(i);
       assert.ok(!seg.gap.includes(true) && !seg.lava.includes(true) && !seg.forks.length && !seg.demon && !seg.pickup.some(Boolean), `сегмент ${i}`);
     }
-    const want = k ? prev + s.stretch : s.first;
-    assert.ok(at >= want && at < want + 15, `станция ${k}: ${at}, ждали от ${want}`);
+    if (k) assert.ok(at - prev >= s.stretch && at - prev <= s.stretchMax, `станция ${k}: ${at - prev}`);
+    else assert.equal(at, s.first);
     prev = at;
   }
+});
+
+test('перегоны 1250–2250 м: обе границы, разные маршруты и одинаковые станции при разном просмотре вперёд', () => {
+  const p = page(), Track = p.get('CollapseStationTrack'), lengths = new Set();
+  for (let seed = 1; seed <= 100; seed++) {
+    const a = new Track(seed), b = new Track(seed);
+    b.seg(6000);
+    for (let k = 1; k < 25; k++) {
+      const gap = (a.station(k) - a.station(k - 1)) * 10;
+      assert.ok(gap >= 1250 && gap <= 2250, `seed ${seed}, station ${k}: ${gap}`);
+      lengths.add(gap);
+      assert.equal(a.station(k), b.station(k));
+    }
+  }
+  assert.ok(lengths.has(1250) && lengths.has(2250));
+  assert.ok(lengths.size > 50);
+});
+
+test('вагон за 80: три занятых места, скорость ×0.98, оплата всех пассажиров и сброс в новом рейсе', () => {
+  const p = page(), Run = p.get('CollapseStationRun'), run = new Run(4);
+  run.pos = run.stationAt; run.stopLeft = 8; run._arrive(); run.money = 79;
+  assert.equal(run.buy('wagon'), 'no-money');
+  assert.equal(run.wagons, 0);
+  run.money = 160;
+  assert.equal(run.buy('wagon'), 'ok');
+  assert.equal(run.money, 80); assert.equal(run.seats, 6); assert.equal(run.passengers, 6);
+  assert.equal(run.buy('wagon'), 'ok');
+  assert.equal(run.money, 0); assert.equal(run.seats, 9); assert.equal(run.passengers, 9);
+  assert.equal(run.speed(), 0, 'на станции поезд стоит с любым числом вагонов');
+  run.leave(); run.pos = run.leftAt + run.st.brake + 1;
+  const empty = new Run(4); empty.pos = run.pos; empty.stationAt = run.stationAt; empty.leftAt = run.leftAt;
+  assert.ok(Math.abs(run.speed() / empty.speed() - 0.98 ** 2) < 1e-12);
+  assert.equal(run.buy('wagon'), 'closed');
+  const fare = run.fare; run._arrive();
+  assert.equal(run.paid.amount, 9 * fare); assert.equal(run.passengers, 9);
+  assert.equal(new Run(4).wagons, 0); assert.equal(new Run(4).seats, 3);
+});
+
+test('покупка вагона воспроизводится серверными правилами из настоящего журнала', () => {
+  const p = page(), R = p.get('CollapseRules'), Run = p.get('CollapseStationRun');
+  let proof = null;
+  for (let seed = 1; seed <= 40 && !proof; seed++) {
+    const run = new Run(seed);
+    for (let f = 0; f < 60 * 900 && run.state === 'run'; f++) {
+      if (run.atStation) {
+        if (!run.wagons && run.money >= 80) run.buy('wagon');
+        if (run.hp < 2) run.buy('repair');
+        if (run.ammo < 4) run.buy('ammo');
+        run.leave();
+      } else if (!run.wagons) dodge(run, R);
+      run.update(1 / 60);
+    }
+    if (run.wagons && run.state === 'over') proof = run;
+  }
+  assert.ok(proof, 'бот должен заработать и купить вагон');
+  const again = Run.replay(proof.seed, proof.log, proof.steps + 60);
+  assert.ok(again);
+  for (const field of ['wagons', 'seats', 'money', 'meters', 'steps', 'passengers']) assert.equal(again[field], proof[field], field);
 });
 
 test('стоянка: обвал стоит, стоянка кончается и без кнопки, потом обвал возвращается к обычному зазору', () => {
@@ -95,12 +153,12 @@ test('пассажиры: садятся в депо, платят по приб
   assert.equal(run.fare, s.fare + s.fareStep, 'плата перегона по COLLAPSE_STATION_FARE_STEP, сейчас та же');
 });
 
-test('лавка: четыре товара, ремонт до полной, пределы, только на стоянке', () => {
+test('лавка: пять товаров, ремонт до полной, пределы, только на стоянке', () => {
   const p = page(), R = p.get('CollapseRules'), run = new (p.get('CollapseStationRun'))(4);
   assert.equal(run.buy('repair'), 'closed');
   arrive(run, R);
   const { price } = run.st;
-  assert.deepEqual([...p.get('CollapseStationRules').GOODS], ['repair', 'ammo', 'shield', 'rescue']);
+  assert.deepEqual([...p.get('CollapseStationRules').GOODS], ['repair', 'ammo', 'shield', 'rescue', 'wagon']);
   assert.equal(run.refusal('repair'), 'full', 'поезд цел');
   run.hp = run.c.hpMax - 1;
   run.money = price.repair + price.ammo;
@@ -228,4 +286,14 @@ test('перрон идёт до стены тоннеля и к камере п
     if (Math.abs(from) < S.WALL_X) assert.ok(side * to >= S.WALL_X, `полоса ${lane}, сторона ${side}: перрон кончается на ${to}`);
   }
   assert.ok(P.near >= 1000, 'перед стоящим поездом до низа кадра — перрон, а не лава');
+});
+
+test('между станциями не меньше 1250 м (владелец, 2026-11-04)', () => {
+  const p = page(), Run = p.get('CollapseStationRun');
+  assert.equal(p.get('COLLAPSE_STATION_STRETCH'), 125);
+  for (let seed = 1; seed <= 60; seed++) {
+    const t = new Run(seed).track;
+    t.seg(2000);
+    for (let i = 1; i < t.stations.length; i++) assert.ok(t.stations[i] - t.stations[i - 1] >= 125, `зерно ${seed}: станции ${i - 1} и ${i} через ${t.stations[i] - t.stations[i - 1]} сегм.`);
+  }
 });

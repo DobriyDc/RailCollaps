@@ -457,8 +457,8 @@ const Lang = {
         "en": "{value}%"
     },
     "stationNext": {
-        "ru": "До станции {value} м\nПассажиров: {riders}",
-        "en": "Next station in {value} m\nPassengers: {riders}"
+        "ru": "До станции {value} м\nПассажиров: {riders}/{seats}",
+        "en": "Next station in {value} m\nPassengers: {riders}/{seats}"
     },
     "stationTitle": {
         "ru": "Станция {value} · жетонов {money}",
@@ -495,6 +495,14 @@ const Lang = {
     "station.shield": {
         "ru": "Щит · {price}",
         "en": "Shield · {price}"
+    },
+    "station.wagon": {
+        "ru": "Вагон · {price} жетонов\n+{value} места · скорость −{slow}%",
+        "en": "Wagon · {price} tokens\n+{value} seats · speed −{slow}%"
+    },
+    "stationTrain": {
+        "ru": "Вагоны: {wagons} · места: {seats} · ход: {speed}%",
+        "en": "Wagons: {wagons} · seats: {seats} · speed: {speed}%"
     },
     "station.rescue": {
         "ru": "Спасение · {price}",
